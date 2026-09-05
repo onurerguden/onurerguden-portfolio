@@ -1,7 +1,9 @@
 # Release checklist
 
 ## External inputs
-- [ ] Onur supplies approved Kuyumcum screenshots; inspect for personal/merchant data before publishing.
+- [ ] Refresh GitHub CLI with workflow scope and activate docs/ci/validate-portfolio.yml under .github/workflows/ci.yml. The current token cannot upload workflow files.
+- [ ] Refresh the expired Vercel CLI login before creating the remote preview.
+- [x] Onur supplied Kuyumcum screenshots. Merchant map and AI report list are included; balance/holdings screens are excluded.
 - [ ] Onur supplies updated publication-ready CV (July file has outdated publication status and personal phone).
 - [ ] Confirm per-project contribution details and current LinkedIn text against drafts.
 - [ ] Link own Vercel account/project and Upstash Redis; configure secrets outside source control.
