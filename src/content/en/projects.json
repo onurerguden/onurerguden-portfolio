@@ -1,8 +1,34 @@
 {
-  "kuyumcum": {"title":"Kuyumcum","summary":"A mobile ecosystem connecting precious-metal holdings, portfolio insight and local merchants. I co-developed the product and engineered its AI features.","category":"Product engineering · applied AI"},
-  "water-safety": {"title":"HealthFactor-AI","summary":"Two layers of water-safety intelligence: detecting contamination now and forecasting how safety may change next.","category":"Machine learning · research","metricLabel":"Toxic-water recall in the project evaluation"},
-  "course-intelligence": {"title":"Course Intelligence RAG","summary":"A departmental knowledge assistant combining local language models, semantic retrieval and deliberately constrained answers.","category":"Retrieval · LLM systems"},
-  "taskfoo": {"title":"TaskFoo","summary":"I built project, epic and task workflows with role-based controls, PostgreSQL persistence and Docker packaging during my VBT Software internship.","category":"Full-stack engineering"},
-  "urban-mobility": {"title":"İzmir urban mobility","summary":"I explored 27,000+ smart-card records from 2021–2025 with clustering, seasonal features and demand forecasting. Reported forecast error is specific to the project's evaluation.","category":"Data science · forecasting","metricLabel":"MAPE in the project forecast evaluation"},
-  "pam": {"title":"Pluggable authentication","summary":"I built a Java authentication interface for Local, LDAP and Kerberos providers, using adapter and factory patterns to keep credential validation extensible.","category":"Software architecture"}
+  "kuyumcum": {
+    "title": "Kuyumcum",
+    "summary": "A mobile ecosystem connecting precious-metal holdings, portfolio insight and local merchants. I co-developed the product and engineered its AI features.",
+    "category": "Product engineering · applied AI"
+  },
+  "water-safety": {
+    "title": "HealthFactor-AI",
+    "summary": "Two layers of water-safety intelligence: detecting contamination now and forecasting how safety may change next.",
+    "category": "Machine learning · research",
+    "metricLabel": "Toxic-water recall in the project evaluation"
+  },
+  "course-intelligence": {
+    "title": "Course Intelligence RAG",
+    "summary": "A departmental knowledge assistant combining local language models, semantic retrieval and deliberately constrained answers.",
+    "category": "Retrieval · LLM systems"
+  },
+  "taskfoo": {
+    "title": "TaskFoo",
+    "summary": "I built project, epic and task workflows with role-based controls, PostgreSQL persistence and Docker packaging during my VBT Software internship.",
+    "category": "Full-stack engineering"
+  },
+  "urban-mobility": {
+    "title": "İzmir urban mobility",
+    "summary": "I explored 27,000+ smart-card records from 2021–2025 with clustering, seasonal features and demand forecasting. Reported forecast error is specific to the project's evaluation.",
+    "category": "Data science · forecasting",
+    "metricLabel": "MAPE in the project forecast evaluation"
+  },
+  "pam": {
+    "title": "Pluggable authentication",
+    "summary": "I built a Java authentication interface for Local, LDAP and Kerberos providers, using adapter and factory patterns to keep credential validation extensible.",
+    "category": "Software architecture"
+  }
 }

@@ -1,8 +1,34 @@
 {
-  "kuyumcum": {"title":"Kuyumcum","summary":"Değerli metal varlıklarını, portföy analizini ve yerel kuyumcuları bir araya getiren mobil ekosistem. Ürünü birlikte geliştirdim ve yapay zekâ özellikleri üzerinde çalıştım.","category":"Ürün geliştirme · uygulamalı yapay zekâ"},
-  "water-safety": {"title":"HealthFactor-AI","summary":"Su güvenliğini iki katmanda ele alan sistem: mevcut kirliliği tespit etmek ve güvenlik eğilimini öngörmek.","category":"Makine öğrenmesi · araştırma","metricLabel":"Proje değerlendirmesinde toksik su duyarlılığı"},
-  "course-intelligence": {"title":"Course Intelligence RAG","summary":"Yerel dil modellerini, anlamsal aramayı ve yanıt sınırlarını birleştiren, farklı bölümlerin bilgilerine erişim sağlayan asistan.","category":"Bilgi getirme · LLM sistemleri"},
-  "taskfoo": {"title":"TaskFoo","summary":"VBT Software stajımda rol tabanlı yetkilendirme, PostgreSQL ve Docker kullanarak proje, epic ve görev yaşam döngüsü akışlarını geliştirdim.","category":"Full-stack geliştirme"},
-  "urban-mobility": {"title":"İzmir kent içi hareketlilik","summary":"2021–2025 dönemine ait 27.000'i aşkın akıllı kart kaydını kümeleme, mevsimsel özellikler ve talep tahminiyle inceledim. Tahmin hatası projenin değerlendirme koşullarına aittir.","category":"Veri bilimi · tahmin","metricLabel":"Projenin tahmin değerlendirmesinde MAPE"},
-  "pam": {"title":"Modüler kimlik doğrulama","summary":"Local, LDAP ve Kerberos sağlayıcılarını ortak arayüzde buluşturan Java sistemi geliştirdim. Adapter ve Factory Method örüntüleriyle kimlik doğrulama yapısını genişletilebilir tuttum.","category":"Yazılım mimarisi"}
+  "kuyumcum": {
+    "title": "Kuyumcum",
+    "summary": "Değerli metal varlıklarını, portföy analizini ve yerel kuyumcuları bir araya getiren mobil ekosistem. Ürünü birlikte geliştirdim ve yapay zekâ özellikleri üzerinde çalıştım.",
+    "category": "Ürün geliştirme · uygulamalı yapay zekâ"
+  },
+  "water-safety": {
+    "title": "HealthFactor-AI",
+    "summary": "Su güvenliğini iki katmanda ele alan sistem: mevcut kirliliği tespit etmek ve güvenlik eğilimini öngörmek.",
+    "category": "Makine öğrenmesi · araştırma",
+    "metricLabel": "Proje değerlendirmesinde toksik su duyarlılığı"
+  },
+  "course-intelligence": {
+    "title": "Course Intelligence RAG",
+    "summary": "Yerel dil modellerini, anlamsal aramayı ve yanıt sınırlarını birleştiren, farklı bölümlerin bilgilerine erişim sağlayan asistan.",
+    "category": "Bilgi getirme · LLM sistemleri"
+  },
+  "taskfoo": {
+    "title": "TaskFoo",
+    "summary": "VBT Software stajımda rol tabanlı yetkilendirme, PostgreSQL ve Docker kullanarak proje, epic ve görev yaşam döngüsü akışlarını geliştirdim.",
+    "category": "Full-stack geliştirme"
+  },
+  "urban-mobility": {
+    "title": "İzmir kent içi hareketlilik",
+    "summary": "2021–2025 dönemine ait 27.000'i aşkın akıllı kart kaydını kümeleme, mevsimsel özellikler ve talep tahminiyle inceledim. Tahmin hatası projenin değerlendirme koşullarına aittir.",
+    "category": "Veri bilimi · tahmin",
+    "metricLabel": "Projenin tahmin değerlendirmesinde MAPE"
+  },
+  "pam": {
+    "title": "Modüler kimlik doğrulama",
+    "summary": "Local, LDAP ve Kerberos sağlayıcılarını ortak arayüzde buluşturan Java sistemi geliştirdim. Adapter ve Factory Method örüntüleriyle kimlik doğrulama yapısını genişletilebilir tuttum.",
+    "category": "Yazılım mimarisi"
+  }
 }

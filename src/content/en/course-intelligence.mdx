@@ -2,6 +2,7 @@
 slug: course-intelligence
 locale: en
 ---
+
 ## Answers need a traceable context
 
 A departmental knowledge assistant needs to find relevant material and recognize when that material does not support an answer. I built Course Intelligence RAG around that retrieval-to-answer boundary.
@@ -14,7 +15,7 @@ An asynchronous PyQt6 interface streams the generated response, connecting the r
 
 ## Evaluation and results
 
-The project achieved 100% accuracy on its quantitative evaluation set. Trap-question tests also checked unsupported answers, using retrieval filtering and strict system prompting.
+The project achieved [[metric:ragAccuracy]] accuracy on its quantitative evaluation set. Trap-question tests also checked unsupported answers, using retrieval filtering and strict system prompting.
 
 This result applies to that evaluation set only. The sample size, question distribution and independent replication are not reported here, so it is not evidence of universal accuracy or a guarantee that hallucinations cannot occur.
 
