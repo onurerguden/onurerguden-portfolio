@@ -1,0 +1,27 @@
+---
+slug: course-intelligence
+locale: en
+---
+## Answers need a traceable context
+
+A departmental knowledge assistant needs to find relevant material and recognize when that material does not support an answer. I built Course Intelligence RAG around that retrieval-to-answer boundary.
+
+## My contribution
+
+I developed a modular retrieval and LLM orchestration architecture using Llama 3.1 (8B), SBERT embeddings and FAISS vector search. Hierarchical semantic chunking prepares the source material for retrieval; filtering and structured context control shape what the language model receives.
+
+An asynchronous PyQt6 interface streams the generated response, connecting the retrieval pipeline to an interactive desktop experience.
+
+## Evaluation and results
+
+The project achieved 100% accuracy on its quantitative evaluation set, as reported in my CV. Trap-question tests also checked unsupported answers, using retrieval filtering and strict system prompting.
+
+This result applies to that evaluation set only. The sample size, question distribution and independent replication are not reported here, so it is not evidence of universal accuracy or a guarantee that hallucinations cannot occur.
+
+## Design decisions
+
+Separating embeddings, retrieval, context assembly and generation makes the pipeline easier to inspect. The system can handle knowledge across departments while keeping retrieved context distinct from model-generated text.
+
+## Limitations
+
+Missing or outdated source material limits answer quality. Retrieval can fail even when the source contains the answer. Broader evaluation should distinguish retrieval failures, grounded-answer quality and refusal behavior rather than collapsing them into one score.
