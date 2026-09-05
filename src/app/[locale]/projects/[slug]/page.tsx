@@ -1,0 +1,8 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { MDXRemote } from "next-mdx-remote/rsc";
+import { getProject, isLocale } from "@/lib/content";
+import { pageMetadata } from "@/lib/site";
+import ProjectArt from "@/components/project-art";
+export async function generateMetadata({params}:{params:Promise<{locale:string;slug:string}>}) {const {locale,slug}=await params;if(!isLocale(locale))return {};const project=getProject(locale,slug);return project ? pageMetadata(locale,`/projects/${slug}`,project.title,project.summary) : {};}
+export default async function ProjectPage({params}:{params:Promise<{locale:string;slug:string}>}) {const {locale,slug}=await params;if(!isLocale(locale))notFound();const project=getProject(locale,slug);if(!project?.featured || !project.body)notFound();const en=locale === "en";return <main id="main"><div className="page-intro"><Link className="back-link" href={`/${locale}#work`}>← {en ? "Selected work" : "Seçili çalışmalar"}</Link><p className="section-kicker">{project.category}</p><h1>{project.title}</h1><p>{project.summary}</p></div><div className="case-visual"><ProjectArt slug={slug} locale={locale}/></div><div className="case-layout"><aside className="case-aside"><h2>{en ? "Built with" : "Teknolojiler"}</h2><ul className="stack">{project.stack.map(s=><li key={s}>{s}</li>)}</ul>{project.repoUrl ? <a className="text-link" href={project.repoUrl}>{en ? "Explore the source" : "Kaynak kodu incele"} ↗</a> : <p>{en ? "Closed-source project" : "Kapalı kaynak proje"}</p>}</aside><article className="prose"><MDXRemote source={project.body}/></article></div></main>;}
