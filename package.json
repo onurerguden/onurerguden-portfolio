@@ -13,7 +13,8 @@
     "validate:content": "tsx scripts/validate-content.ts",
     "test:e2e": "playwright test",
     "format:check": "prettier --check src tests scripts *.ts *.mts",
-    "check:links": "tsx scripts/check-external-links.ts"
+    "check:links": "tsx scripts/check-external-links.ts",
+    "desk:package": "node scripts/desk/package.mjs"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "5.3.0",
@@ -41,6 +42,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
     "prettier": "3.9.6",
+    "sharp": "0.35.4",
     "tsx": "4.23.13",
     "typescript": "^5",
     "vitest": "5.0.0"
