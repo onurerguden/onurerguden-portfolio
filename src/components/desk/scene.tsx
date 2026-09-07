@@ -6,6 +6,7 @@ import { useGLTF } from "@react-three/drei";
 import { Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector3 } from "three";
 import { createScreenProjection, projectScreen } from "@/lib/desk-projection";
 import contract from "@/lib/desk-scene.json";
+import assets from "@/lib/desk-assets.json";
 import styles from "./review.module.css";
 
 type Props = {
@@ -100,7 +101,10 @@ function Screens({
 
 function Model({ onReady }: Pick<Props, "onReady">) {
   const invalidate = useThree((state) => state.invalidate);
-  const { scene } = useGLTF("/models/desk/onur-desk.glb", "/decoders/draco/");
+  const { scene } = useGLTF(
+    `/models/desk/onur-desk.glb?v=${assets.revision}`,
+    "/decoders/draco/",
+  );
   useEffect(() => {
     scene.traverse((object) => {
       if (object instanceof Mesh) {

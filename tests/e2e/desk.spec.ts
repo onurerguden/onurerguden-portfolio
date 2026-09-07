@@ -140,7 +140,7 @@ test("reduced motion snaps the camera and context loss returns to the current po
 test("model download failure preserves static review controls", async ({
   page,
 }) => {
-  await page.route("**/models/desk/onur-desk.glb", (route) => route.abort());
+  await page.route("**/models/desk/onur-desk.glb*", (route) => route.abort());
   await page.goto("/en/lab/desk");
   await page.getByRole("button", { name: "Explore in 3D" }).click();
   await expect(

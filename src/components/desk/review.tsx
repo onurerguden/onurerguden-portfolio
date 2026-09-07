@@ -10,6 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import assets from "@/lib/desk-assets.json";
 import styles from "./review.module.css";
 
 const Scene = dynamic(() => import("./scene"), { ssr: false });
@@ -141,7 +142,7 @@ export default function DeskReview({ locale }: { locale: "en" | "tr" }) {
       </header>
       <div className={styles.stage} ref={stage} data-desk-stage>
         <Image
-          src={`/images/desk/${ids[index]}.webp`}
+          src={`/images/desk/${ids[index]}.webp?v=${assets.revision}`}
           alt={t.description}
           fill
           sizes="(max-width: 800px) 100vw, 1200px"
@@ -225,9 +226,12 @@ export default function DeskReview({ locale }: { locale: "en" | "tr" }) {
       <div className={styles.detailGallery}>
         {["mouse-detail", "headphones-detail", "riser-detail"].map((id, i) => (
           <figure key={id}>
-            <a href={`/images/desk/${id}.webp`} aria-label={t.detailViews[i]}>
+            <a
+              href={`/images/desk/${id}.webp?v=${assets.revision}`}
+              aria-label={t.detailViews[i]}
+            >
               <Image
-                src={`/images/desk/${id}.webp`}
+                src={`/images/desk/${id}.webp?v=${assets.revision}`}
                 alt={t.detailViews[i]}
                 width={1280}
                 height={960}
