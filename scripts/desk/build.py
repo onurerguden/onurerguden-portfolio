@@ -350,10 +350,10 @@ def band(name,rx,rz,centerz,width,thickness,mat):
     me=bpy.data.meshes.new(name);me.from_pydata(vs,[],fs);me.update()
     ob=bpy.data.objects.new(name,me);scene.collection.objects.link(ob);finish(ob,name,mat,head)
     for p in me.polygons:p.use_smooth=True
-band('Barracuda outer headband',.087,.11,.138,.027,.0035,'black')
-band('Barracuda headband padding',.083,.102,.140,.025,.0035,'fabric')
-for x in (-.079,.079):
-    cup=empty('Barracuda earcup',(x,-.002,.106),(0,math.radians(-8 if x<0 else 8),math.radians(52 if x<0 else -52)));cup.parent=head
+band('Barracuda outer headband',.070,.112,.138,.027,.0035,'black')
+band('Barracuda headband padding',.066,.105,.140,.025,.0035,'fabric')
+for x in (-.0365,.0365):
+    cup=empty('Barracuda earcup',(x,-.008,.077),(0,math.radians(-25 if x<0 else 25),math.radians(12 if x<0 else -12)));cup.parent=head
     box('Barracuda outer ear housing',(0,.004,0),(.061,.025,.094),'black',.025,cup,6)
     box('Barracuda outer inset',(0,.017,0),(.049,.003,.075),'rubber',.022,cup,5)
     # Continuous elliptical torus with a visibly recessed opening.
@@ -370,13 +370,13 @@ for x in (-.079,.079):
     ob=bpy.data.objects.new('Barracuda fabric cushion',me);scene.collection.objects.link(ob);finish(ob,ob.name,'fabric',cup)
     for poly in me.polygons:poly.use_smooth=True
     sphere('Dark recessed speaker cloth',(0,-.012,0),(.018,.003,.031),'rubber',cup)
-    for side in (-1,1):
-        arm=box('Barracuda moulded hinge arm',(side*.025,.010,.044),(.009,.012,.044),'black',.004,cup,5)
-        arm.rotation_euler.y=side*math.radians(9)
-    box('Barracuda hinge bridge',(0,.010,.065),(.045,.012,.011),'black',.004,cup,5)
-    for side in (-1,1):cylinder('Yoke pivot',(side*.03,.006,.023),.004,.003,'black',cup,(0,math.pi/2,0))
-    cylinder('Barracuda adjustment slider',(0,.007,.069),.006,.027,'black',cup)
+    # Recessed moulded sliders join the band to the shell without exposed forks.
+    box('Barracuda recessed adjustment slider',(0,.004,.062),(.022,.012,.050),'black',.004,cup,5)
+    box('Barracuda slider inset',(0,-.003,.065),(.014,.001,.032),'rubber',.002,cup)
+    cylinder('Barracuda swivel pivot',(0,.012,.046),.007,.002,'darkmetal',cup,(math.pi/2,0,0),24)
     for z in (-.026,-.014):box('Headphone controls',(0,.025,z),(.010,.002,.005),'darkmetal',.002,cup)
+for side in (-1,1):
+    tube('Barracuda curved adjustment arm',[(side*.068,0,.161),(side*.070,0,.157),(side*.072,0,.153)],.005,'black',head,4)
 text('Headband Razer emboss','RAZER',(0,-.018,.251),.012,'darkmetal',head)
 
 # Lighting objects and small accessories from the clean reference.
@@ -390,7 +390,7 @@ box('Vertical warm diffuser',(0,-.010,.307),(.014,.003,.595),'warm',.002,strip)
 text('Lamp power icon','⏻',(0,-.071,.038),.006,'white',lamp,(math.pi/2,0,0))
 text('Lamp mode icon','○',(0,-.071,.095),.006,'white',lamp,(math.pi/2,0,0))
 # Tablet lies flat at the left, with a pale pencil along its edge.
-tablet=empty('Tablet on desk',(-.475,-.185,.006),(0,0,math.radians(-9)))
+tablet=empty('Tablet on desk',(-.275,-.17,.006),(0,0,0))
 box('Tablet casing',(0,0,.004),(.176,.238,.008),'silver',.010,tablet)
 box('Tablet black bezel',(0,0,.009),(.172,.233,.002),'black',.009,tablet)
 plane('Tablet glass',(0,0,.0102),.160,.217,'glass',tablet,rot=(0,0,0))
@@ -460,7 +460,7 @@ if '--render' in sys.argv:
         {'id':'lamps-detail','position':[.95,.35,.20],'target':[.64,.13,-.25],'fov':43},
     ]
     render_filter=next((a.split('=',1)[1].split(',') for a in sys.argv if a.startswith('--views=')),None)
-    for preset in cameras+detail_cameras:
+    for preset in sorted(cameras+detail_cameras, key=lambda p: p['id'] != 'headphones-detail'):
         if render_filter and preset['id'] not in render_filter:continue
         set_camera(preset)
         scene.render.filepath=str(POSTERS/(preset['id']+'.png'))

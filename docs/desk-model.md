@@ -38,3 +38,9 @@ Final acceptance requires Onur's visual review and any supplied spacing measurem
 The unchanged MacBook Pro lid is the reference for halving the previous vertical screen clearance. Both monitor tops align. Lenovo foot and neck share the screen center at x=0.09 m; the 47 cm riser center is x=0.025 m, leaving more mesh exposed on the left. The riser now has continuous rounded front/rear transverse rails rather than side-oriented arches. Headband, ear shells and cushion cross-sections are thinner. The left light has a 22 mm housing placed flush inside the rear-left desk corner; the right lamp has no extra square base. Rear monitor mounting plates, screw heads and ventilation slots are separate geometry.
 
 Front, side and right-lamp inspection renders supplement the four review stops and accessory close-ups. Device depths and material finishes remain photo-derived, not verified manufacturer CAD.
+
+## Tablet and headphone fit revision
+
+The tablet lies flat in portrait orientation at (-0.275, -0.170) m on the desk, with zero yaw so its edges are parallel to the desk. Its pencil moves with the tablet; the casing and pencil retain clearance from the laptop wrist rest.
+
+The headphone arch is narrower (70 mm horizontal ellipse radius, 112 mm vertical radius). Earcups tilt inward by 25 degrees, with their centers 73 mm apart. The cushion meshes have a measured 1.216 mm horizontal separation in headphone-local coordinates, producing near-contact without overlap. Recessed adjustment sliders replace the exposed fork assemblies. The stand remains behind the earcups.

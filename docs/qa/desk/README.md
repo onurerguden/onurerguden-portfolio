@@ -16,8 +16,10 @@ Physical device thicknesses and exact depth placement remain photo-derived. Fina
 
 ## Measured final export
 
-GLB: 398,932 bytes; 73,066 exported triangles; 18 material batches. The wide browser view measures 73,078 rendered triangles and 20 draw calls including viewer geometry. Lazy JavaScript plus the decoder wrapper transferred 272,223 encoded bytes in the local production capture; decoder WASM is recorded separately in the network report. These are local transfer measurements, not deployment or phone performance guarantees.
+GLB: 392,968 bytes; 71,746 exported triangles; 18 material batches. The wide browser view measures 71,758 rendered triangles and 20 draw calls including viewer geometry. Lazy JavaScript plus the decoder wrapper transferred 272,223 encoded bytes in the local production capture; decoder WASM is recorded separately in the network report. These are local transfer measurements, not deployment or phone performance guarantees.
 
 The active 3D accessibility audit reports zero violations; the capture reports no page errors, no narrow-viewport overflow, and stopped rendering once the stage is offscreen and pending frames have settled.
 
 Final full Playwright run: **39 passed, 3 skipped** across desktop Chromium, mobile Chromium and mobile WebKit. The image optimizer explicitly allows only the current desk revision query; static image loading is checked in both languages and all three browser projects.
+
+Tablet/headphone follow-up: tablet edges are parallel to desk axes and the tablet sits left of the MacBook. The narrower oval headband joins inward-tilted cups through closed adjustment sliders. `accessory-fit.json` records a 1.216 mm separation between cushion mesh extents in headphone-local coordinates. Final follow-up checks: 23 unit tests and 39 browser tests passed, 3 GPU checks skipped.
