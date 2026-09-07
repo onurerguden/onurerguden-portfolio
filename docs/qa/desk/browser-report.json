@@ -6,28 +6,28 @@
       "engine": "three.js r185",
       "drawCalls": "20",
       "triangles": "71758",
-      "frames": "2",
+      "frames": "3",
       "progress": "0"
     },
     {
       "engine": "three.js r185",
       "drawCalls": "17",
       "triangles": "63894",
-      "frames": "9",
+      "frames": "7",
       "progress": "1"
     },
     {
       "engine": "three.js r185",
       "drawCalls": "19",
       "triangles": "67668",
-      "frames": "15",
+      "frames": "10",
       "progress": "2"
     },
     {
       "engine": "three.js r185",
       "drawCalls": "17",
       "triangles": "63894",
-      "frames": "21",
+      "frames": "13",
       "progress": "3"
     }
   ],
@@ -36,31 +36,31 @@
       "path": "/_next/static/chunks/3brel4ocn5_54.js",
       "encodedBodySize": 24442,
       "transferSize": 24742,
-      "duration": 5
+      "duration": 6
     },
     {
       "path": "/_next/static/chunks/1o_hmu4s3_9ua.js",
       "encodedBodySize": 236033,
       "transferSize": 236333,
-      "duration": 24.099999964237213
+      "duration": 35.40000003576279
     },
     {
       "path": "/models/desk/onur-desk.glb",
-      "encodedBodySize": 287918,
-      "transferSize": 288218,
-      "duration": 9.699999988079071
+      "encodedBodySize": 287063,
+      "transferSize": 287363,
+      "duration": 21.69999998807907
     },
     {
       "path": "/decoders/draco/draco_wasm_wrapper.js",
       "encodedBodySize": 11748,
       "transferSize": 12048,
-      "duration": 2.400000035762787
+      "duration": 12.399999976158142
     },
     {
       "path": "/decoders/draco/draco_decoder.wasm",
       "encodedBodySize": 63458,
       "transferSize": 63758,
-      "duration": 8.300000011920929
+      "duration": 32.40000003576279
     }
   ],
   "accessibilityViolations": [],

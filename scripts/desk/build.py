@@ -390,7 +390,7 @@ box('Vertical warm diffuser',(0,-.010,.307),(.014,.003,.595),'warm',.002,strip)
 text('Lamp power icon','⏻',(0,-.071,.038),.006,'white',lamp,(math.pi/2,0,0))
 text('Lamp mode icon','○',(0,-.071,.095),.006,'white',lamp,(math.pi/2,0,0))
 # Tablet lies flat at the left, with a pale pencil along its edge.
-tablet=empty('Tablet on desk',(-.275,-.17,.006),(0,0,0))
+tablet=empty('Tablet on desk',(-.435,-.17,.006),(0,0,0))
 box('Tablet casing',(0,0,.004),(.176,.238,.008),'silver',.010,tablet)
 box('Tablet black bezel',(0,0,.009),(.172,.233,.002),'black',.009,tablet)
 plane('Tablet glass',(0,0,.0102),.160,.217,'glass',tablet,rot=(0,0,0))

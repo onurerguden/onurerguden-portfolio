@@ -41,6 +41,6 @@ Front, side and right-lamp inspection renders supplement the four review stops a
 
 ## Tablet and headphone fit revision
 
-The tablet lies flat in portrait orientation at (-0.275, -0.170) m on the desk, with zero yaw so its edges are parallel to the desk. Its pencil moves with the tablet; the casing and pencil retain clearance from the laptop wrist rest.
+The tablet lies flat in portrait orientation at (-0.435, -0.170) m on the desk, with zero yaw so its edges are parallel to the desk. Its pencil moves with the tablet; the casing and pencil retain clearance from the laptop wrist rest.
 
 The headphone arch is narrower (70 mm horizontal ellipse radius, 112 mm vertical radius). Earcups tilt inward by 25 degrees, with their centers 73 mm apart. The cushion meshes have a measured 1.216 mm horizontal separation in headphone-local coordinates, producing near-contact without overlap. Recessed adjustment sliders replace the exposed fork assemblies. The stand remains behind the earcups.
