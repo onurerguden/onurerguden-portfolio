@@ -6,6 +6,7 @@ import bpy
 import math
 import json
 import sys
+import numpy as np
 from pathlib import Path
 from mathutils import Vector
 
@@ -126,7 +127,7 @@ def tube(name,points,radius,mat,parent=None,res=3):
     curve.bevel_depth=radius;curve.bevel_resolution=res
     spline=curve.splines.new('BEZIER');spline.bezier_points.add(len(points)-1)
     for b,p in zip(spline.bezier_points,points):
-        b.co=p;b.handle_left_type='AUTO';b.handle_right_type='AUTO'
+        b.co=p;b.handle_left_type='VECTOR' if 'transverse frame' in name else 'AUTO';b.handle_right_type=b.handle_left_type
     o=bpy.data.objects.new(name,curve);scene.collection.objects.link(o)
     return finish(o,name,mat,parent)
 
@@ -152,11 +153,23 @@ box('Desk mat',(0,-.045,.002),(1.38,.64,.004),'rubber',.016,segments=5)
 for x in (-.68,.68):tube('Mat edge seam',[(x,-.35,.004),(x,.25,.004)],.00065,'fabric')
 
 # IKEA BRYTET: 47 x 27 x 13 cm, narrower drawer plus left storage channel.
-riser=empty('IKEA BRYTET metal monitor riser',(.105,.25,0))
-for x in (-.227,.227):
-    tube('BRYTET continuous bent steel frame',[(x,-.130,.008),(x,-.130,.101),(x,-.114,.122),(x,.114,.122),(x,.130,.101),(x,.130,.008)],.008,'edge',riser,4)
-    for y in (-.13,.13):box('BRYTET foot cap',(x,y,.006),(.018,.026,.01),'rubber',.006,riser)
-for y in (-.127,.127):tube('BRYTET cross rail',[(-.222,y,.123),(.222,y,.123)],.004,'edge',riser)
+riser=empty('IKEA BRYTET metal monitor riser',(.025,.25,0))
+# Front and rear continuous inverted-U rails, rounded across the width.
+for y in (-.127,.127):
+    pts=[(-.227,y,.008),(-.227,y,.092)]
+    for i in range(1,9):
+        a=math.pi-i*math.pi/16
+        pts.append((-.196+.031*math.cos(a),y,.092+.031*math.sin(a)))
+    pts.append((.196,y,.123))
+    for i in range(1,9):
+        a=math.pi/2-i*math.pi/16
+        pts.append((.196+.031*math.cos(a),y,.092+.031*math.sin(a)))
+    pts.append((.227,y,.008))
+    tube('BRYTET rounded transverse frame',pts,.007,'edge',riser,4)
+    for x in (-.227,.227):box('BRYTET foot cap',(x,y,.006),(.017,.022,.012),'rubber',.004,riser)
+for x in (-.211,.211):
+    tube('BRYTET drawer runner',[(x,-.115,.105),(x,.115,.105)],.003,'edge',riser)
+    tube('BRYTET top side rim',[(x,-.12,.123),(x,.12,.123)],.003,'edge',riser)
 plane('BRYTET mesh top',(0,0,.125),.447,.245,'mesh',riser,rot=(0,0,0),repeat=(24,13))
 box('Drawer bottom',(.052,-.005,.035),(.319,.235,.003),'black',.003,riser)
 plane('Drawer mesh front',(.052,-.125,.075),.319,.075,'mesh',riser,repeat=(18,4))
@@ -175,21 +188,30 @@ def monitor(name,loc,w,h,rotation=(0,0,0)):
     box(name+' back cover',(0,.017,0),(w*.88,.017,h*.84),'black',.015,group)
     plane(name+' screen',(0,-.013,0),w,h,'glass',group)
     box(name+' bottom bezel',(0,-.014,-h/2-.006),(w+.006,.003,.012),'black',.002,group)
+    box(name+' rear mounting plate',(0,.040,-.035),(.082,.010,.082),'darkmetal',.004,group)
+    for x in (-.03,.03):
+        for z in (-.065,-.005):cylinder(name+' mount screw',(x,.046,z),.002,.002,'edge',group,(math.pi/2,0,0),12)
+    for i in range(18):box(name+' rear ventilation',((i-8.5)*.009,.039,h*.30),(.004,.002,.015),'rubber',.001,group)
     anchor=empty(name+'Screen',(0,-.0145,0));anchor.parent=group
     anchor['width']=w;anchor['height']=h
     return group
-left=monitor('Portrait',(-.413,.253,.325),.299,.531,(0,0,math.radians(8)))
+# Halve the previous clearance using the unchanged MacBook lid geometry.
+macbook_top=.006+.023+.2105*math.cos(math.radians(12))+.003*math.sin(math.radians(12))
+old_clearance=(.433-(.29+.020)/2)-macbook_top
+monitor_z=.433-old_clearance/2
+portrait_z=monitor_z+(.29+.020)/2-(.531+.020)/2
+left=monitor('Portrait',(-.413,.253,portrait_z),.299,.531,(0,0,math.radians(8)))
 box('Samsung rectangular base',(-.415,.265,.012),(.26,.21,.021),'black',.013)
-box('Samsung support',(-.415,.275,.043),(.039,.033,.065),'black',.006)
+box('Samsung support',(-.415,.275,.028),(.039,.033,.035),'black',.006)
 text('Samsung badge','SAMSUNG',(0,-.016,-.274),.005,parent=left,rotation=(math.pi/2,0,0))
-main=monitor('Ultrawide',(.09,.275,.433),.677,.29)
-box('Lenovo original silver base',(.13,.245,.145),(.285,.20,.026),'silver',.015)
-box('Lenovo base inset',(.13,.197,.159),(.242,.015,.002),'darkmetal',.003)
-box('Lenovo neck',(.13,.29,.229),(.050,.038,.165),'darkmetal',.004)
+main=monitor('Ultrawide',(.09,.275,monitor_z),.677,.29)
+box('Lenovo original silver base',(.09,.245,.145),(.285,.20,.026),'silver',.015)
+box('Lenovo base inset',(.09,.197,.159),(.242,.015,.002),'darkmetal',.003)
+box('Lenovo neck',(.09,.29,(.158+monitor_z-.075)/2),(.050,.038,monitor_z-.075-.158),'darkmetal',.004)
 text('Lenovo badge','Lenovo',(.113,-.056,.014),.009,parent=riser)
 text('Lenovo display badge','Lenovo',(.282,-.016,-.152),.006,parent=main,rotation=(math.pi/2,0,0))
 # Lightbar sits on monitor; center clamp is visibly separate.
-bar=empty('Xiaomi monitor light',(.09,.275,.605))
+bar=empty('Xiaomi monitor light',(.09,.275,monitor_z+.172))
 cylinder('Lightbar aluminium tube',(0,0,0),.011,.45,'darkmetal',bar,(0,math.pi/2,0),32)
 box('Lightbar diffuser',(0,-.005,-.009),(.421,.009,.003),'warm',.002,bar)
 box('Lightbar central clamp',(0,.006,-.009),(.054,.052,.032),'black',.004,bar)
@@ -286,13 +308,19 @@ bpy.context.view_layer.objects.active=ob;ob.select_set(True)
 bev=ob.modifiers.new('Rounded platform','BEVEL');bev.width=.004;bev.segments=4;bpy.ops.object.modifier_apply(modifier=bev.name)
 # Creases follow the actual upper curvature, wheels sit in recessed sockets.
 tube('MX separated click buttons',[(-.004,.004,.047),(-.002,.022,.041),(0,.043,.031),(0,.060,.020)],.0005,'black',mouse)
-box('MagSpeed recessed socket',(-.001,.031,.035),(.014,.031,.005),'rubber',.006,mouse)
-cylinder('MX MagSpeed wheel',(-.001,.032,.036),.010,.009,'silver',mouse,(0,math.pi/2,0),48)
+for x in (-.008,.006):box('MagSpeed socket edge',(x,.031,.035),(.003,.026,.003),'rubber',.001,mouse)
+cylinder('MX MagSpeed wheel',(-.001,.032,.035),.007,.009,'silver',mouse,(0,math.pi/2,0),48)
 for x in [-.0045,-.003,-.0015,0,.0015,.003]:
-    cylinder('MagSpeed fine knurl',(-.001+x,.032,.036),.0101,.0004,'darkmetal',mouse,(0,math.pi/2,0),32)
+    cylinder('MagSpeed fine knurl',(-.001+x,.032,.035),.0071,.0004,'darkmetal',mouse,(0,math.pi/2,0),32)
+for side in (-1,1):
+    pts=[]
+    for j in range(13):
+        y=.008+j*.047/12;w,h,c=section_at(y);x=c+side*w*.60
+        pts.append((x,y,.005+(h-.005)*(1-.60**2)**.30+.0002))
+    tube('MX outer button parting seam',pts,.00035,'darkmetal',mouse)
 box('MX mode button',(-.003,.006,.047),(.006,.010,.002),'darkmetal',.0025,mouse)
-cylinder('MX thumb wheel',(-.032,.017,.031),.005,.019,'silver',mouse,(math.pi/2,0,0),32)
-for y in [.009,.012,.015,.018,.021,.024]:cylinder('Thumb wheel knurl',(-.032,y,.031),.0052,.0005,'darkmetal',mouse,(math.pi/2,0,0),20)
+cylinder('MX thumb wheel',(-.030,.017,.026),.004,.019,'silver',mouse,(math.pi/2,0,0),32)
+for y in [.009,.012,.015,.018,.021,.024]:cylinder('Thumb wheel knurl',(-.030,y,.026),.0042,.0005,'darkmetal',mouse,(math.pi/2,0,0),20)
 for y in (-.007,-.019):box('MX side thumb button',(-.034,y,.026),(.004,.009,.004),'black',.0015,mouse)
 text('Mouse logi mark','logi',(-.012,-.029,.051),.007,'legend',mouse)
 box('MX USB-C socket',(0,.061,.012),(.010,.001,.004),'black',.0015,mouse)
@@ -305,7 +333,7 @@ for vertex in cushion.data.vertices:
 
 # Headphones and stand, paired oval earcups plus shaped headband.
 head=empty('Razer Barracuda and stand',(.48,.255,0),(0,0,math.radians(-8)))
-box('Headphone stand base',(0,0,.007),(.126,.115,.014),'black',.014,head)
+box('Headphone stand base',(0,0,.004),(.126,.115,.008),'black',.014,head)
 box('Headphone stand stem',(0,.025,.127),(.014,.021,.24),'edge',.004,head)
 box('Headphone saddle',(0,.01,.245),(.070,.036,.010),'rubber',.008,head)
 # Broad headband ribbon along elliptical arc.
@@ -322,19 +350,19 @@ def band(name,rx,rz,centerz,width,thickness,mat):
     me=bpy.data.meshes.new(name);me.from_pydata(vs,[],fs);me.update()
     ob=bpy.data.objects.new(name,me);scene.collection.objects.link(ob);finish(ob,name,mat,head)
     for p in me.polygons:p.use_smooth=True
-band('Barracuda outer headband',.087,.11,.138,.035,.005,'black')
-band('Barracuda headband padding',.083,.102,.140,.031,.005,'fabric')
+band('Barracuda outer headband',.087,.11,.138,.027,.0035,'black')
+band('Barracuda headband padding',.083,.102,.140,.025,.0035,'fabric')
 for x in (-.079,.079):
     cup=empty('Barracuda earcup',(x,-.002,.106),(0,math.radians(-8 if x<0 else 8),math.radians(52 if x<0 else -52)));cup.parent=head
-    box('Barracuda outer ear housing',(0,.004,0),(.064,.034,.094),'black',.025,cup,6)
-    box('Barracuda outer inset',(0,.022,0),(.049,.003,.075),'rubber',.022,cup,5)
+    box('Barracuda outer ear housing',(0,.004,0),(.061,.025,.094),'black',.025,cup,6)
+    box('Barracuda outer inset',(0,.017,0),(.049,.003,.075),'rubber',.022,cup,5)
     # Continuous elliptical torus with a visibly recessed opening.
     vs=[];fs=[];major=40;minor=10
     for i in range(major):
         a=2*math.pi*i/major
         for j in range(minor):
             b=2*math.pi*j/minor
-            vs.append(((.024+.009*math.cos(b))*math.cos(a),-.020+.010*math.sin(b),(.037+.010*math.cos(b))*math.sin(a)))
+            vs.append(((.024+.0065*math.cos(b))*math.cos(a),-.016+.007*math.sin(b),(.037+.007*math.cos(b))*math.sin(a)))
     for i in range(major):
         for j in range(minor):
             fs.append((i*minor+j,((i+1)%major)*minor+j,((i+1)%major)*minor+(j+1)%minor,i*minor+(j+1)%minor))
@@ -353,13 +381,12 @@ text('Headband Razer emboss','RAZER',(0,-.018,.251),.012,'darkmetal',head)
 
 # Lighting objects and small accessories from the clean reference.
 lamp=empty('Rounded desk lamp',(.673,.255,0))
-box('Lamp base',(0,0,.009),(.138,.133,.018),'desk',.024,lamp,5)
-box('Opal lamp body',(0,0,.108),(.14,.137,.20),'pink',.052,lamp,16)
+box('Opal lamp body',(0,0,.10),(.14,.137,.20),'pink',.052,lamp,16)
 box('Lamp front touch strip',(0,-.069,.066),(.017,.002,.074),'silver',.006,lamp)
 box('Lamp touch indicator',(0,-.071,.067),(.0015,.001,.043),'white',.0005,lamp)
-strip=empty('Left vertical light',(-.602,.29,0))
-box('Vertical light housing',(0,0,.307),(.013,.014,.61),'black',.004,strip)
-box('Vertical warm diffuser',(.004,-.006,.307),(.006,.004,.595),'warm',.002,strip)
+strip=empty('Left vertical light',(-.739,.389,0))
+box('Vertical light housing',(0,0,.307),(.022,.022,.61),'black',.004,strip)
+box('Vertical warm diffuser',(0,-.010,.307),(.014,.003,.595),'warm',.002,strip)
 text('Lamp power icon','⏻',(0,-.071,.038),.006,'white',lamp,(math.pi/2,0,0))
 text('Lamp mode icon','○',(0,-.071,.095),.006,'white',lamp,(math.pi/2,0,0))
 # Tablet lies flat at the left, with a pale pencil along its edge.
@@ -427,9 +454,14 @@ if '--render' in sys.argv:
     detail_cameras=[
         {'id':'mouse-detail','position':[.255,.18,.28],'target':[.385,.028,.075],'fov':43},
         {'id':'headphones-detail','position':[.34,.31,.15],'target':[.48,.14,-.25],'fov':43},
-        {'id':'riser-detail','position':[.40,.27,.35],'target':[.105,.10,-.24],'fov':43},
+        {'id':'riser-detail','position':[.32,.27,.35],'target':[.025,.10,-.24],'fov':43},
+        {'id':'front','position':[0,.42,1.7],'target':[0,.30,-.20],'fov':43},
+        {'id':'side','position':[1.65,.65,.55],'target':[0,.28,-.10],'fov':43},
+        {'id':'lamps-detail','position':[.95,.35,.20],'target':[.64,.13,-.25],'fov':43},
     ]
+    render_filter=next((a.split('=',1)[1].split(',') for a in sys.argv if a.startswith('--views=')),None)
     for preset in cameras+detail_cameras:
+        if render_filter and preset['id'] not in render_filter:continue
         set_camera(preset)
         scene.render.filepath=str(POSTERS/(preset['id']+'.png'))
         bpy.ops.render.render(write_still=True)
@@ -446,7 +478,20 @@ for object_name in ['Desk 150 x 80 cm','Desk mat','Backdrop wall']:
     bpy.ops.object.select_all(action='DESELECT');receiver.select_set(True);bpy.context.view_layer.objects.active=receiver
     scene.render.bake.use_pass_direct=True;scene.render.bake.use_pass_indirect=True;scene.render.bake.use_pass_color=True;scene.render.bake.margin=8
     bpy.ops.object.bake(type='DIFFUSE')
-    image.pack()
+    # Filter Monte Carlo noise at texel scale; preserve broad baked shadows.
+    pixels=np.empty(1024*1024*4,dtype=np.float32);image.pixels.foreach_get(pixels)
+    pixels=pixels.reshape((1024,1024,4))
+    radius=4 if object_name=='Backdrop wall' else 2
+    sigma=2.0 if object_name=='Backdrop wall' else .85
+    kernel=np.exp(-np.arange(-radius,radius+1,dtype=np.float32)**2/(2*sigma*sigma));kernel/=kernel.sum()
+    for axis in (0,1):
+        padding=[(0,0),(0,0),(0,0)];padding[axis]=(radius,radius)
+        padded=np.pad(pixels,padding,mode='edge');filtered=np.zeros_like(pixels)
+        for offset,weight in enumerate(kernel):
+            slices=[slice(None)]*3;slices[axis]=slice(offset,offset+1024)
+            filtered+=padded[tuple(slices)]*weight
+        pixels=filtered
+    image.pixels.foreach_set(pixels.ravel());image.update();image.pack()
     baked=material('Baked '+object_name,(1,1,1),1,texture=image)
     receiver.data.materials[0]=baked
 
@@ -456,6 +501,8 @@ for obj in list(scene.objects):
         bpy.ops.object.select_all(action='DESELECT');obj.select_set(True);bpy.context.view_layer.objects.active=obj
         bpy.ops.object.convert(target='MESH')
     if obj.type=='MESH':
+        bpy.ops.object.select_all(action='DESELECT');obj.select_set(True);bpy.context.view_layer.objects.active=obj
+        for modifier in list(obj.modifiers): bpy.ops.object.modifier_apply(modifier=modifier.name)
         world=obj.matrix_world.copy();obj.parent=None;obj.matrix_world=world
 # Preserve screen anchors as empty, world-space transforms.
 for obj in list(scene.objects):
@@ -482,6 +529,7 @@ bpy.ops.export_scene.gltf(filepath=str(PUBLIC/'onur-desk.glb'),export_format='GL
 triangles=sum(len(p.vertices)-2 for o in scene.objects if o.type=='MESH' for p in o.data.polygons)
 report={'blender':bpy.app.version_string,'triangles':triangles,'materialBatches':len(batches),
         'glbBytes':(PUBLIC/'onur-desk.glb').stat().st_size,'textureMaxDimension':1024,
+        'layout':{'oldClearanceM':old_clearance,'clearanceM':old_clearance/2,'monitorCenterX':.09,'supportCenterX':.09,'riserCenterX':.025,'monitorTopM':monitor_z+.155,'portraitTopM':portrait_z+.2755,'leftLightOuterX':-.75,'leftLightOuterY':.4},
         'notes':['Photo-derived device housings are approximate.','Material batches reduce draw calls; measure final renderer counters.','No source photo pixels are included.']}
 (OUT/'model-report.json').write_text(json.dumps(report,indent=2)+'\n')
 print('DESK_REPORT',json.dumps(report))

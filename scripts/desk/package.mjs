@@ -10,6 +10,9 @@ const ids = [
   "mouse-detail",
   "headphones-detail",
   "riser-detail",
+  "front",
+  "side",
+  "lamps-detail",
 ];
 for (const id of ids) {
   await sharp(`docs/qa/desk/blender/${id}.png`)
@@ -36,3 +39,17 @@ await writeFile(
   JSON.stringify(artifacts, null, 2) + "\n",
 );
 console.log(artifacts);
+
+await writeFile(
+  "src/lib/desk-assets.json",
+  JSON.stringify(
+    {
+      revision: createHash("sha256")
+        .update(artifacts.map((a) => a.sha256).join(":"))
+        .digest("hex")
+        .slice(0, 16),
+    },
+    null,
+    2,
+  ) + "\n",
+);

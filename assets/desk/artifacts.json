@@ -1,0 +1,62 @@
+[
+  {
+    "path": "assets/desk/onur-desk.blend",
+    "bytes": 508625,
+    "sha256": "01033f7e8a512c58c8d0604bf819b1861713c4d4058f471b2c79213f46a93b68"
+  },
+  {
+    "path": "public/models/desk/onur-desk.glb",
+    "bytes": 398932,
+    "sha256": "781156449d6a814c968b311d1b3433944c87a1e4edcc4ac84aface675242c3e7"
+  },
+  {
+    "path": "public/images/desk/wide.webp",
+    "bytes": 26972,
+    "sha256": "31c9ccc4c43f7f8a3bf1d471ba559a8f2b89bf589ecdf3b220026714cc403248"
+  },
+  {
+    "path": "public/images/desk/portrait.webp",
+    "bytes": 19080,
+    "sha256": "4eccdb56495732b5b84799ff511c50c139b4ddf68057a45193f8886643b715f0"
+  },
+  {
+    "path": "public/images/desk/ultrawide.webp",
+    "bytes": 17218,
+    "sha256": "88b592ab125a8f86f137e82d49426e8da8b1b32c2a8c15f0be76d82528ce9005"
+  },
+  {
+    "path": "public/images/desk/macbook.webp",
+    "bytes": 34068,
+    "sha256": "4abdbfc86aa5923c06d0c0222d31c6e613823de07298a8e3c9135788c2de27f5"
+  },
+  {
+    "path": "public/images/desk/mouse-detail.webp",
+    "bytes": 16310,
+    "sha256": "2feee343142e5ec37c533297d80bc5b59be2ae60fe069f0f4b65bd10b7761f3b"
+  },
+  {
+    "path": "public/images/desk/headphones-detail.webp",
+    "bytes": 27740,
+    "sha256": "f541da9158ed491a7cf9a9fd1d5f42db8143b0b9bd3d50e6a84d1fa75e21dd1f"
+  },
+  {
+    "path": "public/images/desk/riser-detail.webp",
+    "bytes": 40022,
+    "sha256": "2a0214def2aad47eeb084a3e9b5c6b12def6c22a63335daeddd187a04ce4e978"
+  },
+  {
+    "path": "public/images/desk/front.webp",
+    "bytes": 22354,
+    "sha256": "35885bc30c46dc091dbd296552b87ec80b20c28d53254a8e504bc20801abbb16"
+  },
+  {
+    "path": "public/images/desk/side.webp",
+    "bytes": 23918,
+    "sha256": "141d386b3bf20cca327ce6117fc747f8eae06b2b699488c818eecfcedb70fde3"
+  },
+  {
+    "path": "public/images/desk/lamps-detail.webp",
+    "bytes": 27374,
+    "sha256": "c5e09b391102ebf1e6b0407365ec487ba707eff44e49ece794151b22243638e3"
+  }
+]
