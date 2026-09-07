@@ -58,8 +58,8 @@ export function getJourneyContent(locale: Locale): JourneyContent {
         {
           title: sharedFacts.name,
           body: en
-            ? "A software engineering graduate working at the intersection of AI and product development."
-            : "Yazılım mühendisliği mezunuyum; AI ile ürün geliştirmenin kesişiminde çalışıyorum.",
+            ? "I’m a software engineering graduate building AI products."
+            : "AI ürünleri geliştiren bir yazılım mühendisliği mezunuyum.",
           href: cv || `mailto:${sharedFacts.email}?subject=CV%20request`,
           action: cv
             ? en

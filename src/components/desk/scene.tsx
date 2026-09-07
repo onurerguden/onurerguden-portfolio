@@ -99,7 +99,7 @@ function Screens({
   );
 }
 
-function Model({ onReady }: Pick<Props, "onReady">) {
+export function Model({ onReady }: Pick<Props, "onReady">) {
   const invalidate = useThree((state) => state.invalidate);
   const { scene } = useGLTF(
     `/models/desk/onur-desk.glb?v=${assets.revision}`,
