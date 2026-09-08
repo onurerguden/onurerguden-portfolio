@@ -27,3 +27,11 @@ Tablet/headphone follow-up: tablet edges are parallel to desk axes and the table
 Tablet placement follow-up: moved 160 mm farther left to x = -0.435 m, preserving height, depth and zero rotation. Regenerated Blender, GLB and all posters; production checks and the full browser suite pass with the same documented GPU skips.
 
 Realism follow-up: authored surface normals, hardware details and a one-time local reflection capture are included. Geometry remains below 100k triangles and transfer remains below 1.5 MB. See the journey review for regenerated screen-content and transition evidence.
+
+## Loading poster correction
+
+The journey now loads `wide-loading.webp`, captured from the production WebGL opening camera at 1280 × 960. The former Cycles poster had a diagonal lightbar highlight and different reflections. This capture uses the same local reflection environment as the live scene; HTML text and controls are excluded. `loading-in-browser.png` verifies the result while the model request is held.
+
+Regeneration: after a model or lighting change, package/build/start the local review, run `node scripts/desk/capture-loading-poster.mjs`, then run `npm run desk:package`, `npm run check` and restart the production server. The capture records the source model hash in `loading-poster.json`; the unit test rejects a poster from an older model. Asset revisioning also covers the new poster.
+
+Validation for the poster correction: typecheck, lint, 29 unit tests, content validation and production build pass. Journey browser run: 17 passed, 3 headless WebKit GPU skips; one offscreen-frame settling assertion initially observed one pending frame and passed on isolated rerun. The delayed-model loading-poster check passed.

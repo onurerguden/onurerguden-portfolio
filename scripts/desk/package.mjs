@@ -19,7 +19,12 @@ for (const id of ids) {
     .webp({ quality: 85 })
     .toFile(`public/images/desk/${id}.webp`);
 }
+await sharp("docs/qa/desk/browser-loading.png")
+  .webp({ quality: 92 })
+  .toFile("public/images/desk/wide-loading.webp");
+
 const files = [
+  "public/images/desk/wide-loading.webp",
   "assets/desk/onur-desk.blend",
   "public/models/desk/onur-desk.glb",
   ...ids.map((id) => `public/images/desk/${id}.webp`),

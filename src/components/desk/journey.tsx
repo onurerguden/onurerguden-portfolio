@@ -161,7 +161,7 @@ export default function DeskJourney({
     >
       <div className={styles.stage} ref={stage} data-journey-stage>
         <Image
-          src={`/images/desk/wide.webp?v=${assets.revision}`}
+          src={`/images/desk/wide-loading.webp?v=${assets.revision}`}
           alt={
             en
               ? "My desk with three screens and warm lighting"

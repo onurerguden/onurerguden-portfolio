@@ -1,5 +1,10 @@
 [
   {
+    "path": "public/images/desk/wide-loading.webp",
+    "bytes": 47168,
+    "sha256": "2c1615a9c17dc8b9e326ce2fc326959d513e9d9d477184b23eb90faffb30225a"
+  },
+  {
     "path": "assets/desk/onur-desk.blend",
     "bytes": 923914,
     "sha256": "d6dbf06c1c4145dd02c6f6c1a35a4d067d983b2419fa1762c5fab4991912768e"

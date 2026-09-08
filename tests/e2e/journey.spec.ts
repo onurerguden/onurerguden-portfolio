@@ -152,7 +152,11 @@ test("late loading keeps the current scroll position; context loss restores norm
     "data-enhanced",
     "true",
   );
-  await expect(page.locator("[data-journey-stage] img")).toBeVisible();
+  await expect(page.locator("[data-journey-stage] > img")).toBeVisible();
+  await expect(page.locator("[data-journey-stage] > img")).toHaveAttribute(
+    "src",
+    /wide-loading/,
+  );
   await page.evaluate(() => {
     const s = document.querySelector("[data-enhanced]") as HTMLElement,
       v = document.querySelector("[data-journey-stage]") as HTMLElement;
