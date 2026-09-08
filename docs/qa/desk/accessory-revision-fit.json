@@ -3,7 +3,7 @@
     "heightVariationM": 0.0,
     "rearEndpointM": [
       -0.25,
-      0.4000000059604645,
+      0.4699999988079071,
       0.006000000052154064
     ]
   },
@@ -11,7 +11,7 @@
     "heightVariationM": 0.0,
     "rearEndpointM": [
       0.28999999165534973,
-      0.4000000059604645,
+      0.4699999988079071,
       0.007000000216066837
     ]
   },
@@ -22,5 +22,9 @@
     "max": 0.00020000395611846633
   },
   "sheetToFrameCenterlineMaxErrorM": 0.0,
+  "portraitPanelSupportIntersections": [],
+  "earCushionsFaceInward": true,
+  "keyboardKeyIntersections": [],
+  "rearAccessoryCenterY": 0.3724999874830246,
   "headphoneSupportSurfaceIntersections": []
 }

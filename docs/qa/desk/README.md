@@ -45,3 +45,13 @@ The two MacBook cables now follow constant-height paths to the rear tabletop edg
 Updated export: 478,044 bytes, 92,340 triangles, 18 material batches. Support-versus-headphone mesh surface checks report zero intersections. Typecheck, lint, 29 unit tests, content validation and production build pass.
 
 Targeted desk/journey browser suite: **31 passed, 5 documented headless WebKit GPU skips**. Keyboard navigation, reduced motion, delayed loading, context loss, narrow/zoom-equivalent framing and offscreen rendering checks pass. Physical iOS Safari remains untested.
+
+### Photo detail revision — 2026-09-08
+
+The latest close references drive these changes: the riser shoulder radius grows from 31 to 48 mm, with its mesh using the identical profile and its unsupported shallow tray removed. The portrait monitor's foot moves behind the angled panel; the fit check rejects panel/foot or panel/neck intersections. The rear edge extends by an estimated 70 mm (150 × 87 cm model footprint, superseding the earlier 150 × 80 cm reference for this review). The mat and screen anchors stay fixed. The lamp, headset stand and dial share the center of the exposed rear strip; cables and the corner light follow the new edge.
+
+The headphone shells are oval surfaces, the cushions turn inward, and slim curved arms replace the boxy adjustment blocks. The Turkish keyboard uses explicit staggered rows, a separate function row and Touch ID, aligned speaker strips and a larger trackpad face. The 14-inch M1 Pro enclosure, lid and screen anchors remain unchanged. These are reference-based refinements, not a claim of measured one-to-one manufacturing geometry.
+
+Use `--source-only` on the Blender builder to save editable geometry before the expensive render/bake pass, then run `scripts/desk/verify-accessory-fit.py` to check support intersections, cushion direction, rail fit and cable endpoints.
+
+Validation for this revision: Blender fit checks pass, including keyboard key intersections and centered rear accessories. `npm run check` passes (typecheck, lint, 29 unit tests, content validation, production build). Targeted desk/journey browser tests pass 31 with 5 headless WebKit GPU skips. The Chromium desk audit reports zero accessibility violations, no page errors, stopped offscreen rendering and no narrow/zoom overflow. Delivery GLB: 482,504 bytes, 93,159 exported triangles, 18 material batches, 1024 px maximum textures. Sampled manual wide view: 93,211 rendered triangles / 21 draw calls. Physical iOS Safari remains untested.

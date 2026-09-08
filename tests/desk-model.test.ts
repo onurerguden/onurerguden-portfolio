@@ -84,8 +84,8 @@ describe("desk delivery model", () => {
     expect([poster.width, poster.height]).toEqual([1280, 960]);
     expect(existsSync("public/images/desk/wide-loading.webp")).toBe(true);
   });
-  it("ships all four static fallbacks and a true-scale desk", () => {
-    expect(contract.desk).toEqual({ width: 1.5, depth: 0.8 });
+  it("ships all four static fallbacks and the revised desk footprint", () => {
+    expect(contract.desk).toEqual({ width: 1.5, depth: 0.87 });
     expect(contract.cameras.map((c) => c.id)).toEqual([
       "wide",
       "portrait",

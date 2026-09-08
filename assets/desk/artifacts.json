@@ -1,67 +1,72 @@
 [
   {
     "path": "public/images/desk/wide-loading.webp",
-    "bytes": 46744,
-    "sha256": "5782076c9c9e49e48b8c029f15efc4126e7d6b6acd5877cc171113b22e734279"
+    "bytes": 48598,
+    "sha256": "d7868802fd644a6d607d3bdb03b5eb689a8a34a79d991a4018836442efb816f8"
   },
   {
     "path": "assets/desk/onur-desk.blend",
-    "bytes": 928392,
-    "sha256": "88375cdd83d52f0414976c5a8a392c1306f7ec80fb8667af2cf2efda08819c9b"
+    "bytes": 909703,
+    "sha256": "ede7252a511c60cfe35446a04e8e8769caaaab36021de6edf51ea4db6186d618"
   },
   {
     "path": "public/models/desk/onur-desk.glb",
-    "bytes": 478044,
-    "sha256": "4b7e8960bfdfca7cfa4f048f2b268c70db9e9c9aeea4d6371307264b37d75a5a"
+    "bytes": 482504,
+    "sha256": "02979401bddec7e33c9a6c77a164c21220c91e6d67073c7aa318103d1bbe39b2"
   },
   {
     "path": "public/images/desk/wide.webp",
-    "bytes": 25922,
-    "sha256": "bc3a6d178ec6f058de23f851582fe8f3fba50300a4fd7e85c0940c86f46f3c01"
+    "bytes": 26108,
+    "sha256": "2c14107620cd4458887161ccce05b9927663b155566f981ab373cdbed1a563ab"
   },
   {
     "path": "public/images/desk/portrait.webp",
-    "bytes": 19630,
-    "sha256": "0a72cb9571af455336b3ca536acec1563d98498394286a1ca36a1b504e12b14e"
+    "bytes": 21102,
+    "sha256": "eb8c37dc990df1985dd5afe40f4e95b4cecd0cf46dd43f24c90ed153f5b606dd"
   },
   {
     "path": "public/images/desk/ultrawide.webp",
-    "bytes": 16582,
-    "sha256": "18825027842384d3ee2f2e02b459978d035ac75521192d0326e51c12081e996d"
+    "bytes": 17256,
+    "sha256": "03c3e7f7920470bf83384a530827ffed09059fdc4a46e02f192f00dfc17187c1"
   },
   {
     "path": "public/images/desk/macbook.webp",
-    "bytes": 33566,
-    "sha256": "a9bfac979e487d6f3c314370e55307002bd891c19bde3e5fb16bcbf00cc9ab3a"
+    "bytes": 34414,
+    "sha256": "bde275845ff644ba934a8ebbbaaa1b4ad3ae6a3c2bbab9e8aa4e4f4e75e7ac33"
   },
   {
     "path": "public/images/desk/mouse-detail.webp",
-    "bytes": 15910,
-    "sha256": "3539afa283aa97b7c8b95466a80d2bc2ac65b6af527634d21829cc9ae7e63ffe"
+    "bytes": 17038,
+    "sha256": "d5f5d26899fbd10e6fbc8e96674724977cb4c351edbca314cdd411f16ea3e696"
+  },
+  {
+    "path": "public/images/desk/keyboard-detail.webp",
+    "bytes": 27830,
+    "sha256": "a45512283088e1cf46503e62af6a578c11802b223a1c077c3f6555b37b1040e4"
   },
   {
     "path": "public/images/desk/headphones-detail.webp",
-    "bytes": 27210,
-    "sha256": "c89e4df5bc986628e9d79d83f3f0de96ffcc88a9b7b157c82bf08b5632e9f618"
+    "bytes": 28252,
+    "sha256": "95320c003bea2b13a2621f32bd1b3b9417b08855dbb75b197f99f0d979d6201e"
   },
   {
     "path": "public/images/desk/riser-detail.webp",
-    "bytes": 40670,
-    "sha256": "ae94a3250832c876fbf8c7bca54bcee2dac0adfc1861cea8d776a5fa613dc2f4"
+    "bytes": 46320,
+    "sha256": "0464e4718dabbf6694ddb504ffa9b3d99058792595efec9023a42025bf269994"
   },
   {
     "path": "public/images/desk/front.webp",
-    "bytes": 22580,
-    "sha256": "a4893280c21ad8d9325e5832e4c5b2b5d09b7edecafcdbfb8a91906ecfa1e3ec"
+    "bytes": 22282,
+    "sha256": "776f55ce933a70d70ccf45e21e1e03a891e766a48de8ad1d6d4f6e8345bdcda5"
   },
   {
     "path": "public/images/desk/side.webp",
-    "bytes": 24218,
-    "sha256": "766380de26e24afd82aab026b626f668f1c95c1d7c81d8e6aa3a56bad5e8e526"
+    "bytes": 27488,
+    "sha256": "5b4d81806e36ec50268ef8871fa2a966a5ef273a97a0032162bb45e1d14d5507"
   },
   {
     "path": "public/images/desk/lamps-detail.webp",
-    "bytes": 28606,
-    "sha256": "8433123e8bceac00586be9bb2caa17dd1e2cda0295880159297c1b61067ef462"
+    "bytes": 35166,
+    "sha256": "59e6211f8c75c6e6bc6f9e672d248bbcba813b9ef47017dea5aae937e4a23b21"
   }
 ]

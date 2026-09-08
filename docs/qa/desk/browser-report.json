@@ -5,29 +5,29 @@
     {
       "engine": "three.js r185",
       "drawCalls": "21",
-      "triangles": "92396",
+      "triangles": "93211",
       "frames": "3",
       "progress": "0"
     },
     {
       "engine": "three.js r185",
       "drawCalls": "17",
-      "triangles": "84316",
+      "triangles": "85131",
       "frames": "6",
       "progress": "1"
     },
     {
       "engine": "three.js r185",
       "drawCalls": "19",
-      "triangles": "88294",
+      "triangles": "89109",
       "frames": "9",
       "progress": "2"
     },
     {
       "engine": "three.js r185",
-      "drawCalls": "18",
-      "triangles": "84826",
-      "frames": "12",
+      "drawCalls": "19",
+      "triangles": "89109",
+      "frames": "11",
       "progress": "3"
     }
   ],
@@ -36,37 +36,37 @@
       "path": "/_next/static/chunks/01t-_rq12es9k.js",
       "encodedBodySize": 149,
       "transferSize": 449,
-      "duration": 2.699999988079071
+      "duration": 4.799999952316284
     },
     {
       "path": "/_next/static/chunks/3ezv0xrgfz__y.js",
       "encodedBodySize": 237374,
       "transferSize": 237674,
-      "duration": 24.30000001192093
+      "duration": 73.5
     },
     {
-      "path": "/_next/static/chunks/40kzqu36v2dvi.js",
-      "encodedBodySize": 50039,
-      "transferSize": 50339,
-      "duration": 5.899999976158142
+      "path": "/_next/static/chunks/3xelx-9f7-7f9.js",
+      "encodedBodySize": 50040,
+      "transferSize": 50340,
+      "duration": 11.099999964237213
     },
     {
       "path": "/models/desk/onur-desk.glb",
-      "encodedBodySize": 359476,
-      "transferSize": 359776,
-      "duration": 14.5
+      "encodedBodySize": 359756,
+      "transferSize": 360056,
+      "duration": 25.69999998807907
     },
     {
       "path": "/decoders/draco/draco_wasm_wrapper.js",
       "encodedBodySize": 11748,
       "transferSize": 12048,
-      "duration": 2.5
+      "duration": 12.099999964237213
     },
     {
       "path": "/decoders/draco/draco_decoder.wasm",
       "encodedBodySize": 63458,
       "transferSize": 63758,
-      "duration": 9.099999964237213
+      "duration": 18.5
     }
   ],
   "accessibilityViolations": [],

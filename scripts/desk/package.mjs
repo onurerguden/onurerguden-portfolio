@@ -8,6 +8,7 @@ const ids = [
   "ultrawide",
   "macbook",
   "mouse-detail",
+  "keyboard-detail",
   "headphones-detail",
   "riser-detail",
   "front",

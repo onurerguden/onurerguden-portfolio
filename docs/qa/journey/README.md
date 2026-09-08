@@ -52,3 +52,7 @@ A local 128px environment capture adds broad studio reflections in both review m
 ## Accessory fit follow-up
 
 The September 8 accessory revision regenerates all journey captures and recordings. The sampled wide view renders 92,384 triangles with 20 draw calls on desktop and mobile Chromium; no page errors or horizontal overflow were recorded. GLB is 478,044 bytes with 92,340 exported triangles. Targeted desk/journey browser suite: 31 passed, 5 headless WebKit GPU skips. Geometry-fit checks and revised close-ups are in the desk QA directory. Physical device testing remains outstanding.
+
+### Accessory and keyboard photo refinement — 2026-09-08
+
+The revised model adds broader riser curves, continuous sheet fit, oval inward-facing headphone cups, a staggered Turkish ISO keyboard with one return key and split vertical arrows, and a 70 mm estimated rear desk extension with centered accessories. Screen anchors and the camera sequence stay unchanged. The current model and matching WebGL loading poster are regenerated together; desktop/mobile stop captures and recordings accompany the change. Typecheck, lint, 29 unit tests, content validation, production build and 31 targeted browser tests pass (5 documented headless WebKit GPU skips). Physical device performance has not been measured.

@@ -171,7 +171,8 @@ def text(name,body,loc,size,mat='legend',parent=None,rotation=(0,0,0)):
 M['glass'].node_tree.nodes.get('Principled BSDF').inputs['Specular IOR Level'].default_value=0
 
 # Desk and mat, true measured footprint.
-box('Desk 150 x 80 cm',(0,0,-.018),(1.5,.8,.036),'desk',.009)
+# Rear extension is a 7 cm reference-based estimate requested in the latest revision.
+box('Desk extended rear margin',(0,.035,-.018),(1.5,.87,.036),'desk',.009)
 box('Desk mat',(0,-.045,.002),(1.38,.64,.004),'rubber',.016,segments=5)
 # Subtle stitch line on the mat, integrated geometry not a floating outline.
 for x in (-.68,.68):tube('Mat edge seam',[(x,-.35,.004),(x,.25,.004)],.00065,'fabric')
@@ -180,30 +181,30 @@ for x in (-.68,.68):tube('Mat edge seam',[(x,-.35,.004),(x,.25,.004)],.00065,'fa
 riser=empty('IKEA BRYTET metal monitor riser',(.025,.25,0))
 # Front and rear continuous inverted-U rails, rounded across the width.
 for y in (-.127,.127):
-    pts=[(-.227,y,.008),(-.227,y,.092)]
+    pts=[(-.227,y,.008),(-.227,y,.075)]
     for i in range(1,9):
         a=math.pi-i*math.pi/16
-        pts.append((-.196+.031*math.cos(a),y,.092+.031*math.sin(a)))
-    pts.append((.196,y,.123))
+        pts.append((-.179+.048*math.cos(a),y,.075+.048*math.sin(a)))
+    pts.append((.179,y,.123))
     for i in range(1,9):
         a=math.pi/2-i*math.pi/16
-        pts.append((.196+.031*math.cos(a),y,.092+.031*math.sin(a)))
+        pts.append((.179+.048*math.cos(a),y,.075+.048*math.sin(a)))
     pts.append((.227,y,.008))
     tube('BRYTET rounded transverse frame',pts,.007,'edge',riser,4)
     for x in (-.227,.227):box('BRYTET foot cap',(x,y,.006),(.017,.022,.012),'rubber',.004,riser)
 for x in (-.211,.211):
     tube('BRYTET drawer runner',[(x,-.115,.105),(x,.115,.105)],.003,'edge',riser)
-    tube('BRYTET top side rim',[(x,-.127,.119),(x,.127,.119)],.003,'edge',riser)
+    tube('BRYTET top side rim',[(x,-.127,.111),(x,.127,.111)],.003,'edge',riser)
 # The expanded sheet follows the bent frame profile, including both shoulders.
 vs=[];fs=[]
 profile=[]
 for i in range(9):
     a=math.pi-i*math.pi/16
-    profile.append((-.196+.031*math.cos(a),.092+.031*math.sin(a)))
-profile.append((.196,.123))
+    profile.append((-.179+.048*math.cos(a),.075+.048*math.sin(a)))
+profile.append((.179,.123))
 for i in range(1,9):
     a=math.pi/2-i*math.pi/16
-    profile.append((.196+.031*math.cos(a),.092+.031*math.sin(a)))
+    profile.append((.179+.048*math.cos(a),.075+.048*math.sin(a)))
 for x,z in profile:vs.extend([(x,-.127,z),(x,.127,z)])
 for i in range(len(profile)-1):fs.append((2*i,2*i+2,2*i+3,2*i+1))
 me=bpy.data.meshes.new('Frame-conforming expanded sheet');me.from_pydata(vs,[],fs);me.update()
@@ -212,7 +213,7 @@ uv=me.uv_layers.new(name='Sheet repeat')
 for poly in me.polygons:
     for li in poly.loop_indices:
         v=me.vertices[me.loops[li].vertex_index].co
-        uv.data[li].uv=((v.x+.227)*54,(v.y+.127)*54)
+        uv.data[li].uv=((v.x+.227)*24,(v.y+.127)*24)
 
 box('Drawer bottom',(.052,-.005,.035),(.319,.235,.003),'black',.003,riser)
 plane('Drawer mesh front',(.052,-.123,.074),.319,.075,'mesh',riser,repeat=(18,4))
@@ -224,10 +225,6 @@ for x in (-.1075,.2115):
     tube('Drawer front vertical folded hem',[(x,-.123,.0365),(x,-.123,.1115)],.0018,'edge',riser)
     tube('Drawer bottom side folded hem',[(x,-.123,.0365),(x,.114,.0365)],.0018,'edge',riser)
 tube('Drawer lower front folded hem',[(-.1075,-.123,.0365),(.2115,-.123,.0365)],.0018,'edge',riser)
-# Folded shallow channel visible to the left of the drawer.
-plane('BRYTET left tray floor',(-.164,0,.09),.095,.245,'mesh',riser,rot=(0,0,0),repeat=(5,13))
-plane('BRYTET tray front',(-.164,-.124,.107),.095,.031,'mesh',riser,repeat=(5,2))
-
 # Monitor groups keep screen anchors aligned with their panels.
 def monitor(name,loc,w,h,rotation=(0,0,0)):
     group=empty(name,loc,rotation)
@@ -248,8 +245,8 @@ old_clearance=(.433-(.29+.020)/2)-macbook_top
 monitor_z=.433-old_clearance/2
 portrait_z=monitor_z+(.29+.020)/2-(.531+.020)/2
 left=monitor('Portrait',(-.413,.253,portrait_z),.299,.531,(0,0,math.radians(8)))
-box('Samsung rectangular base',(-.415,.265,.012),(.26,.21,.021),'black',.013)
-box('Samsung support',(-.415,.275,.028),(.039,.033,.035),'black',.006)
+box('Samsung rectangular base',(-.415,.350,.012),(.26,.12,.021),'black',.013)
+box('Samsung support',(-.415,.307,.050),(.039,.033,.077),'black',.006)
 text('Samsung badge','SAMSUNG',(0,-.016,-.274),.005,parent=left,rotation=(math.pi/2,0,0))
 main=monitor('Ultrawide',(.09,.275,monitor_z),.677,.29)
 box('Lenovo original silver base',(.09,.245,.145),(.285,.20,.026),'silver',.015)
@@ -263,44 +260,52 @@ cylinder('Lightbar aluminium tube',(0,0,0),.011,.45,'darkmetal',bar,(0,math.pi/2
 box('Lightbar diffuser',(0,-.005,-.009),(.421,.009,.003),'warm',.002,bar)
 box('Lightbar central clamp',(0,.023,-.009),(.054,.026,.032),'black',.004,bar)
 box('Lightbar back counterweight',(0,.049,-.018),(.062,.022,.027),'black',.004,bar)
-cylinder('Lightbar wireless dial',(.345,.275,.018),.031,.035,'darkmetal')
-cylinder('Dial cap',(.345,.275,.036),.030,.003,'black')
+cylinder('Lightbar wireless dial',(.345,.3725,.018),.031,.035,'darkmetal')
+cylinder('Dial cap',(.345,.3725,.036),.030,.003,'black')
 
 # MacBook Pro: accurate 14-inch silhouette and distinct screen plane.
 laptop=empty('MacBook Pro 14 M1 Pro',(.015,-.028,.006))
 box('MacBook lower enclosure',(0,0,.008),(.3126,.2212,.0155),'silver',.008,laptop,5)
-box('Keyboard recess',(0,.018,.016),(.265,.110,.0015),'black',.005,laptop)
-box('Trackpad',(0,-.067,.0165),(.130,.078,.0008),'darkmetal',.005,laptop)
-box('Trackpad metal face',(0,-.067,.017),(.128,.076,.0005),'silver',.004,laptop)
+box('Keyboard recess',(0,.030,.016),(.270,.112,.0015),'black',.005,laptop)
+box('Trackpad',(0,-.066,.0165),(.131,.080,.0008),'darkmetal',.005,laptop)
+box('Trackpad metal face',(0,-.066,.017),(.129,.078,.0005),'silver',.004,laptop)
 # Opening recess in the front aluminium lip.
 box('Front finger recess',(0,-.110,.013),(.036,.002,.005),'darkmetal',.002,laptop)
 for x in (-.144,.144):
-    plane('Speaker perforations',(x,.020,.0165),.017,.110,'speaker',laptop,rot=(0,0,0),repeat=(2,12))
-# Keyboard rows, Turkish Q. Legends are actual geometry in source; export merges it.
-rows=['1234567890*−','qwertyuıopğü','asdfghjklşi','zxcvbnmöç']
-for r,labels in enumerate(rows):
-    y=.047-r*.017
-    offset=(-len(labels)*.018)/2+.009
-    for k,label in enumerate(labels):
-        x=offset+k*.018
-        box('Key '+label,(x,y,.018),(.016,.014,.003),'keys',.002,laptop,2)
-        text('Legend '+label,label,(x,y,.0196),.0047,parent=laptop)
-# Outer typing keys: preserve the full keyboard silhouette at the close stop.
-for x,y,w,label in [(.122,.047,.021,'⌫'),(-.122,.030,.021,'tab'),(-.122,.013,.021,'caps'),(.120,.013,.024,'↵'),(-.110,-.004,.044,'shift'),(.108,-.004,.044,'shift')]:
-    box('Outer key '+label,(x,y,.018),(w,.014,.003),'keys',.002,laptop,2)
-    text('Outer legend '+label,label,(x,y,.0196),.0035,parent=laptop)
-# Function strip and Touch ID.
-for k in range(13):
-    x=-.114+k*.018
-    box('Function key',(x,.070,.018),(.016,.010,.003),'keys',.0015,laptop,2)
-    if k>0:text('Function legend','F'+str(k),(x,.070,.0196),.0032,parent=laptop)
-cylinder('Touch ID',(.119,.070,.020),.005,.001,'darkmetal',laptop)
-for x,w,label in [(-.116,.018,'fn'),(-.096,.018,'⌃'),(-.075,.021,'⌥'),(-.052,.022,'⌘'),(.052,.022,'⌘'),(.076,.020,'⌥')]:
-    box('Modifier key',(x,-.027,.018),(w,.014,.003),'keys',.002,laptop,2)
-    text('Modifier legend',label,(x,-.027,.0196),.004,parent=laptop)
-box('Space bar',(0,-.027,.018),(.077,.014,.003),'keys',.002,laptop)
-for x,y in [(.103,-.030),(.119,-.030),(.119,-.022),(.135,-.030)]:
-    box('Arrow key',(x,y,.018),(.014,.006,.003),'keys',.001,laptop,2)
+    plane('Speaker perforations',(x,.030,.0165),.017,.112,'speaker',laptop,rot=(0,0,0),repeat=(2,12))
+# Turkish ISO layout, staggered rows with full-height function keys.
+enter_parts=[]
+def key_row(y, keys):
+    gap=.0015; unit=(.265-gap*(sum(w for _,w in keys)-1))/sum(w for _,w in keys)
+    x=-.1325
+    for label,units in keys:
+        width=unit*units+gap*(units-1)
+        if label.startswith('@enter'):
+            enter_parts.append((x,x+width,y))
+        elif label=='↕':
+            for dy,arrow in [(-.004,'↓'),(.004,'↑')]:
+                box('Key '+arrow,(x+width/2,y+dy,.018),(width,.006,.003),'keys',.001,laptop,2)
+                text('Legend '+arrow,arrow,(x+width/2,y+dy,.0196),.003,parent=laptop)
+        else:
+            box('Key '+label,(x+width/2,y,.018),(width,.014,.003),'keys',.0015,laptop,2)
+            text('Legend '+label,label,(x+width/2,y,.0196),.0031 if len(label)>1 else .0043,parent=laptop)
+        x+=width+gap
+key_row(.075,[('esc',1.3)]+[('F'+str(i),1) for i in range(1,13)]+[('',1)])
+cylinder('Touch ID',(.124,.075,.0198),.0048,.0005,'darkmetal',laptop)
+key_row(.057,[('"',1)]+[(c,1) for c in '1234567890*−']+[('delete',1.3)])
+key_row(.039,[('tab',1.4)]+[(c,1) for c in 'qwertyuıopğü']+[('@enter-top',1)])
+key_row(.021,[('caps',1.7)]+[(c,1) for c in 'asdfghjklşi']+[(',',1),('@enter-bottom',.7)])
+key_row(.003,[('shift',1.2),('<',1)]+[(c,1) for c in 'zxcvbnmöç']+[('.',1),('shift',2.1)])
+key_row(-.015,[('fn',1),('control',1),('option',1),('command',1.3),('',5),('command',1.3),('option',1),('←',1),('↕',1),('→',1)])
+# One continuous ISO return key, not two independently labelled keys.
+top,bottom=enter_parts
+outline=[(top[0],top[2]+.007),(top[1],top[2]+.007),(bottom[1],bottom[2]-.007),(bottom[0],bottom[2]-.007),(bottom[0],top[2]-.007),(top[0],top[2]-.007)]
+vs=[(x,y,z) for z in (.0165,.0195) for x,y in outline];n=len(outline)
+fs=[tuple(range(n)),tuple(range(2*n-1,n-1,-1))]+[(i,i+n,(i+1)%n+n,(i+1)%n) for i in range(n)]
+me=bpy.data.meshes.new('ISO return profile');me.from_pydata(vs,[],fs);me.update()
+ob=bpy.data.objects.new('Key return',me);scene.collection.objects.link(ob);finish(ob,ob.name,'keys',laptop)
+bevel=ob.modifiers.new('Return key rim','BEVEL');bevel.width=.001;bevel.segments=2
+text('Legend return','↵',((top[0]+top[1])/2,top[2],.0197),.004,parent=laptop)
 # Side ports, short attached cable paths.
 for x in (-.157,.157):
     for y in (.038,.068):box('USB-C port',(x,y,.008),(.001,.010,.003),'black',.001,laptop)
@@ -379,7 +384,7 @@ for vertex in cushion.data.vertices:
     vertex.co.y += .13 * vertex.co.x * vertex.co.x
 
 # Headphones and stand, paired oval earcups plus shaped headband.
-head=empty('Razer Barracuda and stand',(.48,.255,0),(0,0,math.radians(-8)))
+head=empty('Razer Barracuda and stand',(.48,.3725,0),(0,0,math.radians(-8)))
 box('Headphone stand base',(0,0,.004),(.126,.115,.008),'black',.014,head)
 box('Headphone stand stem',(0,.038,.1225),(.012,.014,.229),'edge',.003,head)
 box('Headphone saddle rear support',(0,.023,.234),(.012,.041,.007),'edge',.002,head)
@@ -413,9 +418,9 @@ def band(name,rx,rz,centerz,width,thickness,mat):
 band('Barracuda outer headband',.070,.112,.138,.027,.0035,'black')
 band('Barracuda headband padding',.066,.105,.140,.025,.0035,'fabric')
 for x in (-.0365,.0365):
-    cup=empty('Barracuda earcup',(x,-.008,.077),(0,math.radians(-25 if x<0 else 25),math.radians(12 if x<0 else -12)));cup.parent=head
-    box('Barracuda outer ear housing',(0,.004,0),(.061,.025,.094),'black',.025,cup,6)
-    box('Barracuda outer inset',(0,.017,0),(.049,.003,.075),'rubber',.022,cup,5)
+    cup=empty('Barracuda earcup',(x,-.008,.077),(0,math.radians(-25 if x<0 else 25),math.radians(32 if x<0 else -32)));cup.parent=head
+    sphere('Barracuda outer ear housing',(0,.004,0),(.0305,.014,.047),'black',cup)
+    sphere('Barracuda outer inset',(0,.016,0),(.0245,.003,.038),'rubber',cup)
     # Continuous elliptical torus with a visibly recessed opening.
     vs=[];fs=[];major=40;minor=10
     for i in range(major):
@@ -431,12 +436,11 @@ for x in (-.0365,.0365):
     for poly in me.polygons:poly.use_smooth=True
     sphere('Dark recessed speaker cloth',(0,-.012,0),(.018,.003,.031),'rubber',cup)
     # Recessed moulded sliders join the band to the shell without exposed forks.
-    box('Barracuda recessed adjustment slider',(0,.004,.062),(.022,.012,.050),'black',.004,cup,5)
-    box('Barracuda slider inset',(0,-.003,.065),(.014,.001,.032),'rubber',.002,cup)
-    cylinder('Barracuda swivel pivot',(0,.012,.046),.007,.002,'darkmetal',cup,(math.pi/2,0,0),24)
+    cylinder('Barracuda swivel pivot',(-.024 if x<0 else .024,.012,.024),.004,.002,'darkmetal',cup,(math.pi/2,0,0),24)
     for z in (-.026,-.014):box('Headphone controls',(0,.025,z),(.010,.002,.005),'darkmetal',.002,cup)
 for side in (-1,1):
-    tube('Barracuda curved adjustment arm',[(side*.068,0,.161),(side*.070,0,.157),(side*.072,0,.153)],.005,'black',head,4)
+    box('Barracuda telescopic slider',(side*.071,.002,.159),(.007,.018,.018),'darkmetal',.002,head)
+    tube('Barracuda curved adjustment arm',[(side*.068,.004,.164),(side*.077,.006,.143),(side*.078,.005,.115),(side*.069,.001,.096)],.0045,'black',head,4)
 text('Headband Razer emboss','RAZER',(0,-.018,.251),.012,'darkmetal',head)
 
 # Close-view manufacturing details. Device positions and screen anchors stay fixed.
@@ -478,11 +482,11 @@ for y in (-.35,.26): tube('Mat stitched horizontal edge',[(-.675,y,.0045),(.675,
 text('Wrist cushion emboss','GLORIOUS',(.015,-.185,.029),.005,'darkmetal')
 
 # Lighting objects and small accessories from the clean reference.
-lamp=empty('Rounded desk lamp',(.673,.255,0))
+lamp=empty('Rounded desk lamp',(.673,.3725,0))
 box('Opal lamp body',(0,0,.10),(.14,.137,.20),'pink',.052,lamp,16)
 box('Lamp front touch strip',(0,-.069,.066),(.017,.002,.074),'silver',.006,lamp)
 box('Lamp touch indicator',(0,-.071,.067),(.0015,.001,.043),'white',.0005,lamp)
-strip=empty('Left vertical light',(-.739,.389,0))
+strip=empty('Left vertical light',(-.739,.459,0))
 box('Vertical light housing',(0,0,.307),(.022,.022,.61),'black',.004,strip)
 box('Vertical warm diffuser',(0,-.010,.307),(.014,.003,.595),'warm',.002,strip)
 text('Lamp power icon','⏻',(0,-.071,.038),.006,'white',lamp,(math.pi/2,0,0))
@@ -494,11 +498,11 @@ box('Tablet black bezel',(0,0,.009),(.172,.233,.002),'black',.009,tablet)
 plane('Tablet glass',(0,0,.0102),.160,.217,'glass',tablet,rot=(0,0,0))
 cylinder('Tablet pencil',(.097,0,.006),.004,.171,'desk',tablet,(math.pi/2,0,0))
 # A few intentional visible cable routes; no random desktop clutter.
-tube('MacBook power cable',[(-.142,.012,.006),(-.205,.012,.006),(-.245,.065,.006),(-.25,.18,.006),(-.25,.40,.006)],.002,'desk')
-tube('MacBook display cable',[(.172,.01,.007),(.22,.01,.007),(.275,.055,.007),(.29,.18,.007),(.29,.40,.007)],.003,'black')
+tube('MacBook power cable',[(-.142,.012,.006),(-.205,.012,.006),(-.245,.065,.006),(-.25,.18,.006),(-.25,.47,.006)],.002,'desk')
+tube('MacBook display cable',[(.172,.01,.007),(.22,.01,.007),(.275,.055,.007),(.29,.18,.007),(.29,.47,.007)],.003,'black')
 
 # Backdrop belongs to presentation, not an invented recreation of the whole room.
-plane('Backdrop wall',(0,.46,.45),4.2,4.0,'wall')
+plane('Backdrop wall',(0,.53,.45),4.2,4.0,'wall')
 
 # Screen names and camera contract are in Three.js Y-up coordinates.
 def to_web(v):return [round(v[0],6),round(v[2],6),round(-v[1],6)]
@@ -515,7 +519,7 @@ cameras=[{'id':'wide','position':[.08, .74, 1.70],'target':[0,.27,-.025],'fov':4
 for sid,camid,distance in [('PortraitScreen','portrait',.79),('UltrawideScreen','ultrawide',.90),('MacBookScreen','macbook',.47)]:
     s=screens[sid];t=s['position'];n=s['normal']
     cameras.append({'id':camid,'position':[round(t[i]+n[i]*distance,6) for i in range(3)],'target':t,'fov':43})
-contract={'units':'metres','up':'Y','desk':{'width':1.5,'depth':.8},'screens':screens,'cameras':cameras}
+contract={'units':'metres','up':'Y','desk':{'width':1.5,'depth':.87},'screens':screens,'cameras':cameras}
 (ROOT/'src/lib/desk-scene.json').write_text(json.dumps(contract,indent=2)+'\n')
 
 # Lighting kept in source and recreated explicitly in the viewer.
@@ -548,8 +552,12 @@ set_camera(cameras[0])
 bpy.context.preferences.filepaths.save_version = 0
 bpy.ops.wm.save_as_mainfile(filepath=str(OUT/'onur-desk.blend'),compress=True)
 
+if '--source-only' in sys.argv:
+    sys.exit(0)
+
 if '--render' in sys.argv:
     detail_cameras=[
+        {'id':'keyboard-detail','position':[.015,.70,.33],'target':[.015,.04,.015],'fov':29},
         {'id':'mouse-detail','position':[.255,.18,.28],'target':[.385,.028,.075],'fov':43},
         {'id':'headphones-detail','position':[.34,.31,.15],'target':[.48,.14,-.25],'fov':43},
         {'id':'riser-detail','position':[.32,.27,.35],'target':[.025,.10,-.24],'fov':43},
@@ -566,7 +574,7 @@ if '--render' in sys.argv:
 
 # Bake static diffuse lighting on receivers. This preserves Cycles contact
 # shadows/indirect wall glow in the web model without a real-time GI dependency.
-for object_name in ['Desk 150 x 80 cm','Desk mat','Backdrop wall']:
+for object_name in ['Desk extended rear margin','Desk mat','Backdrop wall']:
     receiver=bpy.data.objects[object_name]
     image=bpy.data.images.new('Baked '+object_name,width=1024,height=1024,alpha=False)
     original=receiver.data.materials[0]
@@ -627,7 +635,7 @@ bpy.ops.export_scene.gltf(filepath=str(PUBLIC/'onur-desk.glb'),export_format='GL
 triangles=sum(len(p.vertices)-2 for o in scene.objects if o.type=='MESH' for p in o.data.polygons)
 report={'blender':bpy.app.version_string,'triangles':triangles,'materialBatches':len(batches),
         'glbBytes':(PUBLIC/'onur-desk.glb').stat().st_size,'textureMaxDimension':1024,
-        'layout':{'oldClearanceM':old_clearance,'clearanceM':old_clearance/2,'monitorCenterX':.09,'supportCenterX':.09,'riserCenterX':.025,'monitorTopM':monitor_z+.155,'portraitTopM':portrait_z+.2755,'leftLightOuterX':-.75,'leftLightOuterY':.4},
+        'layout':{'oldClearanceM':old_clearance,'clearanceM':old_clearance/2,'monitorCenterX':.09,'supportCenterX':.09,'riserCenterX':.025,'monitorTopM':monitor_z+.155,'portraitTopM':portrait_z+.2755,'leftLightOuterX':-.75,'leftLightOuterY':.47},
         'notes':['Photo-derived device housings are approximate.','Material batches reduce draw calls; measure final renderer counters.','No source photo pixels are included.']}
 (OUT/'model-report.json').write_text(json.dumps(report,indent=2)+'\n')
 print('DESK_REPORT',json.dumps(report))

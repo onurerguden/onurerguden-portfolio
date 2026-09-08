@@ -15,7 +15,7 @@ for name in ['MacBook power cable','MacBook display cable']:
     o=bpy.data.objects[name]
     points=[o.matrix_world @ b.co for b in o.data.splines[0].bezier_points]
     variation=max(v.z for v in points)-min(v.z for v in points)
-    assert variation<1e-6 and abs(points[-1].y-.4)<1e-6
+    assert variation<1e-6 and abs(points[-1].y-.47)<1e-6
     report[name]={'heightVariationM':variation,'rearEndpointM':list(points[-1])}
 clamp=bounds('Lightbar central clamp');diffuser=bounds('Lightbar diffuser')
 assert clamp[1][0]>diffuser[1][1]
@@ -55,6 +55,26 @@ for support in ['Headphone stand stem','Headphone saddle rear support','Headphon
         if o.type=='MESH' and ('Barracuda' in o.name or 'speaker cloth' in o.name):
             if support_tree.overlap(tree(o)):intersections.append([support,o.name])
 assert not intersections,intersections
+# The portrait panel must clear its desktop foot; the neck sits behind the panel.
+for name in ['Samsung rectangular base','Samsung support']:
+    assert not tree(bpy.data.objects['Portrait housing']).overlap(tree(bpy.data.objects[name])),name
+report['portraitPanelSupportIntersections']=[]
+# Cushion normals face inward, not away from the head opening.
+for cup in [o for o in bpy.data.objects if o.name.startswith('Barracuda earcup')]:
+    normal=cup.rotation_euler.to_matrix() @ Vector((0,-1,0))
+    assert normal.x*cup.location.x<0
+report['earCushionsFaceInward']=True
+keys=[o for o in bpy.data.objects if o.name.startswith('Key ') and o.type=='MESH']
+for i,a in enumerate(keys):
+    for b in keys[i+1:]:
+        assert not tree(a).overlap(tree(b)),(a.name,b.name)
+report['keyboardKeyIntersections']=[]
+rear_mid=(bounds('Desk mat')[1][1]+bounds('Desk extended rear margin')[1][1])/2
+for name in ['Rounded desk lamp','Razer Barracuda and stand']:
+    assert abs(bpy.data.objects[name].location.y-rear_mid)<1e-6
+report['rearAccessoryCenterY']=rear_mid
+
+
 report['headphoneSupportSurfaceIntersections']=intersections
 (root/'docs/qa/desk/accessory-revision-fit.json').write_text(json.dumps(report,indent=2)+'\n')
 print(json.dumps(report))
