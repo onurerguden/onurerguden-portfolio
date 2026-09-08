@@ -35,3 +35,13 @@ The journey now loads `wide-loading.webp`, captured from the production WebGL op
 Regeneration: after a model or lighting change, package/build/start the local review, run `node scripts/desk/capture-loading-poster.mjs`, then run `npm run desk:package`, `npm run check` and restart the production server. The capture records the source model hash in `loading-poster.json`; the unit test rejects a poster from an older model. Asset revisioning also covers the new poster.
 
 Validation for the poster correction: typecheck, lint, 29 unit tests, content validation and production build pass. Journey browser run: 17 passed, 3 headless WebKit GPU skips; one offscreen-frame settling assertion initially observed one pending frame and passed on isolated rerun. The delayed-model loading-poster check passed.
+
+## Accessory fit revision
+
+The two MacBook cables now follow constant-height paths to the rear tabletop edge. The lightbar clamp and counterweight sit behind the continuous diffuser. The riser's expanded sheet follows the same sampled shoulder curves as its tubular frame; drawer panels have folded edge supports. The lightbar dial is moved left with 33.6 mm horizontal clearance from the headphone base. The headphone saddle follows the inner padded headband arc and its stem ends below the padding.
+
+`accessory-revision-fit.json` records geometry checks from the editable Blender source (run `Blender --background --python scripts/desk/verify-accessory-fit.py`). These checks cover cable endpoint/height, clamp clearance, dial/base spacing, saddle fit and sheet-to-frame alignment. They do not claim exact physical product measurements.
+
+Updated export: 478,044 bytes, 92,340 triangles, 18 material batches. Support-versus-headphone mesh surface checks report zero intersections. Typecheck, lint, 29 unit tests, content validation and production build pass.
+
+Targeted desk/journey browser suite: **31 passed, 5 documented headless WebKit GPU skips**. Keyboard navigation, reduced motion, delayed loading, context loss, narrow/zoom-equivalent framing and offscreen rendering checks pass. Physical iOS Safari remains untested.

@@ -48,3 +48,7 @@ Lazy 3D JavaScript measured separately: **290,940 encoded bytes**, identified fr
 Five authored tangent-space microstructure maps now distinguish aluminium, polymer, rubber, fabric and keycaps. New close-up geometry includes asymmetric laptop ports, hinge collars, camera/sensors, bezel seams, controls, rivets, drawer grip and cushion stitching. Positions and camera anchors are unchanged. The GLB normal-map test confirms that surface detail reaches the browser export.
 
 A local 128px environment capture adds broad studio reflections in both review modes, renders once, and fetches no remote HDR. Camera transitions have stronger lateral/forward arcs, a three-degree temporary FOV change and roll bounded below two degrees. Reading stops remain stable. Portrait screens reuse the approved Kuyumcum images and conceptual project diagrams; unique SVG pattern IDs avoid collisions with the normal site content. The walkthrough captures and recordings were regenerated for this pass.
+
+## Accessory fit follow-up
+
+The September 8 accessory revision regenerates all journey captures and recordings. The sampled wide view renders 92,384 triangles with 20 draw calls on desktop and mobile Chromium; no page errors or horizontal overflow were recorded. GLB is 478,044 bytes with 92,340 exported triangles. Targeted desk/journey browser suite: 31 passed, 5 headless WebKit GPU skips. Geometry-fit checks and revised close-ups are in the desk QA directory. Physical device testing remains outstanding.

@@ -193,14 +193,37 @@ for y in (-.127,.127):
     for x in (-.227,.227):box('BRYTET foot cap',(x,y,.006),(.017,.022,.012),'rubber',.004,riser)
 for x in (-.211,.211):
     tube('BRYTET drawer runner',[(x,-.115,.105),(x,.115,.105)],.003,'edge',riser)
-    tube('BRYTET top side rim',[(x,-.12,.123),(x,.12,.123)],.003,'edge',riser)
-plane('BRYTET mesh top',(0,0,.125),.447,.245,'mesh',riser,rot=(0,0,0),repeat=(24,13))
+    tube('BRYTET top side rim',[(x,-.127,.119),(x,.127,.119)],.003,'edge',riser)
+# The expanded sheet follows the bent frame profile, including both shoulders.
+vs=[];fs=[]
+profile=[]
+for i in range(9):
+    a=math.pi-i*math.pi/16
+    profile.append((-.196+.031*math.cos(a),.092+.031*math.sin(a)))
+profile.append((.196,.123))
+for i in range(1,9):
+    a=math.pi/2-i*math.pi/16
+    profile.append((.196+.031*math.cos(a),.092+.031*math.sin(a)))
+for x,z in profile:vs.extend([(x,-.127,z),(x,.127,z)])
+for i in range(len(profile)-1):fs.append((2*i,2*i+2,2*i+3,2*i+1))
+me=bpy.data.meshes.new('Frame-conforming expanded sheet');me.from_pydata(vs,[],fs);me.update()
+ob=bpy.data.objects.new('BRYTET mesh top',me);scene.collection.objects.link(ob);finish(ob,ob.name,'mesh',riser)
+uv=me.uv_layers.new(name='Sheet repeat')
+for poly in me.polygons:
+    for li in poly.loop_indices:
+        v=me.vertices[me.loops[li].vertex_index].co
+        uv.data[li].uv=((v.x+.227)*54,(v.y+.127)*54)
+
 box('Drawer bottom',(.052,-.005,.035),(.319,.235,.003),'black',.003,riser)
-plane('Drawer mesh front',(.052,-.125,.075),.319,.075,'mesh',riser,repeat=(18,4))
+plane('Drawer mesh front',(.052,-.123,.074),.319,.075,'mesh',riser,repeat=(18,4))
 for x in (-.108,.212):
-    plane('Drawer mesh side',(x,-.005,.075),.238,.075,'mesh',riser,rot=(math.pi/2,0,math.pi/2),repeat=(13,4))
+    plane('Drawer mesh side',(x,-.005,.074),.238,.075,'mesh',riser,rot=(math.pi/2,0,math.pi/2),repeat=(13,4))
     tube('Drawer side rim',[(x,-.12,.112),(x,.113,.112)],.002,'edge',riser)
 tube('Drawer upper rolled edge',[(-.107,-.126,.111),(.052,-.126,.111),(.211,-.126,.111)],.002,'edge',riser)
+for x in (-.1075,.2115):
+    tube('Drawer front vertical folded hem',[(x,-.123,.0365),(x,-.123,.1115)],.0018,'edge',riser)
+    tube('Drawer bottom side folded hem',[(x,-.123,.0365),(x,.114,.0365)],.0018,'edge',riser)
+tube('Drawer lower front folded hem',[(-.1075,-.123,.0365),(.2115,-.123,.0365)],.0018,'edge',riser)
 # Folded shallow channel visible to the left of the drawer.
 plane('BRYTET left tray floor',(-.164,0,.09),.095,.245,'mesh',riser,rot=(0,0,0),repeat=(5,13))
 plane('BRYTET tray front',(-.164,-.124,.107),.095,.031,'mesh',riser,repeat=(5,2))
@@ -238,10 +261,10 @@ text('Lenovo display badge','Lenovo',(.282,-.016,-.152),.006,parent=main,rotatio
 bar=empty('Xiaomi monitor light',(.09,.275,monitor_z+.172))
 cylinder('Lightbar aluminium tube',(0,0,0),.011,.45,'darkmetal',bar,(0,math.pi/2,0),32)
 box('Lightbar diffuser',(0,-.005,-.009),(.421,.009,.003),'warm',.002,bar)
-box('Lightbar central clamp',(0,.006,-.009),(.054,.052,.032),'black',.004,bar)
-box('Lightbar back counterweight',(0,.040,-.018),(.062,.022,.027),'black',.004,bar)
-cylinder('Lightbar wireless dial',(.38,.265,.018),.031,.035,'darkmetal')
-cylinder('Dial cap',(.38,.265,.036),.030,.003,'black')
+box('Lightbar central clamp',(0,.023,-.009),(.054,.026,.032),'black',.004,bar)
+box('Lightbar back counterweight',(0,.049,-.018),(.062,.022,.027),'black',.004,bar)
+cylinder('Lightbar wireless dial',(.345,.275,.018),.031,.035,'darkmetal')
+cylinder('Dial cap',(.345,.275,.036),.030,.003,'black')
 
 # MacBook Pro: accurate 14-inch silhouette and distinct screen plane.
 laptop=empty('MacBook Pro 14 M1 Pro',(.015,-.028,.006))
@@ -358,8 +381,21 @@ for vertex in cushion.data.vertices:
 # Headphones and stand, paired oval earcups plus shaped headband.
 head=empty('Razer Barracuda and stand',(.48,.255,0),(0,0,math.radians(-8)))
 box('Headphone stand base',(0,0,.004),(.126,.115,.008),'black',.014,head)
-box('Headphone stand stem',(0,.025,.127),(.014,.021,.24),'edge',.004,head)
-box('Headphone saddle',(0,.01,.245),(.070,.036,.010),'rubber',.008,head)
+box('Headphone stand stem',(0,.038,.1225),(.012,.014,.229),'edge',.003,head)
+box('Headphone saddle rear support',(0,.023,.234),(.012,.041,.007),'edge',.002,head)
+# A curved saddle supports the inner padded arc without cutting through it.
+vs=[];fs=[]
+for i in range(17):
+    x=-.025+.05*i/16
+    z=.140+.105*math.sqrt(1-(x/.066)**2)-.0002
+    vs.extend([(x,-.012,z),(x,.012,z),(x,-.012,z-.008),(x,.012,z-.008)])
+for i in range(16):
+    k=4*i;n=k+4
+    fs.extend([(k,n,n+1,k+1),(k+2,k+3,n+3,n+2),(k,k+2,n+2,n),(k+1,n+1,n+3,k+3)])
+fs.extend([(0,1,3,2),(64,66,67,65)])
+me=bpy.data.meshes.new('Headband-matched support saddle');me.from_pydata(vs,[],fs);me.update()
+ob=bpy.data.objects.new('Headphone saddle',me);scene.collection.objects.link(ob);finish(ob,ob.name,'rubber',head)
+
 # Broad headband ribbon along elliptical arc.
 def band(name,rx,rz,centerz,width,thickness,mat):
     vs=[];fs=[];steps=32
@@ -431,7 +467,7 @@ for x in (-.220,.220):
 box('BRYTET drawer recessed grip',(.052,-.128,.092),(.052,.004,.012),'edge',.004,riser)
 for x in (-.211,.211):
     for y in (-.09,.09):
-        cylinder('BRYTET rail rivet',(x,y,.126),.0023,.001,'darkmetal',riser,vertices=12)
+        cylinder('BRYTET rail rivet',(x,y,.120),.0023,.001,'darkmetal',riser,vertices=12)
 # Fine pad seams follow the near-touching ear cushions without changing their fit.
 for obj in list(scene.objects):
     if obj.name.startswith('Barracuda earcup'):
@@ -458,8 +494,8 @@ box('Tablet black bezel',(0,0,.009),(.172,.233,.002),'black',.009,tablet)
 plane('Tablet glass',(0,0,.0102),.160,.217,'glass',tablet,rot=(0,0,0))
 cylinder('Tablet pencil',(.097,0,.006),.004,.171,'desk',tablet,(math.pi/2,0,0))
 # A few intentional visible cable routes; no random desktop clutter.
-tube('MacBook power cable',[(-.142,.012,.016),(-.205,.012,.017),(-.222,.08,.014),(-.235,.19,.018)],.002,'desk')
-tube('MacBook display cable',[(.172,.01,.015),(.22,.01,.014),(.30,.04,.012),(.315,.15,.018),(.22,.32,.14)],.003,'black')
+tube('MacBook power cable',[(-.142,.012,.006),(-.205,.012,.006),(-.245,.065,.006),(-.25,.18,.006),(-.25,.40,.006)],.002,'desk')
+tube('MacBook display cable',[(.172,.01,.007),(.22,.01,.007),(.275,.055,.007),(.29,.18,.007),(.29,.40,.007)],.003,'black')
 
 # Backdrop belongs to presentation, not an invented recreation of the whole room.
 plane('Backdrop wall',(0,.46,.45),4.2,4.0,'wall')
