@@ -1,6 +1,6 @@
 # Desk journey review
 
-Local production review, September 7, 2026. Separate from the homepage; no field performance claim.
+Local production review, September 8, 2026. Separate from the homepage; no field performance claim.
 
 ## Experience
 
@@ -12,7 +12,7 @@ The wide camera matches the Blender poster's position and target; its field of v
 
 ## Validation
 
-- `npm run check`: typecheck, lint, **27 unit tests**, bilingual content validation and production build pass.
+- `npm run check`: typecheck, lint, **28 unit tests**, bilingual content validation and production build pass.
 - `npm run test:e2e`: **57 passed, 6 skipped**. Skips are documented headless WebKit GPU cases, including the original desk tests; static WebKit paths pass.
 - Active and static accessibility audits report zero WCAG A/AA violations in tested Chromium views; static views also pass in headless WebKit.
 - Reading camera positions stay identical while screen content advances; forward/reverse scrolling, focus jumps, native section exit and offscreen rendering are covered.
@@ -24,9 +24,9 @@ The wide camera matches the Blender poster's position and target; its field of v
 
 `desktop-*.png` and `mobile-*.png` cover the opening, all reading stops, transition midpoints, final cards and exit. The two `.webm` recordings show real browser scroll playback. `browser-report.json` records camera coordinates and renderer counters; it contains no page errors or horizontal overflow.
 
-Maximum sampled renderer load: **20 draw calls / 71,758 triangles**. The unchanged model is **392,940 bytes** with 71,746 exported triangles, within the 1.5 MB / 100k triangle / 50 draw-call budget. DPR remains capped at 1.5. No post-processing was added.
+Maximum sampled renderer load: **20 draw calls / 90,748 triangles**. The refined model is **474,208 bytes** with 90,736 exported triangles, within the 1.5 MB / 100k triangle / 50 draw-call budget. DPR remains capped at 1.5. No post-processing was added.
 
-`network.json` records cold-context local encoded resource sizes. Total fetched JavaScript (including application/runtime code and the decoder wrapper): **468,056 bytes**. GLB and decoder WASM are listed separately. This total is not a claim about the isolated 3D bundle, CDN transfer, FPS or Core Web Vitals.
+`network.json` records cold-context local encoded resource sizes. Total fetched JavaScript (including application/runtime code and the decoder wrapper): **496,058 bytes**. GLB and decoder WASM are listed separately. This total is not a claim about the isolated 3D bundle, CDN transfer, FPS or Core Web Vitals.
 
 ## Interface guideline audit
 
@@ -40,4 +40,11 @@ The approved brief intentionally uses first person and sentence-case headings, o
 
 Physical iOS Safari, measured device FPS and final visual approval remain outstanding. The study does not claim photographic accuracy or production readiness.
 
-Lazy 3D JavaScript measured separately: **262,954 encoded bytes**, identified from the production dynamic-import chunk list. The Draco wrapper adds **11,748 bytes** and WASM adds **63,458 bytes**; shared application/runtime code and CSS are excluded from the 3D JavaScript subtotal. See `network.json` for the exact chunk paths and method.
+Lazy 3D JavaScript measured separately: **290,940 encoded bytes**, identified from the production dynamic-import chunk list. The Draco wrapper adds **11,748 bytes** and WASM adds **63,458 bytes**; shared application/runtime code and CSS are excluded from the 3D JavaScript subtotal. See `network.json` for the exact chunk paths and method.
+
+
+## September 8 realism pass
+
+Five authored tangent-space microstructure maps now distinguish aluminium, polymer, rubber, fabric and keycaps. New close-up geometry includes asymmetric laptop ports, hinge collars, camera/sensors, bezel seams, controls, rivets, drawer grip and cushion stitching. Positions and camera anchors are unchanged. The GLB normal-map test confirms that surface detail reaches the browser export.
+
+A local 128px environment capture adds broad studio reflections in both review modes, renders once, and fetches no remote HDR. Camera transitions have stronger lateral/forward arcs, a three-degree temporary FOV change and roll bounded below two degrees. Reading stops remain stable. Portrait screens reuse the approved Kuyumcum images and conceptual project diagrams; unique SVG pattern IDs avoid collisions with the normal site content. The walkthrough captures and recordings were regenerated for this pass.

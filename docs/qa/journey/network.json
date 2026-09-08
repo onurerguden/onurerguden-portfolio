@@ -5,101 +5,101 @@
       "path": "/_next/static/chunks/3s6nzrbk-8mnv.js",
       "encodedBytes": 2029,
       "transferBytes": 2329,
-      "startMs": 15.100000023841858
+      "startMs": 14.199999988079071
     },
     {
       "path": "/_next/static/chunks/3450qyhportkm.js",
       "encodedBytes": 9030,
       "transferBytes": 9330,
-      "startMs": 15.100000023841858
+      "startMs": 14.199999988079071
     },
     {
       "path": "/_next/static/chunks/turbopack-05-5fsoa-90qb.js",
       "encodedBytes": 4301,
       "transferBytes": 4601,
-      "startMs": 15.199999988079071
-    },
-    {
-      "path": "/_next/static/chunks/3bawhkhjtuhib.js",
-      "encodedBytes": 43778,
-      "transferBytes": 44078,
-      "startMs": 15.199999988079071
-    },
-    {
-      "path": "/_next/static/chunks/1j_9b-l0n6u-t.js",
-      "encodedBytes": 71576,
-      "transferBytes": 71876,
-      "startMs": 15.199999988079071
+      "startMs": 14.299999952316284
     },
     {
       "path": "/_next/static/chunks/0h2qsuyze9ds1.js",
       "encodedBytes": 3662,
       "transferBytes": 3962,
-      "startMs": 15.300000011920929
+      "startMs": 14.299999952316284
+    },
+    {
+      "path": "/_next/static/chunks/3bawhkhjtuhib.js",
+      "encodedBytes": 43778,
+      "transferBytes": 44078,
+      "startMs": 14.299999952316284
+    },
+    {
+      "path": "/_next/static/chunks/1j_9b-l0n6u-t.js",
+      "encodedBytes": 71576,
+      "transferBytes": 71876,
+      "startMs": 14.299999952316284
     },
     {
       "path": "/_next/static/chunks/21bn7goxnez7t.js",
       "encodedBytes": 5169,
       "transferBytes": 5469,
-      "startMs": 15.300000011920929
+      "startMs": 14.399999976158142
     },
     {
-      "path": "/_next/static/chunks/0re9mpup5hpfa.js",
-      "encodedBytes": 9505,
-      "transferBytes": 9805,
-      "startMs": 15.300000011920929
+      "path": "/_next/static/chunks/3e91ea13z_4wz.js",
+      "encodedBytes": 9521,
+      "transferBytes": 9821,
+      "startMs": 14.399999976158142
     },
     {
       "path": "/_next/static/chunks/15sf5_wkosebr.js",
       "encodedBytes": 44304,
       "transferBytes": 44604,
-      "startMs": 15.300000011920929
+      "startMs": 14.399999976158142
     },
     {
-      "path": "/_next/static/chunks/1esr1z7ynlxrv.js",
-      "encodedBytes": 2447,
-      "transferBytes": 2747,
-      "startMs": 135.80000001192093
+      "path": "/_next/static/chunks/0790fb956t-lw.js",
+      "encodedBytes": 3527,
+      "transferBytes": 3827,
+      "startMs": 138.5
     },
     {
-      "path": "/_next/static/chunks/1ghsq6ig-17_w.js",
-      "encodedBytes": 24474,
-      "transferBytes": 24774,
-      "startMs": 135.9000000357628
+      "path": "/_next/static/chunks/3ezv0xrgfz__y.js",
+      "encodedBytes": 237374,
+      "transferBytes": 237674,
+      "startMs": 138.5999999642372
     },
     {
-      "path": "/_next/static/chunks/1o_hmu4s3_9ua.js",
-      "encodedBytes": 236033,
-      "transferBytes": 236333,
-      "startMs": 135.9000000357628
+      "path": "/_next/static/chunks/40kzqu36v2dvi.js",
+      "encodedBytes": 50039,
+      "transferBytes": 50339,
+      "startMs": 138.69999998807907
     },
     {
       "path": "/models/desk/onur-desk.glb",
-      "encodedBytes": 287063,
-      "transferBytes": 287363,
-      "startMs": 549
+      "encodedBytes": 355885,
+      "transferBytes": 356185,
+      "startMs": 536.5
     },
     {
       "path": "/decoders/draco/draco_wasm_wrapper.js",
       "encodedBytes": 11748,
       "transferBytes": 12048,
-      "startMs": 562.6000000238419
+      "startMs": 556.6999999880791
     },
     {
       "path": "/decoders/draco/draco_decoder.wasm",
       "encodedBytes": 63458,
       "transferBytes": 63758,
-      "startMs": 562.6000000238419
+      "startMs": 556.6999999880791
     }
   ],
   "lazyScene": {
-    "method": "Dynamic-import chunk list inspected in production 0re9mpup5hpfa.js; excludes shared application/runtime code and CSS.",
+    "method": "Production journey dynamic-import list in 3e91ea13z_4wz.js; excludes shared application/runtime code and CSS.",
     "paths": [
-      "/_next/static/chunks/1esr1z7ynlxrv.js",
-      "/_next/static/chunks/1o_hmu4s3_9ua.js",
-      "/_next/static/chunks/1ghsq6ig-17_w.js"
+      "/_next/static/chunks/0790fb956t-lw.js",
+      "/_next/static/chunks/3ezv0xrgfz__y.js",
+      "/_next/static/chunks/40kzqu36v2dvi.js"
     ],
-    "encodedJavaScriptBytes": 262954,
+    "encodedJavaScriptBytes": 290940,
     "decoderWrapperBytes": 11748,
     "decoderWasmBytes": 63458
   }
