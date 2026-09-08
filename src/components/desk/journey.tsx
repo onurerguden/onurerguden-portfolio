@@ -176,6 +176,7 @@ export default function DeskJourney({
           <Boundary onFailure={onFailure}>
             <Scene
               distance={distance}
+              locale={locale}
               active={active}
               content={content}
               onReady={onReady}

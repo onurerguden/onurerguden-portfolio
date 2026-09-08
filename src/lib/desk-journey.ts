@@ -65,7 +65,7 @@ export type JourneyCard = {
   body: string;
   href: string;
   action: string;
-  image?: string;
+  visual?: string;
 };
 export type JourneyContent = {
   name: string;

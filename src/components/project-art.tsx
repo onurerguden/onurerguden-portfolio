@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useId } from "react";
 export default function ProjectArt({
   slug,
   locale = "en",
@@ -6,6 +7,7 @@ export default function ProjectArt({
   slug: string;
   locale?: "en" | "tr";
 }) {
+  const patternId = useId();
   if (slug === "kuyumcum")
     return (
       <div className="project-art kuyumcum-art">
@@ -50,7 +52,7 @@ export default function ProjectArt({
         >
           <defs>
             <pattern
-              id="dots"
+              id={patternId}
               width="24"
               height="24"
               patternUnits="userSpaceOnUse"
@@ -58,7 +60,7 @@ export default function ProjectArt({
               <circle cx="2" cy="2" r="1" fill="#aec9d2" />
             </pattern>
           </defs>
-          <rect width="600" height="360" fill="url(#dots)" />
+          <rect width="600" height="360" fill={`url(#${patternId})`} />
           <g fill="none" stroke="#1c6478" strokeWidth="2">
             <path d="M70 180H240M300 180V95H490M300 180V265H490" />
             <circle cx="300" cy="180" r="52" fill="#e6f0f3" />

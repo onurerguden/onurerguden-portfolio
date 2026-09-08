@@ -395,3 +395,81 @@
     display: none;
   }
 }
+
+/* Project evidence gives the portrait monitor the density of a working display. */
+.screenVisual {
+  height: 580px;
+  flex: 0 0 580px;
+  width: 100%;
+  overflow: clip;
+  border: 1px solid #acb9bd;
+  border-radius: 20px;
+}
+.screenVisual > div {
+  height: 100%;
+  min-height: 0;
+}
+.screenVisual :global(.app-wordmark) {
+  font-size: 52px;
+}
+.screenVisual :global(.phone-pair) {
+  height: 455px;
+  gap: 30px;
+}
+.screenVisual :global(.phone-pair img) {
+  width: 185px;
+  height: auto;
+  max-height: 420px;
+  object-fit: contain;
+  border-radius: 16px;
+}
+.screenVisual :global(.art-caption),
+.screenVisual :global(.rag-caption) {
+  font-size: 28px;
+}
+.screenVisual :global(.retrieval-core),
+.screenVisual :global(.answer-block) {
+  font-size: 32px;
+}
+.screenVisual :global(.answer-block span) {
+  font-size: 22px;
+}
+.screenVisual :global(.retrieval-diagram) {
+  transform: scale(1.35);
+  transform-origin: center;
+}
+.screenVisual svg {
+  height: 470px;
+}
+.screen[data-screen="0"] .card {
+  justify-content: flex-start;
+  gap: 24px;
+  padding-top: 100px;
+}
+.screen[data-screen="0"] .label {
+  margin-bottom: 8px;
+}
+.screen[data-screen="0"] .card h2 {
+  font-size: 78px;
+}
+.screen[data-screen="0"] .card p {
+  font-size: 52px;
+}
+.screenVisual :global(.retrieval-core) {
+  width: 130px;
+  height: 130px;
+  flex-shrink: 0;
+}
+.screenVisual :global(.answer-block) {
+  width: 230px;
+  min-height: 130px;
+  padding: 22px;
+}
+.screen[data-screen="1"] .card {
+  background: #e0eaf0;
+  border-top: 12px solid #91aebd;
+}
+.screen[data-screen="2"] .card {
+  background: #eaece5;
+  border-top: 12px solid #a7b19a;
+}

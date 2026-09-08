@@ -8,6 +8,7 @@ import { createScreenProjection, projectScreen } from "@/lib/desk-projection";
 import contract from "@/lib/desk-scene.json";
 import assets from "@/lib/desk-assets.json";
 import styles from "./review.module.css";
+import DeskLighting from "./lighting";
 
 type Props = {
   revealed: boolean;
@@ -255,6 +256,7 @@ export default function DeskScene(props: Props) {
         gl={{ antialias: true, alpha: false, powerPreference: "low-power" }}
       >
         <color attach="background" args={["#171719"]} />
+        <DeskLighting />
         <ambientLight intensity={0.55} color="#cad6ef" />
         <directionalLight
           castShadow
