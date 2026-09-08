@@ -81,6 +81,30 @@ M={
  'wall':material('Warm plaster',(.19,.17,.15),.95),
 }
 
+# Small authored tangent-space normals survive glTF export. These describe
+# material grain, not large dents; fixed seeds keep every build reproducible.
+def micro_normal(name, strength, woven=False):
+    size=256
+    yy,xx=np.mgrid[0:size,0:size]
+    rng=np.random.default_rng(42)
+    height=rng.random((size,size))*.20
+    if woven: height += .35*np.sin(xx*math.pi/2)*np.cos(yy*math.pi/2)
+    dx=(np.roll(height,-1,1)-np.roll(height,1,1))*strength
+    dy=(np.roll(height,-1,0)-np.roll(height,1,0))*strength
+    normals=np.stack((-dx,-dy,np.ones_like(dx)),axis=-1)
+    normals/=np.linalg.norm(normals,axis=-1,keepdims=True)
+    pixels=np.concatenate((normals*.5+.5,np.ones((size,size,1))),axis=-1).astype(np.float32)
+    img=bpy.data.images.new(name,width=size,height=size,alpha=False)
+    img.colorspace_settings.name='Non-Color'
+    img.pixels.foreach_set(pixels.ravel());img.pack()
+    return img
+for key,strength,woven in [('fabric',.65,True),('rubber',.20,False),('silver',.08,False),('black',.10,False),('keys',.10,False)]:
+    m=M[key];nodes=m.node_tree.nodes;links=m.node_tree.links
+    tex=nodes.new('ShaderNodeTexImage');tex.image=micro_normal('Microstructure '+key,strength,woven)
+    normal=nodes.new('ShaderNodeNormalMap');normal.inputs['Strength'].default_value=.45
+    links.new(tex.outputs['Color'],normal.inputs['Color'])
+    links.new(normal.outputs['Normal'],nodes.get('Principled BSDF').inputs['Normal'])
+
 def finish(obj,name,mat,parent=None):
     obj.name=name
     if mat: obj.data.materials.append(M[mat] if isinstance(mat,str) else mat)
@@ -378,6 +402,44 @@ for x in (-.0365,.0365):
 for side in (-1,1):
     tube('Barracuda curved adjustment arm',[(side*.068,0,.161),(side*.070,0,.157),(side*.072,0,.153)],.005,'black',head,4)
 text('Headband Razer emboss','RAZER',(0,-.018,.251),.012,'darkmetal',head)
+
+# Close-view manufacturing details. Device positions and screen anchors stay fixed.
+for x in (-.143,.143):
+    for y in (-.089,.086):
+        cylinder('MacBook lower case screw',(x,y,.001),.0014,.0005,'darkmetal',laptop,vertices=12)
+# Actual asymmetric M1 Pro port arrangement: left MagSafe/USB-C/audio, right HDMI/USB-C/SD.
+for obj in list(scene.objects):
+    if obj.name.startswith('USB-C port'): bpy.data.objects.remove(obj,do_unlink=True)
+for x,y,length,height in [(-.157,.068,.011,.003),(-.157,.042,.011,.003),(-.157,.090,.015,.0035),(.157,.067,.014,.0045),(.157,.039,.011,.003),(.157,.006,.023,.002)]:
+    box('MacBook recessed port liner',(x,y,.008),(.001,length,height),'black',.0006,laptop,2)
+    box('MacBook port inner contact',(x*1.001,y,.008),(.0002,length*.62,.0006),'darkmetal',.0001,laptop,1)
+cylinder('MacBook audio jack',(-.157,.014,.008),.0017,.001,'black',laptop,(0,math.pi/2,0),16)
+for x in (-.116,.116):
+    cylinder('MacBook hinge collar',(x,.099,.022),.0074,.012,'black',laptop,(0,math.pi/2,0),20)
+cylinder('MacBook camera lens',(0,-.0057,.094),.0016,.0005,'glass',lid,(math.pi/2,0,0),16)
+for x in (-.012,.012):cylinder('Camera sensor',(x,-.0057,.094),.0008,.0005,'black',lid,(math.pi/2,0,0),12)
+# Moulded monitor edge seams and the Lenovo's underside controls.
+for group,w,h in [(left,.299,.531),(main,.677,.29)]:
+    for x in (-w/2-.004,w/2+.004):
+        tube('Monitor housing parting line',[(x,.003,-h/2),(x,.003,h/2)],.00045,'darkmetal',group,1)
+for x in (.23,.252,.274,.296):
+    cylinder('Lenovo underside control',(x,-.003,-.158),.0025,.0015,'darkmetal',main,vertices=12)
+cylinder('Lenovo blue power LED',(.321,-.016,-.152),.0012,.0007,'white',main,(math.pi/2,0,0),12)
+for x in (-.220,.220):
+    cylinder('Xiaomi end cap',(x,0,0),.0112,.002,'black',bar,(0,math.pi/2,0),24)
+# Drawer grip and fasteners: subtle hardware on the existing riser geometry.
+box('BRYTET drawer recessed grip',(.052,-.128,.092),(.052,.004,.012),'edge',.004,riser)
+for x in (-.211,.211):
+    for y in (-.09,.09):
+        cylinder('BRYTET rail rivet',(x,y,.126),.0023,.001,'darkmetal',riser,vertices=12)
+# Fine pad seams follow the near-touching ear cushions without changing their fit.
+for obj in list(scene.objects):
+    if obj.name.startswith('Barracuda earcup'):
+        points=[(.0305*math.cos(a),-.016,.044*math.sin(a)) for a in np.linspace(0,2*math.pi,49)]
+        tube('Barracuda cushion perimeter seam',points,.00025,'rubber',obj,1)
+# Complete the fabric mat edge and wrist-rest identity visible on approach.
+for y in (-.35,.26): tube('Mat stitched horizontal edge',[(-.675,y,.0045),(.675,y,.0045)],.0005,'fabric',res=1)
+text('Wrist cushion emboss','GLORIOUS',(.015,-.185,.029),.005,'darkmetal')
 
 # Lighting objects and small accessories from the clean reference.
 lamp=empty('Rounded desk lamp',(.673,.255,0))

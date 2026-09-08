@@ -37,6 +37,24 @@ describe("desk delivery model", () => {
     ).toBe(true);
     expect(gltf.extensionsRequired).toContain("KHR_draco_mesh_compression");
   });
+  it("delivers authored surface normals in the web model, not only in Blender", () => {
+    for (const name of [
+      "Woven black textile",
+      "Soft touch rubber",
+      "Space grey aluminium",
+      "Graphite polymer",
+      "Keycap graphite",
+    ]) {
+      const material = gltf.materials.find(
+        (entry: { name: string }) => entry.name === name,
+      );
+      expect(material.normalTexture).toBeDefined();
+      const image =
+        gltf.images[gltf.textures[material.normalTexture.index].source];
+      expect(image.bufferView).toBeDefined();
+      expect(image.uri).toBeUndefined();
+    }
+  });
   it("aligns monitor tops and halves the previous MacBook housing clearance", () => {
     const portrait = contract.screens.PortraitScreen;
     const wide = contract.screens.UltrawideScreen;
