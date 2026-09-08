@@ -39,3 +39,5 @@ Snapshot: `guidelines.md`, SHA-256 `5a775e6411f790f518dbc9c1fa7c50a89e6873502d9a
 The approved brief intentionally uses first person and sentence-case headings, overriding generic copy defaults. Actual camera transforms are the approved 3D effect. No form or destructive-action rules apply.
 
 Physical iOS Safari, measured device FPS and final visual approval remain outstanding. The study does not claim photographic accuracy or production readiness.
+
+Lazy 3D JavaScript measured separately: **262,954 encoded bytes**, identified from the production dynamic-import chunk list. The Draco wrapper adds **11,748 bytes** and WASM adds **63,458 bytes**; shared application/runtime code and CSS are excluded from the 3D JavaScript subtotal. See `network.json` for the exact chunk paths and method.

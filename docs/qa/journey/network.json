@@ -91,5 +91,16 @@
       "transferBytes": 63758,
       "startMs": 562.6000000238419
     }
-  ]
+  ],
+  "lazyScene": {
+    "method": "Dynamic-import chunk list inspected in production 0re9mpup5hpfa.js; excludes shared application/runtime code and CSS.",
+    "paths": [
+      "/_next/static/chunks/1esr1z7ynlxrv.js",
+      "/_next/static/chunks/1o_hmu4s3_9ua.js",
+      "/_next/static/chunks/1ghsq6ig-17_w.js"
+    ],
+    "encodedJavaScriptBytes": 262954,
+    "decoderWrapperBytes": 11748,
+    "decoderWasmBytes": 63458
+  }
 }
