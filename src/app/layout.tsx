@@ -6,6 +6,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: { default: "Onur Ergüden — AI Engineer", template: "%s | Onur Ergüden" },
+  icons: { icon: "/icon.svg" },
   description: "AI engineering, applied machine learning and research by Onur Ergüden.",
   robots: { index: process.env.SITE_INDEXABLE === "true" && process.env.VERCEL_ENV !== "preview", follow: process.env.SITE_INDEXABLE === "true" && process.env.VERCEL_ENV !== "preview" },
 };
