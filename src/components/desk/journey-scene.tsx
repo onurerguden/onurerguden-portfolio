@@ -9,7 +9,6 @@ import {
 } from "react";
 import DeskLighting from "./lighting";
 import { DeskObjectControls, useDeskInteractions } from "./interactions";
-import { lampColors } from "@/lib/desk-interaction-motion";
 import ProjectArt from "@/components/project-art";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Vector3, PerspectiveCamera } from "three";
@@ -208,12 +207,13 @@ export default function JourneyScene(props: JourneySceneProps) {
   return (
     <div className={styles.scene} ref={wrapper} style={{ opacity: 0 }}>
       <Canvas
+        shadows
         dpr={[1, 1.5]}
         frameloop="demand"
         camera={{ fov: 43, near: 0.01, far: 15 }}
         gl={{ antialias: true, alpha: false, powerPreference: "low-power" }}
       >
-        <color attach="background" args={[lampColors[1]]} />
+        <color attach="background" args={["#000000"]} />
         <DeskLighting />
         <ambientLight intensity={0.45} color="#cad6ef" />
         <directionalLight

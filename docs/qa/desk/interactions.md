@@ -4,12 +4,16 @@ The review and scroll journey share one interaction runtime. No homepage integra
 
 ## Verified behavior
 
-- The visible black dial below the ultrawide switches the left light, lightbar and rear bias light together. The right lamp stays independent; its five colors match the flat backdrop hue.
+- The visible black dial below the ultrawide switches the left light, lightbar and rear bias light together. The right lamp stays independent; its five colors affect only the emissive lamp and its shadow-casting pool on the desk; the backdrop stays black.
 - The headphones lift and settle without moving their stand. Missing music is reported in the native control disclosure; no audio request occurs.
 - The mouse uses five bounded paths and a short click ring. Rapid clicks do not accumulate extra animations. The tablet is fixed while the pencil rolls onto the mat and returns.
 - Both locales provide keyboard buttons, pressed states for lights/music, visible focus, 44 px targets and a polite music status. Mobile touch controls fit without horizontal overflow.
 - Reduced motion in the review snaps lights and suppresses accessory motion. The journey keeps its static fallback. Model failure and context loss keep the existing recovery paths.
-- Demand rendering stops at rest and when the scene is inactive. The model has 93,011 triangles and is 462,644 bytes. The opening runtime uses 45 draw calls at rest and 46 with the ring (existing budget: 50).
+- Demand rendering stops at rest and when the scene is inactive. The model has 93,011 triangles and is 462,644 bytes. The main render pass remains within the existing 50 draw-call budget; shadow maps add separate depth passes while rendering.
+
+## Lighting correction
+
+The backdrop is fixed black in both Canvas views and their stage CSS. The right lamp has a brighter emissive diffuser, a local additive halo and a wide shadow-casting spotlight aimed at the desk. Model meshes receive shadows and cast them, except for the lamp housing around its own source. A visible warm strip below the ultrawide and its stronger rear fill follow the same dial transition as the lightbar and left vertical light.
 
 ## Verification
 
@@ -19,7 +23,7 @@ The 54-case browser matrix finished with 42 passes, 11 expected headless WebKit 
 
 Browser coverage includes both demos/locales, direct object picking, keyboard operation, color cycling while task lights are off, repeated clicks, reduced motion, render idling, existing camera journeys, occlusion, model failure, no-JavaScript and static fallback behavior. Animation tests use Playwright's controlled clock to inspect short motions without depending on host rendering speed.
 
-Visual review: the lamp uses PBR surface shading to retain its silhouette against the matching backdrop. Neutral receiver maps contain no switched-light contributions; moving meshes, curves and text are excluded from their bake. Screen projection and desk layout remain unchanged.
+Visual review: the lamp uses a bright emissive diffuser and a subtle local halo against a fixed black backdrop. Neutral receiver maps contain no switched-light contributions; moving meshes, curves and text are excluded from their bake. Screen projection and desk layout remain unchanged.
 
 The Web Interface Guidelines review used the [current primary guidelines](https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md). The approved sentence case and first-person content contract takes precedence over its copy defaults. No remaining actionable findings in the new controls.
 

@@ -51,7 +51,7 @@ The model now includes five embedded authored microstructure normal maps, correc
 
 ## September 9 object interactions
 
-Both review routes share the same controls and motion runtime. The lightbar dial toggles the left light, lightbar and rear bias light together (250 ms); the separate right lamp cycles muted amber, pink, purple, blue and green with a matching flat background (350 ms). Pink is the initial color. Neutral studio fill keeps objects legible with task lights off.
+Both review routes share the same controls and motion runtime. The lightbar dial toggles the left light, lightbar and rear bias light together (250 ms); the separate right lamp cycles muted amber, pink, purple, blue and green with a fixed black background (350 ms). Pink is the initial color. Neutral studio fill keeps objects legible with task lights off.
 
 The headphone assembly moves without its stand (550 ms). The mouse follows five bounded paths, returning to its original pose (750 ms); a short ring marks the click. The tablet remains fixed while its pencil rolls outward onto the mat and returns (1000 ms). The pencil's radius clears the 4 mm mat. Repeated clicks do not queue animations. The export batches within interaction identity and material, preserving eight named anchors and a generated target/pivot contract in `src/lib/desk-interactions.json`.
 

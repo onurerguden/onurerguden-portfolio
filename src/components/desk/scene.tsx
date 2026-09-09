@@ -17,7 +17,6 @@ import {
   useDeskInteractions,
   type DeskInteractions,
 } from "./interactions";
-import { lampColors } from "@/lib/desk-interaction-motion";
 
 type Props = {
   revealed: boolean;
@@ -126,6 +125,8 @@ export function Model({
         object.material = Array.isArray(object.material)
           ? object.material.map((m) => m.clone())
           : object.material.clone();
+        object.castShadow = object.userData.interaction !== "lamp";
+        object.receiveShadow = true;
         if (object.userData.interaction === "backdrop") object.visible = false;
       }
     });
@@ -284,12 +285,13 @@ export default function DeskScene(props: Props) {
   return (
     <div className={styles.canvas} style={{ opacity: props.revealed ? 1 : 0 }}>
       <Canvas
+        shadows
         dpr={[1, 1.5]}
         frameloop="demand"
         camera={{ position: [0.12, 0.69, 1.48], fov: 43, near: 0.01, far: 12 }}
         gl={{ antialias: true, alpha: false, powerPreference: "low-power" }}
       >
-        <color attach="background" args={[lampColors[1]]} />
+        <color attach="background" args={["#000000"]} />
         <DeskLighting />
         <ambientLight intensity={0.55} color="#cad6ef" />
         <directionalLight

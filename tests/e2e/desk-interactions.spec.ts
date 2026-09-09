@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import sharp from "sharp";
 import AxeBuilder from "@axe-core/playwright";
 import { PerspectiveCamera, Vector3 } from "three";
 import scene from "../../src/lib/desk-scene.json";
@@ -44,6 +45,13 @@ for (const locale of ["en", "tr"] as const) {
         await expect(canvas).toHaveAttribute("data-lamp-color", color);
         await expect(canvas).toHaveAttribute("data-lights", "0.000");
       }
+      // Sample actual rendered pixels: lamp color must never tint the backdrop.
+      const corner = await sharp(await canvas.screenshot())
+        .extract({ left: 30, top: 30, width: 1, height: 1 })
+        .removeAlpha()
+        .raw()
+        .toBuffer();
+      expect([...corner]).toEqual([0, 0, 0]);
       await dial.click();
       await expect(canvas).toHaveAttribute("data-lights", "1.000");
       await page.clock.pauseAt(new Date(Date.now() + 1000));

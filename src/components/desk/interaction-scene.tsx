@@ -4,12 +4,17 @@ import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import {
   Color,
+  CanvasTexture,
+  AdditiveBlending,
+  Sprite,
+  SpriteMaterial,
   Group,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
   Object3D,
   PointLight,
+  SpotLight,
 } from "three";
 import contract from "@/lib/desk-interactions.json";
 import {
@@ -42,10 +47,30 @@ export default function InteractionScene({
   model: Group;
   controls: DeskInteractions;
 }) {
-  const { scene, gl, invalidate } = useThree();
+  const { gl, invalidate } = useThree();
   const { active, reduced, registerMotion } = controls;
-  const lights = useRef<(PointLight | null)[]>([]);
+  const lights = useRef<(PointLight | SpotLight | null)[]>([]);
   const ring = useRef<Mesh>(null);
+  const biasStrip = useRef<Mesh>(null);
+  const glow = useRef<Sprite>(null);
+  const glowMap = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 128;
+    const context = canvas.getContext("2d")!;
+    const gradient = context.createRadialGradient(64, 64, 8, 64, 64, 64);
+    gradient.addColorStop(0, "rgba(255,255,255,0.6)");
+    gradient.addColorStop(0.35, "rgba(255,255,255,0.22)");
+    gradient.addColorStop(1, "rgba(255,255,255,0)");
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 128, 128);
+    return new CanvasTexture(canvas);
+  }, []);
+  useEffect(() => () => glowMap.dispose(), [glowMap]);
+  const lampTarget = useMemo(() => {
+    const target = new Object3D();
+    target.position.set(0.58, 0, -0.22);
+    return target;
+  }, []);
   const shadows = useRef<(Mesh | null)[]>([]);
   const running = useRef<
     Partial<Record<AnimatedObject, { start: number; variant: number }>>
@@ -168,11 +193,13 @@ export default function InteractionScene({
     color.current
       .copy(transition.current.colorStart)
       .lerp(targetColor, ease(ct));
-    if (scene.background instanceof Color) scene.background.copy(color.current);
+    if (glow.current)
+      (glow.current.material as SpriteMaterial).color.copy(color.current);
     lampMaterials.forEach((material) => {
       material.color.copy(color.current);
       material.emissive.copy(color.current);
-      material.emissiveIntensity = 0.65;
+      material.emissiveIntensity = 9;
+      material.roughness = 1;
     });
     const light =
       transition.current.lightStart +
@@ -186,10 +213,15 @@ export default function InteractionScene({
         0.08 + 0.32 * light,
       );
     });
+    if (biasStrip.current) {
+      const material = biasStrip.current.material as MeshStandardMaterial;
+      material.emissiveIntensity = 4 * light;
+      material.color.setScalar(0.04 + 0.8 * light);
+    }
     lights.current.forEach((lamp, i) => {
       if (lamp) {
         if (i === 3) lamp.color.copy(color.current);
-        else lamp.intensity = [0.22, 0.35, 0.22][i] * light;
+        else lamp.intensity = [0.22, 0.35, 0.65][i] * light;
       }
     });
     let busy = ct < 1 || lt < 1;
@@ -300,19 +332,47 @@ export default function InteractionScene({
         ref={(node) => {
           lights.current[2] = node;
         }}
-        position={[0.08, 0.34, -0.4]}
-        intensity={0.22}
+        position={[0.08, 0.2, -0.36]}
+        intensity={0.65}
         distance={0.9}
         color="#ffb774"
       />
-      <pointLight
+      <sprite ref={glow} position={[0.673, 0.12, -0.33]} scale={[0.3, 0.38, 1]}>
+        <spriteMaterial
+          map={glowMap}
+          blending={AdditiveBlending}
+          transparent
+          opacity={0.8}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </sprite>
+      <primitive object={lampTarget} />
+      <spotLight
+        castShadow
+        target={lampTarget}
+        angle={1.25}
+        penumbra={0.8}
+        shadow-mapSize={[1024, 1024]}
+        shadow-camera-near={0.02}
+        shadow-camera-far={1.5}
+        shadow-bias={-0.0002}
+        shadow-normalBias={0.001}
         ref={(node) => {
           lights.current[3] = node;
         }}
         position={[0.673, 0.16, -0.33]}
-        intensity={0.16}
-        distance={0.7}
+        intensity={3}
+        distance={1.2}
       />
+      <mesh ref={biasStrip} position={[0.09, 0.247, -0.302]}>
+        <boxGeometry args={[0.61, 0.006, 0.006]} />
+        <meshStandardMaterial
+          color="#ffe0b0"
+          emissive="#ffb774"
+          emissiveIntensity={4}
+        />
+      </mesh>
       {animated.map((id, index) => (
         <mesh
           key={id}
