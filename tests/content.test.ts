@@ -2,7 +2,13 @@ import { afterEach, describe, expect, it } from "vitest";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { getProject, getProjects, isLocale, sharedFacts, validateContent } from "../src/lib/content";
+import {
+  getProject,
+  getProjects,
+  isLocale,
+  sharedFacts,
+  validateContent,
+} from "../src/lib/content";
 
 const temporary: string[] = [];
 function fixture() {
@@ -11,7 +17,11 @@ function fixture() {
   fs.cpSync(path.join(process.cwd(), "src/content"), root, { recursive: true });
   return root;
 }
-afterEach(() => temporary.splice(0).forEach((root) => fs.rmSync(root, { recursive: true, force: true })));
+afterEach(() =>
+  temporary
+    .splice(0)
+    .forEach((root) => fs.rmSync(root, { recursive: true, force: true })),
+);
 
 describe("bilingual portfolio content", () => {
   it("provides three complete case studies and three summaries in each language", () => {
@@ -20,7 +30,11 @@ describe("bilingual portfolio content", () => {
       const projects = getProjects(locale);
       expect(projects).toHaveLength(6);
       expect(projects.filter((project) => project.body)).toHaveLength(3);
-      expect(projects.filter((project) => !project.featured).every((project) => !project.body)).toBe(true);
+      expect(
+        projects
+          .filter((project) => !project.featured)
+          .every((project) => !project.body),
+      ).toBe(true);
     }
   });
   it("fails when a translated case study is absent", () => {
@@ -49,6 +63,14 @@ describe("bilingual portfolio content", () => {
     expect(sharedFacts.publication.status).toBe("accepted");
     expect(sharedFacts.publication).not.toHaveProperty("doi");
     expect(sharedFacts.publication).not.toHaveProperty("date");
+  });
+  it("resolves shared measurements in both locales and rejects unknown facts", () => {
+    expect(getProject("en", "water-safety")?.body).toContain("96.3%");
+    expect(getProject("tr", "water-safety")?.body).toContain("%96,3");
+    const root = fixture();
+    const file = path.join(root, "tr/water-safety.mdx");
+    fs.appendFileSync(file, "\n[[metric:inventedScore]]");
+    expect(() => validateContent(root)).toThrow("Unknown measurement");
   });
   it("handles unsupported routes explicitly", () => {
     expect(isLocale("fr")).toBe(false);

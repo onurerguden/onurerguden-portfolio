@@ -10,7 +10,10 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "check": "npm run typecheck && npm run lint && npm run test && npm run build",
-    "validate:content": "tsx scripts/validate-content.ts"
+    "validate:content": "tsx scripts/validate-content.ts",
+    "test:e2e": "playwright test",
+    "format:check": "prettier --check src tests scripts *.ts *.mts",
+    "check:links": "tsx scripts/check-external-links.ts"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "5.3.0",
@@ -37,6 +40,7 @@
     "@types/three": "0.185.4",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
+    "prettier": "3.9.6",
     "tsx": "4.23.13",
     "typescript": "^5",
     "vitest": "5.0.0"

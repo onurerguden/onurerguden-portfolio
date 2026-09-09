@@ -2,17 +2,18 @@
 slug: water-safety
 locale: tr
 ---
+
 ## Tespit, sorunun yalnızca bir parçası
 
 Su güvenliğini değerlendirmek, hem mevcut kirliliği hem de koşulların nasıl değişebileceğini anlamayı gerektiriyor. HealthFactor-AI bu görevleri anlık sınıflandırma ve ileriye dönük güvenlik eğilimi tahmini olarak iki katmanda ele alıyor.
 
 ## Benim katkım
 
-30.000'i aşkın su kalitesi kaydı ve otomatik veri yenileme hattı üzerinde iki katmanlı çerçeveyi tasarladım. Özellik mühendisliği, kontrollü sınıf dengeleme, SVM sınıflandırıcısı ve Extra Trees tahmin modeli üzerinde çalıştım.
+[[metric:waterRecords]]'i aşkın su kalitesi kaydı ve otomatik veri yenileme hattı üzerinde iki katmanlı çerçeveyi tasarladım. Özellik mühendisliği, kontrollü sınıf dengeleme, SVM sınıflandırıcısı ve Extra Trees tahmin modeli üzerinde çalıştım.
 
 ## Değerlendirme ve sonuçlar
 
-CV'de projenin değerlendirmesi kapsamında toksik su tespiti için %96,3 duyarlılık ve tahmin modeli için %80 doğruluk raporlanıyor. Çalışmada 3.000'i aşkın simüle edilmiş kirlenme senaryosu da kullanıldı.
+Projenin değerlendirmesinde toksik su tespiti için [[metric:waterRecall]] duyarlılık ve tahmin modeli için [[metric:waterForecast]] doğruluk raporlanıyor. Çalışmada [[metric:waterScenarios]]'i aşkın simüle edilmiş kirlenme senaryosu da kullanıldı.
 
 Duyarlılık ve tahmin doğruluğu farklı görevleri ölçüyor; birbirinin yerine kullanılamaz. Veri ayırma stratejisi, temel model karşılaştırmaları ve belirsizlik tahminlerinin tamamı burada yeniden sunulmuyor. Bu nedenle sonuçlar, görülmemiş su kaynakları için genel bir başarı garantisi olarak yorumlanmamalı.
 
