@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readFileSync, existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { Matrix4, PerspectiveCamera, Vector3, Vector4 } from "three";
@@ -37,6 +38,24 @@ describe("desk delivery model", () => {
     ).toBe(true);
     expect(gltf.extensionsRequired).toContain("KHR_draco_mesh_compression");
   });
+  it("delivers authored surface normals in the web model, not only in Blender", () => {
+    for (const name of [
+      "Woven black textile",
+      "Soft touch rubber",
+      "Space grey aluminium",
+      "Graphite polymer",
+      "Keycap graphite",
+    ]) {
+      const material = gltf.materials.find(
+        (entry: { name: string }) => entry.name === name,
+      );
+      expect(material.normalTexture).toBeDefined();
+      const image =
+        gltf.images[gltf.textures[material.normalTexture.index].source];
+      expect(image.bufferView).toBeDefined();
+      expect(image.uri).toBeUndefined();
+    }
+  });
   it("aligns monitor tops and halves the previous MacBook housing clearance", () => {
     const portrait = contract.screens.PortraitScreen;
     const wide = contract.screens.UltrawideScreen;
@@ -55,8 +74,18 @@ describe("desk delivery model", () => {
       5,
     );
   });
-  it("ships all four static fallbacks and a true-scale desk", () => {
-    expect(contract.desk).toEqual({ width: 1.5, depth: 0.8 });
+  it("ships a loading poster from the current model", () => {
+    const poster = JSON.parse(
+      readFileSync("docs/qa/desk/loading-poster.json", "utf8"),
+    );
+    expect(poster.modelSha256).toBe(
+      createHash("sha256").update(bytes).digest("hex"),
+    );
+    expect([poster.width, poster.height]).toEqual([1280, 960]);
+    expect(existsSync("public/images/desk/wide-loading.webp")).toBe(true);
+  });
+  it("ships all four static fallbacks and the revised desk footprint", () => {
+    expect(contract.desk).toEqual({ width: 1.5, depth: 0.87 });
     expect(contract.cameras.map((c) => c.id)).toEqual([
       "wide",
       "portrait",

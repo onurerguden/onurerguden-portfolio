@@ -6,8 +6,11 @@ import { useGLTF } from "@react-three/drei";
 import { Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector3 } from "three";
 import { createScreenProjection, projectScreen } from "@/lib/desk-projection";
 import contract from "@/lib/desk-scene.json";
+import occluders from "@/lib/desk-occluders.json";
+import { createScreenOcclusion, screenMaskImage } from "@/lib/desk-occlusion";
 import assets from "@/lib/desk-assets.json";
 import styles from "./review.module.css";
+import DeskLighting from "./lighting";
 
 type Props = {
   revealed: boolean;
@@ -144,6 +147,13 @@ function CameraJourney({
     () => Object.values(contract.screens).map(createScreenProjection),
     [],
   );
+  const masks = useMemo(
+    () =>
+      Object.values(contract.screens).map((s) =>
+        createScreenOcclusion(s, occluders),
+      ),
+    [],
+  );
   const rendered = useRef(0);
   const vectors = useMemo(
     () => ({
@@ -231,6 +241,11 @@ function CameraJourney({
       const css = projectScreen(projection, camera, size.width, size.height);
       panel.style.visibility = css ? "visible" : "hidden";
       if (css) panel.style.transform = `matrix3d(${css.join(",")})`;
+      const screen = Object.values(contract.screens)[index];
+      panel.style.maskImage = screenMaskImage(
+        masks[index](camera.position),
+        (1000 * screen.height) / screen.width,
+      );
     });
     gl.render(state.scene, camera);
     gl.domElement.setAttribute("data-draw-calls", String(gl.info.render.calls));
@@ -255,6 +270,7 @@ export default function DeskScene(props: Props) {
         gl={{ antialias: true, alpha: false, powerPreference: "low-power" }}
       >
         <color attach="background" args={["#171719"]} />
+        <DeskLighting />
         <ambientLight intensity={0.55} color="#cad6ef" />
         <directionalLight
           castShadow

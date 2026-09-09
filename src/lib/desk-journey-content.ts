@@ -24,6 +24,7 @@ export function getJourneyContent(locale: Locale): JourneyContent {
         .filter((p) => p.featured)
         .map((p) => ({
           title: p.title,
+          visual: p.slug,
           body: p.summary.split(/(?<=[.!?])\s/)[0],
           href: `/${locale}/projects/${p.slug}`,
           action: en ? "Explore the project" : "Projeyi incele",

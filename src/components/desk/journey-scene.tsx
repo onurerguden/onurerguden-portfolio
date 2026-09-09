@@ -1,9 +1,13 @@
 "use client";
 import { Suspense, useEffect, useMemo, useRef, type RefObject } from "react";
+import DeskLighting from "./lighting";
+import ProjectArt from "@/components/project-art";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Vector3, PerspectiveCamera } from "three";
 import type { MotionValue } from "motion/react";
 import { Model } from "./scene";
+import occluders from "@/lib/desk-occluders.json";
+import { createScreenOcclusion, screenMaskImage } from "@/lib/desk-occlusion";
 import contract from "@/lib/desk-scene.json";
 import { createScreenProjection, projectScreen } from "@/lib/desk-projection";
 import { journeyAt, pageOffset, type JourneyContent } from "@/lib/desk-journey";
@@ -12,6 +16,7 @@ export type JourneySceneProps = {
   distance: MotionValue<number>;
   active: boolean;
   content: JourneyContent;
+  locale: "en" | "tr";
   onReady: () => void;
   onFailure: () => void;
   onFocusCard: (screen: number, card: number) => void;
@@ -26,6 +31,10 @@ function Driver({
 }: JourneySceneProps & { panels: RefObject<HTMLDivElement | null> }) {
   const { camera, gl, size, invalidate, setFrameloop } = useThree();
   const projections = useMemo(() => screens.map(createScreenProjection), []);
+  const masks = useMemo(
+    () => screens.map((s) => createScreenOcclusion(s, occluders)),
+    [],
+  );
   const frames = useRef(0);
   const temp = useMemo(
     () => ({
@@ -104,11 +113,11 @@ function Driver({
       temp.b
         .copy(a.position)
         .lerp(b.position, 0.3)
-        .add(new Vector3(step.to === 1 ? -0.1 : 0.08, 0.055, 0.16));
+        .add(new Vector3(step.to === 1 ? -0.2 : 0.15, 0.1, 0.25));
       temp.c
         .copy(a.position)
         .lerp(b.position, 0.7)
-        .add(new Vector3(step.to === 3 ? 0.08 : 0, 0.035, 0.11));
+        .add(new Vector3(step.to === 3 ? 0.13 : -0.045, 0.045, 0.15));
       temp.d.copy(b.position);
       const u = 1 - t;
       temp.position
@@ -125,7 +134,10 @@ function Driver({
         step.exit * 0.18,
       );
     if (camera instanceof PerspectiveCamera) {
-      const fov = a.fov + (b.fov - a.fov) * t;
+      const fov =
+        a.fov +
+        (b.fov - a.fov) * t +
+        (step.from !== step.to ? 3 * Math.sin(Math.PI * t) : 0);
       camera.setFocalLength(
         camera.getFilmHeight() / (2 * Math.tan((fov * Math.PI) / 360)),
       );
@@ -136,7 +148,7 @@ function Driver({
     if (step.from !== step.to)
       camera.rotateZ(
         ((Math.sin(t * Math.PI) * Math.PI) / 180) *
-          (step.to === 2 ? -1.6 : 1.2),
+          (step.to === 2 ? -1.9 : 1.6),
       );
     camera.updateProjectionMatrix();
     camera.updateMatrixWorld();
@@ -146,6 +158,9 @@ function Driver({
       const matrix = projectScreen(projection, camera, size.width, size.height);
       panel.style.visibility = matrix ? "visible" : "hidden";
       if (matrix) panel.style.transform = `matrix3d(${matrix.join(",")})`;
+      const maskPath = masks[index](camera.position);
+      const maskHeight = (1000 * screens[index].height) / screens[index].width;
+      panel.style.maskImage = screenMaskImage(maskPath, maskHeight);
       const track = panel.firstElementChild as HTMLElement;
       const height = (1000 * screens[index].height) / screens[index].width;
       const offset = pageOffset(
@@ -187,7 +202,8 @@ export default function JourneyScene(props: JourneySceneProps) {
         gl={{ antialias: true, alpha: false, powerPreference: "low-power" }}
       >
         <color attach="background" args={["#171719"]} />
-        <ambientLight intensity={0.6} color="#cad6ef" />
+        <DeskLighting />
+        <ambientLight intensity={0.45} color="#cad6ef" />
         <directionalLight
           position={[-0.65, 1.45, 0.6]}
           intensity={1.8}
@@ -230,6 +246,11 @@ export default function JourneyScene(props: JourneySceneProps) {
                     <span className={styles.label}>
                       {props.content.labels[i]}
                     </span>
+                    {card.visual ? (
+                      <div className={styles.screenVisual}>
+                        <ProjectArt slug={card.visual} locale={props.locale} />
+                      </div>
+                    ) : null}
                     <h2>{card.title}</h2>
                     <p>{card.body}</p>
                     <a href={card.href} onFocus={() => props.onFocusCard(i, j)}>

@@ -152,7 +152,11 @@ test("late loading keeps the current scroll position; context loss restores norm
     "data-enhanced",
     "true",
   );
-  await expect(page.locator("[data-journey-stage] img")).toBeVisible();
+  await expect(page.locator("[data-journey-stage] > img")).toBeVisible();
+  await expect(page.locator("[data-journey-stage] > img")).toHaveAttribute(
+    "src",
+    /wide-loading/,
+  );
   await page.evaluate(() => {
     const s = document.querySelector("[data-enhanced]") as HTMLElement,
       v = document.querySelector("[data-journey-stage]") as HTMLElement;
@@ -231,4 +235,26 @@ test("narrow and zoom-equivalent viewports preserve screen links and readable ty
   ).toBe(true);
   await page.getByRole("link", { name: "Skip to work" }).click();
   await expect(page.locator("#journey-content")).toBeInViewport();
+});
+
+test("riser frame occludes the portrait HTML during the MacBook approach", async ({
+  page,
+  browserName,
+}) => {
+  test.skip(browserName === "webkit", "Headless WebKit lacks reliable WebGL2.");
+  await page.setViewportSize({ width: 2400, height: 1100 });
+  await page.goto("/tr/lab/desk/journey");
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+  );
+  await go(page, 5.85);
+  const panel = page.locator('[data-screen="0"]');
+  await expect
+    .poll(() => panel.evaluate((p) => getComputedStyle(p).maskImage))
+    .toContain("data:image/svg+xml");
+  await go(page, 0);
+  await expect
+    .poll(() => panel.evaluate((p) => getComputedStyle(p).maskImage))
+    .toBe("none");
 });
