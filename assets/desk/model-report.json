@@ -1,8 +1,8 @@
 {
   "blender": "4.5.13 LTS",
-  "triangles": 93159,
-  "materialBatches": 18,
-  "glbBytes": 482504,
+  "triangles": 93011,
+  "materialBatches": 19,
+  "glbBytes": 488564,
   "textureMaxDimension": 1024,
   "layout": {
     "oldClearanceM": 0.042476194973080666,

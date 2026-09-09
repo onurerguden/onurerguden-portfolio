@@ -383,6 +383,13 @@ cushion=sphere('Mouse rest cushion',(0,0,.014),(.062,.031,.015),'fabric',wr)
 for vertex in cushion.data.vertices:
     vertex.co.y += .13 * vertex.co.x * vertex.co.x
 
+# Honeycomb knit from the reference cushion; shared material and tiny tiled map.
+def headphone_weave(x,y,size):
+    row=y//16;xx=(x+(row%2)*12)%24;yy=y%16
+    edge=min(abs(xx-12)*.577+abs(yy-8),12)
+    value=.024 if edge>10 else .050+((x+y)%3)*.006
+    return (value,value*1.02,value*1.06,1)
+M['headphone_fabric']=material('Barracuda honeycomb knit',(.05,.05,.05),.97,texture=pattern('Authored honeycomb knit',192,headphone_weave))
 # Headphones and stand, paired oval earcups plus shaped headband.
 head=empty('Razer Barracuda and stand',(.48,.3725,0),(0,0,math.radians(-8)))
 box('Headphone stand base',(0,0,.004),(.126,.115,.008),'black',.014,head)
@@ -415,8 +422,9 @@ def band(name,rx,rz,centerz,width,thickness,mat):
     me=bpy.data.meshes.new(name);me.from_pydata(vs,[],fs);me.update()
     ob=bpy.data.objects.new(name,me);scene.collection.objects.link(ob);finish(ob,name,mat,head)
     for p in me.polygons:p.use_smooth=True
-band('Barracuda outer headband',.070,.112,.138,.027,.0035,'black')
-band('Barracuda headband padding',.066,.105,.140,.025,.0035,'fabric')
+band('Barracuda outer headband',.070,.112,.138,.036,.0035,'black')
+band('Barracuda headband inner backing',.068,.109,.138,.034,.002,'black')
+band('Barracuda headband padding',.066,.105,.140,.032,.0035,'fabric')
 for x in (-.0365,.0365):
     cup=empty('Barracuda earcup',(x,-.008,.077),(0,math.radians(-25 if x<0 else 25),math.radians(32 if x<0 else -32)));cup.parent=head
     sphere('Barracuda outer ear housing',(0,.004,0),(.0305,.014,.047),'black',cup)
@@ -432,15 +440,38 @@ for x in (-.0365,.0365):
         for j in range(minor):
             fs.append((i*minor+j,((i+1)%major)*minor+j,((i+1)%major)*minor+(j+1)%minor,i*minor+(j+1)%minor))
     me=bpy.data.meshes.new('Oval cushion with opening');me.from_pydata(vs,[],fs);me.update()
-    ob=bpy.data.objects.new('Barracuda fabric cushion',me);scene.collection.objects.link(ob);finish(ob,ob.name,'fabric',cup)
+    ob=bpy.data.objects.new('Barracuda fabric cushion',me);scene.collection.objects.link(ob);finish(ob,ob.name,'headphone_fabric',cup)
+    uv=me.uv_layers.new(name='Knit repeat')
+    for poly in me.polygons:
+        for li in poly.loop_indices:
+            vi=me.loops[li].vertex_index
+            uv.data[li].uv=((vi//minor)/major*5,(vi%minor)/minor*1.5)
     for poly in me.polygons:poly.use_smooth=True
     sphere('Dark recessed speaker cloth',(0,-.012,0),(.018,.003,.031),'rubber',cup)
     # Recessed moulded sliders join the band to the shell without exposed forks.
     cylinder('Barracuda swivel pivot',(-.024 if x<0 else .024,.012,.024),.004,.002,'darkmetal',cup,(math.pi/2,0,0),24)
     for z in (-.026,-.014):box('Headphone controls',(0,.025,z),(.010,.002,.005),'darkmetal',.002,cup)
+# Continuous moulded side arms: wide ribbons, smoothly tapering into each cup.
+# Their lower ends are computed from the cup transform so no disconnected tips remain.
 for side in (-1,1):
-    box('Barracuda telescopic slider',(side*.071,.002,.159),(.007,.018,.018),'darkmetal',.002,head)
-    tube('Barracuda curved adjustment arm',[(side*.068,.004,.164),(side*.077,.006,.143),(side*.078,.005,.115),(side*.069,.001,.096)],.0045,'black',head,4)
+    cup=next(o for o in bpy.data.objects if o.name.startswith('Barracuda earcup') and o.location.x*side>0)
+    endpoint=cup.location + cup.rotation_euler.to_matrix() @ Vector((side*.024,.006,.020))
+    points=[Vector((side*.069,0,.163)),Vector((side*.074,.002,.143)),Vector((side*.074,.002,.119)),endpoint]
+    vertices=[];faces=[]
+    for i in range(25):
+        t=i/24;u=1-t
+        c=u**3*points[0]+3*u*u*t*points[1]+3*u*t*t*points[2]+t**3*points[3]
+        depth=.034-.008*t
+        for dx,dy in [(-.003,-depth/2),(.003,-depth/2),(.003,depth/2),(-.003,depth/2)]:vertices.append(tuple(c+Vector((dx,dy,0))))
+    for i in range(24):
+        for j in range(4):faces.append((4*i+j,4*i+(j+1)%4,4*(i+1)+(j+1)%4,4*(i+1)+j))
+    faces.extend([(3,2,1,0),(96,97,98,99)])
+    me=bpy.data.meshes.new('Continuous moulded yoke');me.from_pydata(vertices,[],faces);me.update()
+    ob=bpy.data.objects.new('Barracuda moulded side arm',me);scene.collection.objects.link(ob);finish(ob,ob.name,'black',head)
+    for poly in me.polygons:poly.use_smooth=True
+    bevel=ob.modifiers.new('Small moulded edge','BEVEL');bevel.width=.001;bevel.segments=2
+    # Flush adjustment collar at the headband join.
+    box('Barracuda adjustment collar',(side*.069,0,.164),(.008,.037,.006),'rubber',.001,head)
 text('Headband Razer emboss','RAZER',(0,-.018,.251),.012,'darkmetal',head)
 
 # Close-view manufacturing details. Device positions and screen anchors stay fixed.
@@ -520,6 +551,15 @@ for sid,camid,distance in [('PortraitScreen','portrait',.79),('UltrawideScreen',
     s=screens[sid];t=s['position'];n=s['normal']
     cameras.append({'id':camid,'position':[round(t[i]+n[i]*distance,6) for i in range(3)],'target':t,'fov':43})
 contract={'units':'metres','up':'Y','desk':{'width':1.5,'depth':.87},'screens':screens,'cameras':cameras}
+occluders=[]
+for ob in bpy.data.objects:
+    if not ob.name.startswith('BRYTET rounded transverse frame'):continue
+    evaluated=ob.evaluated_get(bpy.context.evaluated_depsgraph_get())
+    mesh=evaluated.to_mesh();mesh.calc_loop_triangles()
+    for tri in mesh.loop_triangles:
+        occluders.append([to_web(ob.matrix_world @ mesh.vertices[index].co) for index in tri.vertices])
+    evaluated.to_mesh_clear()
+(ROOT/'src/lib/desk-occluders.json').write_text(json.dumps(occluders,separators=(',',':'))+'\n')
 (ROOT/'src/lib/desk-scene.json').write_text(json.dumps(contract,indent=2)+'\n')
 
 # Lighting kept in source and recreated explicitly in the viewer.

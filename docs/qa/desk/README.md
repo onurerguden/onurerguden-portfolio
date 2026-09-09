@@ -55,3 +55,14 @@ The headphone shells are oval surfaces, the cushions turn inward, and slim curve
 Use `--source-only` on the Blender builder to save editable geometry before the expensive render/bake pass, then run `scripts/desk/verify-accessory-fit.py` to check support intersections, cushion direction, rail fit and cable endpoints.
 
 Validation for this revision: Blender fit checks pass, including keyboard key intersections and centered rear accessories. `npm run check` passes (typecheck, lint, 29 unit tests, content validation, production build). Targeted desk/journey browser tests pass 31 with 5 headless WebKit GPU skips. The Chromium desk audit reports zero accessibility violations, no page errors, stopped offscreen rendering and no narrow/zoom overflow. Delivery GLB: 482,504 bytes, 93,159 exported triangles, 18 material batches, 1024 px maximum textures. Sampled manual wide view: 93,211 rendered triangles / 21 draw calls. Physical iOS Safari remains untested.
+
+
+## Barracuda connection and screen occlusion revision — 2026-09-09
+
+The latest supplied product photographs control the broad moulded headband/yoke construction. Replaced disconnected tubular adjustment arms with continuous tapered ribbons whose lower endpoints are computed from the earcup transform. Widened the headband and its backing, added flush adjustment collars and an authored honeycomb cushion texture. No product photographs or downloaded third-party geometry are embedded. Unmeasured surfaces remain photo-based approximations, not a certified one-to-one product model.
+
+The portrait screen overlap was a compositing defect: HTML painted over the physical riser frame. Both review scenes now project the actual source frame triangles into a screen mask, clip triangles behind the screen plane, and normalize face winding so overlapping surfaces form a solid union. The camera-stationary mask is cached. Screen positions, readable HTML links and focus handling are retained.
+
+Editable Blender, GLB, eleven rendered views and the live-canvas loading poster were regenerated together. Model: 488,564 bytes, 93,011 exported triangles, 19 material batches, maximum texture dimension 1024. Accessory fit checks report no headphone/stand or portrait panel/support intersections. Browser review: zero axe violations, no page errors, offscreen rendering stopped and 200% zoom did not overflow. Physical iOS Safari has not been tested.
+
+Validation: `npm run check` passed (32 unit tests, typecheck, lint, content validation, production build). Browser suite passed 33 tests; 6 headless WebKit GPU cases skipped. Initial concurrent video/test runs exceeded the 5-second GPU readiness timeout; the full suite was rerun serially and passed.

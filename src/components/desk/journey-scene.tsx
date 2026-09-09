@@ -6,6 +6,8 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Vector3, PerspectiveCamera } from "three";
 import type { MotionValue } from "motion/react";
 import { Model } from "./scene";
+import occluders from "@/lib/desk-occluders.json";
+import { createScreenOcclusion, screenMaskImage } from "@/lib/desk-occlusion";
 import contract from "@/lib/desk-scene.json";
 import { createScreenProjection, projectScreen } from "@/lib/desk-projection";
 import { journeyAt, pageOffset, type JourneyContent } from "@/lib/desk-journey";
@@ -29,6 +31,10 @@ function Driver({
 }: JourneySceneProps & { panels: RefObject<HTMLDivElement | null> }) {
   const { camera, gl, size, invalidate, setFrameloop } = useThree();
   const projections = useMemo(() => screens.map(createScreenProjection), []);
+  const masks = useMemo(
+    () => screens.map((s) => createScreenOcclusion(s, occluders)),
+    [],
+  );
   const frames = useRef(0);
   const temp = useMemo(
     () => ({
@@ -152,6 +158,9 @@ function Driver({
       const matrix = projectScreen(projection, camera, size.width, size.height);
       panel.style.visibility = matrix ? "visible" : "hidden";
       if (matrix) panel.style.transform = `matrix3d(${matrix.join(",")})`;
+      const maskPath = masks[index](camera.position);
+      const maskHeight = (1000 * screens[index].height) / screens[index].width;
+      panel.style.maskImage = screenMaskImage(maskPath, maskHeight);
       const track = panel.firstElementChild as HTMLElement;
       const height = (1000 * screens[index].height) / screens[index].width;
       const offset = pageOffset(

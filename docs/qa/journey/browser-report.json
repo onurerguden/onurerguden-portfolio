@@ -3,110 +3,110 @@
     "name": "desktop",
     "stop": "wide",
     "engine": "three.js r185",
-    "frames": "7",
+    "frames": "6",
     "distance": "0",
     "camera": "0.08,0.74,1.7",
-    "drawCalls": "20",
-    "triangles": "93199",
+    "drawCalls": "21",
+    "triangles": "93051",
     "overflow": false
   },
   {
     "name": "desktop",
     "stop": "approach",
     "engine": "three.js r185",
-    "frames": "8",
+    "frames": "7",
     "distance": "0.88",
     "camera": "-0.20290013614862343,0.5648605619392156,1.2752105397328692",
-    "drawCalls": "20",
-    "triangles": "93199",
+    "drawCalls": "21",
+    "triangles": "93051",
     "overflow": false
   },
   {
     "name": "desktop",
     "stop": "portrait",
     "engine": "three.js r185",
-    "frames": "10",
+    "frames": "8",
     "distance": "1.4000000000000001",
     "camera": "-0.296540955090937,0.291262,0.5756498801276688",
-    "drawCalls": "17",
-    "triangles": "85131",
+    "drawCalls": "18",
+    "triangles": "83395",
     "overflow": false
   },
   {
     "name": "desktop",
     "stop": "portrait-last",
     "engine": "three.js r185",
-    "frames": "11",
+    "frames": "9",
     "distance": "3.1",
     "camera": "-0.296540955090937,0.291262,0.5756498801276688",
     "drawCalls": "17",
-    "triangles": "85131",
+    "triangles": "83383",
     "overflow": false
   },
   {
     "name": "desktop",
     "stop": "across",
     "engine": "three.js r185",
-    "frames": "13",
+    "frames": "10",
     "distance": "3.62",
     "camera": "-0.06650775946116455,0.4050124122360822,0.6558954983341801",
-    "drawCalls": "19",
-    "triangles": "85653",
+    "drawCalls": "20",
+    "triangles": "85505",
     "overflow": false
   },
   {
     "name": "desktop",
     "stop": "ultrawide",
     "engine": "three.js r185",
-    "frames": "14",
+    "frames": "11",
     "distance": "4.1",
     "camera": "0.09,0.411762,0.4317399185496856",
-    "drawCalls": "19",
-    "triangles": "80533",
+    "drawCalls": "20",
+    "triangles": "80385",
     "overflow": false
   },
   {
     "name": "desktop",
     "stop": "publication",
     "engine": "three.js r185",
-    "frames": "15",
+    "frames": "12",
     "distance": "5.1499999999999995",
     "camera": "0.09,0.411762,0.4317399185496856",
-    "drawCalls": "18",
-    "triangles": "80521",
+    "drawCalls": "19",
+    "triangles": "80373",
     "overflow": false
   },
   {
     "name": "desktop",
     "stop": "down",
     "engine": "three.js r185",
-    "frames": "16",
+    "frames": "13",
     "distance": "5.62",
     "camera": "0.15839537443540727,0.36305811147064837,0.48145987582111066",
-    "drawCalls": "20",
-    "triangles": "89121",
+    "drawCalls": "21",
+    "triangles": "88973",
     "overflow": false
   },
   {
     "name": "desktop",
     "stop": "macbook",
     "engine": "three.js r185",
-    "frames": "17",
+    "frames": "14",
     "distance": "6.1499999999999995",
     "camera": "0.015,0.2003845170578314,0.22546916092906455",
     "drawCalls": "18",
-    "triangles": "85143",
+    "triangles": "83395",
     "overflow": false
   },
   {
     "name": "desktop",
     "stop": "exit",
     "engine": "three.js r185",
-    "frames": "18",
+    "frames": "15",
     "distance": "7.5",
     "camera": "0.015,0.21236487012824104,0.2818322298962962",
     "drawCalls": "18",
-    "triangles": "85143",
+    "triangles": "83395",
     "overflow": false
   },
   {
@@ -120,8 +120,8 @@
     "frames": "7",
     "distance": "0",
     "camera": "0.08,0.74,1.7",
-    "drawCalls": "20",
-    "triangles": "93199",
+    "drawCalls": "21",
+    "triangles": "93051",
     "overflow": false
   },
   {
@@ -132,7 +132,7 @@
     "distance": "0.8803317535545023",
     "camera": "-0.1937989753860936,0.5645177017950525,1.340409914663378",
     "drawCalls": "17",
-    "triangles": "85131",
+    "triangles": "83383",
     "overflow": false
   },
   {
@@ -143,7 +143,7 @@
     "distance": "1.4004739336492893",
     "camera": "-0.2783847613648499,0.291262,0.7048379959888259",
     "drawCalls": "15",
-    "triangles": "76475",
+    "triangles": "74727",
     "overflow": false
   },
   {
@@ -154,7 +154,7 @@
     "distance": "3.0995260663507107",
     "camera": "-0.2783847613648499,0.291262,0.7048379959888259",
     "drawCalls": "14",
-    "triangles": "76463",
+    "triangles": "74715",
     "overflow": false
   },
   {
@@ -165,7 +165,7 @@
     "distance": "3.6196682464454977",
     "camera": "-0.057400883967761704,0.4049528312160559,0.8670868203065953",
     "drawCalls": "18",
-    "triangles": "85143",
+    "triangles": "83395",
     "overflow": false
   },
   {
@@ -176,7 +176,7 @@
     "distance": "4.099526066350711",
     "camera": "0.09,0.411762,0.7284009956649271",
     "drawCalls": "18",
-    "triangles": "85143",
+    "triangles": "83395",
     "overflow": false
   },
   {
@@ -187,7 +187,7 @@
     "distance": "5.150473933649289",
     "camera": "0.09,0.411762,0.7284009956649271",
     "drawCalls": "17",
-    "triangles": "85131",
+    "triangles": "83383",
     "overflow": false
   },
   {
@@ -198,7 +198,7 @@
     "distance": "5.619668246445498",
     "camera": "0.15845179357937153,0.42719871506711826,0.9342471704206151",
     "drawCalls": "18",
-    "triangles": "85143",
+    "triangles": "83395",
     "overflow": false
   },
   {
@@ -209,7 +209,7 @@
     "distance": "6.150473933649289",
     "camera": "0.015,0.331252898321328,0.8411558235369304",
     "drawCalls": "18",
-    "triangles": "85143",
+    "triangles": "83395",
     "overflow": false
   },
   {
@@ -220,7 +220,7 @@
     "distance": "7.5",
     "camera": "0.015,0.366789560019167,1.008342491773578",
     "drawCalls": "18",
-    "triangles": "85143",
+    "triangles": "83395",
     "overflow": false
   },
   {

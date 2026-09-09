@@ -56,3 +56,12 @@ The September 8 accessory revision regenerates all journey captures and recordin
 ### Accessory and keyboard photo refinement — 2026-09-08
 
 The revised model adds broader riser curves, continuous sheet fit, oval inward-facing headphone cups, a staggered Turkish ISO keyboard with one return key and split vertical arrows, and a 70 mm estimated rear desk extension with centered accessories. Screen anchors and the camera sequence stay unchanged. The current model and matching WebGL loading poster are regenerated together; desktop/mobile stop captures and recordings accompany the change. Typecheck, lint, 29 unit tests, content validation, production build and 31 targeted browser tests pass (5 documented headless WebKit GPU skips). Physical device performance has not been measured.
+
+
+## Riser/frame compositing correction — 2026-09-09
+
+`desktop-frame-occlusion.png` reproduces the reported oblique view at journey distance 5.85 with a 2400×1100 viewport. The riser's front curve and leg now cover the portrait screen's HTML, continuously matching the visible geometry below the bezel. The same source-derived mask is used in the manual model viewer. Normalized winding prevents front/back triangles from cancelling each other in the mask. Geometry behind the display does not obscure its content; stationary reading reuses the cached projection.
+
+Refreshed the desktop/mobile stops and recordings after rebuilding the headset and model. Three unit cases cover foreground, behind-camera/behind-screen and screen-plane crossing cases. A browser regression checks the oblique occlusion and clears it on return to the wide camera. Loading poster was recaptured from the latest model. No homepage promotion or merge.
+
+Validation: `npm run check` passed (32 unit tests, typecheck, lint, content validation, production build). Browser suite passed 33 tests; 6 headless WebKit GPU cases skipped. Initial concurrent video/test runs exceeded the 5-second GPU readiness timeout; the full suite was rerun serially and passed.
