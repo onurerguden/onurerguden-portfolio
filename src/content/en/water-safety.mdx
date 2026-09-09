@@ -1,0 +1,25 @@
+---
+slug: water-safety
+locale: en
+---
+## Detection is only half the question
+
+Assessing water safety means understanding both current contamination and how conditions might change. HealthFactor-AI separates these tasks into reactive classification and proactive safety-trend forecasting.
+
+## My contribution
+
+I architected a two-layer framework over more than 30,000 water-quality records and an automated data-refresh pipeline. I worked on feature engineering, controlled class balancing, an SVM classifier and an Extra Trees forecasting model.
+
+## Evaluation and results
+
+The CV reports 96.3% recall for toxic-water detection and 80% accuracy for the forecasting model within this project's evaluation. The work also used more than 3,000 simulated contamination scenarios.
+
+Recall and forecasting accuracy describe different tasks; they are not interchangeable measures of system quality. The complete split strategy, baseline comparisons and uncertainty estimates are not reproduced here, so these figures should not be read as a general guarantee for unseen water sources.
+
+## Research output
+
+This work connects to the manuscript “Two-layered Artificial Intelligence System to Assess and Forecast the Safety Level of Drinking Water Resources,” accepted at the International Journal of Engineering Approaches (IJEA). Publication is pending. A publication date and DOI are not yet listed.
+
+## Limitations and next questions
+
+Simulated scenarios do not establish performance under every real contamination event. Generalization across sources, temporal drift and the consequences of missed contamination need explicit evaluation before operational use. The repository provides the implementation context for the reported project results.
