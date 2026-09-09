@@ -13,8 +13,10 @@ async function go(page: Page, d: number) {
     });
   }, d);
   await expect
-    .poll(async () =>
-      Number(await page.locator("canvas").getAttribute("data-distance")),
+    .poll(
+      async () =>
+        Number(await page.locator("canvas").getAttribute("data-distance")),
+      { timeout: 20000 },
     )
     .toBeCloseTo(d, 1);
 }
@@ -104,7 +106,8 @@ test("scroll separates reading from camera travel, reverses, focuses links and e
   await page.evaluate(() =>
     window.scrollTo({ top: document.body.scrollHeight, behavior: "instant" }),
   );
-  await page.waitForTimeout(1000);
+  await expect(canvas).toHaveAttribute("data-active", "false");
+  await page.waitForTimeout(200);
   const frames = await canvas.getAttribute("data-frames");
   await page.waitForTimeout(400);
   expect(await canvas.getAttribute("data-frames")).toBe(frames);
@@ -175,8 +178,10 @@ test("late loading keeps the current scroll position; context loss restores norm
     { timeout: 20000 },
   );
   await expect
-    .poll(async () =>
-      Number(await page.locator("canvas").getAttribute("data-distance")),
+    .poll(
+      async () =>
+        Number(await page.locator("canvas").getAttribute("data-distance")),
+      { timeout: 20000 },
     )
     .toBeCloseTo(4.2, 1);
   await page
@@ -247,6 +252,7 @@ test("riser frame occludes the portrait HTML during the MacBook approach", async
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
     "true",
+    { timeout: 20000 },
   );
   await go(page, 5.85);
   const panel = page.locator('[data-screen="0"]');

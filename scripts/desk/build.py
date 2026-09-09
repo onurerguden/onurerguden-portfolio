@@ -562,6 +562,48 @@ for ob in bpy.data.objects:
 (ROOT/'src/lib/desk-occluders.json').write_text(json.dumps(occluders,separators=(',',':'))+'\n')
 (ROOT/'src/lib/desk-scene.json').write_text(json.dumps(contract,indent=2)+'\n')
 
+# Stable interaction membership is recorded before flattening the source hierarchy.
+def belongs(obj, parent):
+    while obj:
+        if obj == parent:return True
+        obj=obj.parent
+    return False
+for obj in scene.objects:
+    identity='static'
+    if belongs(obj,mouse):identity='mouse'
+    elif belongs(obj,head) and not obj.name.startswith('Headphone '):identity='headphones'
+    elif obj.name=='Tablet pencil':identity='pencil'
+    elif belongs(obj,tablet):identity='tablet'
+    elif belongs(obj,lamp):identity='lamp'
+    elif obj.name in ['Lightbar wireless dial','Dial cap']:identity='dial'
+    elif obj.name in ['Lightbar diffuser','Vertical warm diffuser']:identity='taskLights'
+    elif obj.name=='Backdrop wall':identity='backdrop'
+    obj['interaction']=identity
+interaction_pivots={
+    'mouse':(.39,-.075,.004), 'headphones':(.48,.3725,.14),
+    'pencil':(-.338,-.17,.012), 'tablet':(-.435,-.17,.006),
+    'lamp':(.673,.3725,.10), 'dial':(.345,.3725,.018),
+    'taskLights':(0,0,0), 'backdrop':(0,.53,.45),
+}
+interaction_contract={
+    'objects': {key:{'node':'Interaction_'+key,'pivot':to_web(pivot)} for key,pivot in interaction_pivots.items()},
+    'targets': {
+        'dial':{'position':[.345,.025,-.3725],'size':[.075,.06,.075]},
+        'headphones':{'position':[.48,.15,-.36],'size':[.16,.23,.10]},
+        'lamp':{'position':[.673,.10,-.3725],'size':[.15,.21,.15]},
+        'mouse':{'position':[.39,.031,.075],'size':[.10,.062,.14]},
+        'tablet':{'position':[-.435,.015,.17],'size':[.18,.03,.24]},
+    }
+}
+(ROOT/'src/lib/desk-interactions.json').write_text(json.dumps(interaction_contract,indent=2)+'\n')
+# A flat emission backdrop matches the viewer's unlit presentation color.
+backdrop_material=bpy.data.materials.new('Flat rose backdrop');backdrop_material.use_nodes=True
+nodes=backdrop_material.node_tree.nodes;nodes.clear()
+out=nodes.new('ShaderNodeOutputMaterial');emission=nodes.new('ShaderNodeEmission')
+emission.inputs['Color'].default_value=(.115,.052,.071,1)
+backdrop_material.node_tree.links.new(emission.outputs[0],out.inputs['Surface'])
+bpy.data.objects['Backdrop wall'].data.materials[0]=backdrop_material
+
 # Lighting kept in source and recreated explicitly in the viewer.
 def area(name,location,target,power,color,size):
     data=bpy.data.lights.new(name,'AREA');data.energy=power;data.color=color;data.shape='DISK';data.size=size
@@ -612,9 +654,11 @@ if '--render' in sys.argv:
         scene.render.filepath=str(POSTERS/(preset['id']+'.png'))
         bpy.ops.render.render(write_still=True)
 
-# Bake static diffuse lighting on receivers. This preserves Cycles contact
-# shadows/indirect wall glow in the web model without a real-time GI dependency.
-for object_name in ['Desk extended rear margin','Desk mat','Backdrop wall']:
+# Neutral AO retains static contact without baking controllable lighting or
+# moving accessories into the receivers. Runtime lights shade these PBR maps.
+moving=[o for o in scene.objects if o.type in {'MESH','CURVE','FONT'} and o.get('interaction') in ['mouse','headphones','pencil']]
+for obj in moving:obj.hide_render=True
+for object_name in ['Desk extended rear margin','Desk mat']:
     receiver=bpy.data.objects[object_name]
     image=bpy.data.images.new('Baked '+object_name,width=1024,height=1024,alpha=False)
     original=receiver.data.materials[0]
@@ -622,13 +666,13 @@ for object_name in ['Desk extended rear margin','Desk mat','Backdrop wall']:
     tex=working.node_tree.nodes.new('ShaderNodeTexImage');tex.image=image
     working.node_tree.nodes.active=tex
     bpy.ops.object.select_all(action='DESELECT');receiver.select_set(True);bpy.context.view_layer.objects.active=receiver
-    scene.render.bake.use_pass_direct=True;scene.render.bake.use_pass_indirect=True;scene.render.bake.use_pass_color=True;scene.render.bake.margin=8
-    bpy.ops.object.bake(type='DIFFUSE')
+    scene.render.bake.margin=8
+    bpy.ops.object.bake(type='AO')
     # Filter Monte Carlo noise at texel scale; preserve broad baked shadows.
     pixels=np.empty(1024*1024*4,dtype=np.float32);image.pixels.foreach_get(pixels)
     pixels=pixels.reshape((1024,1024,4))
-    radius=4 if object_name=='Backdrop wall' else 2
-    sigma=2.0 if object_name=='Backdrop wall' else .85
+    radius=2
+    sigma=.85
     kernel=np.exp(-np.arange(-radius,radius+1,dtype=np.float32)**2/(2*sigma*sigma));kernel/=kernel.sum()
     for axis in (0,1):
         padding=[(0,0),(0,0),(0,0)];padding[axis]=(radius,radius)
@@ -637,9 +681,13 @@ for object_name in ['Desk extended rear margin','Desk mat','Backdrop wall']:
             slices=[slice(None)]*3;slices[axis]=slice(offset,offset+1024)
             filtered+=padded[tuple(slices)]*weight
         pixels=filtered
+    base=original.node_tree.nodes.get('Principled BSDF').inputs['Base Color'].default_value
+    pixels[:,:,:3]*=np.array(base[:3])
     image.pixels.foreach_set(pixels.ravel());image.update();image.pack()
-    baked=material('Baked '+object_name,(1,1,1),1,texture=image)
+    baked=material('Neutral '+object_name,(1,1,1),1,texture=image)
     receiver.data.materials[0]=baked
+
+for obj in moving:obj.hide_render=False
 
 # Flatten transforms and batch by material for the delivery model. Source remains intact.
 for obj in list(scene.objects):
@@ -657,17 +705,25 @@ for obj in list(scene.objects):
 batches={}
 for obj in list(scene.objects):
     if obj.type=='MESH':
-        key=obj.data.materials[0].name if obj.data.materials else 'None'
+        key=(obj.get('interaction','static'),obj.data.materials[0].name if obj.data.materials else 'None')
         batches.setdefault(key,[]).append(obj)
-for material_name,objects in batches.items():
+for (identity,material_name),objects in batches.items():
     bpy.ops.object.select_all(action='DESELECT')
     for obj in objects:obj.select_set(True)
     bpy.context.view_layer.objects.active=objects[0]
-    bpy.ops.object.join();bpy.context.object.name='Batch '+material_name
+    bpy.ops.object.join();bpy.context.object.name='Batch '+identity+' '+material_name
+    bpy.context.object['interaction']=identity
+interaction_anchors=[]
+for identity,pivot in interaction_pivots.items():
+    anchor=empty('Interaction_'+identity,pivot);interaction_anchors.append(anchor)
+    bpy.context.view_layer.update()
+    for obj in list(scene.objects):
+        if obj.type=='MESH' and obj.get('interaction')==identity:
+            world=obj.matrix_world.copy();obj.parent=anchor;obj.matrix_world=world
 # Export only meshes and named integration anchors, excluding the Blender lights/camera.
 bpy.ops.object.select_all(action='DESELECT')
 for obj in scene.objects:
-    if obj.type=='MESH' or obj.name in screens:obj.select_set(True)
+    if obj.type=='MESH' or obj.name in screens or obj in interaction_anchors:obj.select_set(True)
 bpy.ops.export_scene.gltf(filepath=str(PUBLIC/'onur-desk.glb'),export_format='GLB',use_selection=True,
     export_image_format='JPEG',export_image_quality=85,
     export_draco_mesh_compression_enable=True,export_draco_mesh_compression_level=6,

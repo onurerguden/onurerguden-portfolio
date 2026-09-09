@@ -15,7 +15,7 @@
   height: var(--stage-height);
   min-height: 0;
   overflow: clip;
-  background: #171719;
+  background: #000;
   isolation: isolate;
 }
 .journey[data-enhanced="true"] .stage {

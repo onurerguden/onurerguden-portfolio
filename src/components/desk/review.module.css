@@ -34,7 +34,7 @@
   min-height: 320px;
   overflow: hidden;
   border-radius: 12px;
-  background: #171719;
+  background: #000;
   isolation: isolate;
 }
 .poster {

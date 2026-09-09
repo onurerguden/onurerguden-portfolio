@@ -1,0 +1,130 @@
+{
+  "objects": {
+    "mouse": {
+      "node": "Interaction_mouse",
+      "pivot": [
+        0.39,
+        0.004,
+        0.075
+      ]
+    },
+    "headphones": {
+      "node": "Interaction_headphones",
+      "pivot": [
+        0.48,
+        0.14,
+        -0.3725
+      ]
+    },
+    "pencil": {
+      "node": "Interaction_pencil",
+      "pivot": [
+        -0.338,
+        0.012,
+        0.17
+      ]
+    },
+    "tablet": {
+      "node": "Interaction_tablet",
+      "pivot": [
+        -0.435,
+        0.006,
+        0.17
+      ]
+    },
+    "lamp": {
+      "node": "Interaction_lamp",
+      "pivot": [
+        0.673,
+        0.1,
+        -0.3725
+      ]
+    },
+    "dial": {
+      "node": "Interaction_dial",
+      "pivot": [
+        0.345,
+        0.018,
+        -0.3725
+      ]
+    },
+    "taskLights": {
+      "node": "Interaction_taskLights",
+      "pivot": [
+        0,
+        0,
+        0
+      ]
+    },
+    "backdrop": {
+      "node": "Interaction_backdrop",
+      "pivot": [
+        0,
+        0.45,
+        -0.53
+      ]
+    }
+  },
+  "targets": {
+    "dial": {
+      "position": [
+        0.345,
+        0.025,
+        -0.3725
+      ],
+      "size": [
+        0.075,
+        0.06,
+        0.075
+      ]
+    },
+    "headphones": {
+      "position": [
+        0.48,
+        0.15,
+        -0.36
+      ],
+      "size": [
+        0.16,
+        0.23,
+        0.1
+      ]
+    },
+    "lamp": {
+      "position": [
+        0.673,
+        0.1,
+        -0.3725
+      ],
+      "size": [
+        0.15,
+        0.21,
+        0.15
+      ]
+    },
+    "mouse": {
+      "position": [
+        0.39,
+        0.031,
+        0.075
+      ],
+      "size": [
+        0.1,
+        0.062,
+        0.14
+      ]
+    },
+    "tablet": {
+      "position": [
+        -0.435,
+        0.015,
+        0.17
+      ],
+      "size": [
+        0.18,
+        0.03,
+        0.24
+      ]
+    }
+  }
+}
