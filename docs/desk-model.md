@@ -21,7 +21,7 @@ Onur rejected the initial proportion study as too generic. The revision removes 
 
 Blender 4.5.13 LTS source keeps named editable objects, original procedural textures and lights. `scripts/desk/build.py` writes the source, ten rendered views, a Y-up screen/camera contract and a material-batched Draco GLB. `npm run desk:package` creates WebP review images and hashes. See `assets/desk/README.md` for reproduction.
 
-Static receiver surfaces (desk, mat, wall) bake Cycles diffuse lighting into 1024 px maps. The viewer uses unlit materials for those baked surfaces; device materials remain PBR. JPEG-compressed receiver maps preserve soft contact shadows and concealed wall lighting; the perforated stand retains PNG alpha. No HDRI or remote model request is required. The local Draco decoder is separate runtime code, not part of the model transfer budget.
+The desk and mat use neutral 1024 px ambient-occlusion receiver maps with PBR shading. Controllable lighting is evaluated at runtime. Moving accessories are excluded from the bake and receive lightweight moving contact shadows. The backdrop is a flat Canvas color; the source backdrop mesh is hidden in the viewer. The perforated stand retains PNG alpha. No HDRI or remote model request is required. The local Draco decoder is separate runtime code, not part of the model transfer budget.
 
 The review uses four buttons and a reversible range control, not scroll capture. Per-stop camera framing fits the portrait screen correctly on mobile. A flattened HTML projection matches the three screen planes; source text stays HTML, with meaningful descriptions outside the decorative overlay. There are no real project interactions inside these sample screens yet.
 
@@ -48,3 +48,13 @@ The headphone arch is narrower (70 mm horizontal ellipse radius, 112 mm vertical
 ## September 8 surface and hardware pass
 
 The model now includes five embedded authored microstructure normal maps, corrected asymmetric laptop port silhouettes, hinge collars, camera/sensor details, monitor seams and controls, riser grip/rivets and cushion stitching. The viewer adds a one-time local environment reflection capture. Positions, monitor clearance, tablet placement and headphone fit are preserved. The exported model is 474,208 bytes with 90,736 triangles; exact unmeasured manufacturing dimensions remain estimates.
+
+## September 9 object interactions
+
+Both review routes share the same controls and motion runtime. The lightbar dial toggles the left light, lightbar and rear bias light together (250 ms); the separate right lamp cycles muted amber, pink, purple, blue and green with a matching flat background (350 ms). Pink is the initial color. Neutral studio fill keeps objects legible with task lights off.
+
+The headphone assembly moves without its stand (550 ms). The mouse follows five bounded paths, returning to its original pose (750 ms); a short ring marks the click. The tablet remains fixed while its pencil rolls outward onto the mat and returns (1000 ms). The pencil's radius clears the 4 mm mat. Repeated clicks do not queue animations. The export batches within interaction identity and material, preserving eight named anchors and a generated target/pivot contract in `src/lib/desk-interactions.json`.
+
+The shared HTML disclosure provides named, 44 px controls and visible keyboard focus in both languages. Selecting headphones opens its music status. `src/lib/desk-audio.ts` accepts the future supplied track path and title; no audio is shipped, fetched or autoplayed now. Audio is lazy, pauses on page hiding or scene exit, and is released on unmount/context failure. Reduced motion suppresses accessory motion and snaps lighting in the review; the journey retains its existing static alternative. Settings are local to the mounted scene.
+
+The model is 462,644 bytes and 93,011 triangles. The runtime uses 45 draw calls at rest, 46 with the click ring, below the existing 50-call limit. Source geometry and camera placement are preserved. This remains a demo feature; the homepage is unchanged.

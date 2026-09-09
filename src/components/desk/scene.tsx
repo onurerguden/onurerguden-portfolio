@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useMemo, useRef, type RefObject } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
-import { Mesh, MeshBasicMaterial, MeshStandardMaterial, Vector3 } from "three";
+import { Mesh, Vector3 } from "three";
 import { createScreenProjection, projectScreen } from "@/lib/desk-projection";
 import contract from "@/lib/desk-scene.json";
 import occluders from "@/lib/desk-occluders.json";
@@ -11,6 +11,13 @@ import { createScreenOcclusion, screenMaskImage } from "@/lib/desk-occlusion";
 import assets from "@/lib/desk-assets.json";
 import styles from "./review.module.css";
 import DeskLighting from "./lighting";
+import InteractionScene from "./interaction-scene";
+import {
+  DeskObjectControls,
+  useDeskInteractions,
+  type DeskInteractions,
+} from "./interactions";
+import { lampColors } from "@/lib/desk-interaction-motion";
 
 type Props = {
   revealed: boolean;
@@ -102,35 +109,46 @@ function Screens({
   );
 }
 
-export function Model({ onReady }: Pick<Props, "onReady">) {
+export function Model({
+  onReady,
+  controls,
+}: Pick<Props, "onReady"> & { controls: DeskInteractions }) {
   const invalidate = useThree((state) => state.invalidate);
   const { scene } = useGLTF(
     `/models/desk/onur-desk.glb?v=${assets.revision}`,
     "/decoders/draco/",
   );
-  useEffect(() => {
-    scene.traverse((object) => {
+  // useGLTF caches the source. Each mounted view owns transforms and materials.
+  const model = useMemo(() => {
+    const clone = scene.clone(true);
+    clone.traverse((object) => {
       if (object instanceof Mesh) {
-        const material = object.material;
-        if (
-          material instanceof MeshStandardMaterial &&
-          material.name.startsWith("Baked ")
-        ) {
-          const baked = new MeshBasicMaterial({ map: material.map });
-          baked.name = material.name;
-          object.material = baked;
-        }
-        const baked =
-          !Array.isArray(object.material) &&
-          object.material.name.startsWith("Baked ");
-        object.castShadow = !baked;
-        object.receiveShadow = !baked;
+        object.material = Array.isArray(object.material)
+          ? object.material.map((m) => m.clone())
+          : object.material.clone();
+        if (object.userData.interaction === "backdrop") object.visible = false;
       }
     });
+    return clone;
+  }, [scene]);
+  useEffect(() => {
     onReady();
     invalidate();
-  }, [scene, onReady, invalidate]);
-  return <primitive object={scene} dispose={null} />;
+  }, [onReady, invalidate]);
+  useEffect(
+    () => () => {
+      model.traverse((object) => {
+        if (object instanceof Mesh) {
+          const materials = Array.isArray(object.material)
+            ? object.material
+            : [object.material];
+          materials.forEach((material) => material.dispose());
+        }
+      });
+    },
+    [model],
+  );
+  return <InteractionScene model={model} controls={controls} />;
 }
 
 function CameraJourney({
@@ -167,8 +185,9 @@ function CameraJourney({
 
   useEffect(() => {
     setFrameloop(active ? "demand" : "never");
+    gl.domElement.setAttribute("data-active", String(active));
     if (active) invalidate();
-  }, [active, setFrameloop, invalidate]);
+  }, [active, setFrameloop, invalidate, gl]);
   useEffect(() => {
     transition.current = { from: current.current, started: performance.now() };
     invalidate();
@@ -261,6 +280,7 @@ function CameraJourney({
 
 export default function DeskScene(props: Props) {
   const panels = useRef<HTMLDivElement>(null);
+  const controls = useDeskInteractions(props.active, props.reduced);
   return (
     <div className={styles.canvas} style={{ opacity: props.revealed ? 1 : 0 }}>
       <Canvas
@@ -269,7 +289,7 @@ export default function DeskScene(props: Props) {
         camera={{ position: [0.12, 0.69, 1.48], fov: 43, near: 0.01, far: 12 }}
         gl={{ antialias: true, alpha: false, powerPreference: "low-power" }}
       >
-        <color attach="background" args={["#171719"]} />
+        <color attach="background" args={[lampColors[1]]} />
         <DeskLighting />
         <ambientLight intensity={0.55} color="#cad6ef" />
         <directionalLight
@@ -292,24 +312,15 @@ export default function DeskScene(props: Props) {
           intensity={0.8}
           color="#adccff"
         />
-        <pointLight
-          position={[-0.65, 0.3, -0.22]}
-          intensity={0.18}
-          distance={1}
-          color="#ffab5f"
-        />
-        <pointLight
-          position={[0.66, 0.19, -0.26]}
-          intensity={0.12}
-          distance={0.8}
-          color="#ff8095"
-        />
         <Suspense fallback={null}>
-          <Model onReady={props.onReady} />
+          <Model onReady={props.onReady} controls={controls} />
         </Suspense>
-        <CameraJourney {...props} panels={panels} />
+        <CameraJourney {...props} active={controls.active} panels={panels} />
       </Canvas>
       <Screens locale={props.locale} container={panels} />
+      {props.revealed ? (
+        <DeskObjectControls controls={controls} locale={props.locale} />
+      ) : null}
     </div>
   );
 }

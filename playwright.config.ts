@@ -1,14 +1,15 @@
 import { defineConfig, devices } from "@playwright/test";
+const port = process.env.PLAYWRIGHT_PORT || "3100";
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
   workers: 3,
   timeout: 45000,
   reporter: [["list"], ["html", { open: "never" }]],
-  use: { baseURL: "http://localhost:3100", trace: "retain-on-failure" },
+  use: { baseURL: `http://localhost:${port}`, trace: "retain-on-failure" },
   webServer: {
-    command: "npm run start -- --port 3100",
-    url: "http://localhost:3100/en",
+    command: `npm run start -- --port ${port}`,
+    url: `http://localhost:${port}/en`,
     reuseExistingServer: !process.env.CI,
     timeout: 60000,
   },

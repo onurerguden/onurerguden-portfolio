@@ -1,6 +1,15 @@
 "use client";
-import { Suspense, useEffect, useMemo, useRef, type RefObject } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  type RefObject,
+} from "react";
 import DeskLighting from "./lighting";
+import { DeskObjectControls, useDeskInteractions } from "./interactions";
+import { lampColors } from "@/lib/desk-interaction-motion";
 import ProjectArt from "@/components/project-art";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Vector3, PerspectiveCamera } from "three";
@@ -76,8 +85,9 @@ function Driver({
   }, [size.width, size.height]);
   useEffect(() => {
     setFrameloop(active ? "demand" : "never");
+    gl.domElement.setAttribute("data-active", String(active));
     if (active) invalidate();
-  }, [active, invalidate, setFrameloop]);
+  }, [active, invalidate, setFrameloop, gl]);
   useEffect(
     () =>
       distance.on("change", () => {
@@ -189,10 +199,12 @@ function Driver({
 export default function JourneyScene(props: JourneySceneProps) {
   const panels = useRef<HTMLDivElement>(null);
   const wrapper = useRef<HTMLDivElement>(null);
-  const onReady = () => {
+  const controls = useDeskInteractions(props.active, false);
+  const readyCallback = props.onReady;
+  const onReady = useCallback(() => {
     if (wrapper.current) wrapper.current.style.opacity = "1";
-    props.onReady();
-  };
+    readyCallback();
+  }, [readyCallback]);
   return (
     <div className={styles.scene} ref={wrapper} style={{ opacity: 0 }}>
       <Canvas
@@ -201,7 +213,7 @@ export default function JourneyScene(props: JourneySceneProps) {
         camera={{ fov: 43, near: 0.01, far: 15 }}
         gl={{ antialias: true, alpha: false, powerPreference: "low-power" }}
       >
-        <color attach="background" args={["#171719"]} />
+        <color attach="background" args={[lampColors[1]]} />
         <DeskLighting />
         <ambientLight intensity={0.45} color="#cad6ef" />
         <directionalLight
@@ -214,17 +226,12 @@ export default function JourneyScene(props: JourneySceneProps) {
           intensity={0.8}
           color="#adccff"
         />
-        <pointLight
-          position={[0.66, 0.19, -0.26]}
-          intensity={0.12}
-          distance={0.8}
-          color="#ff8095"
-        />
         <Suspense fallback={null}>
-          <Model onReady={onReady} />
+          <Model onReady={onReady} controls={controls} />
         </Suspense>
-        <Driver {...props} panels={panels} />
+        <Driver {...props} active={controls.active} panels={panels} />
       </Canvas>
+      <DeskObjectControls controls={controls} locale={props.locale} journey />
       <div className={styles.screenLayer} ref={panels}>
         {screens.map((screen, i) => {
           const height = (1000 * screen.height) / screen.width;
