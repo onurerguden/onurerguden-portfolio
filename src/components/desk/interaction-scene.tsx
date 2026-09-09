@@ -365,7 +365,7 @@ export default function InteractionScene({
         intensity={3}
         distance={1.2}
       />
-      <mesh ref={biasStrip} position={[0.09, 0.247, -0.302]}>
+      <mesh ref={biasStrip} position={[0.09, 0.30, -0.322]}>
         <boxGeometry args={[0.61, 0.006, 0.006]} />
         <meshStandardMaterial
           color="#ffe0b0"

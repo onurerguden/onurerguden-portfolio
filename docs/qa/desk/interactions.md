@@ -13,7 +13,7 @@ The review and scroll journey share one interaction runtime. No homepage integra
 
 ## Lighting correction
 
-The backdrop is fixed black in both Canvas views and their stage CSS. The right lamp has a brighter emissive diffuser, a local additive halo and a wide shadow-casting spotlight aimed at the desk. Model meshes receive shadows and cast them, except for the lamp housing around its own source. A visible warm strip below the ultrawide and its stronger rear fill follow the same dial transition as the lightbar and left vertical light.
+The backdrop is fixed black in both Canvas views and their stage CSS. The right lamp has a brighter emissive diffuser, a local additive halo and a wide shadow-casting spotlight aimed at the desk. Model meshes receive shadows and cast them, except for the lamp housing around its own source. A warm strip concealed behind the ultrawide and its stronger rear fill follow the same dial transition as the lightbar and left vertical light.
 
 ## Verification
 
@@ -38,3 +38,5 @@ DESK_REVIEW_URL=http://localhost:3101 node scripts/desk/capture-interactions.mjs
 ```
 
 The script saves `interactions-on.png`, `interactions-off.png`, `interactions-purple.png` and `interactions-mobile.png` in this directory. For browser tests, `PLAYWRIGHT_PORT=3101` isolates this run from another local server; the default remains 3100.
+
+The bias strip sits on the rear casing, above the lower bezel, so it is occluded from front-facing cameras. The journey close-up at distance 3.75 is recorded in `hidden-bias-close.png`; only the upper lightbar remains directly visible.
