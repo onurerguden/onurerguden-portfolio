@@ -1,0 +1,75 @@
+{
+  "browser": "153.0.8010.12",
+  "origin": "localhost production build",
+  "profile": {
+    "viewport": "390x844",
+    "latencyMs": 150,
+    "downloadBytesPerSecond": 200000,
+    "cpuSlowdown": 4
+  },
+  "zoomEquivalentOverflow": false,
+  "noJavaScriptResearchNavigation": true,
+  "lcp": 584,
+  "cls": 0.0008829769125625821,
+  "longTasks": 4,
+  "lcpElement": "H1",
+  "resources": [
+    {
+      "file": "3s6nzrbk-8mnv.js",
+      "encodedBytes": 2029,
+      "startMs": 167.40000000596046
+    },
+    {
+      "file": "19mx3mg6lkumu.js",
+      "encodedBytes": 7614,
+      "startMs": 167.40000000596046
+    },
+    {
+      "file": "2-rtuqsgzmno4.js",
+      "encodedBytes": 45095,
+      "startMs": 167.40000000596046
+    },
+    {
+      "file": "1j_9b-l0n6u-t.js",
+      "encodedBytes": 71576,
+      "startMs": 167.40000000596046
+    },
+    {
+      "file": "turbopack-0h-lqfav4xxyi.js",
+      "encodedBytes": 4303,
+      "startMs": 167.5
+    },
+    {
+      "file": "0h2qsuyze9ds1.js",
+      "encodedBytes": 3662,
+      "startMs": 167.90000000596046
+    },
+    {
+      "file": "21bn7goxnez7t.js",
+      "encodedBytes": 5169,
+      "startMs": 167.90000000596046
+    },
+    {
+      "file": "0u2en1_9ji2_g.js",
+      "encodedBytes": 5649,
+      "startMs": 167.90000000596046
+    },
+    {
+      "file": "174b98g0_5l1a.js",
+      "encodedBytes": 44383,
+      "startMs": 168.30000001192093
+    },
+    {
+      "file": "1a280yh3s1onb.js",
+      "encodedBytes": 235289,
+      "startMs": 2100.800000011921
+    }
+  ],
+  "canvas": [
+    {
+      "calls": "29",
+      "triangles": "924"
+    }
+  ],
+  "note": "Single local laboratory run; not real-user p75, not a Lighthouse score, INP not measured."
+}

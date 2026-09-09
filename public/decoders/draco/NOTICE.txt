@@ -1,0 +1,5 @@
+Draco WebAssembly decoder distributed with three 0.185.1.
+Source: https://github.com/google/draco
+Copyright 2016 The Draco Authors. Licensed under Apache License 2.0.
+https://www.apache.org/licenses/LICENSE-2.0
+Copied unchanged from node_modules/three/examples/jsm/libs/draco/gltf/.

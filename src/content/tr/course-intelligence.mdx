@@ -1,0 +1,28 @@
+---
+slug: course-intelligence
+locale: tr
+---
+
+## Yanıtın izlenebilir bir bağlamı olmalı
+
+Bölümlerin bilgilerine erişim sağlayan bir asistan, ilgili kaynağı bulmalı ve kaynağın yanıtı desteklemediği durumları ayırt edebilmeli. Course Intelligence RAG'i bilgi getirme ile yanıt üretme arasındaki bu sınır etrafında geliştirdim.
+
+## Benim katkım
+
+Llama 3.1 (8B), SBERT embedding'leri ve FAISS vektör aramasıyla modüler bir bilgi getirme ve LLM orkestrasyonu mimarisi geliştirdim. Hiyerarşik anlamsal parçalama kaynakları aramaya hazırlıyor; filtreleme ve yapılandırılmış bağlam kontrolü modele iletilen içeriği belirliyor.
+
+Asenkron PyQt6 arayüzü, üretilen yanıtı akış halinde göstererek bilgi getirme hattını etkileşimli masaüstü deneyimine bağlıyor.
+
+## Değerlendirme ve sonuçlar
+
+Proje, kendi nicel değerlendirme kümesinde [[metric:ragAccuracy]] doğruluğa ulaştı. Tuzak soru testlerinde, bilgi getirme filtreleri ve sıkı sistem yönergeleriyle desteklenmeyen yanıtlar da kontrol edildi.
+
+Bu sonuç yalnızca o değerlendirme kümesine aittir. Örneklem büyüklüğü, soru dağılımı ve bağımsız tekrar sonuçları burada raporlanmadığı için evrensel doğruluk veya halüsinasyonun mümkün olmadığı anlamına gelmez.
+
+## Tasarım kararları
+
+Embedding, bilgi getirme, bağlam oluşturma ve üretim adımlarını ayırmak, hattı incelemeyi kolaylaştırıyor. Sistem farklı bölümlerin bilgilerini işlerken getirilen kaynaklarla modelin ürettiği metni ayrı tutuyor.
+
+## Sınırlamalar
+
+Eksik veya güncelliğini yitirmiş kaynaklar yanıt kalitesini sınırlıyor. Kaynak doğru yanıtı içerse bile arama başarısız olabilir. Daha geniş bir değerlendirmede bilgi getirme hataları, kaynağa dayalı yanıt kalitesi ve yanıt vermeme davranışı ayrı ayrı ölçülmelidir.

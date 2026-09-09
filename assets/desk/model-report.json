@@ -1,0 +1,23 @@
+{
+  "blender": "4.5.13 LTS",
+  "triangles": 93011,
+  "materialBatches": 19,
+  "glbBytes": 488564,
+  "textureMaxDimension": 1024,
+  "layout": {
+    "oldClearanceM": 0.042476194973080666,
+    "clearanceM": 0.021238097486540333,
+    "monitorCenterX": 0.09,
+    "supportCenterX": 0.09,
+    "riserCenterX": 0.025,
+    "monitorTopM": 0.5667619025134597,
+    "portraitTopM": 0.5667619025134597,
+    "leftLightOuterX": -0.75,
+    "leftLightOuterY": 0.47
+  },
+  "notes": [
+    "Photo-derived device housings are approximate.",
+    "Material batches reduce draw calls; measure final renderer counters.",
+    "No source photo pixels are included."
+  ]
+}

@@ -1,0 +1,26 @@
+---
+slug: water-safety
+locale: tr
+---
+
+## Tespit, sorunun yalnızca bir parçası
+
+Su güvenliğini değerlendirmek, hem mevcut kirliliği hem de koşulların nasıl değişebileceğini anlamayı gerektiriyor. HealthFactor-AI bu görevleri anlık sınıflandırma ve ileriye dönük güvenlik eğilimi tahmini olarak iki katmanda ele alıyor.
+
+## Benim katkım
+
+[[metric:waterRecords]]'i aşkın su kalitesi kaydı ve otomatik veri yenileme hattı üzerinde iki katmanlı çerçeveyi tasarladım. Özellik mühendisliği, kontrollü sınıf dengeleme, SVM sınıflandırıcısı ve Extra Trees tahmin modeli üzerinde çalıştım.
+
+## Değerlendirme ve sonuçlar
+
+Projenin değerlendirmesinde toksik su tespiti için [[metric:waterRecall]] duyarlılık ve tahmin modeli için [[metric:waterForecast]] doğruluk raporlanıyor. Çalışmada [[metric:waterScenarios]]'i aşkın simüle edilmiş kirlenme senaryosu da kullanıldı.
+
+Duyarlılık ve tahmin doğruluğu farklı görevleri ölçüyor; birbirinin yerine kullanılamaz. Veri ayırma stratejisi, temel model karşılaştırmaları ve belirsizlik tahminlerinin tamamı burada yeniden sunulmuyor. Bu nedenle sonuçlar, görülmemiş su kaynakları için genel bir başarı garantisi olarak yorumlanmamalı.
+
+## Araştırma çıktısı
+
+Çalışma, International Journal of Engineering Approaches (IJEA) tarafından kabul edilen “Two-layered Artificial Intelligence System to Assess and Forecast the Safety Level of Drinking Water Resources” başlıklı makaleyle ilişkili. Yayımlanması bekleniyor; yayın tarihi ve DOI henüz belirtilmiyor.
+
+## Sınırlamalar ve sonraki sorular
+
+Simüle edilmiş senaryolar her gerçek kirlenme olayındaki performansı kanıtlamaz. Kaynaklar arasında genelleme, zaman içindeki veri değişimi ve tespit edilemeyen kirliliğin sonuçları operasyonel kullanımdan önce ayrıca değerlendirilmelidir. Depo, raporlanan proje sonuçlarının uygulama bağlamını sunuyor.

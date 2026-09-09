@@ -1,0 +1,76 @@
+{
+  "date": "2026-09-09",
+  "environment": "Local production server, Chromium, no field/RUM claim",
+  "metrics": [
+    {
+      "engine": "three.js r185",
+      "drawCalls": "22",
+      "triangles": "93063",
+      "frames": "3",
+      "progress": "0"
+    },
+    {
+      "engine": "three.js r185",
+      "drawCalls": "17",
+      "triangles": "83383",
+      "frames": "6",
+      "progress": "1"
+    },
+    {
+      "engine": "three.js r185",
+      "drawCalls": "20",
+      "triangles": "88961",
+      "frames": "9",
+      "progress": "2"
+    },
+    {
+      "engine": "three.js r185",
+      "drawCalls": "20",
+      "triangles": "88961",
+      "frames": "12",
+      "progress": "3"
+    }
+  ],
+  "network": [
+    {
+      "path": "/_next/static/chunks/01t-_rq12es9k.js",
+      "encodedBodySize": 149,
+      "transferSize": 449,
+      "duration": 2.899999976158142
+    },
+    {
+      "path": "/_next/static/chunks/3ezv0xrgfz__y.js",
+      "encodedBodySize": 237374,
+      "transferSize": 237674,
+      "duration": 24.69999998807907
+    },
+    {
+      "path": "/_next/static/chunks/3wwp9tnd-pr8d.js",
+      "encodedBodySize": 58481,
+      "transferSize": 58781,
+      "duration": 8.399999976158142
+    },
+    {
+      "path": "/models/desk/onur-desk.glb",
+      "encodedBodySize": 365427,
+      "transferSize": 365727,
+      "duration": 13.099999964237213
+    },
+    {
+      "path": "/decoders/draco/draco_wasm_wrapper.js",
+      "encodedBodySize": 11748,
+      "transferSize": 12048,
+      "duration": 2.600000023841858
+    },
+    {
+      "path": "/decoders/draco/draco_decoder.wasm",
+      "encodedBodySize": 63458,
+      "transferSize": 63758,
+      "duration": 7.600000023841858
+    }
+  ],
+  "accessibilityViolations": [],
+  "offscreenStopped": true,
+  "zoomEquivalentNoOverflow": true,
+  "pageErrors": []
+}

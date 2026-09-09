@@ -1,0 +1,14 @@
+{
+  "cushionGapM": 0.0012156167067587376,
+  "tabletPositionM": [
+    -0.4350000023841858,
+    -0.17000000178813934,
+    0.006000000052154064
+  ],
+  "tabletRotationRadians": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "method": "Blender source mesh vertices transformed into headphone-local coordinates; tablet transform read directly from source."
+}

@@ -1,0 +1,30 @@
+{
+  "MacBook power cable": {
+    "heightVariationM": 0.0,
+    "rearEndpointM": [
+      -0.25,
+      0.4699999988079071,
+      0.006000000052154064
+    ]
+  },
+  "MacBook display cable": {
+    "heightVariationM": 0.0,
+    "rearEndpointM": [
+      0.28999999165534973,
+      0.4699999988079071,
+      0.007000000216066837
+    ]
+  },
+  "clampBehindDiffuserM": 0.0104999840259552,
+  "dialToStandHorizontalClearanceM": 0.03361067175865173,
+  "saddleToInnerPaddingGapM": {
+    "min": 0.00019999502348977405,
+    "max": 0.00020000395611846633
+  },
+  "sheetToFrameCenterlineMaxErrorM": 0.0,
+  "portraitPanelSupportIntersections": [],
+  "earCushionsFaceInward": true,
+  "keyboardKeyIntersections": [],
+  "rearAccessoryCenterY": 0.3724999874830246,
+  "headphoneSupportSurfaceIntersections": []
+}
