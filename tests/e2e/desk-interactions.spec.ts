@@ -54,7 +54,49 @@ for (const locale of ["en", "tr"] as const) {
       expect([...corner]).toEqual([0, 0, 0]);
       await dial.click();
       await expect(canvas).toHaveAttribute("data-lights", "1.000");
-      await page.clock.pauseAt(new Date(Date.now() + 1000));
+      await page.clock.pauseAt(
+        await page.evaluate(() => new Date(Date.now() + 60000).toISOString()),
+      );
+      const drawers = page.locator('[data-desk-action="drawers"]');
+      await drawers.focus();
+      await page.keyboard.press("Enter");
+      await page.clock.runFor(100);
+      await expect(canvas).toHaveAttribute("data-drawers-motion", "running");
+      const firstWave = (await canvas.getAttribute("data-drawer-offsets"))!
+        .split(",")
+        .map(Number);
+      expect(firstWave[0]).toBeGreaterThan(0);
+      expect(firstWave.slice(1)).toEqual([0, 0, 0]);
+      await page.clock.runFor(400);
+      await drawers.evaluate((button: HTMLButtonElement) => {
+        button.click();
+        button.click();
+      });
+      await page.clock.fastForward(1200);
+      await expect(canvas).toHaveAttribute("data-drawers-motion", "idle");
+      await expect(canvas).toHaveAttribute(
+        "data-drawer-offsets",
+        "0.000,0.000,0.000,0.000",
+      );
+      await drawers.click();
+      await page.clock.runFor(200);
+      await page.evaluate(() => {
+        Object.defineProperty(document, "hidden", {
+          configurable: true,
+          value: true,
+        });
+        document.dispatchEvent(new Event("visibilitychange"));
+      });
+      await expect(canvas).toHaveAttribute("data-drawers-motion", "idle");
+      await expect(canvas).toHaveAttribute(
+        "data-drawer-offsets",
+        "0.000,0.000,0.000,0.000",
+      );
+      await page.evaluate(() => {
+        Reflect.deleteProperty(document, "hidden");
+        document.dispatchEvent(new Event("visibilitychange"));
+      });
+      await page.clock.runFor(80);
       for (let i = 0; i < 5; i++) {
         await page
           .locator('[data-desk-action="mouse"]')
@@ -81,6 +123,7 @@ for (const locale of ["en", "tr"] as const) {
       );
       await page.clock.fastForward(700);
       await expect(canvas).toHaveAttribute("data-headphones-motion", "idle");
+      await page.clock.runFor(80); // Allow the final cached-shadow frame to settle.
       const frames = await canvas.getAttribute("data-frames");
       await page.clock.fastForward(400);
       expect(await canvas.getAttribute("data-frames")).toBe(frames);
@@ -123,14 +166,23 @@ test("review objects accept direct pointer clicks and reduced motion keeps funct
   const target = new Vector3(...preset.target);
   const direction = new Vector3(...preset.position).sub(target);
   const fit =
-    Math.max(1.7 / camera.aspect, 0.85) / (2 * Math.tan((43 * Math.PI) / 360));
+    Math.max(1.7 / camera.aspect, 1.6) / (2 * Math.tan((43 * Math.PI) / 360));
   camera.position.copy(
     direction.multiplyScalar(Math.max(1, fit / direction.length())).add(target),
   );
   camera.lookAt(target);
   camera.updateMatrixWorld();
-  await page.clock.pauseAt(new Date(Date.now() + 1000));
-  for (const id of ["dial", "lamp", "mouse", "tablet", "headphones"] as const) {
+  await page.clock.pauseAt(
+    await page.evaluate(() => new Date(Date.now() + 60000).toISOString()),
+  );
+  for (const id of [
+    "dial",
+    "lamp",
+    "mouse",
+    "tablet",
+    "headphones",
+    "drawers",
+  ] as const) {
     const projected = new Vector3(...interactions.targets[id].position).project(
       camera,
     );
@@ -148,12 +200,23 @@ test("review objects accept direct pointer clicks and reduced motion keeps funct
         "Music has not been added yet.",
       );
     else await expect(canvas).toHaveAttribute(`data-${id}-motion`, "running");
-    if (["mouse", "tablet", "headphones"].includes(id)) {
-      await page.clock.fastForward(1100);
+    if (["mouse", "tablet", "headphones", "drawers"].includes(id)) {
+      await page.clock.fastForward(1600);
       await expect(canvas).toHaveAttribute(`data-${id}-motion`, "idle");
     }
   }
+  await page.locator('[data-desk-action="drawers"]').click();
+  await page.clock.runFor(300);
+  await expect(canvas).toHaveAttribute("data-drawers-motion", "running");
   await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.clock.runFor(80);
+  await expect(canvas).toHaveAttribute(
+    "data-drawer-offsets",
+    "0.000,0.000,0.000,0.000",
+  );
+  await page.locator('[data-desk-action="drawers"]').click();
+  await page.clock.runFor(80);
+  await expect(canvas).toHaveAttribute("data-drawers-motion", "idle");
   await page.locator('[data-desk-action="mouse"]').click();
   await page.clock.runFor(80);
   await expect(canvas).toHaveAttribute("data-mouse-motion", "idle");

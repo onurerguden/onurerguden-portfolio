@@ -228,7 +228,7 @@ function CameraJourney({
       second = contract.cameras[i + 1];
     const aspect = size.width / size.height;
     const framingWidths = [1.7, 0.34, 0.75, 0.34];
-    const framingHeights = [0.85, 0.59, 0.35, 0.22];
+    const framingHeights = [1.6, 0.59, 0.35, 0.22];
     const tangent = Math.tan((43 * Math.PI) / 360);
     const distanceFor = (index: number) =>
       Math.max(framingWidths[index] / aspect, framingHeights[index]) /
@@ -268,6 +268,15 @@ function CameraJourney({
       );
     });
     gl.render(state.scene, camera);
+    gl.domElement.setAttribute(
+      "data-peak-draw-calls",
+      String(
+        Math.max(
+          Number(gl.domElement.dataset.peakDrawCalls || 0),
+          gl.info.render.calls,
+        ),
+      ),
+    );
     gl.domElement.setAttribute("data-draw-calls", String(gl.info.render.calls));
     gl.domElement.setAttribute(
       "data-triangles",
@@ -291,7 +300,7 @@ export default function DeskScene(props: Props) {
         camera={{ position: [0.12, 0.69, 1.48], fov: 43, near: 0.01, far: 12 }}
         gl={{ antialias: true, alpha: false, powerPreference: "low-power" }}
       >
-        <color attach="background" args={["#000000"]} />
+        <color attach="background" args={["#17191c"]} />
         <DeskLighting />
         <ambientLight intensity={0.55} color="#cad6ef" />
         <directionalLight

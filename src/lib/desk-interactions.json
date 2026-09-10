@@ -63,9 +63,62 @@
         0.45,
         -0.53
       ]
+    },
+    "drawer1": {
+      "node": "Interaction_drawer1",
+      "pivot": [
+        0.563,
+        -0.123,
+        0.336
+      ]
+    },
+    "drawer2": {
+      "node": "Interaction_drawer2",
+      "pivot": [
+        0.563,
+        -0.273,
+        0.336
+      ]
+    },
+    "drawer3": {
+      "node": "Interaction_drawer3",
+      "pivot": [
+        0.563,
+        -0.423,
+        0.336
+      ]
+    },
+    "drawer4": {
+      "node": "Interaction_drawer4",
+      "pivot": [
+        0.563,
+        -0.573,
+        0.336
+      ]
     }
   },
+  "cabinet": {
+    "left": 0.393,
+    "right": 0.733,
+    "depth": 0.76,
+    "floor": -0.692,
+    "top": -0.036,
+    "drawerTravel": 0.15,
+    "drawerDepth": 0.6
+  },
   "targets": {
+    "drawers": {
+      "position": [
+        0.563,
+        -0.35,
+        0.349
+      ],
+      "size": [
+        0.34,
+        0.62,
+        0.07
+      ]
+    },
     "dial": {
       "position": [
         0.345,

@@ -47,3 +47,17 @@ export function accessoryPose(
   }
   return pose;
 }
+
+/** One overlapping top-to-bottom wave. Each 60 cm drawer travels 15 cm out. */
+export const drawerWave = {
+  travel: 0.15,
+  stagger: 180,
+  stroke: 1000,
+  duration: 1540,
+};
+export const drawerIds = ["drawer1", "drawer2", "drawer3", "drawer4"] as const;
+export function drawerOffset(elapsed: number, index: number) {
+  const t = (elapsed - index * drawerWave.stagger) / drawerWave.stroke;
+  if (t <= 0 || t >= 1) return 0;
+  return drawerWave.travel * Math.sin(Math.PI * t) ** 2;
+}

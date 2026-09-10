@@ -177,6 +177,36 @@ box('Desk mat',(0,-.045,.002),(1.38,.64,.004),'rubber',.016,segments=5)
 # Subtle stitch line on the mat, integrated geometry not a floating outline.
 for x in (-.68,.68):tube('Mat edge seam',[(x,-.35,.004),(x,.25,.004)],.00065,'fabric')
 
+# Floor supports: cabinet narrowed 15% toward its fixed right edge.
+# Estimated furniture dimensions; the tabletop remains at Z=0 for device alignment.
+cabinet_x=.533; support_depth=.76; support_height=.656
+box('Left white slab support',(-.721,.035,-.364),(.024,support_depth,support_height),'desk',.002,segments=2)
+cabinet_before=set(scene.objects)
+for x in (.342,.724):
+    box('Cabinet side panel',(x,.047,-.364),(.018,.736,support_height),'desk',.002,segments=2)
+box('Cabinet rear panel',(cabinet_x,.406,-.346),(.364,.018,.62),'desk',.001,segments=1)
+box('Cabinet top panel',(cabinet_x,.047,-.045),(.364,.736,.018),'desk',.001,segments=1)
+box('Cabinet bottom panel',(cabinet_x,.047,-.653),(.364,.736,.018),'desk',.001,segments=1)
+box('Cabinet recessed plinth',(cabinet_x,.065,-.677),(.35,.66,.030),'desk',.002,segments=2)
+drawers=[]
+for index in range(4):
+    drawer=empty('Support drawer '+str(index+1),(cabinet_x,-.336,-.123-index*.15))
+    drawers.append(drawer)
+    box('Drawer front '+str(index+1),(0,0,0),(.394,.018,.146),'desk',.002,drawer,2)
+    box('Drawer bottom '+str(index+1),(0,.307,-.064),(.348,.604,.010),'desk',.001,drawer,1)
+    for x in (-.169,.169):
+        box('Drawer inner side '+str(index+1),(x,.307,-.003),(.010,.604,.112),'desk',.001,drawer,1)
+    box('Drawer inner back '+str(index+1),(0,.604,-.003),(.348,.010,.112),'desk',.001,drawer,1)
+    for x in (-.05,.05):
+        cylinder('Drawer handle post '+str(index+1),(x,-.021,.018),.003,.018,'silver',drawer,(math.pi/2,0,0),12)
+    cylinder('Drawer handle bar '+str(index+1),(0,-.032,.018),.0035,.116,'silver',drawer,(0,math.pi/2,0),16)
+
+# Narrow the entire cabinet consistently, including drawer interiors and handles.
+for obj in set(scene.objects)-cabinet_before:
+    if obj.parent is None:
+        obj.location.x=.733+(obj.location.x-.733)*.85
+        obj.scale.x*=.85
+
 # IKEA BRYTET: 47 x 27 x 13 cm, narrower drawer plus left storage channel.
 riser=empty('IKEA BRYTET metal monitor riser',(.025,.25,0))
 # Front and rear continuous inverted-U rails, rounded across the width.
@@ -546,7 +576,7 @@ for name in ['PortraitScreen','UltrawideScreen','MacBookScreen']:
     up=ob.matrix_world.to_quaternion() @ Vector((0,0,1))
     screens[name]={'position':to_web(pos),'normal':to_web(normal),'up':to_web(up),'width':ob['width'],'height':ob['height']}
 # Camera distance is adjusted for viewport aspect in the viewer, these are desktop presets.
-cameras=[{'id':'wide','position':[.08, .74, 1.70],'target':[0,.27,-.025],'fov':43}]
+cameras=[{'id':'wide','position':[.08, .60, 2.65],'target':[0,-.06,-.025],'fov':43}]
 for sid,camid,distance in [('PortraitScreen','portrait',.79),('UltrawideScreen','ultrawide',.90),('MacBookScreen','macbook',.47)]:
     s=screens[sid];t=s['position'];n=s['normal']
     cameras.append({'id':camid,'position':[round(t[i]+n[i]*distance,6) for i in range(3)],'target':t,'fov':43})
@@ -578,6 +608,8 @@ for obj in scene.objects:
     elif obj.name in ['Lightbar wireless dial','Dial cap']:identity='dial'
     elif obj.name in ['Lightbar diffuser','Vertical warm diffuser']:identity='taskLights'
     elif obj.name=='Backdrop wall':identity='backdrop'
+    for index,drawer in enumerate(drawers):
+        if belongs(obj,drawer):identity='drawer'+str(index+1)
     obj['interaction']=identity
 interaction_pivots={
     'mouse':(.39,-.075,.004), 'headphones':(.48,.3725,.14),
@@ -585,9 +617,12 @@ interaction_pivots={
     'lamp':(.673,.3725,.10), 'dial':(.345,.3725,.018),
     'taskLights':(0,0,0), 'backdrop':(0,.53,.45),
 }
+interaction_pivots.update({'drawer'+str(i+1):tuple(drawer.location) for i,drawer in enumerate(drawers)})
 interaction_contract={
     'objects': {key:{'node':'Interaction_'+key,'pivot':to_web(pivot)} for key,pivot in interaction_pivots.items()},
+    'cabinet': {'left':.393,'right':.733,'depth':support_depth,'floor':-.692,'top':-.036,'drawerTravel':.15,'drawerDepth':.60},
     'targets': {
+        'drawers':{'position':[.563,-.35,.349],'size':[.34,.62,.07]},
         'dial':{'position':[.345,.025,-.3725],'size':[.075,.06,.075]},
         'headphones':{'position':[.48,.15,-.36],'size':[.16,.23,.10]},
         'lamp':{'position':[.673,.10,-.3725],'size':[.15,.21,.15]},
@@ -597,10 +632,10 @@ interaction_contract={
 }
 (ROOT/'src/lib/desk-interactions.json').write_text(json.dumps(interaction_contract,indent=2)+'\n')
 # A flat emission backdrop matches the viewer's unlit presentation color.
-backdrop_material=bpy.data.materials.new('Flat rose backdrop');backdrop_material.use_nodes=True
+backdrop_material=bpy.data.materials.new('Flat black backdrop');backdrop_material.use_nodes=True
 nodes=backdrop_material.node_tree.nodes;nodes.clear()
 out=nodes.new('ShaderNodeOutputMaterial');emission=nodes.new('ShaderNodeEmission')
-emission.inputs['Color'].default_value=(.115,.052,.071,1)
+emission.inputs['Color'].default_value=(0,0,0,1)
 backdrop_material.node_tree.links.new(emission.outputs[0],out.inputs['Surface'])
 bpy.data.objects['Backdrop wall'].data.materials[0]=backdrop_material
 
@@ -643,8 +678,8 @@ if '--render' in sys.argv:
         {'id':'mouse-detail','position':[.255,.18,.28],'target':[.385,.028,.075],'fov':43},
         {'id':'headphones-detail','position':[.34,.31,.15],'target':[.48,.14,-.25],'fov':43},
         {'id':'riser-detail','position':[.32,.27,.35],'target':[.025,.10,-.24],'fov':43},
-        {'id':'front','position':[0,.42,1.7],'target':[0,.30,-.20],'fov':43},
-        {'id':'side','position':[1.65,.65,.55],'target':[0,.28,-.10],'fov':43},
+        {'id':'front','position':[0,.24,2.65],'target':[0,-.06,-.10],'fov':43},
+        {'id':'side','position':[2.4,.6,1.1],'target':[0,-.06,-.10],'fov':43},
         {'id':'lamps-detail','position':[.95,.35,.20],'target':[.64,.13,-.25],'fov':43},
     ]
     render_filter=next((a.split('=',1)[1].split(',') for a in sys.argv if a.startswith('--views=')),None)
@@ -656,7 +691,7 @@ if '--render' in sys.argv:
 
 # Neutral AO retains static contact without baking controllable lighting or
 # moving accessories into the receivers. Runtime lights shade these PBR maps.
-moving=[o for o in scene.objects if o.type in {'MESH','CURVE','FONT'} and o.get('interaction') in ['mouse','headphones','pencil']]
+moving=[o for o in scene.objects if o.type in {'MESH','CURVE','FONT'} and o.get('interaction') in ['mouse','headphones','pencil','drawer1','drawer2','drawer3','drawer4']]
 for obj in moving:obj.hide_render=True
 for object_name in ['Desk extended rear margin','Desk mat']:
     receiver=bpy.data.objects[object_name]

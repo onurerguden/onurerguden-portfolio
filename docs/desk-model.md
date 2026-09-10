@@ -19,9 +19,9 @@ Onur rejected the initial proportion study as too generic. The revision removes 
 
 ## Delivery and rendering
 
-Blender 4.5.13 LTS source keeps named editable objects, original procedural textures and lights. `scripts/desk/build.py` writes the source, ten rendered views, a Y-up screen/camera contract and a material-batched Draco GLB. `npm run desk:package` creates WebP review images and hashes. See `assets/desk/README.md` for reproduction.
+Blender 4.5.13 LTS source keeps named editable objects, original procedural textures and lights. `scripts/desk/build.py` writes the source, eleven rendered views, a Y-up screen/camera contract and a material-batched Draco GLB. `npm run desk:package` creates WebP review images and hashes. See `assets/desk/README.md` for reproduction.
 
-The desk and mat use neutral 1024 px ambient-occlusion receiver maps with PBR shading. Controllable lighting is evaluated at runtime. Moving accessories are excluded from the bake and receive lightweight moving contact shadows. The backdrop is a flat Canvas color; the source backdrop mesh is hidden in the viewer. The perforated stand retains PNG alpha. No HDRI or remote model request is required. The local Draco decoder is separate runtime code, not part of the model transfer budget.
+The desk and mat use neutral 1024 px ambient-occlusion receiver maps with PBR shading. Controllable lighting is evaluated at runtime. Moving accessories are excluded from the bake and receive lightweight moving contact shadows. The backdrop is a flat dark-gray Canvas color (#17191c); the source backdrop mesh is hidden in the viewer. The perforated stand retains PNG alpha. No HDRI or remote model request is required. The local Draco decoder is separate runtime code, not part of the model transfer budget.
 
 The review uses four buttons and a reversible range control, not scroll capture. Per-stop camera framing fits the portrait screen correctly on mobile. A flattened HTML projection matches the three screen planes; source text stays HTML, with meaningful descriptions outside the decorative overlay. There are no real project interactions inside these sample screens yet.
 
@@ -51,10 +51,14 @@ The model now includes five embedded authored microstructure normal maps, correc
 
 ## September 9 object interactions
 
-Both review routes share the same controls and motion runtime. The lightbar dial toggles the left light, lightbar and rear bias light together (250 ms); the separate right lamp cycles muted amber, pink, purple, blue and green with a fixed black background (350 ms). Pink is the initial color. Neutral studio fill keeps objects legible with task lights off.
+Both review routes share the same controls and motion runtime. The lightbar dial toggles the left light, lightbar and rear bias light together (250 ms); the separate right lamp cycles muted amber, pink, purple, blue and green with a fixed dark-gray background (350 ms). Pink is the initial color. Neutral studio fill keeps objects legible with task lights off.
 
 The headphone assembly moves without its stand (550 ms). The mouse follows five bounded paths, returning to its original pose (750 ms); a short ring marks the click. The tablet remains fixed while its pencil rolls outward onto the mat and returns (1000 ms). The pencil's radius clears the 4 mm mat. Repeated clicks do not queue animations. The export batches within interaction identity and material, preserving eight named anchors and a generated target/pivot contract in `src/lib/desk-interactions.json`.
 
 The shared HTML disclosure provides named, 44 px controls and visible keyboard focus in both languages. Selecting headphones opens its music status. `src/lib/desk-audio.ts` accepts the future supplied track path and title; no audio is shipped, fetched or autoplayed now. Audio is lazy, pauses on page hiding or scene exit, and is released on unmount/context failure. Reduced motion suppresses accessory motion and snaps lighting in the review; the journey retains its existing static alternative. Settings are local to the mounted scene.
 
 The model is 462,644 bytes and 93,011 triangles. The runtime uses 45 draw calls at rest, 46 with the click ring, below the existing 50-call limit. Source geometry and camera placement are preserved. This remains a demo feature; the homepage is unchanged.
+
+## Floor supports
+
+The right support is a four-drawer white cabinet aligned to the mouse wrist rest; the left support is a matching laminate slab. Four independent drawer anchors drive a 1540 ms wave with 15 cm maximum travel. Both demos expose pointer, touch and localized keyboard controls. See `docs/qa/desk/drawers.md` for dimensions, motion and verification. The opening camera now includes both supports; screen close-ups remain unchanged.

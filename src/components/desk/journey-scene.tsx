@@ -186,6 +186,15 @@ function Driver({
       );
     });
     gl.render(state.scene, camera);
+    gl.domElement.setAttribute(
+      "data-peak-draw-calls",
+      String(
+        Math.max(
+          Number(gl.domElement.dataset.peakDrawCalls || 0),
+          gl.info.render.calls,
+        ),
+      ),
+    );
     const canvas = gl.domElement;
     canvas.setAttribute("data-frames", String(++frames.current));
     canvas.setAttribute("data-distance", String(step.distance));
@@ -213,7 +222,7 @@ export default function JourneyScene(props: JourneySceneProps) {
         camera={{ fov: 43, near: 0.01, far: 15 }}
         gl={{ antialias: true, alpha: false, powerPreference: "low-power" }}
       >
-        <color attach="background" args={["#000000"]} />
+        <color attach="background" args={["#17191c"]} />
         <DeskLighting />
         <ambientLight intensity={0.45} color="#cad6ef" />
         <directionalLight
