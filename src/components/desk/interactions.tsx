@@ -5,7 +5,8 @@ import { createDeskAudio, deskTrack, type AudioStatus } from "@/lib/desk-audio";
 import { lampColors } from "@/lib/desk-interaction-motion";
 import styles from "./interactions.module.css";
 
-export type DeskAction = "dial" | "headphones" | "lamp" | "mouse" | "tablet";
+export type DeskAction =
+  "dial" | "headphones" | "lamp" | "mouse" | "tablet" | "drawers";
 export type InteractionPoint = [number, number, number];
 const copy = {
   en: {
@@ -15,6 +16,7 @@ const copy = {
     lamp: "Lamp color",
     mouse: "Play with the mouse",
     tablet: "Move the pencil",
+    drawers: "Wave the drawers",
     colors: ["Amber", "Pink", "Purple", "Blue", "Green"],
     hint: "Click a desk object or use these buttons.",
     idle: "Music starts only when you select the headphones.",
@@ -31,6 +33,7 @@ const copy = {
     lamp: "Lamba rengi",
     mouse: "Mouse ile oyna",
     tablet: "Kalemi hareket ettir",
+    drawers: "Çekmece dalgası",
     colors: ["Amber", "Pembe", "Mor", "Mavi", "Yeşil"],
     hint: "Masa objelerine tıkla veya bu düğmeleri kullan.",
     idle: "Müzik yalnızca kulaklığı seçtiğinde başlar.",
@@ -156,6 +159,13 @@ export function DeskObjectControls({
             onClick={() => controls.activate("tablet")}
           >
             {t.tablet}
+          </button>
+          <button
+            type="button"
+            data-desk-action="drawers"
+            onClick={() => controls.activate("drawers")}
+          >
+            {t.drawers}
           </button>
         </div>
         <p className={styles.status}>{t.hint}</p>

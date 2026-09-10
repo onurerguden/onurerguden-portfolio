@@ -9,16 +9,21 @@ import {
   Sprite,
   SpriteMaterial,
   Group,
+  InstancedMesh,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
   Object3D,
   PointLight,
   SpotLight,
+  type WebGLRenderer,
 } from "three";
 import contract from "@/lib/desk-interactions.json";
 import {
   accessoryPose,
+  drawerIds,
+  drawerOffset,
+  drawerWave,
   animationDuration,
   lampColors,
   type AnimatedObject,
@@ -31,14 +36,25 @@ const actions = new Set<string>([
   "lamp",
   "mouse",
   "tablet",
+  "drawers",
 ]);
 const animated = ["headphones", "mouse", "tablet"] as const;
 function actionFor(object: Object3D): DeskAction | undefined {
   const id = object.userData.interaction;
+  if (drawerIds.includes(id)) return "drawers";
   return actions.has(id) ? (id as DeskAction) : undefined;
 }
-const shadowVertex = `varying vec2 vUv; void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
+const shadowVertex = `varying vec2 vUv; void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*instanceMatrix*vec4(position,1.);}`;
 const shadowFragment = `varying vec2 vUv; void main(){float r=length((vUv-.5)*2.);gl_FragColor=vec4(0.,0.,0.,.22*pow(max(0.,1.-r),2.));}`;
+
+// Three.js owns these mutable GPU resources, outside React's state model.
+function cacheShadows(renderer: WebGLRenderer, cached: boolean) {
+  renderer.shadowMap.autoUpdate = !cached;
+  renderer.shadowMap.needsUpdate = true;
+}
+function dirtyShadows(renderer: WebGLRenderer) {
+  renderer.shadowMap.needsUpdate = true;
+}
 
 export default function InteractionScene({
   model,
@@ -71,11 +87,17 @@ export default function InteractionScene({
     target.position.set(0.58, 0, -0.22);
     return target;
   }, []);
-  const shadows = useRef<(Mesh | null)[]>([]);
+  const shadows = useRef<InstancedMesh>(null);
+  const shadowTransform = useMemo(() => {
+    const transform = new Object3D();
+    transform.rotation.x = -Math.PI / 2;
+    return transform;
+  }, []);
   const running = useRef<
     Partial<Record<AnimatedObject, { start: number; variant: number }>>
   >({});
   const nextMouse = useRef(0);
+  const drawerStart = useRef<number | null>(null);
   const color = useRef(new Color(lampColors[1]));
   const transition = useRef({
     start: 0,
@@ -134,6 +156,14 @@ export default function InteractionScene({
     });
     return result;
   }, [nodes]);
+  // Light positions are fixed. Rebuild depth maps only when a caster moves.
+  useEffect(() => {
+    cacheShadows(gl, true);
+    invalidate();
+    return () => {
+      cacheShadows(gl, false);
+    };
+  }, [gl, invalidate]);
   useEffect(() => {
     transition.current = {
       ...transition.current,
@@ -145,8 +175,15 @@ export default function InteractionScene({
   }, [controls.lights, controls.colorIndex, controls.reduced, invalidate]);
   useEffect(() => {
     return registerMotion((id, point) => {
-      if (!active || reduced || !animated.includes(id as AnimatedObject))
+      if (!active || reduced) return;
+      if (id === "drawers") {
+        if (drawerStart.current === null) {
+          drawerStart.current = performance.now();
+          invalidate();
+        }
         return;
+      }
+      if (!animated.includes(id as AnimatedObject)) return;
       const key = id as AnimatedObject;
       if (running.current[key]) return;
       running.current[key] = {
@@ -167,6 +204,14 @@ export default function InteractionScene({
   useEffect(() => {
     if (!controls.active || controls.reduced) {
       running.current = {};
+      drawerStart.current = null;
+      dirtyShadows(gl);
+      for (const id of drawerIds) nodes[id].position.copy(origins[id].position);
+      gl.domElement.setAttribute("data-drawers-motion", "idle");
+      gl.domElement.setAttribute(
+        "data-drawer-offsets",
+        "0.000,0.000,0.000,0.000",
+      );
       for (const id of animated) {
         const key = id === "tablet" ? "pencil" : id;
         nodes[key].position.copy(origins[key].position);
@@ -185,6 +230,12 @@ export default function InteractionScene({
   );
   useFrame(() => {
     if (!controls.active) return;
+    const movingCasters =
+      drawerStart.current !== null ||
+      animated.some((id) => running.current[id]);
+    if (movingCasters) dirtyShadows(gl);
+    // A final clean frame also makes idle metrics exclude the last depth update.
+    if (gl.shadowMap.needsUpdate) invalidate();
     const now = performance.now();
     const elapsed = now - transition.current.start;
     const ct = controls.reduced ? 1 : Math.min(1, elapsed / 350);
@@ -225,6 +276,23 @@ export default function InteractionScene({
       }
     });
     let busy = ct < 1 || lt < 1;
+    const drawerElapsed =
+      drawerStart.current === null
+        ? drawerWave.duration
+        : now - drawerStart.current;
+    const drawersMoving = drawerElapsed < drawerWave.duration;
+    const offsets = drawerIds.map((id, index) => {
+      const offset = drawerOffset(drawerElapsed, index);
+      nodes[id].position.z = origins[id].position.z + offset;
+      return offset.toFixed(3);
+    });
+    gl.domElement.setAttribute("data-drawer-offsets", offsets.join(","));
+    gl.domElement.setAttribute(
+      "data-drawers-motion",
+      drawersMoving ? "running" : "idle",
+    );
+    if (drawersMoving) busy = true;
+    else drawerStart.current = null;
     for (const [index, id] of animated.entries()) {
       const key = id === "tablet" ? "pencil" : id;
       const job = running.current[id];
@@ -241,10 +309,22 @@ export default function InteractionScene({
       nodes[key].quaternion.copy(origins[key].quaternion);
       if (id === "tablet") nodes[key].rotateZ(pose.rotation);
       else nodes[key].rotateY(pose.rotation);
-      const shadow = shadows.current[index];
-      if (shadow) {
-        shadow.position.x = nodes[key].position.x;
-        shadow.position.z = nodes[key].position.z;
+      if (shadows.current) {
+        shadowTransform.position.set(
+          nodes[key].position.x,
+          0.0043,
+          nodes[key].position.z,
+        );
+        const size =
+          id === "headphones"
+            ? [0.15, 0.1]
+            : id === "mouse"
+              ? [0.11, 0.15]
+              : [0.016, 0.175];
+        shadowTransform.scale.set(size[0], size[1], 1);
+        shadowTransform.updateMatrix();
+        shadows.current.setMatrixAt(index, shadowTransform.matrix);
+        shadows.current.instanceMatrix.needsUpdate = true;
       }
       if (id === "mouse" && ring.current) {
         ring.current.visible = !!job && t < 0.6;
@@ -303,6 +383,7 @@ export default function InteractionScene({
         >
           <boxGeometry args={target.size as [number, number, number]} />
           <meshBasicMaterial
+            visible={false}
             transparent
             opacity={0}
             depthWrite={false}
@@ -365,7 +446,7 @@ export default function InteractionScene({
         intensity={3}
         distance={1.2}
       />
-      <mesh ref={biasStrip} position={[0.09, 0.30, -0.322]}>
+      <mesh ref={biasStrip} position={[0.09, 0.3, -0.322]}>
         <boxGeometry args={[0.61, 0.006, 0.006]} />
         <meshStandardMaterial
           color="#ffe0b0"
@@ -373,32 +454,19 @@ export default function InteractionScene({
           emissiveIntensity={4}
         />
       </mesh>
-      {animated.map((id, index) => (
-        <mesh
-          key={id}
-          ref={(node) => {
-            shadows.current[index] = node;
-          }}
-          position={[0, 0.0043, 0]}
-          rotation={[-Math.PI / 2, 0, 0]}
-        >
-          <planeGeometry
-            args={
-              id === "headphones"
-                ? [0.15, 0.1]
-                : id === "mouse"
-                  ? [0.11, 0.15]
-                  : [0.016, 0.175]
-            }
-          />
-          <shaderMaterial
-            transparent
-            depthWrite={false}
-            vertexShader={shadowVertex}
-            fragmentShader={shadowFragment}
-          />
-        </mesh>
-      ))}
+      <instancedMesh
+        ref={shadows}
+        args={[undefined, undefined, 3]}
+        frustumCulled={false}
+      >
+        <planeGeometry args={[1, 1]} />
+        <shaderMaterial
+          transparent
+          depthWrite={false}
+          vertexShader={shadowVertex}
+          fragmentShader={shadowFragment}
+        />
+      </instancedMesh>
       <mesh ref={ring} visible={false} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[0.01, 0.011, 40]} />
         <meshBasicMaterial

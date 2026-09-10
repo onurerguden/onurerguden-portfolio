@@ -1,6 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
-import { accessoryPose, lampColors } from "../src/lib/desk-interaction-motion";
+import {
+  accessoryPose,
+  lampColors,
+  drawerIds,
+  drawerOffset,
+  drawerWave,
+} from "../src/lib/desk-interaction-motion";
 import { createDeskAudio, type AudioStatus } from "../src/lib/desk-audio";
 import contract from "../src/lib/desk-interactions.json";
 
@@ -133,5 +139,41 @@ describe("user-initiated music", () => {
     expect(s.statuses.at(-1)).toBe("loading");
     expect(s.audio.removeAttribute).toHaveBeenCalledWith("src");
     expect(s.audio.load).toHaveBeenCalled();
+  });
+});
+
+describe("drawer supports and wave clearance", () => {
+  it("uses four vertically separated drawers aligned to the wrist rest", () => {
+    expect(contract.cabinet.left).toBeCloseTo(0.393, 3);
+    expect(contract.cabinet.right - contract.cabinet.left).toBeCloseTo(0.34);
+    expect(contract.cabinet.depth).toBeCloseTo(0.76);
+    const pivots = drawerIds.map((id) => contract.objects[id].pivot);
+    for (let i = 0; i < pivots.length; i++) {
+      expect(pivots[i][0]).toBeCloseTo(
+        (contract.cabinet.left + contract.cabinet.right) / 2,
+      );
+      expect(pivots[i][1] + 0.073).toBeLessThan(contract.cabinet.top);
+      expect(pivots[i][1] - 0.073).toBeGreaterThan(contract.cabinet.floor);
+      if (i) expect(pivots[i - 1][1] - pivots[i][1]).toBeGreaterThan(0.146);
+    }
+  });
+  it("stagger-opens top to bottom, stays half open at most and returns exactly", () => {
+    for (let i = 0; i < 4; i++) {
+      const peak = drawerWave.stroke / 2 + i * drawerWave.stagger;
+      expect(drawerOffset(peak, i)).toBeCloseTo(
+        contract.cabinet.drawerDepth / 4,
+      );
+      expect(drawerOffset(i * drawerWave.stagger, i)).toBe(0);
+      for (let time = -20; time <= drawerWave.duration + 20; time += 10) {
+        expect(drawerOffset(time, i)).toBeGreaterThanOrEqual(0);
+        expect(drawerOffset(time, i)).toBeLessThanOrEqual(
+          contract.cabinet.drawerTravel,
+        );
+      }
+      expect(drawerOffset(drawerWave.duration, i)).toBe(0);
+      expect(drawerOffset(drawerWave.duration + 500, i)).toBe(0);
+    }
+    expect(drawerOffset(100, 0)).toBeGreaterThan(0);
+    expect(drawerOffset(100, 1)).toBe(0);
   });
 });
