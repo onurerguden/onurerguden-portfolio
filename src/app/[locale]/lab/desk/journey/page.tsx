@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { isLocale } from "@/lib/content";
 import { getJourneyContent } from "@/lib/desk-journey-content";
 import DeskJourney from "@/components/desk/journey";
+import HomeIntroduction from "@/components/home-introduction";
 import HomeContinuation from "@/components/home-continuation";
 export async function generateMetadata({
   params,
@@ -24,10 +25,12 @@ export default async function JourneyPage({
   if (!isLocale(locale) || process.env.VERCEL_ENV === "production") notFound();
   return (
     <main id="main" tabIndex={-1}>
-      <DeskJourney locale={locale} content={getJourneyContent(locale)} />
-      <div id="journey-content" tabIndex={-1}>
-        <HomeContinuation locale={locale} />
-      </div>
+      <DeskJourney
+        locale={locale}
+        content={getJourneyContent(locale)}
+        introduction={<HomeIntroduction locale={locale} />}
+      />
+      <HomeContinuation locale={locale} />
     </main>
   );
 }

@@ -5,17 +5,17 @@
   position: relative;
   margin-left: calc(50% - 50vw);
   color: #f3f0e9;
-  background: #171719;
+  background: #e8eceb;
 }
 .journey[data-enhanced="true"] {
-  height: 850svh;
+  height: 950svh;
 }
 .stage {
   position: relative;
   height: var(--stage-height);
   min-height: 0;
   overflow: clip;
-  background: #17191c;
+  background: #e8eceb;
   isolation: isolate;
 }
 .journey[data-enhanced="true"] .stage {
@@ -254,7 +254,10 @@
   background: #f5f3ed;
   color: #172526;
 }
-.stories[data-fallback="false"] {
+.stories[data-fallback="false"] > section:not([data-research="true"]) {
+  display: none;
+}
+.stories[data-fallback="false"] img {
   display: none;
 }
 .stories > section {
@@ -472,4 +475,99 @@
 .screen[data-screen="2"] .card {
   background: #eaece5;
   border-top: 12px solid #a7b19a;
+}
+
+.scrollCue {
+  position: absolute;
+  bottom: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  color: #34494a;
+  font: 500 12px/1.4 var(--font-sans);
+  pointer-events: none;
+}
+.scrollLine {
+  width: 1px;
+  height: 46px;
+  background: #768582;
+  position: relative;
+}
+.scrollLine::before {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #34494a;
+  animation: scroll-dot 1.8s ease-in-out infinite;
+}
+@keyframes scroll-dot {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  60% {
+    transform: translateY(35px);
+    opacity: 1;
+  }
+}
+.journey[data-static="true"] .scrollCue {
+  display: none;
+}
+
+.foot {
+  pointer-events: none;
+}
+.foot button {
+  pointer-events: auto;
+  margin-left: auto;
+}
+.foot > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.screen[data-screen="1"] {
+  background: #e8eceb;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scrollLine::before {
+    animation: none;
+  }
+}
+.journey {
+  width: 100cqw;
+  margin-left: calc(50% - 50cqw);
+}
+.nav {
+  top: 94px;
+}
+.scrollLine::before {
+  animation-iteration-count: 2;
+}
+@media (max-width: 700px) {
+  .nav {
+    top: 88px;
+  }
+}
+
+.journey[data-travelled="true"] .nav {
+  top: 16px;
+}
+
+@media (max-width: 700px) {
+  .screen[data-screen="2"] .card p,
+  .screen[data-screen="2"] .card a {
+    font-size: 56px;
+  }
 }
