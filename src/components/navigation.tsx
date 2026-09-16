@@ -3,8 +3,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 export default function Navigation({ locale }: { locale: "en" | "tr" }) {
   const path = usePathname();
+  const isJourneyRoute =
+    path === `/${locale}` ||
+    path === `/${locale}/` ||
+    path === `/${locale}/lab/desk/journey`;
   const other = locale === "en" ? "tr" : "en";
   const target = path.replace(/^\/(en|tr)(?=\/|$)/, `/${other}`);
+  if (isJourneyRoute) return null;
   return (
     <header className="site-header">
       <Link className="wordmark" href={`/${locale}`} aria-label="Onur Ergüden">
