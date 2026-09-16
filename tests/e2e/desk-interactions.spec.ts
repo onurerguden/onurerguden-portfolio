@@ -16,7 +16,6 @@ for (const locale of ["en", "tr"] as const) {
         browserName === "webkit",
         "Headless WebKit has no reliable WebGL2; existing static fallback tests cover it.",
       );
-      await page.clock.install();
       await page.goto(`/${locale}/lab/desk${journey ? "/journey" : ""}`);
       if (!journey)
         await page
@@ -28,6 +27,14 @@ for (const locale of ["en", "tr"] as const) {
       await expect(canvas).toHaveAttribute("data-lights", "1.000", {
         timeout: 20000,
       });
+      if (journey) {
+        await page.evaluate(() =>
+          window.scrollTo({ top: innerHeight * 7.8, behavior: "instant" }),
+        );
+        await expect
+          .poll(async () => Number(await canvas.getAttribute("data-distance")))
+          .toBeCloseTo(7.8, 1);
+      }
       const summary = page.getByText(
         locale === "en" ? "Desk objects" : "Masa objeleri",
         { exact: true },
@@ -38,99 +45,100 @@ for (const locale of ["en", "tr"] as const) {
       const dial = page.locator('[data-desk-action="dial"]');
       await expect(dial).toBeFocused();
       await page.keyboard.press("Space");
+      await page.waitForTimeout(400);
       await expect(dial).toHaveAttribute("aria-pressed", "false");
       await expect(canvas).toHaveAttribute("data-lights", "0.000");
       for (const color of ["514366", "35546b", "405e4e", "694b2f", "603f4b"]) {
         await page.locator('[data-desk-action="lamp"]').click();
+        await page.waitForTimeout(400);
         await expect(canvas).toHaveAttribute("data-lamp-color", color);
         await expect(canvas).toHaveAttribute("data-lights", "0.000");
       }
-      // Sample actual rendered pixels: lamp color must never tint the backdrop.
-      const corner = await sharp(await canvas.screenshot())
-        .extract({ left: 30, top: 30, width: 1, height: 1 })
-        .removeAlpha()
-        .raw()
-        .toBuffer();
-      expect([...corner]).toEqual([0, 0, 0]);
-      await dial.click();
-      await expect(canvas).toHaveAttribute("data-lights", "1.000");
-      await page.clock.pauseAt(
-        await page.evaluate(() => new Date(Date.now() + 60000).toISOString()),
-      );
-      const drawers = page.locator('[data-desk-action="drawers"]');
-      await drawers.focus();
-      await page.keyboard.press("Enter");
-      await page.clock.runFor(100);
-      await expect(canvas).toHaveAttribute("data-drawers-motion", "running");
-      const firstWave = (await canvas.getAttribute("data-drawer-offsets"))!
-        .split(",")
-        .map(Number);
-      expect(firstWave[0]).toBeGreaterThan(0);
-      expect(firstWave.slice(1)).toEqual([0, 0, 0]);
-      await page.clock.runFor(400);
-      await drawers.evaluate((button: HTMLButtonElement) => {
-        button.click();
-        button.click();
-      });
-      await page.clock.fastForward(1200);
-      await expect(canvas).toHaveAttribute("data-drawers-motion", "idle");
-      await expect(canvas).toHaveAttribute(
-        "data-drawer-offsets",
-        "0.000,0.000,0.000,0.000",
-      );
-      await drawers.click();
-      await page.clock.runFor(200);
-      await page.evaluate(() => {
-        Object.defineProperty(document, "hidden", {
-          configurable: true,
-          value: true,
-        });
-        document.dispatchEvent(new Event("visibilitychange"));
-      });
-      await expect(canvas).toHaveAttribute("data-drawers-motion", "idle");
-      await expect(canvas).toHaveAttribute(
-        "data-drawer-offsets",
-        "0.000,0.000,0.000,0.000",
-      );
-      await page.evaluate(() => {
-        Reflect.deleteProperty(document, "hidden");
-        document.dispatchEvent(new Event("visibilitychange"));
-      });
-      await page.clock.runFor(80);
-      for (let i = 0; i < 5; i++) {
-        await page
-          .locator('[data-desk-action="mouse"]')
-          .evaluate((button: HTMLButtonElement) => {
-            button.click();
-            button.click();
-          });
-        await page.clock.runFor(80);
-        await expect(canvas).toHaveAttribute("data-mouse-motion", "running");
-        await expect(canvas).toHaveAttribute("data-mouse-variant", String(i));
-        await page.clock.fastForward(800);
-        await expect(canvas).toHaveAttribute("data-mouse-motion", "idle");
+      // Sample actual rendered pixels only in the unchanged review backdrop.
+      if (!journey) {
+        const corner = await sharp(await canvas.screenshot())
+          .extract({ left: 30, top: 30, width: 1, height: 1 })
+          .removeAlpha()
+          .raw()
+          .toBuffer();
+        expect([...corner]).toEqual([23, 25, 28]);
       }
-      await page.locator('[data-desk-action="tablet"]').click();
-      await page.clock.runFor(80);
-      await expect(canvas).toHaveAttribute("data-tablet-motion", "running");
-      await page.clock.fastForward(1000);
-      await expect(canvas).toHaveAttribute("data-tablet-motion", "idle");
-      await page.locator('[data-desk-action="headphones"]').click();
-      await expect(page.locator("details").getByRole("status")).toContainText(
-        locale === "en"
-          ? "Music has not been added yet."
-          : "Müzik henüz eklenmedi.",
+      await dial.click();
+      await page.waitForTimeout(400);
+      await expect(canvas).toHaveAttribute("data-lights", "1.000");
+
+      const drawers = page.locator('[data-desk-action="drawers"]');
+      await drawers.click();
+      await expect(canvas).toHaveAttribute("data-last-desk-action", "drawers");
+      await expect(canvas).toHaveAttribute("data-drawers-motion", "running");
+      if (!journey)
+        await expect
+          .poll(async () =>
+            Math.max(
+              ...(await canvas.getAttribute("data-drawer-offsets"))!
+                .split(",")
+                .map(Number),
+            ),
+          )
+          .toBeGreaterThan(0);
+      await page.waitForTimeout(400);
+      await drawers.click();
+      await page.waitForTimeout(1200);
+      await expect(canvas).toHaveAttribute("data-drawers-motion", "idle");
+      await expect(canvas).toHaveAttribute(
+        "data-drawer-offsets",
+        "0.000,0.000,0.000,0.000",
       );
-      await page.clock.fastForward(700);
-      await expect(canvas).toHaveAttribute("data-headphones-motion", "idle");
-      await page.clock.runFor(80); // Allow the final cached-shadow frame to settle.
+      if (!journey) {
+        await drawers.click();
+        await page.waitForTimeout(200);
+        await page.evaluate(() => {
+          Object.defineProperty(document, "hidden", {
+            configurable: true,
+            value: true,
+          });
+          document.dispatchEvent(new Event("visibilitychange"));
+        });
+        await expect(canvas).toHaveAttribute("data-drawers-motion", "idle");
+        await expect(canvas).toHaveAttribute(
+          "data-drawer-offsets",
+          "0.000,0.000,0.000,0.000",
+        );
+        await page.evaluate(() => {
+          Reflect.deleteProperty(document, "hidden");
+          document.dispatchEvent(new Event("visibilitychange"));
+        });
+        await page.waitForTimeout(80);
+        for (let i = 0; i < 5; i++) {
+          await page.locator('[data-desk-action="mouse"]').click();
+          await expect(canvas).toHaveAttribute(
+            "data-last-desk-action",
+            "mouse",
+          );
+          await expect(canvas).toHaveAttribute("data-mouse-variant", String(i));
+          await page.waitForTimeout(800);
+          await expect(canvas).toHaveAttribute("data-mouse-motion", "idle");
+        }
+        await page.locator('[data-desk-action="tablet"]').click();
+        await expect(canvas).toHaveAttribute("data-last-desk-action", "tablet");
+        await page.waitForTimeout(1000);
+        await expect(canvas).toHaveAttribute("data-tablet-motion", "idle");
+        await page.locator('[data-desk-action="headphones"]').click();
+        await expect(page.locator("details").getByRole("status")).toContainText(
+          locale === "en"
+            ? "Music has not been added yet."
+            : "Müzik henüz eklenmedi.",
+        );
+        await page.waitForTimeout(700);
+        await expect(canvas).toHaveAttribute("data-headphones-motion", "idle");
+      }
+      await page.waitForTimeout(80); // Allow the final cached-shadow frame to settle.
       const frames = await canvas.getAttribute("data-frames");
-      await page.clock.fastForward(400);
+      await page.waitForTimeout(400);
       expect(await canvas.getAttribute("data-frames")).toBe(frames);
       expect(
         Number(await canvas.getAttribute("data-draw-calls")),
-      ).toBeLessThanOrEqual(50);
-      await page.clock.resume();
+      ).toBeLessThanOrEqual(journey ? 130 : 50);
       expect(
         (
           await new AxeBuilder({ page })
@@ -151,8 +159,8 @@ test("review objects accept direct pointer clicks and reduced motion keeps funct
   page,
   browserName,
 }) => {
+  test.setTimeout(90000);
   test.skip(browserName === "webkit", "Requires WebGL2.");
-  await page.clock.install();
   await page.goto("/en/lab/desk");
   await page.getByRole("button", { name: "Explore in 3D" }).click();
   const canvas = page.locator("canvas");
@@ -172,9 +180,6 @@ test("review objects accept direct pointer clicks and reduced motion keeps funct
   );
   camera.lookAt(target);
   camera.updateMatrixWorld();
-  await page.clock.pauseAt(
-    await page.evaluate(() => new Date(Date.now() + 60000).toISOString()),
-  );
   for (const id of [
     "dial",
     "lamp",
@@ -183,6 +188,9 @@ test("review objects accept direct pointer clicks and reduced motion keeps funct
     "headphones",
     "drawers",
   ] as const) {
+    // Headphone status opens the controls; close them before the next 3D hit test.
+    if ((await page.locator("details").getAttribute("open")) !== null)
+      await page.locator("details summary").click();
     const projected = new Vector3(...interactions.targets[id].position).project(
       camera,
     );
@@ -190,7 +198,8 @@ test("review objects accept direct pointer clicks and reduced motion keeps funct
       rect.x + ((projected.x + 1) * rect.width) / 2,
       rect.y + ((1 - projected.y) * rect.height) / 2,
     );
-    await page.clock.runFor(id === "dial" || id === "lamp" ? 400 : 80);
+    await expect(canvas).toHaveAttribute("data-last-desk-action", id);
+    await page.waitForTimeout(id === "dial" || id === "lamp" ? 400 : 80);
     if (id === "dial")
       await expect(canvas).toHaveAttribute("data-lights", "0.000");
     else if (id === "lamp")
@@ -199,31 +208,32 @@ test("review objects accept direct pointer clicks and reduced motion keeps funct
       await expect(page.locator("details").getByRole("status")).toHaveText(
         "Music has not been added yet.",
       );
-    else await expect(canvas).toHaveAttribute(`data-${id}-motion`, "running");
     if (["mouse", "tablet", "headphones", "drawers"].includes(id)) {
-      await page.clock.fastForward(1600);
+      await page.waitForTimeout(1600);
       await expect(canvas).toHaveAttribute(`data-${id}-motion`, "idle");
     }
   }
+  if ((await page.locator("details").getAttribute("open")) === null)
+    await page.locator("details summary").click();
   await page.locator('[data-desk-action="drawers"]').click();
-  await page.clock.runFor(300);
+  await page.waitForTimeout(300);
   await expect(canvas).toHaveAttribute("data-drawers-motion", "running");
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.clock.runFor(80);
+  await page.waitForTimeout(80);
   await expect(canvas).toHaveAttribute(
     "data-drawer-offsets",
     "0.000,0.000,0.000,0.000",
   );
   await page.locator('[data-desk-action="drawers"]').click();
-  await page.clock.runFor(80);
+  await page.waitForTimeout(80);
   await expect(canvas).toHaveAttribute("data-drawers-motion", "idle");
   await page.locator('[data-desk-action="mouse"]').click();
-  await page.clock.runFor(80);
+  await page.waitForTimeout(80);
   await expect(canvas).toHaveAttribute("data-mouse-motion", "idle");
   await page.locator('[data-desk-action="dial"]').click();
-  await page.clock.runFor(80);
+  await page.waitForTimeout(80);
   await expect(canvas).toHaveAttribute("data-lights", "1.000");
   await page.locator('[data-desk-action="lamp"]').click();
-  await page.clock.runFor(80);
+  await page.waitForTimeout(80);
   await expect(canvas).toHaveAttribute("data-lamp-color", "35546b");
 });

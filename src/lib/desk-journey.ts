@@ -1,49 +1,65 @@
-/** Scroll distances in stable viewport heights; never elapsed animation time. */
-export const journeyLength = 7.5;
-export const readingRanges = [
-  [1.25, 3.25],
-  [4, 5.25],
-  [6, 7],
+/** Distances are native scroll in stable viewport heights, never elapsed time. */
+export const journeyLength = 8.5;
+export type CameraStop =
+  "opening" | "desktop" | "portrait" | "macbook" | "room";
+export const screenIds = [
+  "PortraitScreen",
+  "UltrawideScreen",
+  "MacBookScreen",
 ] as const;
+export const screenConfiguration = {
+  PortraitScreen: { stop: "portrait", reading: [2, 4] },
+  UltrawideScreen: { stop: "opening", reading: null },
+  MacBookScreen: { stop: "macbook", reading: [5, 6] },
+} as const;
+export const screenStops = screenIds.map((id) => screenConfiguration[id].stop);
+export const readingRanges: readonly (readonly [number, number] | null)[] =
+  screenIds.map((id) => screenConfiguration[id].reading);
 export const clamp = (n: number) => Math.max(0, Math.min(1, n));
 export const ease = (n: number) => {
   const t = clamp(n);
   return t * t * (3 - 2 * t);
 };
+const transitions: readonly [number, number, CameraStop, CameraStop][] = [
+  [0.15, 1.15, "opening", "desktop"],
+  [1.25, 2, "desktop", "portrait"],
+  [4, 5, "portrait", "macbook"],
+  [6, 7.5, "macbook", "room"],
+];
 export function journeyAt(distance: number) {
   const d = Math.max(0, Math.min(journeyLength, distance));
-  let from = 0,
-    to = 0,
+  let from: CameraStop = "opening",
+    to: CameraStop = "opening",
     travel = 0;
-  if (d >= 0.5 && d < 1.25) {
-    to = 1;
-    travel = (d - 0.5) / 0.75;
-  } else if (d >= 1.25 && d < 3.25) {
-    from = to = 1;
-  } else if (d >= 3.25 && d < 4) {
-    from = 1;
-    to = 2;
-    travel = (d - 3.25) / 0.75;
-  } else if (d >= 4 && d < 5.25) {
-    from = to = 2;
-  } else if (d >= 5.25 && d < 6) {
-    from = 2;
-    to = 3;
-    travel = (d - 5.25) / 0.75;
-  } else if (d >= 6) {
-    from = to = 3;
+  for (const [start, end, a, b] of transitions) {
+    if (d < start) break;
+    if (d < end) {
+      from = a;
+      to = b;
+      travel = ease((d - start) / (end - start));
+      break;
+    }
+    from = to = b;
   }
   return {
     distance: d,
     from,
     to,
-    travel: ease(travel),
-    reading: readingRanges.map(([start, end]) =>
-      clamp((d - start) / (end - start)),
+    travel,
+    reading: readingRanges.map((range) =>
+      range ? clamp((d - range[0]) / (range[1] - range[0])) : 0,
     ),
-    preview: Math.sin(clamp(d / 0.5) * Math.PI) * 18,
-    exit: ease((d - 7) / 0.5),
-    active: from === to && from > 0 && d <= 7 ? from - 1 : -1,
+    preview: 0,
+    exit: 0,
+    explore: d >= 7.5,
+    active:
+      from === to
+        ? screenIds.findIndex(
+            (id) =>
+              screenConfiguration[id].stop === from &&
+              screenConfiguration[id].reading !== null,
+          )
+        : -1,
   };
 }
 /** Hold each page still before moving to the next page. */
@@ -57,7 +73,9 @@ export function pageOffset(progress: number, count: number) {
   );
 }
 export function focusDistance(screen: number, card: number, count: number) {
-  const [start, end] = readingRanges[screen];
+  const range = readingRanges[screen];
+  if (!range) return journeyLength;
+  const [start, end] = range;
   return start + (end - start) * ((card * 2 + 0.5) / (count * 2 - 1));
 }
 export type JourneyCard = {

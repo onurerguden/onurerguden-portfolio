@@ -62,3 +62,7 @@ The model is 462,644 bytes and 93,011 triangles. The runtime uses 45 draw calls 
 ## Floor supports
 
 The right support is a four-drawer white cabinet aligned to the mouse wrist rest; the left support is a matching laminate slab. Four independent drawer anchors drive a 1540 ms wave with 15 cm maximum travel. Both demos expose pointer, touch and localized keyboard controls. See `docs/qa/desk/drawers.md` for dimensions, motion and verification. The opening camera now includes both supports; screen close-ups remain unchanged.
+
+## September 11 room integration
+
+The desk is now integrated into the homepage in both languages. The journey starts inside the blank ultrawide, reveals the tabletop, visits the portrait and MacBook content, and ends in a room with a one-viewport exploration interval. The model-only review remains available and retains its original backdrop. Room geometry and materials are separate runtime components; original desk geometry and device placement are unchanged. See `docs/qa/room/README.md` for the revised budget and QA record.

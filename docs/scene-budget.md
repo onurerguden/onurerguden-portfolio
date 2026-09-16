@@ -15,3 +15,7 @@ Run a production build and inspect the browser Network panel with cache disabled
 In React Three Fiber's development renderer inspect `gl.info.render.calls` and `gl.info.render.triangles` after a settled frame; these are the measured values and supersede the primitive estimate above. Use browser Performance/GPU tooling to confirm idle frames stop after scroll and the canvas disappears offscreen. Simulate `WEBGL_lose_context` and confirm poster replacement with no lost content. Resize from 320 px to desktop and check labels, crop, and shape legibility.
 
 Test an actual iPhone Safari before production release; desktop device emulation does not validate mobile GPU memory or WebGL behavior. No iOS measurement is claimed by this document.
+
+## September 11 replacement
+
+The schematic above is retained as historical documentation only; it is no longer the homepage hero. The homepage now uses the desk and room journey. Its actual multi-pass accounting, reflection resolution, fallback and QA record are documented in `docs/qa/room/README.md`. Do not apply the schematic's zero-texture or 50-call estimates to the new reflective room.

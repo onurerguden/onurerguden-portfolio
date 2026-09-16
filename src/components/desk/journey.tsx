@@ -27,7 +27,8 @@ class Boundary extends Component<
   static getDerivedStateFromError() {
     return { failed: true };
   }
-  componentDidCatch() {
+  componentDidCatch(error: Error) {
+    console.error("Desk scene failed", error);
     this.props.onFailure();
   }
   render() {
@@ -37,9 +38,11 @@ class Boundary extends Component<
 export default function DeskJourney({
   locale,
   content,
+  introduction,
 }: {
   locale: "en" | "tr";
   content: JourneyContent;
+  introduction?: ReactNode;
 }) {
   const en = locale === "en";
   const section = useRef<HTMLElement>(null);
@@ -63,6 +66,7 @@ export default function DeskJourney({
       if (section.current?.dataset.enhanced !== "true") return;
       const d = value * journeyLength;
       distance.set(d);
+      if (section.current) section.current.dataset.travelled = String(d > 0.15);
       const state = journeyAt(d);
       if (chapterRef.current !== state.active) {
         chapterRef.current = state.active;
@@ -80,7 +84,7 @@ export default function DeskJourney({
     const motion = matchMedia("(prefers-reduced-motion: reduce)");
     const refresh = () => {
       setStaticMode(motion.matches);
-      if (motion.matches) setEnabled(false);
+      setEnabled(!motion.matches);
     };
     refresh();
     motion.addEventListener("change", refresh);
@@ -96,7 +100,7 @@ export default function DeskJourney({
   }, []);
   const onReady = useCallback(() => setReady(true), []);
   const onFailure = useCallback(() => {
-    fallbackTarget.current = Math.max(0, journeyAt(distance.get()).to - 1);
+    fallbackTarget.current = Math.max(0, journeyAt(distance.get()).active);
     setFailed(true);
     setReady(false);
   }, [distance]);
@@ -122,7 +126,7 @@ export default function DeskJourney({
   }, [enhanced, ready, onFailure]);
   const jump = useCallback(
     (screen: number, card = 0) => {
-      if (!enhanced) return;
+      if (!enhanced || screen === 1) return;
       const node = section.current;
       if (!node) return;
       const y = node.getBoundingClientRect().top + window.scrollY;
@@ -152,98 +156,117 @@ export default function DeskJourney({
     };
   }, [ready, enhanced, jump]);
   return (
-    <section
-      ref={section}
-      className={styles.journey}
-      data-enhanced={enhanced}
-      data-ready={ready}
-      aria-label={en ? "From my desk to my work" : "Masamdan çalışmalarıma"}
-    >
-      <div className={styles.stage} ref={stage} data-journey-stage>
-        <Image
-          src={`/images/desk/wide-loading.webp?v=${assets.revision}`}
-          alt={
-            en
-              ? "My desk with three screens and warm lighting"
-              : "Üç ekran ve sıcak ışıklarla çalışma masam"
-          }
-          fill
-          priority
-          sizes="100vw"
-          className={styles.poster}
-        />
-        {enhanced ? (
-          <Boundary onFailure={onFailure}>
-            <Scene
-              distance={distance}
-              locale={locale}
-              active={active}
-              content={content}
-              onReady={onReady}
-              onFailure={onFailure}
-              onFocusCard={jump}
+    <>
+      <section
+        ref={section}
+        className={styles.journey}
+        data-enhanced={enhanced}
+        data-ready={ready}
+        data-static={staticMode || failed}
+        aria-label={en ? "From my desk to my work" : "Masamdan çalışmalarıma"}
+      >
+        <div className={styles.stage} ref={stage} data-journey-stage>
+          <noscript>
+            <Image
+              src="/images/desk/room-poster.webp"
+              alt={
+                en
+                  ? "My desk in a sunlit room"
+                  : "Gün ışığı alan odada çalışma masam"
+              }
+              fill
+              sizes="100vw"
+              className={styles.poster}
             />
-          </Boundary>
-        ) : null}
-        <div className={styles.intro} ref={intro}>
-          <p>{en ? "Welcome to my desk" : "Çalışma masama hoş geldin"}</p>
-          <h1>{content.name}</h1>
-          <p>{content.intro}</p>
-          <a href={content.cv}>{content.cvLabel}</a>
-        </div>
-        <nav
-          className={styles.nav}
-          aria-label={en ? "Journey sections" : "Yolculuk bölümleri"}
-        >
-          <a href="#journey-content">{en ? "Skip to work" : "İçeriğe geç"}</a>
-          {content.labels.map((label, i) => (
-            <a
-              href={`#desk-story-${i}`}
-              key={label}
-              aria-current={chapter === i ? "step" : undefined}
-              onClick={(e) => {
-                if (
-                  enhanced &&
-                  !e.metaKey &&
-                  !e.ctrlKey &&
-                  !e.shiftKey &&
-                  !e.altKey
-                ) {
-                  e.preventDefault();
-                  history.pushState(null, "", `#desk-story-${i}`);
-                  jump(i);
-                }
-              }}
-            >
-              {label}
-            </a>
-          ))}
-        </nav>
-        {enhanced ? (
-          <div className={styles.foot}>
-            <span role="status">
-              {!ready
-                ? en
-                  ? "Preparing the desk…"
-                  : "Masa hazırlanıyor…"
-                : en
-                  ? "Scroll to explore"
-                  : "Keşfetmek için kaydır"}
-            </span>
-            <button
-              onClick={() => {
-                fallbackTarget.current = Math.max(
-                  0,
-                  journeyAt(distance.get()).to - 1,
-                );
-                setStaticMode(true);
-                setEnabled(false);
-              }}
-            >
-              {en ? "Static view" : "Sabit görünüm"}
-            </button>
+          </noscript>
+          {staticMode || failed ? (
+            <Image
+              src="/images/desk/room-poster.webp"
+              alt={
+                en
+                  ? "My desk in a sunlit room with a marble floor"
+                  : "Mermer zeminli, gün ışığı alan odada çalışma masam"
+              }
+              fill
+              sizes="100vw"
+              className={styles.poster}
+            />
+          ) : null}
+          {enhanced ? (
+            <Boundary onFailure={onFailure}>
+              <Scene
+                distance={distance}
+                locale={locale}
+                active={active}
+                content={content}
+                onReady={onReady}
+                onFailure={onFailure}
+                onFocusCard={jump}
+              />
+            </Boundary>
+          ) : null}
+          <div className={styles.scrollCue} ref={intro}>
+            <span>{en ? "Scroll down" : "Aşağı kaydır"}</span>
+            <span className={styles.scrollLine} aria-hidden="true" />
           </div>
-        ) : null}
+          <nav
+            className={styles.nav}
+            aria-label={en ? "Journey sections" : "Yolculuk bölümleri"}
+          >
+            <a href="#journey-content">{en ? "Skip to work" : "İçeriğe geç"}</a>
+            {content.labels.map((label, i) => (
+              <a
+                href={`#desk-story-${i}`}
+                key={label}
+                aria-current={chapter === i ? "step" : undefined}
+                onClick={(e) => {
+                  if (
+                    enhanced &&
+                    i !== 1 &&
+                    !e.metaKey &&
+                    !e.ctrlKey &&
+                    !e.shiftKey &&
+                    !e.altKey
+                  ) {
+                    e.preventDefault();
+                    history.pushState(null, "", `#desk-story-${i}`);
+                    jump(i);
+                  }
+                }}
+              >
+                {label}
+              </a>
+            ))}
+          </nav>
+          {enhanced ? (
+            <div className={styles.foot}>
+              <span role="status">
+                {!ready
+                  ? en
+                    ? "Preparing the desk…"
+                    : "Masa hazırlanıyor…"
+                  : en
+                    ? "Scroll to explore"
+                    : "Keşfetmek için kaydır"}
+              </span>
+              <button
+                onClick={() => {
+                  fallbackTarget.current = Math.max(
+                    0,
+                    journeyAt(distance.get()).active,
+                  );
+                  setStaticMode(true);
+                  setEnabled(false);
+                }}
+              >
+                {en ? "Static view" : "Sabit görünüm"}
+              </button>
+            </div>
+          ) : null}
+        </div>
+      </section>
+      <div id="journey-content" tabIndex={-1}>
+        {introduction}
       </div>
       <div className={styles.stories} data-fallback={!enhanced}>
         {failed ? (
@@ -254,7 +277,12 @@ export default function DeskJourney({
           </p>
         ) : null}
         {content.screens.map((cards, i) => (
-          <section id={`desk-story-${i}`} key={i} tabIndex={-1}>
+          <section
+            id={`desk-story-${i}`}
+            key={i}
+            tabIndex={-1}
+            data-research={i === 1}
+          >
             <h2>{content.labels[i]}</h2>
             <Image
               src={`/images/desk/${["portrait", "ultrawide", "macbook"][i]}.webp?v=${assets.revision}`}
@@ -273,6 +301,6 @@ export default function DeskJourney({
           </section>
         ))}
       </div>
-    </section>
+    </>
   );
 }
