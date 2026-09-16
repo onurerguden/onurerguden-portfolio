@@ -19,3 +19,9 @@ Test an actual iPhone Safari before production release; desktop device emulation
 ## September 11 replacement
 
 The schematic above is retained as historical documentation only; it is no longer the homepage hero. The homepage now uses the desk and room journey. Its actual multi-pass accounting, reflection resolution, fallback and QA record are documented in `docs/qa/room/README.md`. Do not apply the schematic's zero-texture or 50-call estimates to the new reflective room.
+
+## September 16 cosmic environment
+
+The desk journey now ends on a thin circular marble platform in a cosmic field. Room walls and ceiling were removed. The replacement adds one responsive segmented grid plane, one point geometry for all stars and one platform edge; it introduces no external texture, post-processing pass or continuous animation. The existing marble texture supplies the platform top.
+
+Desktop uses 2,688 grid triangles and 240 points; mobile uses 1,584 grid triangles and 130 points. Pointer values stay in refs and shader uniforms. Frames are invalidated during scroll, pointer movement and the approximately one-second return to rest, then stop. The established steady-frame ceiling remains 130 draw calls / 210,000 submitted triangles, including reflection and shadow passes. Current measurements and screenshots live in `docs/qa/room/README.md`.

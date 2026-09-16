@@ -24,12 +24,13 @@
 }
 .poster {
   object-fit: contain;
+  background: #080e1c;
 }
 .scene {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background: #505257;
+  background: radial-gradient(circle at 50% 38%, #152039 0%, #080e1c 68%);
   contain: paint;
   transition: opacity 0.25s;
 }
