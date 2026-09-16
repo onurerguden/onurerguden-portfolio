@@ -1,4 +1,20 @@
-# Ultrawide-to-room review — September 11, 2026
+# Ultrawide-to-cosmic review — September 16, 2026
+
+## Current cosmic platform
+
+The approved screen journey and 8.5-viewport native scroll timing are unchanged. The final camera now reveals the desk on a reflective circular marble platform in a quiet cosmic field. The former room walls and ceiling are removed. `ultrawide-room-final.png` records the previous room baseline; `cosmic-platform.png` is the current 1440 × 830 fallback source and review capture.
+
+The platform top remains at -0.694 m, immediately below the support contract's -0.692 m, and extends 25 cm beyond the corners of the 1.5 × 0.87 m desk footprint. Its 6 cm side gives the floating surface a visible edge. One point geometry contains the fixed depth-distributed stars. One curved grid plane draws procedural anti-aliased lines whose rectangular boundary fades before the mesh edge.
+
+Fine-pointer movement updates refs and shader uniforms rather than React state. The grid is inactive at the opening and reading stops, responds only during the final exploration view, fades when the pointer reaches a screen or control, and stops invalidating frames after it settles. Touch devices keep the same scroll depth with reduced geometry and no pointer deformation. There is no elapsed-time shader input or idle animation.
+
+The fallback alt text in both languages describes the cosmic platform. Reduced motion, no JavaScript, model failure and WebGL context loss retain the complete HTML story. `npm run desk:capture-cosmic` reproduces the review PNG and public WebP from the local review route.
+
+The production poster capture measured **112 steady draw calls / 199,901 submitted triangles**, within the 130 / 210,000 budget. Its one-time environment and shadow setup peaked at 212 draw calls and is recorded separately from the settled frame. The public WebP remains 1440 × 830 and is 30 KB.
+
+The September 16 verification passes type generation, TypeScript, ESLint, all 40 unit tests, bilingual content validation and the production build. The full Playwright run completed 96 scenarios: **78 passed and 18 were skipped**. The skips are the intentional fine-pointer exclusion on mobile and the existing WebGL-gated mobile WebKit cases; WebKit still passed the localized static content, reduced-motion, no-JavaScript, failure fallback, navigation and accessibility paths. Physical iPhone Safari testing remains a release prerequisite.
+
+## September 11 room baseline (historical)
 
 The approved sequence is now shared by `/en`, `/tr`, and the noindex journey demos. Scroll is native, with a sticky 100svh stage and 8.5 viewport heights of travel. Stops: opening 0–0.15, tabletop 1.15–1.25, portrait reading 2–4, MacBook reading 5–6, room exploration 7.5–8.5. No content has been added to the ultrawide. Research remains in normal HTML after the homepage introduction. The original model and its accessories are preserved.
 

@@ -66,3 +66,7 @@ The right support is a four-drawer white cabinet aligned to the mouse wrist rest
 ## September 11 room integration
 
 The desk is now integrated into the homepage in both languages. The journey starts inside the blank ultrawide, reveals the tabletop, visits the portrait and MacBook content, and ends in a room with a one-viewport exploration interval. The model-only review remains available and retains its original backdrop. Room geometry and materials are separate runtime components; original desk geometry and device placement are unchanged. See `docs/qa/room/README.md` for the revised budget and QA record.
+
+## September 16 cosmic platform
+
+The room geometry is superseded by a 6 cm circular marble platform, sparse depth-distributed stars and a curved procedural grid curtain. The desk model, screen anchors and scroll timing remain unchanged. Fine-pointer input now reaches the existing bounded camera parallax and the new local grid deformation from the shared scene surface; screens and controls suppress the deformation. Mobile keeps the fitted scroll camera with a lighter grid and star count, while reduced motion and failure modes use the updated cosmic poster.
