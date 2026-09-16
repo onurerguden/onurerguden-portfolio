@@ -115,6 +115,7 @@ export function DeskObjectControls({
     <details
       className={styles.controls}
       data-journey={journey}
+      data-cosmic-exclusion="true"
       open={controls.audioStatus !== "idle"}
     >
       <summary>{t.title}</summary>

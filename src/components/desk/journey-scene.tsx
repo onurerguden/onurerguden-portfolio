@@ -8,7 +8,8 @@ import {
   useState,
   type RefObject,
 } from "react";
-import Room from "./room";
+import DeskPlatform, { PLATFORM_RADIUS } from "./platform";
+import CosmicEnvironment, { type CosmicPointer } from "./cosmic-environment";
 import DeskLighting from "./lighting";
 import { DeskObjectControls, useDeskInteractions } from "./interactions";
 import ProjectArt from "@/components/project-art";
@@ -158,10 +159,22 @@ function Driver({
   onFailure,
   panels,
   content,
-}: JourneySceneProps & { panels: ScreenPanelRefs }) {
+  surface,
+}: JourneySceneProps & {
+  panels: ScreenPanelRefs;
+  surface: RefObject<HTMLDivElement | null>;
+}) {
   const { camera, gl, size, invalidate, setFrameloop } = useThree();
   const projections = useMemo(() => screens.map(createScreenProjection), []);
   const frames = useRef(0);
+  const pointer = useRef<CosmicPointer>({
+    x: 0,
+    y: 0,
+    currentX: 0,
+    currentY: 0,
+    targetInfluence: 0,
+    influence: 0,
+  });
   const temp = useMemo(
     () => ({
       position: new Vector3(),
@@ -194,7 +207,12 @@ function Driver({
     const openingTarget = new Vector3(...opening.position);
     const openingDistance =
       (Math.min(opening.width / aspect, opening.height) * 0.92) / (2 * tangent);
-    const roomDistance = Math.max(3.3, 1.95 / aspect / (2 * tangent));
+    const platformSpan = PLATFORM_RADIUS * 2 + 0.2;
+    const roomDistance = Math.max(
+      3.45,
+      platformSpan / aspect / (2 * tangent),
+      1.8 / (2 * tangent),
+    );
     return {
       opening: {
         target: openingTarget,
@@ -249,13 +267,22 @@ function Driver({
     canvas.addEventListener("webglcontextlost", lost);
     return () => canvas.removeEventListener("webglcontextlost", lost);
   }, [gl, onFailure]);
-  const pointer = useRef({ x: 0, y: 0, currentX: 0, currentY: 0 });
   useEffect(() => {
-    const surface = gl.domElement.parentElement?.parentElement;
-    if (!surface || !matchMedia("(hover: hover) and (pointer: fine)").matches)
+    const node = surface.current;
+    if (!node || !matchMedia("(hover: hover) and (pointer: fine)").matches)
       return;
     const move = (event: PointerEvent) => {
-      const rect = surface.getBoundingClientRect();
+      const target = event.target instanceof Element ? event.target : null;
+      const excluded = target?.closest(
+        'a, button, summary, [data-screen], [data-cosmic-exclusion="true"]',
+      );
+      if (excluded) {
+        pointer.current.x = pointer.current.y = 0;
+        pointer.current.targetInfluence = 0;
+        if (active) invalidate();
+        return;
+      }
+      const rect = node.getBoundingClientRect();
       pointer.current.x = Math.max(
         -1,
         Math.min(1, ((event.clientX - rect.left) / rect.width) * 2 - 1),
@@ -264,19 +291,21 @@ function Driver({
         -1,
         Math.min(1, ((event.clientY - rect.top) / rect.height) * 2 - 1),
       );
+      pointer.current.targetInfluence = 1;
       if (active) invalidate();
     };
     const leave = () => {
       pointer.current.x = pointer.current.y = 0;
+      pointer.current.targetInfluence = 0;
       if (active) invalidate();
     };
-    surface.addEventListener("pointermove", move, { passive: true });
-    surface.addEventListener("pointerleave", leave);
+    node.addEventListener("pointermove", move, { passive: true });
+    node.addEventListener("pointerleave", leave);
     return () => {
-      surface.removeEventListener("pointermove", move);
-      surface.removeEventListener("pointerleave", leave);
+      node.removeEventListener("pointermove", move);
+      node.removeEventListener("pointerleave", leave);
     };
-  }, [active, gl, invalidate]);
+  }, [active, invalidate, surface]);
   useFrame((_state, delta) => {
     if (!active) return;
     const step = journeyAt(distance.get());
@@ -330,9 +359,12 @@ function Driver({
           (step.to === "macbook" ? -1.9 : 1.6),
       );
     const p = pointer.current;
-    const damping = 1 - Math.exp(-8 * Math.min(delta, 0.05));
-    p.currentX += (p.x - p.currentX) * damping;
-    p.currentY += (p.y - p.currentY) * damping;
+    const clampedDelta = Math.min(delta, 0.05);
+    const positionDamping = 1 - Math.exp(-8 * clampedDelta);
+    const influenceDamping = 1 - Math.exp(-7 * clampedDelta);
+    p.currentX += (p.x - p.currentX) * positionDamping;
+    p.currentY += (p.y - p.currentY) * positionDamping;
+    p.influence += (p.targetInfluence - p.influence) * influenceDamping;
     const strength = (stop: CameraStop) =>
       stop === "opening"
         ? 0
@@ -348,7 +380,10 @@ function Driver({
     if (
       active &&
       amount > 0 &&
-      Math.abs(p.x - p.currentX) + Math.abs(p.y - p.currentY) > 0.001
+      Math.abs(p.x - p.currentX) +
+        Math.abs(p.y - p.currentY) +
+        Math.abs(p.targetInfluence - p.influence) >
+        0.002
     )
       invalidate();
     camera.updateProjectionMatrix();
@@ -385,7 +420,7 @@ function Driver({
     canvas.setAttribute("data-distance", String(step.distance));
     canvas.setAttribute("data-camera", camera.position.toArray().join(","));
   }, -1);
-  return null;
+  return <CosmicEnvironment distance={distance} pointer={pointer} />;
 }
 /** Include reflection and shadow passes in the reported per-frame cost. */
 function RenderFrame() {
@@ -459,6 +494,20 @@ export default function JourneyScene(props: JourneySceneProps) {
 
         <ambientLight intensity={0.45} color="#cad6ef" />
         <directionalLight
+          position={[-3, 2.4, 1]}
+          intensity={1.65}
+          color="#fff8ed"
+          castShadow
+          shadow-mapSize={[512, 512]}
+          shadow-camera-left={-1.5}
+          shadow-camera-right={1.5}
+          shadow-camera-top={1.5}
+          shadow-camera-bottom={-1.5}
+          shadow-normalBias={0.015}
+          shadow-bias={-0.0001}
+          shadow-radius={4}
+        />
+        <directionalLight
           position={[-0.65, 1.45, 0.6]}
           intensity={1.8}
           color="#ffdcad"
@@ -469,12 +518,17 @@ export default function JourneyScene(props: JourneySceneProps) {
           color="#adccff"
         />
         <Suspense fallback={null}>
-          <Room />
+          <DeskPlatform />
           <Model onReady={onReady} controls={modelControls} />
           <ScreenDepthPlanes />
         </Suspense>
         <RenderFrame />
-        <Driver {...props} active={controls.active} panels={panels} />
+        <Driver
+          {...props}
+          active={controls.active}
+          panels={panels}
+          surface={wrapper}
+        />
       </Canvas>
       {exploring && !props.poster ? (
         <DeskObjectControls controls={controls} locale={props.locale} journey />

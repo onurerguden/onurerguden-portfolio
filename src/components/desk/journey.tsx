@@ -211,8 +211,8 @@ export default function DeskJourney({
               src="/images/desk/room-poster.webp"
               alt={
                 en
-                  ? "My desk in a sunlit room"
-                  : "Gün ışığı alan odada çalışma masam"
+                  ? "My desk floating on a circular marble platform in space"
+                  : "Uzayda yuvarlak mermer bir platformda duran çalışma masam"
               }
               fill
               sizes="100vw"
@@ -224,8 +224,8 @@ export default function DeskJourney({
               src="/images/desk/room-poster.webp"
               alt={
                 en
-                  ? "My desk in a sunlit room with a marble floor"
-                  : "Mermer zeminli, gün ışığı alan odada çalışma masam"
+                  ? "My desk on a circular marble platform against a quiet cosmic grid"
+                  : "Sakin kozmik bir ağın önünde yuvarlak mermer platformdaki çalışma masam"
               }
               fill
               sizes="100vw"
