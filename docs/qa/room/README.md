@@ -14,6 +14,8 @@ The production poster capture measured **112 steady draw calls / 199,901 submitt
 
 The September 16 verification passes type generation, TypeScript, ESLint, all 40 unit tests, bilingual content validation and the production build. The full Playwright run completed 96 scenarios: **78 passed and 18 were skipped**. The skips are the intentional fine-pointer exclusion on mobile and the existing WebGL-gated mobile WebKit cases; WebKit still passed the localized static content, reduced-motion, no-JavaScript, failure fallback, navigation and accessibility paths. Physical iPhone Safari testing remains a release prerequisite.
 
+Final visual review covers the 1440 × 830 poster, a 2400 × 1000 ultrawide viewport and 390 × 844 plus 320 × 720 mobile viewports. The platform stays inside every final frame, the supports meet its top surface and the grid remains behind the screen content.
+
 ## September 11 room baseline (historical)
 
 The approved sequence is now shared by `/en`, `/tr`, and the noindex journey demos. Scroll is native, with a sticky 100svh stage and 8.5 viewport heights of travel. Stops: opening 0–0.15, tabletop 1.15–1.25, portrait reading 2–4, MacBook reading 5–6, room exploration 7.5–8.5. No content has been added to the ultrawide. Research remains in normal HTML after the homepage introduction. The original model and its accessories are preserved.
