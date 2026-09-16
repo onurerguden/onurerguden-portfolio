@@ -3,9 +3,11 @@ import { useId } from "react";
 export default function ProjectArt({
   slug,
   locale = "en",
+  eager = false,
 }: {
   slug: string;
   locale?: "en" | "tr";
+  eager?: boolean;
 }) {
   const patternId = useId();
   if (slug === "kuyumcum")
@@ -23,6 +25,7 @@ export default function ProjectArt({
             width={756}
             height={1638}
             sizes="(max-width: 650px) 140px, 210px"
+            loading={eager ? "eager" : "lazy"}
           />
           <Image
             src="/images/kuyumcum/ai-reports.webp"
@@ -34,6 +37,7 @@ export default function ProjectArt({
             width={756}
             height={1638}
             sizes="(max-width: 650px) 140px, 210px"
+            loading={eager ? "eager" : "lazy"}
           />
         </div>
       </div>

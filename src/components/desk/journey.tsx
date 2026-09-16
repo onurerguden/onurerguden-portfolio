@@ -1,6 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Component,
   useCallback,
@@ -45,9 +46,12 @@ export default function DeskJourney({
   introduction?: ReactNode;
 }) {
   const en = locale === "en";
+  const otherLocale = en ? "tr" : "en";
   const section = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const intro = useRef<HTMLDivElement>(null);
+  const nav = useRef<HTMLElement>(null);
+  const hideNavOnScroll = useRef(false);
   const fallbackTarget = useRef(-1);
   const [enabled, setEnabled] = useState(false);
   const [ready, setReady] = useState(false);
@@ -67,6 +71,10 @@ export default function DeskJourney({
       const d = value * journeyLength;
       distance.set(d);
       if (section.current) section.current.dataset.travelled = String(d > 0.15);
+      if (nav.current && hideNavOnScroll.current) {
+        nav.current.dataset.hidden = String(d > 0.15);
+        if (d > 0.15) nav.current.dataset.revealed = "false";
+      }
       const state = journeyAt(d);
       if (chapterRef.current !== state.active) {
         chapterRef.current = state.active;
@@ -96,6 +104,38 @@ export default function DeskJourney({
     return () => {
       observer.disconnect();
       motion.removeEventListener("change", refresh);
+    };
+  }, []);
+  useEffect(() => {
+    const finePointer = matchMedia("(hover: hover) and (pointer: fine)");
+    const syncPointerMode = () => {
+      hideNavOnScroll.current = finePointer.matches;
+      if (!finePointer.matches && nav.current) {
+        nav.current.dataset.hidden = "false";
+        nav.current.dataset.revealed = "false";
+      }
+    };
+    const revealAtTop = (event: PointerEvent) => {
+      const node = nav.current;
+      if (!node || !hideNavOnScroll.current) return;
+      const rect = node.getBoundingClientRect();
+      const x = Math.max(
+        0,
+        Math.min(100, ((event.clientX - rect.left) / rect.width) * 100),
+      );
+      node.style.setProperty("--nav-pointer-x", `${x}%`);
+      const revealed = event.clientY <= 116;
+      node.dataset.revealed = String(revealed);
+      node.dataset.hidden = String(
+        section.current?.dataset.travelled === "true" && !revealed,
+      );
+    };
+    syncPointerMode();
+    finePointer.addEventListener("change", syncPointerMode);
+    window.addEventListener("pointermove", revealAtTop, { passive: true });
+    return () => {
+      finePointer.removeEventListener("change", syncPointerMode);
+      window.removeEventListener("pointermove", revealAtTop);
     };
   }, []);
   const onReady = useCallback(() => setReady(true), []);
@@ -209,35 +249,6 @@ export default function DeskJourney({
             <span>{en ? "Scroll down" : "Aşağı kaydır"}</span>
             <span className={styles.scrollLine} aria-hidden="true" />
           </div>
-          <nav
-            className={styles.nav}
-            aria-label={en ? "Journey sections" : "Yolculuk bölümleri"}
-          >
-            <a href="#journey-content">{en ? "Skip to work" : "İçeriğe geç"}</a>
-            {content.labels.map((label, i) => (
-              <a
-                href={`#desk-story-${i}`}
-                key={label}
-                aria-current={chapter === i ? "step" : undefined}
-                onClick={(e) => {
-                  if (
-                    enhanced &&
-                    i !== 1 &&
-                    !e.metaKey &&
-                    !e.ctrlKey &&
-                    !e.shiftKey &&
-                    !e.altKey
-                  ) {
-                    e.preventDefault();
-                    history.pushState(null, "", `#desk-story-${i}`);
-                    jump(i);
-                  }
-                }}
-              >
-                {label}
-              </a>
-            ))}
-          </nav>
           {enhanced ? (
             <div className={styles.foot}>
               <span role="status">
@@ -265,6 +276,74 @@ export default function DeskJourney({
           ) : null}
         </div>
       </section>
+      <nav
+        ref={nav}
+        className={styles.nav}
+        data-hidden="false"
+        data-revealed="false"
+        aria-label={en ? "Journey sections" : "Yolculuk bölümleri"}
+      >
+        <a
+          className={styles.journeySkip}
+          href="#journey-content"
+          onClick={(event) => {
+            if (
+              event.metaKey ||
+              event.ctrlKey ||
+              event.shiftKey ||
+              event.altKey
+            )
+              return;
+            event.preventDefault();
+            history.pushState(null, "", "#journey-content");
+            const target = document.getElementById("journey-content");
+            target?.scrollIntoView({ behavior: "instant", block: "start" });
+            target?.focus({ preventScroll: true });
+          }}
+        >
+          {en ? "Skip to work" : "İçeriğe geç"}
+        </a>
+        <Link className={styles.brand} href={`/${locale}`}>
+          <span aria-hidden="true" />
+          Onur Ergüden
+        </Link>
+        <div className={styles.sections}>
+          {content.labels.map((label, i) => (
+            <a
+              href={`#desk-story-${i}`}
+              key={label}
+              aria-current={chapter === i ? "location" : undefined}
+              onClick={(e) => {
+                if (
+                  enhanced &&
+                  i !== 1 &&
+                  !e.metaKey &&
+                  !e.ctrlKey &&
+                  !e.shiftKey &&
+                  !e.altKey
+                ) {
+                  e.preventDefault();
+                  history.pushState(null, "", `#desk-story-${i}`);
+                  jump(i);
+                }
+              }}
+            >
+              {label}
+            </a>
+          ))}
+        </div>
+        <Link
+          className={styles.language}
+          href={`/${otherLocale}`}
+          hrefLang={otherLocale}
+          lang={otherLocale}
+          aria-label={
+            otherLocale === "tr" ? "Türkçeye geç" : "Switch to English"
+          }
+        >
+          {otherLocale.toUpperCase()}
+        </Link>
+      </nav>
       <div id="journey-content" tabIndex={-1}>
         {introduction}
       </div>

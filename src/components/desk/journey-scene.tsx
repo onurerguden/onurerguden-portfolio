@@ -13,11 +13,9 @@ import DeskLighting from "./lighting";
 import { DeskObjectControls, useDeskInteractions } from "./interactions";
 import ProjectArt from "@/components/project-art";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Vector3, PerspectiveCamera } from "three";
+import { Matrix4, Quaternion, Vector3, PerspectiveCamera } from "three";
 import type { MotionValue } from "motion/react";
 import { Model } from "./scene";
-import occluders from "@/lib/desk-occluders.json";
-import { createScreenOcclusion, screenMaskImage } from "@/lib/desk-occlusion";
 import contract from "@/lib/desk-scene.json";
 import { createScreenProjection, projectScreen } from "@/lib/desk-projection";
 import {
@@ -40,19 +38,129 @@ export type JourneySceneProps = {
   onFocusCard: (screen: number, card: number) => void;
 };
 const screens = screenIds.map((id) => contract.screens[id]);
+type ScreenPanelRefs = RefObject<(HTMLDivElement | null)[]>;
+
+const screenTransforms = screens.map((screen) => {
+  const normal = new Vector3(...screen.normal).normalize();
+  const up = new Vector3(...screen.up).normalize();
+  const right = new Vector3().crossVectors(up, normal).normalize();
+  const basis = new Matrix4().makeBasis(right, up, normal);
+  return {
+    position: new Vector3(...screen.position).addScaledVector(normal, 0.0008),
+    quaternion: new Quaternion().setFromRotationMatrix(basis),
+  };
+});
+
+const depthVertexShader = `
+  void main() {
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+const depthFragmentShader = `
+  void main() {
+    gl_FragColor = vec4(0.0);
+  }
+`;
+
+/**
+ * These planes punch the physical display surfaces out of the transparent
+ * WebGL canvas while still writing depth. Screen DOM stays in one shared layer
+ * beneath the canvas, so real desk geometry naturally remains in front.
+ */
+function ScreenDepthPlanes() {
+  return screens.map((screen, index) => {
+    const transform = screenTransforms[index];
+    return (
+      <mesh
+        key={screenIds[index]}
+        position={transform.position}
+        quaternion={transform.quaternion}
+        scale={[screen.width, screen.height, 1]}
+      >
+        <planeGeometry />
+        <shaderMaterial
+          vertexShader={depthVertexShader}
+          fragmentShader={depthFragmentShader}
+          depthTest
+          depthWrite
+          toneMapped={false}
+        />
+      </mesh>
+    );
+  });
+}
+
+function ScreenPanels({
+  panels,
+  content,
+  locale,
+  poster,
+  onFocusCard,
+}: Pick<JourneySceneProps, "content" | "locale" | "poster" | "onFocusCard"> & {
+  panels: ScreenPanelRefs;
+}) {
+  return (
+    <div className={styles.screenLayer}>
+      {screens.map((screen, i) => {
+        const height = (1000 * screen.height) / screen.width;
+        return (
+          <div
+            key={screenIds[i]}
+            ref={(node) => {
+              panels.current[i] = node;
+            }}
+            className={styles.screen}
+            data-screen={i}
+            style={{ width: 1000, height }}
+            aria-label={content.labels[i]}
+          >
+            <div className={styles.screenSurface}>
+              <div className={styles.track}>
+                {(screenIds[i] === "UltrawideScreen" || poster
+                  ? []
+                  : content.screens[i]
+                ).map((card, j) => (
+                  <article
+                    key={card.title}
+                    style={{ height }}
+                    className={styles.card}
+                  >
+                    <span className={styles.label}>{content.labels[i]}</span>
+                    {card.visual ? (
+                      <div className={styles.screenVisual}>
+                        <ProjectArt slug={card.visual} locale={locale} eager />
+                      </div>
+                    ) : null}
+                    <h2>{card.title}</h2>
+                    <p>{card.body}</p>
+                    <a href={card.href} onFocus={() => onFocusCard(i, j)}>
+                      {card.action}
+                      <span aria-hidden="true"> ↗</span>
+                    </a>
+                    <span className={styles.page}>
+                      {String(j + 1).padStart(2, "0")} /{" "}
+                      {String(content.screens[i].length).padStart(2, "0")}
+                    </span>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function Driver({
   distance,
   active,
   onFailure,
   panels,
   content,
-}: JourneySceneProps & { panels: RefObject<HTMLDivElement | null> }) {
+}: JourneySceneProps & { panels: ScreenPanelRefs }) {
   const { camera, gl, size, invalidate, setFrameloop } = useThree();
   const projections = useMemo(() => screens.map(createScreenProjection), []);
-  const masks = useMemo(
-    () => screens.map((s) => createScreenOcclusion(s, occluders)),
-    [],
-  );
   const frames = useRef(0);
   const temp = useMemo(
     () => ({
@@ -246,15 +354,13 @@ function Driver({
     camera.updateProjectionMatrix();
     camera.updateMatrixWorld();
     projections.forEach((projection, index) => {
-      const panel = panels.current?.children[index] as HTMLElement | undefined;
+      const panel = panels.current[index];
       if (!panel) return;
       const matrix = projectScreen(projection, camera, size.width, size.height);
       panel.style.visibility = matrix ? "visible" : "hidden";
       if (matrix) panel.style.transform = `matrix3d(${matrix.join(",")})`;
-      const maskPath = masks[index](camera.position);
-      const maskHeight = (1000 * screens[index].height) / screens[index].width;
-      panel.style.maskImage = screenMaskImage(maskPath, maskHeight);
-      const track = panel.firstElementChild as HTMLElement;
+      const surface = panel.firstElementChild as HTMLElement;
+      const track = surface.firstElementChild as HTMLElement;
       const height = (1000 * screens[index].height) / screens[index].width;
       const offset = pageOffset(
         step.reading[index],
@@ -306,8 +412,9 @@ function RenderFrame() {
   return null;
 }
 export default function JourneyScene(props: JourneySceneProps) {
-  const panels = useRef<HTMLDivElement>(null);
+  const panels = useRef<(HTMLDivElement | null)[]>([]);
   const wrapper = useRef<HTMLDivElement>(null);
+  const [sceneReady, setSceneReady] = useState(false);
   const [exploring, setExploring] = useState(
     journeyAt(props.distance.get()).explore,
   );
@@ -325,19 +432,29 @@ export default function JourneyScene(props: JourneySceneProps) {
   };
   const readyCallback = props.onReady;
   const onReady = useCallback(() => {
-    if (wrapper.current) wrapper.current.style.opacity = "1";
+    setSceneReady(true);
     readyCallback();
   }, [readyCallback]);
   return (
-    <div className={styles.scene} ref={wrapper} style={{ opacity: 0 }}>
+    <div
+      className={styles.scene}
+      ref={wrapper}
+      style={{ opacity: sceneReady ? 1 : 0 }}
+    >
       <Canvas
+        eventSource={wrapper as RefObject<HTMLElement>}
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 1,
+          pointerEvents: "none",
+        }}
         shadows
         dpr={[1, 1.5]}
         frameloop="demand"
         camera={{ fov: 43, near: 0.01, far: 30 }}
-        gl={{ antialias: true, alpha: false, powerPreference: "low-power" }}
+        gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
       >
-        <color attach="background" args={["#505257"]} />
         <DeskLighting />
 
         <ambientLight intensity={0.45} color="#cad6ef" />
@@ -354,6 +471,7 @@ export default function JourneyScene(props: JourneySceneProps) {
         <Suspense fallback={null}>
           <Room />
           <Model onReady={onReady} controls={modelControls} />
+          <ScreenDepthPlanes />
         </Suspense>
         <RenderFrame />
         <Driver {...props} active={controls.active} panels={panels} />
@@ -361,52 +479,13 @@ export default function JourneyScene(props: JourneySceneProps) {
       {exploring && !props.poster ? (
         <DeskObjectControls controls={controls} locale={props.locale} journey />
       ) : null}
-      <div className={styles.screenLayer} ref={panels}>
-        {screens.map((screen, i) => {
-          const height = (1000 * screen.height) / screen.width;
-          return (
-            <div
-              key={i}
-              className={styles.screen}
-              data-screen={i}
-              style={{ width: 1000, height }}
-              aria-label={props.content.labels[i]}
-            >
-              <div className={styles.track}>
-                {(screenIds[i] === "UltrawideScreen" || props.poster
-                  ? []
-                  : props.content.screens[i]
-                ).map((card, j) => (
-                  <article
-                    key={card.title}
-                    style={{ height }}
-                    className={styles.card}
-                  >
-                    <span className={styles.label}>
-                      {props.content.labels[i]}
-                    </span>
-                    {card.visual ? (
-                      <div className={styles.screenVisual}>
-                        <ProjectArt slug={card.visual} locale={props.locale} />
-                      </div>
-                    ) : null}
-                    <h2>{card.title}</h2>
-                    <p>{card.body}</p>
-                    <a href={card.href} onFocus={() => props.onFocusCard(i, j)}>
-                      {card.action}
-                      <span aria-hidden="true"> ↗</span>
-                    </a>
-                    <span className={styles.page}>
-                      {String(j + 1).padStart(2, "0")} /{" "}
-                      {String(props.content.screens[i].length).padStart(2, "0")}
-                    </span>
-                  </article>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <ScreenPanels
+        panels={panels}
+        content={props.content}
+        locale={props.locale}
+        poster={props.poster}
+        onFocusCard={props.onFocusCard}
+      />
     </div>
   );
 }

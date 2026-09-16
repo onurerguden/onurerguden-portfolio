@@ -98,10 +98,12 @@ test("scroll separates reading from camera travel, reverses, focuses links and e
         .analyze()
     ).violations,
   ).toEqual([]);
-  await page
+  const skip = page
     .getByRole("link", { name: "İçeriğe geç", exact: true })
-    .last()
-    .click();
+    .last();
+  await skip.focus();
+  await expect(skip).toBeFocused();
+  await page.keyboard.press("Enter");
   await expect(page.locator("#journey-content")).toBeInViewport();
   await page.evaluate(() =>
     window.scrollTo({ top: document.body.scrollHeight, behavior: "instant" }),
@@ -237,11 +239,14 @@ test("narrow and zoom-equivalent viewports preserve screen links and readable ty
       () => document.documentElement.scrollWidth <= innerWidth + 1,
     ),
   ).toBe(true);
-  await page.getByRole("link", { name: "Skip to work" }).click();
+  const skip = page.getByRole("link", { name: "Skip to work" });
+  await skip.focus();
+  await expect(skip).toBeFocused();
+  await page.keyboard.press("Enter");
   await expect(page.locator("#journey-content")).toBeInViewport();
 });
 
-test("riser frame occludes the portrait HTML during the MacBook approach", async ({
+test("portrait screen uses scene depth instead of a CSS cutout", async ({
   page,
   browserName,
 }) => {
@@ -255,9 +260,17 @@ test("riser frame occludes the portrait HTML during the MacBook approach", async
   );
   await go(page, 4.85);
   const panel = page.locator('[data-screen="0"]');
+  const surface = panel.locator(":scope > div").first();
+  await expect(surface).toBeVisible();
   await expect
-    .poll(() => panel.evaluate((p) => getComputedStyle(p).maskImage))
-    .toContain("data:image/svg+xml");
+    .poll(() => surface.evaluate((p) => getComputedStyle(p).maskImage))
+    .toBe("none");
+  await expect
+    .poll(() => panel.evaluate((p) => getComputedStyle(p).transform))
+    .toContain("matrix3d");
+  await expect
+    .poll(() => panel.evaluate((p) => getComputedStyle(p).backgroundColor))
+    .toBe("rgba(0, 0, 0, 0)");
   await go(page, 2.1);
   await expect(panel).not.toHaveAttribute("inert", "");
 });
@@ -299,6 +312,73 @@ test("home opens inside an empty ultrawide and offers a reversible room explorat
   expect(await page.locator("canvas").getAttribute("data-camera")).toBe(camera);
   await go(page, 2.1);
   await expect(page.getByText("Desk objects", { exact: true })).toHaveCount(0);
+});
+
+test("home uses one localized journey bar", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/en");
+  await expect(page.locator(".site-header")).toHaveCount(0);
+  const navigation = page.getByRole("navigation", {
+    name: "Journey sections",
+  });
+  await expect(navigation).toBeVisible();
+  await expect(
+    navigation.getByRole("link", { name: "Onur Ergüden", exact: true }),
+  ).toBeVisible();
+  await expect(
+    navigation.getByRole("link", { name: "Türkçeye geç", exact: true }),
+  ).toBeVisible();
+});
+
+test("journey bar hides after travel and returns at the top edge", async ({
+  page,
+  browserName,
+  isMobile,
+}) => {
+  test.skip(
+    browserName === "webkit" || isMobile,
+    "Requires a fine pointer and WebGL2.",
+  );
+  await page.goto("/en");
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+    { timeout: 20000 },
+  );
+  const navigation = page.getByRole("navigation", {
+    name: "Journey sections",
+  });
+  const compactHeight = await navigation.evaluate(
+    (node) => node.getBoundingClientRect().height,
+  );
+  await page.mouse.move(720, 50);
+  await expect
+    .poll(() =>
+      navigation.evaluate((node) => node.getBoundingClientRect().height),
+    )
+    .toBeGreaterThan(compactHeight + 12);
+  await page.mouse.move(720, 400);
+  await go(page, 2.1);
+  await expect(navigation).toHaveAttribute("data-hidden", "true");
+  await page.mouse.move(720, 20);
+  await expect(navigation).toHaveAttribute("data-hidden", "false");
+  await expect(navigation).toBeVisible();
+  await page.mouse.move(720, 400);
+  await expect(navigation).toHaveAttribute("data-hidden", "true");
+
+  await page.locator("#journey-content").scrollIntoViewIfNeeded();
+  await page.mouse.move(720, 400);
+  await expect(navigation).toHaveAttribute("data-hidden", "true");
+  await page.mouse.move(720, 12);
+  await expect(navigation).toHaveAttribute("data-hidden", "false");
+  await expect(navigation).toBeInViewport();
+  await page.mouse.move(720, 50);
+  await page.mouse.move(721, 51);
+  await expect
+    .poll(() =>
+      navigation.evaluate((node) => node.getBoundingClientRect().height),
+    )
+    .toBeGreaterThan(compactHeight + 12);
 });
 
 test("changing the motion preference restores the journey without reloading", async ({
