@@ -4,17 +4,17 @@
 
 The approved screen journey and 8.5-viewport native scroll timing are unchanged. The final camera now reveals the desk on a reflective elliptical marble platform in a quiet cosmic field. The former room walls and ceiling are removed. `ultrawide-room-final.png` records the previous room baseline; `cosmic-platform.png` is the current 1440 × 830 fallback source and review capture.
 
-The platform top remains at -0.694 m, immediately below the support contract's -0.692 m. Its 1.86 × 1.16 m ellipse leaves about 18 cm beside the 1.5 m desk and 14.5 cm beyond its 0.87 m depth. Its 6 cm side gives the floating surface a visible edge. The final camera moves from 3.45 m to 3.05 m, enlarging the desk while retaining the full platform. One point geometry contains the fixed depth-distributed stars. One curved grid plane draws procedural anti-aliased lines whose rectangular boundary fades before the mesh edge.
+The platform top remains at -0.694 m, immediately below the support contract's -0.692 m. Its 1.86 × 1.16 m ellipse leaves about 18 cm beside the 1.5 m desk and 14.5 cm beyond its 0.87 m depth. Its 6 cm side gives the floating surface a visible edge. The final desktop camera moves from 3.05 m to 2.15 m and rises to a downward angle, enlarging the tabletop and pushing the supports behind it. Narrow viewports fit around the desk rather than the platform, allowing a slight horizontal platform crop to keep the subject close. One point geometry contains the fixed depth-distributed stars. One curved grid plane draws procedural anti-aliased lines and extends beyond the viewport vertically; only its left and right boundaries fade.
 
 Fine-pointer movement updates refs and shader uniforms rather than React state. The grid is inactive at the opening and reading stops, responds only during the final exploration view, fades when the pointer reaches a screen or control, and stops invalidating frames after it settles. Touch devices keep the same scroll depth with reduced geometry and no pointer deformation. There is no elapsed-time shader input or idle animation.
 
 The fallback alt text in both languages describes the cosmic platform. Reduced motion, no JavaScript, model failure and WebGL context loss retain the complete HTML story. `npm run desk:capture-cosmic` reproduces the review PNG and public WebP from the local review route.
 
-The revised production poster capture measured **104 steady draw calls / 176,913 submitted triangles**, within the 130 / 210,000 budget. Its one-time environment and shadow setup peaked at 204 draw calls and is recorded separately from the settled frame. The public WebP remains 1440 × 830.
+The revised production poster capture measured **107 steady draw calls / 189,053 submitted triangles**, within the 130 / 210,000 budget. Its one-time environment and shadow setup peaked at 207 draw calls and is recorded separately from the settled frame. The public WebP remains 1440 × 830.
 
 The September 16 verification passes type generation, TypeScript, ESLint, all 40 unit tests, bilingual content validation and the production build. The full Playwright run completed 96 scenarios: **78 passed and 18 were skipped**. The skips are the intentional fine-pointer exclusion on mobile and the existing WebGL-gated mobile WebKit cases; WebKit still passed the localized static content, reduced-motion, no-JavaScript, failure fallback, navigation and accessibility paths. Physical iPhone Safari testing remains a release prerequisite.
 
-Final visual review covers the 1440 × 830 poster, a 2400 × 1000 ultrawide viewport and 390 × 844 plus 320 × 720 mobile viewports. The platform stays inside every final frame, the supports meet its top surface and the grid remains behind the screen content.
+Final visual review covers the 1440 × 830 poster, a 2400 × 1000 ultrawide viewport and 390 × 844 plus 320 × 720 mobile viewports. The close framing permits a small platform-edge crop while retaining its elliptical read; the supports meet its top surface and the grid remains behind the screen content while filling the viewport height.
 
 ## September 11 room baseline (historical)
 
