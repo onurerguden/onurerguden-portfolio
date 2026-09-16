@@ -211,8 +211,8 @@ export default function DeskJourney({
               src="/images/desk/room-poster.webp"
               alt={
                 en
-                  ? "My desk floating on a circular marble platform in space"
-                  : "Uzayda yuvarlak mermer bir platformda duran çalışma masam"
+                  ? "My desk floating on a compact elliptical marble platform in space"
+                  : "Uzayda kompakt elips mermer bir platformda duran çalışma masam"
               }
               fill
               sizes="100vw"
@@ -224,8 +224,8 @@ export default function DeskJourney({
               src="/images/desk/room-poster.webp"
               alt={
                 en
-                  ? "My desk on a circular marble platform against a quiet cosmic grid"
-                  : "Sakin kozmik bir ağın önünde yuvarlak mermer platformdaki çalışma masam"
+                  ? "My desk on an elliptical marble platform against a quiet cosmic grid"
+                  : "Sakin kozmik bir ağın önünde elips mermer platformdaki çalışma masam"
               }
               fill
               sizes="100vw"

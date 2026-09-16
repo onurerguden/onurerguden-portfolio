@@ -49,14 +49,12 @@ const gridFragmentShader = `
   varying float vDeformation;
 
   void main() {
-    vec2 cells = vUv * vec2(30.0, 18.0);
+    vec2 cells = vUv * vec2(30.0, 38.0);
     vec2 lines = abs(fract(cells - 0.5) - 0.5) / fwidth(cells);
     float grid = 1.0 - min(min(lines.x, lines.y), 1.0);
     vec2 edgeDistance = min(vUv, 1.0 - vUv);
-    float edgeFade = smoothstep(0.0, 0.16, edgeDistance.x)
-      * smoothstep(0.0, 0.2, edgeDistance.y);
-    float verticalFade = smoothstep(0.0, 0.18, vUv.y);
-    float alpha = grid * edgeFade * verticalFade * uReveal
+    float edgeFade = smoothstep(0.0, 0.16, edgeDistance.x);
+    float alpha = grid * edgeFade * uReveal
       * (0.13 + 0.07 * vDeformation);
 
     if (alpha < 0.003) discard;
@@ -150,10 +148,10 @@ export default function CosmicEnvironment({
       </points>
       <mesh
         name="Deformable grid curtain"
-        position={[0, 0.25, -2.8]}
+        position={[0, 0, -3]}
         rotation={[0.025, -0.035, -0.012]}
       >
-        <planeGeometry args={[8, 4.8, mobile ? 36 : 48, mobile ? 22 : 28]} />
+        <planeGeometry args={[8, 10, mobile ? 36 : 48, mobile ? 32 : 40]} />
         <shaderMaterial
           ref={gridMaterial}
           uniforms={uniforms}

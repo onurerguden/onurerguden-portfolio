@@ -8,7 +8,7 @@ import {
   useState,
   type RefObject,
 } from "react";
-import DeskPlatform, { PLATFORM_RADIUS } from "./platform";
+import DeskPlatform from "./platform";
 import CosmicEnvironment, { type CosmicPointer } from "./cosmic-environment";
 import DeskLighting from "./lighting";
 import { DeskObjectControls, useDeskInteractions } from "./interactions";
@@ -207,12 +207,13 @@ function Driver({
     const openingTarget = new Vector3(...opening.position);
     const openingDistance =
       (Math.min(opening.width / aspect, opening.height) * 0.92) / (2 * tangent);
-    const platformSpan = PLATFORM_RADIUS * 2 + 0.2;
+    const roomFrameSpan = contract.desk.width + 0.12;
     const roomDistance = Math.max(
-      3.45,
-      platformSpan / aspect / (2 * tangent),
-      1.8 / (2 * tangent),
+      2.15,
+      roomFrameSpan / aspect / (2 * tangent),
+      1.45 / (2 * tangent),
     );
+    const roomHeight = Math.min(2.8, Math.max(1.25, roomDistance * 0.58));
     return {
       opening: {
         target: openingTarget,
@@ -231,8 +232,8 @@ function Driver({
       portrait: closeup(contract.screens.PortraitScreen),
       macbook: closeup(contract.screens.MacBookScreen),
       room: {
-        target: new Vector3(0, -0.02, -0.1),
-        position: new Vector3(0.1, 0.48, roomDistance),
+        target: new Vector3(0, -0.02, -0.08),
+        position: new Vector3(0.08, roomHeight, roomDistance),
         fov: 43,
       },
     } satisfies Record<
@@ -279,6 +280,7 @@ function Driver({
       if (excluded) {
         pointer.current.x = pointer.current.y = 0;
         pointer.current.targetInfluence = 0;
+        pointer.current.influence = 0;
         if (active) invalidate();
         return;
       }
@@ -365,6 +367,8 @@ function Driver({
     p.currentX += (p.x - p.currentX) * positionDamping;
     p.currentY += (p.y - p.currentY) * positionDamping;
     p.influence += (p.targetInfluence - p.influence) * influenceDamping;
+    if (Math.abs(p.targetInfluence - p.influence) < 0.03)
+      p.influence = p.targetInfluence;
     const strength = (stop: CameraStop) =>
       stop === "opening"
         ? 0
