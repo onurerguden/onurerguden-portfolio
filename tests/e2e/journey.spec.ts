@@ -314,6 +314,55 @@ test("home opens inside an empty ultrawide and offers a reversible room explorat
   await expect(page.getByText("Desk objects", { exact: true })).toHaveCount(0);
 });
 
+test("cosmic grid responds only in the final view and returns to demand-rendered idle", async ({
+  page,
+  browserName,
+  isMobile,
+}) => {
+  test.skip(
+    browserName === "webkit" || isMobile,
+    "The deformation is reserved for fine pointers; mobile keeps scroll depth.",
+  );
+  await page.goto("/en/lab/desk/journey");
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+    { timeout: 20000 },
+  );
+  const canvas = page.locator("canvas");
+
+  await go(page, 5.5);
+  await page.mouse.move(180, 520);
+  await expect(canvas).toHaveAttribute("data-cosmic-reveal", "0.000");
+  await expect(canvas).toHaveAttribute("data-grid-influence", "0.000");
+
+  await go(page, 8.1);
+  await page.mouse.move(1120, 420);
+  await expect
+    .poll(() =>
+      canvas.getAttribute("data-grid-influence").then((value) => Number(value)),
+    )
+    .toBeGreaterThan(0.8);
+
+  await expect
+    .poll(
+      async () => {
+        const before = await canvas.getAttribute("data-frames");
+        await page.waitForTimeout(400);
+        return (await canvas.getAttribute("data-frames")) === before;
+      },
+      { timeout: 10000 },
+    )
+    .toBe(true);
+
+  await page.getByText("Desk objects", { exact: true }).hover();
+  await expect
+    .poll(() =>
+      canvas.getAttribute("data-grid-influence").then((value) => Number(value)),
+    )
+    .toBeLessThan(0.02);
+});
+
 test("home uses one localized journey bar", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/en");
