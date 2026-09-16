@@ -3,7 +3,9 @@ const port = process.env.PLAYWRIGHT_PORT || "3100";
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
-  workers: 3,
+  // The suite renders WebGL through one shared GPU process. Serial workers keep
+  // short demand-rendered animations observable under headless Chromium.
+  workers: Number(process.env.PLAYWRIGHT_WORKERS || 1),
   timeout: 45000,
   reporter: [["list"], ["html", { open: "never" }]],
   use: { baseURL: `http://localhost:${port}`, trace: "retain-on-failure" },

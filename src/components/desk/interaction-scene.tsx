@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import {
   Color,
@@ -65,6 +65,42 @@ export default function InteractionScene({
 }) {
   const { gl, invalidate } = useThree();
   const { active, reduced, registerMotion } = controls;
+  const animationFrame = useRef<number | null>(null);
+  const animateUntil = useRef(0);
+  const requestAnimation = useCallback(
+    (duration: number) => {
+      animateUntil.current = Math.max(
+        animateUntil.current,
+        performance.now() + duration,
+      );
+      if (animationFrame.current !== null) return;
+      const tick = () => {
+        invalidate();
+        if (performance.now() < animateUntil.current) {
+          animationFrame.current = requestAnimationFrame(tick);
+        } else {
+          animationFrame.current = null;
+        }
+      };
+      animationFrame.current = requestAnimationFrame(tick);
+    },
+    [invalidate],
+  );
+  useEffect(
+    () => () => {
+      if (animationFrame.current !== null)
+        cancelAnimationFrame(animationFrame.current);
+    },
+    [],
+  );
+  useEffect(() => {
+    if (active && !reduced) return;
+    animateUntil.current = 0;
+    if (animationFrame.current !== null) {
+      cancelAnimationFrame(animationFrame.current);
+      animationFrame.current = null;
+    }
+  }, [active, reduced]);
   const lights = useRef<(PointLight | SpotLight | null)[]>([]);
   const ring = useRef<Mesh>(null);
   const biasStrip = useRef<Mesh>(null);
@@ -171,14 +207,23 @@ export default function InteractionScene({
       colorStart: color.current.clone(),
       lightStart: transition.current.light,
     };
+    if (!controls.reduced) requestAnimation(350);
     invalidate();
-  }, [controls.lights, controls.colorIndex, controls.reduced, invalidate]);
+  }, [
+    controls.lights,
+    controls.colorIndex,
+    controls.reduced,
+    invalidate,
+    requestAnimation,
+  ]);
   useEffect(() => {
     return registerMotion((id, point) => {
+      gl.domElement.setAttribute("data-last-desk-action", id);
       if (!active || reduced) return;
       if (id === "drawers") {
         if (drawerStart.current === null) {
           drawerStart.current = performance.now();
+          requestAnimation(drawerWave.duration);
           invalidate();
         }
         return;
@@ -190,6 +235,7 @@ export default function InteractionScene({
         start: performance.now(),
         variant: id === "mouse" ? nextMouse.current++ % 5 : 0,
       };
+      requestAnimation(animationDuration[key]);
       if (id === "mouse" && ring.current) {
         const pivot = contract.targets.mouse.position;
         ring.current.position.set(
@@ -200,7 +246,7 @@ export default function InteractionScene({
       }
       invalidate();
     });
-  }, [active, reduced, registerMotion, invalidate]);
+  }, [active, reduced, registerMotion, invalidate, requestAnimation, gl]);
   useEffect(() => {
     if (!controls.active || controls.reduced) {
       running.current = {};

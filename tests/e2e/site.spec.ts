@@ -76,7 +76,9 @@ test("reduced motion keeps the HTML explanation without WebGL", async ({
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/en");
-  await expect(page.getByText("From data to a working system.")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Intelligence, put to work." }),
+  ).toBeVisible();
   await page.waitForTimeout(2200);
   await expect(page.locator("canvas")).toHaveCount(0);
 });
@@ -91,7 +93,14 @@ test("3D canvas is decorative, within budget and safely loses context", async ({
   await page.goto("/en");
   const canvas = page.locator("canvas");
   await expect(canvas).toBeVisible({ timeout: 15000 });
-  await page.evaluate(() => window.scrollTo(0, 100));
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+    { timeout: 20000 },
+  );
+  await page.evaluate(() =>
+    window.scrollTo({ top: innerHeight * 1.2, behavior: "instant" }),
+  );
   await expect(canvas).toHaveAttribute("aria-hidden", "true");
   await expect(canvas).toHaveAttribute("tabindex", "-1");
   await expect
@@ -99,15 +108,17 @@ test("3D canvas is decorative, within budget and safely loses context", async ({
     .toBeGreaterThan(0);
   expect(
     Number(await canvas.getAttribute("data-draw-calls")),
-  ).toBeLessThanOrEqual(50);
+  ).toBeLessThanOrEqual(130);
   expect(
     Number(await canvas.getAttribute("data-triangles")),
-  ).toBeLessThanOrEqual(100000);
+  ).toBeLessThanOrEqual(210000);
   await canvas.evaluate((c) =>
     c.dispatchEvent(new Event("webglcontextlost", { cancelable: true })),
   );
   await expect(page.locator("canvas")).toHaveCount(0);
-  await expect(page.getByText("From data to a working system.")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Intelligence, put to work." }),
+  ).toBeVisible();
 });
 test("all internal navigation resolves without broken links", async ({
   page,

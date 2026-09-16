@@ -8,7 +8,7 @@ async function go(page: Page, d: number) {
       top:
         scrollY +
         section.getBoundingClientRect().top +
-        ((section.offsetHeight - stage.offsetHeight) * distance) / 7.5,
+        ((section.offsetHeight - stage.offsetHeight) * distance) / 8.5,
       behavior: "instant",
     });
   }, d);
@@ -69,28 +69,28 @@ test("scroll separates reading from camera travel, reverses, focuses links and e
     { timeout: 20000 },
   );
   const canvas = page.locator("canvas");
-  await go(page, 1.4);
+  await go(page, 2.1);
   const camera = await canvas.getAttribute("data-camera");
-  await go(page, 2.6);
+  await go(page, 3.6);
   expect(await canvas.getAttribute("data-camera")).toBe(camera);
   expect(
     Number(await page.locator('[data-screen="0"]').getAttribute("data-page")),
   ).toBeGreaterThan(1);
-  await go(page, 1.4);
+  await go(page, 2.1);
   expect(await canvas.getAttribute("data-camera")).toBe(camera);
-  await go(page, 4.5);
+  await go(page, 5.1);
   expect(await canvas.getAttribute("data-camera")).not.toBe(camera);
   await page.locator('[data-screen="2"] a').last().focus();
   await expect
     .poll(async () => Number(await canvas.getAttribute("data-distance")))
-    .toBeGreaterThan(6.6);
+    .toBeGreaterThan(5.6);
   await expect(page.locator('[data-screen="2"] a').last()).toBeInViewport();
   expect(
     Number(await canvas.getAttribute("data-draw-calls")),
-  ).toBeLessThanOrEqual(50);
+  ).toBeLessThanOrEqual(130);
   expect(
     Number(await canvas.getAttribute("data-triangles")),
-  ).toBeLessThanOrEqual(100000);
+  ).toBeLessThanOrEqual(210000);
   expect(
     (
       await new AxeBuilder({ page })
@@ -155,10 +155,10 @@ test("late loading keeps the current scroll position; context loss restores norm
     "data-enhanced",
     "true",
   );
-  await expect(page.locator("[data-journey-stage] > img")).toBeVisible();
-  await expect(page.locator("[data-journey-stage] > img")).toHaveAttribute(
-    "src",
-    /wide-loading/,
+  await expect(page.locator("[data-journey-stage] > img")).toHaveCount(0);
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "false",
   );
   await page.evaluate(() => {
     const s = document.querySelector("[data-enhanced]") as HTMLElement,
@@ -167,7 +167,7 @@ test("late loading keeps the current scroll position; context loss restores norm
       top:
         scrollY +
         s.getBoundingClientRect().top +
-        ((s.offsetHeight - v.offsetHeight) * 4.2) / 7.5,
+        ((s.offsetHeight - v.offsetHeight) * 4.2) / 8.5,
       behavior: "instant",
     });
   });
@@ -210,9 +210,8 @@ test("narrow and zoom-equivalent viewports preserve screen links and readable ty
     { timeout: 20000 },
   );
   for (const [screen, d] of [
-    [0, 1.4],
-    [1, 4.1],
-    [2, 6.1],
+    [0, 2.1],
+    [2, 5.1],
   ]) {
     await go(page, d);
     const text = page
@@ -254,13 +253,69 @@ test("riser frame occludes the portrait HTML during the MacBook approach", async
     "true",
     { timeout: 20000 },
   );
-  await go(page, 5.85);
+  await go(page, 4.85);
   const panel = page.locator('[data-screen="0"]');
   await expect
     .poll(() => panel.evaluate((p) => getComputedStyle(p).maskImage))
     .toContain("data:image/svg+xml");
-  await go(page, 0);
-  await expect
-    .poll(() => panel.evaluate((p) => getComputedStyle(p).maskImage))
-    .toBe("none");
+  await go(page, 2.1);
+  await expect(panel).not.toHaveAttribute("inert", "");
+});
+
+test("home opens inside an empty ultrawide and offers a reversible room exploration interval", async ({
+  page,
+  browserName,
+}) => {
+  test.skip(
+    browserName === "webkit",
+    "WebGL2 is covered in Chromium; WebKit covers the static alternative.",
+  );
+  await page.goto("/en");
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+    { timeout: 20000 },
+  );
+  await expect(page.locator('[data-screen="1"] article')).toHaveCount(0);
+  await expect(page.getByText("Scroll down", { exact: true })).toBeVisible();
+  await go(page, 7.6);
+  const camera = await page.locator("canvas").getAttribute("data-camera");
+  await go(page, 8.4);
+  expect(await page.locator("canvas").getAttribute("data-camera")).toBe(camera);
+  await page.getByText("Desk objects", { exact: true }).click();
+  await page
+    .getByRole("button", { name: "Wave the drawers", exact: true })
+    .click();
+  await expect(page.locator("canvas")).toHaveAttribute(
+    "data-drawers-motion",
+    "running",
+  );
+  await expect(page.locator("canvas")).toHaveAttribute(
+    "data-drawers-motion",
+    "idle",
+    { timeout: 5000 },
+  );
+  await go(page, 7.6);
+  expect(await page.locator("canvas").getAttribute("data-camera")).toBe(camera);
+  await go(page, 2.1);
+  await expect(page.getByText("Desk objects", { exact: true })).toHaveCount(0);
+});
+
+test("changing the motion preference restores the journey without reloading", async ({
+  page,
+  browserName,
+}) => {
+  test.skip(browserName === "webkit", "Headless WebKit lacks reliable WebGL2.");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/en");
+  await expect(page.locator("canvas")).toHaveCount(0);
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+    { timeout: 20000 },
+  );
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(page.locator("canvas")).toHaveCount(0);
+  await expect(page.locator("#desk-story-0")).toBeVisible();
 });

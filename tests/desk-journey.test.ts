@@ -5,17 +5,20 @@ import {
   focusDistance,
   readingRanges,
   journeyLength,
+  screenStops,
 } from "../src/lib/desk-journey";
 describe("desk scroll choreography", () => {
   it("keeps every reading camera still while advancing only its screen", () => {
-    readingRanges.forEach(([start, end], index) => {
+    readingRanges.forEach((range, index) => {
+      if (!range) return;
+      const [start, end] = range;
       for (const fraction of [0.1, 0.4, 0.8]) {
         const state = journeyAt(start + (end - start) * fraction);
-        expect(state.from).toBe(index + 1);
-        expect(state.to).toBe(index + 1);
+        expect(state.from).toBe(screenStops[index]);
+        expect(state.to).toBe(screenStops[index]);
         expect(state.reading[index]).toBeCloseTo(fraction);
         state.reading.forEach((value, i) => {
-          if (i !== index) expect(value).toBe(i < index ? 1 : 0);
+          if (i !== index) expect(value).toBe(i === 1 ? 0 : i < index ? 1 : 0);
         });
       }
     });
@@ -26,12 +29,14 @@ describe("desk scroll choreography", () => {
     expect([...path].reverse().map(journeyAt).reverse()).toEqual(forward);
     expect(journeyAt(-30)).toEqual(journeyAt(0));
     expect(journeyAt(90)).toEqual(journeyAt(journeyLength));
-    expect(journeyAt(0.25).from).toBe(0);
-    expect(journeyAt(0.25).to).toBe(0);
-    expect(journeyAt(0.25).preview).toBeGreaterThan(0);
+    expect(journeyAt(0).from).toBe("opening");
+    expect(journeyAt(1.2).from).toBe("desktop");
+    expect(journeyAt(7.5).from).toBe("room");
+    expect(journeyAt(8.5).explore).toBe(true);
   });
   it("focus targets the still portion of each card and never hides its link", () => {
     [3, 3, 2].forEach((count, screen) => {
+      if (screen === 1) return;
       for (let card = 0; card < count; card++) {
         const state = journeyAt(focusDistance(screen, card, count));
         expect(state.active).toBe(screen);

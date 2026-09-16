@@ -1120,8 +1120,12 @@ h1 {
 }
 
 /* The room opens at the top of the viewport beneath the existing navigation. */
-body:has([data-journey-stage]) { container-type: inline-size; }
-.site-shell:has([data-journey-stage]) { max-width: none; }
+body:has([data-journey-stage]) {
+  container-type: inline-size;
+}
+.site-shell:has([data-journey-stage]) {
+  max-width: none;
+}
 .site-shell:has([data-journey-stage]) .site-header {
   position: absolute;
   top: 0;
@@ -1131,4 +1135,6 @@ body:has([data-journey-stage]) { container-type: inline-size; }
   height: 88px;
 }
 
-.site-shell:has([data-journey-stage]) .site-header { background: #e8eceb; }
+.site-shell:has([data-journey-stage]) .site-header {
+  background: #e8eceb;
+}
