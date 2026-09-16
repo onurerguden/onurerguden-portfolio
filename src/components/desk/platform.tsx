@@ -7,12 +7,10 @@ import { RepeatWrapping, SRGBColorSpace } from "three";
 
 const PLATFORM_TOP = -0.694;
 const PLATFORM_THICKNESS = 0.06;
-const DESK_WIDTH = 1.5;
-const DESK_DEPTH = 0.87;
 
-/** The circular platform clears the desk footprint by 25 cm on every side. */
-export const PLATFORM_RADIUS =
-  Math.hypot(DESK_WIDTH / 2, DESK_DEPTH / 2) + 0.25;
+/** A close-fitting ellipse keeps the desk dominant in the final composition. */
+export const PLATFORM_RADIUS_X = 0.93;
+export const PLATFORM_RADIUS_Z = 0.58;
 
 export default function DeskPlatform() {
   const mobile = useThree((state) => state.size.width < 700);
@@ -20,8 +18,8 @@ export default function DeskPlatform() {
   const marble = useMemo(() => {
     const map = source.clone();
     map.wrapS = map.wrapT = RepeatWrapping;
-    map.repeat.set(2.5, 2.5);
-    map.offset.set(-0.75, -0.75);
+    map.repeat.set(2.4, 1.5);
+    map.offset.set(-0.7, -0.25);
     map.colorSpace = SRGBColorSpace;
     map.needsUpdate = true;
     return map;
@@ -34,9 +32,10 @@ export default function DeskPlatform() {
       <mesh
         position={[0, PLATFORM_TOP, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
+        scale={[PLATFORM_RADIUS_X, PLATFORM_RADIUS_Z, 1]}
         receiveShadow
       >
-        <circleGeometry args={[PLATFORM_RADIUS, mobile ? 64 : 96]} />
+        <circleGeometry args={[1, mobile ? 64 : 96]} />
         <MeshReflectorMaterial
           map={marble}
           color="#ffffff"
@@ -52,17 +51,11 @@ export default function DeskPlatform() {
       </mesh>
       <mesh
         position={[0, PLATFORM_TOP - PLATFORM_THICKNESS / 2, 0]}
+        scale={[PLATFORM_RADIUS_X, 1, PLATFORM_RADIUS_Z]}
         receiveShadow
       >
         <cylinderGeometry
-          args={[
-            PLATFORM_RADIUS,
-            PLATFORM_RADIUS,
-            PLATFORM_THICKNESS,
-            mobile ? 64 : 96,
-            1,
-            true,
-          ]}
+          args={[1, 1, PLATFORM_THICKNESS, mobile ? 64 : 96, 1, true]}
         />
         <meshStandardMaterial
           color="#aeb6c3"

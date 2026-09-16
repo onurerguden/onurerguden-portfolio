@@ -8,7 +8,7 @@ import {
   useState,
   type RefObject,
 } from "react";
-import DeskPlatform, { PLATFORM_RADIUS } from "./platform";
+import DeskPlatform, { PLATFORM_RADIUS_X } from "./platform";
 import CosmicEnvironment, { type CosmicPointer } from "./cosmic-environment";
 import DeskLighting from "./lighting";
 import { DeskObjectControls, useDeskInteractions } from "./interactions";
@@ -207,11 +207,11 @@ function Driver({
     const openingTarget = new Vector3(...opening.position);
     const openingDistance =
       (Math.min(opening.width / aspect, opening.height) * 0.92) / (2 * tangent);
-    const platformSpan = PLATFORM_RADIUS * 2 + 0.2;
+    const platformSpan = PLATFORM_RADIUS_X * 2 + 0.12;
     const roomDistance = Math.max(
-      3.45,
+      3.05,
       platformSpan / aspect / (2 * tangent),
-      1.8 / (2 * tangent),
+      1.7 / (2 * tangent),
     );
     return {
       opening: {
@@ -279,6 +279,7 @@ function Driver({
       if (excluded) {
         pointer.current.x = pointer.current.y = 0;
         pointer.current.targetInfluence = 0;
+        pointer.current.influence = 0;
         if (active) invalidate();
         return;
       }
@@ -365,6 +366,8 @@ function Driver({
     p.currentX += (p.x - p.currentX) * positionDamping;
     p.currentY += (p.y - p.currentY) * positionDamping;
     p.influence += (p.targetInfluence - p.influence) * influenceDamping;
+    if (Math.abs(p.targetInfluence - p.influence) < 0.03)
+      p.influence = p.targetInfluence;
     const strength = (stop: CameraStop) =>
       stop === "opening"
         ? 0

@@ -18,6 +18,6 @@ The approved room entrance supersedes the original two-column schematic hero. Th
 
 ## September 16: cosmic platform
 
-The room shell is replaced by a quiet cosmic setting while the approved screen journey, content and object interactions remain unchanged. The desk stands on a 6 cm circular marble platform sized from the 1.5 × 0.87 m desk footprint with 25 cm clearance beyond its corners. A sparse star field and a low-contrast curved grid curtain appear as the camera withdraws; the palette is space `#080e1c`, distant atmosphere `#152039`, grid `#7286ad` and stars `#dce5f5`.
+The room shell is replaced by a quiet cosmic setting while the approved screen journey, content and object interactions remain unchanged. The desk stands on a close-fitting 1.86 × 1.16 m elliptical marble platform with a 6 cm visible edge. A sparse star field and a low-contrast curved grid curtain appear as the camera withdraws; the palette is space `#080e1c`, distant atmosphere `#152039`, grid `#7286ad` and stars `#dce5f5`. The final camera sits at 3.05 m so the desk remains the dominant form.
 
 The grid is the one expressive effect. It bends locally under a fine pointer only in the final exploration view, ignores screens and controls, and returns to rest without a continuous animation loop. Touch retains scroll depth without deformation. Reduced motion, no JavaScript and WebGL failure use a capture of the same cosmic composition. The scene remains demand-rendered and keeps the existing 130 draw-call / 210,000 submitted-triangle steady-frame budget.
