@@ -2,7 +2,6 @@
 
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, type RefObject } from "react";
-import type { MotionValue } from "motion/react";
 import {
   BufferGeometry,
   Float32BufferAttribute,
@@ -10,7 +9,6 @@ import {
   ShaderMaterial,
   Vector2,
 } from "three";
-import { journeyAt } from "@/lib/desk-journey";
 
 export type CosmicPointer = {
   x: number;
@@ -84,18 +82,9 @@ function createStars(count: number) {
   return geometry;
 }
 
-function roomReveal(distance: number) {
-  const step = journeyAt(distance);
-  const from = step.from === "room" ? 1 : 0;
-  const to = step.to === "room" ? 1 : 0;
-  return from + (to - from) * step.travel;
-}
-
 export default function CosmicEnvironment({
-  distance,
   pointer,
 }: {
-  distance: MotionValue<number>;
   pointer: CosmicPointerRef;
 }) {
   const mobile = useThree((state) => state.size.width < 700);
@@ -119,17 +108,16 @@ export default function CosmicEnvironment({
     if (!material || !points) return;
 
     const state = pointer.current;
-    const reveal = roomReveal(distance.get());
-    const influence = state.influence * reveal;
+    const influence = state.influence;
     material.uniforms.uPointer.value.set(
       0.5 + state.currentX * 0.36,
       0.5 - state.currentY * 0.34,
     );
     material.uniforms.uInfluence.value = influence;
-    material.uniforms.uReveal.value = reveal;
-    points.opacity = 0.04 + reveal * 0.5;
+    material.uniforms.uReveal.value = 1;
+    points.opacity = 0.54;
     gl.domElement.dataset.gridInfluence = influence.toFixed(3);
-    gl.domElement.dataset.cosmicReveal = reveal.toFixed(3);
+    gl.domElement.dataset.cosmicReveal = "1.000";
   });
 
   return (

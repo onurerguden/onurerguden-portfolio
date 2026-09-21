@@ -1,5 +1,5 @@
 /** Distances are native scroll in stable viewport heights, never elapsed time. */
-export const journeyLength = 8.5;
+export const journeyLength = 7.85;
 export type CameraStop =
   "opening" | "desktop" | "portrait" | "macbook" | "room";
 export const screenIds = [
@@ -51,7 +51,6 @@ export function journeyAt(distance: number) {
     ),
     preview: 0,
     exit: 0,
-    explore: d >= 7.5,
     active:
       from === to
         ? screenIds.findIndex(

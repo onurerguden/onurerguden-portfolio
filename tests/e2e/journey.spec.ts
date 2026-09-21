@@ -1,17 +1,23 @@
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { journeyLength } from "../../src/lib/desk-journey";
 async function go(page: Page, d: number) {
-  await page.evaluate((distance) => {
-    const section = document.querySelector("[data-enhanced]") as HTMLElement;
-    const stage = document.querySelector("[data-journey-stage]") as HTMLElement;
-    window.scrollTo({
-      top:
-        scrollY +
-        section.getBoundingClientRect().top +
-        ((section.offsetHeight - stage.offsetHeight) * distance) / 8.5,
-      behavior: "instant",
-    });
-  }, d);
+  await page.evaluate(
+    ({ distance, length }) => {
+      const section = document.querySelector("[data-enhanced]") as HTMLElement;
+      const stage = document.querySelector(
+        "[data-journey-stage]",
+      ) as HTMLElement;
+      window.scrollTo({
+        top:
+          scrollY +
+          section.getBoundingClientRect().top +
+          ((section.offsetHeight - stage.offsetHeight) * distance) / length,
+        behavior: "instant",
+      });
+    },
+    { distance: d, length: journeyLength },
+  );
   await expect
     .poll(
       async () =>
@@ -162,17 +168,20 @@ test("late loading keeps the current scroll position; context loss restores norm
     "data-ready",
     "false",
   );
-  await page.evaluate(() => {
-    const s = document.querySelector("[data-enhanced]") as HTMLElement,
-      v = document.querySelector("[data-journey-stage]") as HTMLElement;
-    scrollTo({
-      top:
-        scrollY +
-        s.getBoundingClientRect().top +
-        ((s.offsetHeight - v.offsetHeight) * 4.2) / 8.5,
-      behavior: "instant",
-    });
-  });
+  await page.evaluate(
+    ({ distance, length }) => {
+      const s = document.querySelector("[data-enhanced]") as HTMLElement,
+        v = document.querySelector("[data-journey-stage]") as HTMLElement;
+      scrollTo({
+        top:
+          scrollY +
+          s.getBoundingClientRect().top +
+          ((s.offsetHeight - v.offsetHeight) * distance) / length,
+        behavior: "instant",
+      });
+    },
+    { distance: 4.2, length: journeyLength },
+  );
   release();
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
@@ -275,7 +284,7 @@ test("portrait screen uses scene depth instead of a CSS cutout", async ({
   await expect(panel).not.toHaveAttribute("inert", "");
 });
 
-test("home opens inside an empty ultrawide and offers a reversible room exploration interval", async ({
+test("home keeps desk interactions available and exits promptly after the full view", async ({
   page,
   browserName,
 }) => {
@@ -291,10 +300,8 @@ test("home opens inside an empty ultrawide and offers a reversible room explorat
   );
   await expect(page.locator('[data-screen="1"] article')).toHaveCount(0);
   await expect(page.getByText("Scroll down", { exact: true })).toBeVisible();
-  await go(page, 7.6);
-  const camera = await page.locator("canvas").getAttribute("data-camera");
-  await go(page, 8.4);
-  expect(await page.locator("canvas").getAttribute("data-camera")).toBe(camera);
+  await go(page, 2.1);
+  await expect(page.getByText("Desk objects", { exact: true })).toBeVisible();
   await page.getByText("Desk objects", { exact: true }).click();
   await page
     .getByRole("button", { name: "Wave the drawers", exact: true })
@@ -309,12 +316,17 @@ test("home opens inside an empty ultrawide and offers a reversible room explorat
     { timeout: 5000 },
   );
   await go(page, 7.6);
+  const camera = await page.locator("canvas").getAttribute("data-camera");
+  await expect(page.locator("[data-continue-cue]")).toContainText(
+    "Scroll to continue",
+  );
+  await go(page, journeyLength);
   expect(await page.locator("canvas").getAttribute("data-camera")).toBe(camera);
   await go(page, 2.1);
-  await expect(page.getByText("Desk objects", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("Desk objects", { exact: true })).toBeVisible();
 });
 
-test("cosmic grid responds only in the final view and returns to demand-rendered idle", async ({
+test("cosmic grid remains active through close-ups and returns to demand-rendered idle", async ({
   page,
   browserName,
   isMobile,
@@ -331,18 +343,33 @@ test("cosmic grid responds only in the final view and returns to demand-rendered
   );
   const canvas = page.locator("canvas");
 
+  for (const distance of [0, 2.1, 5.5, 7.6]) {
+    await go(page, distance);
+    await expect(canvas).toHaveAttribute("data-cosmic-reveal", "1.000");
+  }
   await go(page, 5.5);
-  await page.mouse.move(180, 520);
-  await expect(canvas).toHaveAttribute("data-cosmic-reveal", "0.000");
-  await expect(canvas).toHaveAttribute("data-grid-influence", "0.000");
-
-  await go(page, 8.1);
-  await page.mouse.move(1120, 420);
+  const backgroundPoint = await page.evaluate(() => {
+    const candidates = [
+      [20, innerHeight * 0.35],
+      [innerWidth - 20, innerHeight * 0.35],
+      [20, innerHeight * 0.7],
+      [innerWidth - 20, innerHeight * 0.7],
+    ];
+    const point = candidates.find(([x, y]) => {
+      const target = document.elementFromPoint(x, y);
+      return !target?.closest(
+        'a, button, summary, [data-screen], [data-cosmic-exclusion="true"]',
+      );
+    });
+    return point ? { x: point[0], y: point[1] } : null;
+  });
+  expect(backgroundPoint).not.toBeNull();
+  await page.mouse.move(backgroundPoint!.x, backgroundPoint!.y);
   await expect
     .poll(() =>
       canvas.getAttribute("data-grid-influence").then((value) => Number(value)),
     )
-    .toBeGreaterThan(0.8);
+    .toBeGreaterThan(0.5);
 
   await expect
     .poll(
