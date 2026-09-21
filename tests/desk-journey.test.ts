@@ -32,7 +32,7 @@ describe("desk scroll choreography", () => {
     expect(journeyAt(0).from).toBe("opening");
     expect(journeyAt(1.2).from).toBe("desktop");
     expect(journeyAt(7.5).from).toBe("room");
-    expect(journeyAt(8.5).explore).toBe(true);
+    expect(journeyLength - 7.5).toBeCloseTo(0.35);
   });
   it("focus targets the still portion of each card and never hides its link", () => {
     [3, 3, 2].forEach((count, screen) => {

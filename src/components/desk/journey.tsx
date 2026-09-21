@@ -8,6 +8,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type CSSProperties,
   type ReactNode,
 } from "react";
 import { useScroll, useMotionValueEvent, useMotionValue } from "motion/react";
@@ -59,7 +60,9 @@ export default function DeskJourney({
   const [failed, setFailed] = useState(false);
   const [staticMode, setStaticMode] = useState(false);
   const [chapter, setChapter] = useState(-1);
+  const [finalView, setFinalView] = useState(false);
   const chapterRef = useRef(-1);
+  const finalViewRef = useRef(false);
   const distance = useMotionValue(0);
   const { scrollYProgress } = useScroll({
     target: section,
@@ -76,6 +79,11 @@ export default function DeskJourney({
         if (d > 0.15) nav.current.dataset.revealed = "false";
       }
       const state = journeyAt(d);
+      const nextFinalView = state.from === "room" && state.to === "room";
+      if (finalViewRef.current !== nextFinalView) {
+        finalViewRef.current = nextFinalView;
+        setFinalView(nextFinalView);
+      }
       if (chapterRef.current !== state.active) {
         chapterRef.current = state.active;
         setChapter(state.active);
@@ -203,6 +211,11 @@ export default function DeskJourney({
         data-enhanced={enhanced}
         data-ready={ready}
         data-static={staticMode || failed}
+        style={
+          {
+            "--journey-height": `${(journeyLength + 1) * 100}svh`,
+          } as CSSProperties
+        }
         aria-label={en ? "From my desk to my work" : "Masamdan çalışmalarıma"}
       >
         <div className={styles.stage} ref={stage} data-journey-stage>
@@ -211,8 +224,8 @@ export default function DeskJourney({
               src="/images/desk/room-poster.webp"
               alt={
                 en
-                  ? "My desk floating on a circular marble platform in space"
-                  : "Uzayda yuvarlak mermer bir platformda duran çalışma masam"
+                  ? "My desk floating on a compact elliptical marble platform in space"
+                  : "Uzayda kompakt elips mermer bir platformda duran çalışma masam"
               }
               fill
               sizes="100vw"
@@ -224,8 +237,8 @@ export default function DeskJourney({
               src="/images/desk/room-poster.webp"
               alt={
                 en
-                  ? "My desk on a circular marble platform against a quiet cosmic grid"
-                  : "Sakin kozmik bir ağın önünde yuvarlak mermer platformdaki çalışma masam"
+                  ? "My desk on an elliptical marble platform against a quiet cosmic grid"
+                  : "Sakin kozmik bir ağın önünde elips mermer platformdaki çalışma masam"
               }
               fill
               sizes="100vw"
@@ -249,6 +262,18 @@ export default function DeskJourney({
             <span>{en ? "Scroll down" : "Aşağı kaydır"}</span>
             <span className={styles.scrollLine} aria-hidden="true" />
           </div>
+          {enhanced && ready && finalView ? (
+            <div
+              className={styles.continueCue}
+              data-continue-cue
+              aria-hidden="true"
+            >
+              <span>
+                {en ? "Scroll to continue" : "Devam etmek için kaydır"}
+              </span>
+              <span aria-hidden="true">↓</span>
+            </div>
+          ) : null}
           {enhanced ? (
             <div className={styles.foot}>
               <span role="status">
@@ -257,8 +282,12 @@ export default function DeskJourney({
                     ? "Preparing the desk…"
                     : "Masa hazırlanıyor…"
                   : en
-                    ? "Scroll to explore"
-                    : "Keşfetmek için kaydır"}
+                    ? finalView
+                      ? "Scroll to continue"
+                      : "Scroll to explore"
+                    : finalView
+                      ? "Devam etmek için kaydır"
+                      : "Keşfetmek için kaydır"}
               </span>
               <button
                 onClick={() => {

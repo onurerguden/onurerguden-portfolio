@@ -8,7 +8,7 @@ import {
   useState,
   type RefObject,
 } from "react";
-import DeskPlatform, { PLATFORM_RADIUS } from "./platform";
+import DeskPlatform from "./platform";
 import CosmicEnvironment, { type CosmicPointer } from "./cosmic-environment";
 import DeskLighting from "./lighting";
 import { DeskObjectControls, useDeskInteractions } from "./interactions";
@@ -207,12 +207,13 @@ function Driver({
     const openingTarget = new Vector3(...opening.position);
     const openingDistance =
       (Math.min(opening.width / aspect, opening.height) * 0.92) / (2 * tangent);
-    const platformSpan = PLATFORM_RADIUS * 2 + 0.2;
+    const roomFrameSpan = contract.desk.width + 0.12;
     const roomDistance = Math.max(
-      3.45,
-      platformSpan / aspect / (2 * tangent),
-      1.8 / (2 * tangent),
+      2.15,
+      roomFrameSpan / aspect / (2 * tangent),
+      1.45 / (2 * tangent),
     );
+    const roomHeight = Math.min(2.8, Math.max(1.25, roomDistance * 0.58));
     return {
       opening: {
         target: openingTarget,
@@ -231,8 +232,8 @@ function Driver({
       portrait: closeup(contract.screens.PortraitScreen),
       macbook: closeup(contract.screens.MacBookScreen),
       room: {
-        target: new Vector3(0, -0.02, -0.1),
-        position: new Vector3(0.1, 0.48, roomDistance),
+        target: new Vector3(0, -0.02, -0.08),
+        position: new Vector3(0.08, roomHeight, roomDistance),
         fov: 43,
       },
     } satisfies Record<
@@ -271,6 +272,25 @@ function Driver({
     const node = surface.current;
     if (!node || !matchMedia("(hover: hover) and (pointer: fine)").matches)
       return;
+    let dampingFrame = 0;
+    const keepRendering = () => {
+      invalidate();
+      const state = pointer.current;
+      const unsettled =
+        Math.abs(state.x - state.currentX) +
+        Math.abs(state.y - state.currentY) +
+        Math.abs(state.targetInfluence - state.influence);
+      dampingFrame =
+        active && unsettled > 0.002
+          ? window.requestAnimationFrame(keepRendering)
+          : 0;
+    };
+    const wake = () => {
+      if (!active) return;
+      invalidate();
+      if (!dampingFrame)
+        dampingFrame = window.requestAnimationFrame(keepRendering);
+    };
     const move = (event: PointerEvent) => {
       const target = event.target instanceof Element ? event.target : null;
       const excluded = target?.closest(
@@ -279,7 +299,8 @@ function Driver({
       if (excluded) {
         pointer.current.x = pointer.current.y = 0;
         pointer.current.targetInfluence = 0;
-        if (active) invalidate();
+        pointer.current.influence = 0;
+        wake();
         return;
       }
       const rect = node.getBoundingClientRect();
@@ -292,18 +313,19 @@ function Driver({
         Math.min(1, ((event.clientY - rect.top) / rect.height) * 2 - 1),
       );
       pointer.current.targetInfluence = 1;
-      if (active) invalidate();
+      wake();
     };
     const leave = () => {
       pointer.current.x = pointer.current.y = 0;
       pointer.current.targetInfluence = 0;
-      if (active) invalidate();
+      wake();
     };
     node.addEventListener("pointermove", move, { passive: true });
     node.addEventListener("pointerleave", leave);
     return () => {
       node.removeEventListener("pointermove", move);
       node.removeEventListener("pointerleave", leave);
+      window.cancelAnimationFrame(dampingFrame);
     };
   }, [active, invalidate, surface]);
   useFrame((_state, delta) => {
@@ -359,12 +381,16 @@ function Driver({
           (step.to === "macbook" ? -1.9 : 1.6),
       );
     const p = pointer.current;
-    const clampedDelta = Math.min(delta, 0.05);
+    const clampedDelta = Math.min(delta, 0.1);
     const positionDamping = 1 - Math.exp(-8 * clampedDelta);
     const influenceDamping = 1 - Math.exp(-7 * clampedDelta);
     p.currentX += (p.x - p.currentX) * positionDamping;
     p.currentY += (p.y - p.currentY) * positionDamping;
     p.influence += (p.targetInfluence - p.influence) * influenceDamping;
+    if (Math.abs(p.x - p.currentX) < 0.005) p.currentX = p.x;
+    if (Math.abs(p.y - p.currentY) < 0.005) p.currentY = p.y;
+    if (Math.abs(p.targetInfluence - p.influence) < 0.03)
+      p.influence = p.targetInfluence;
     const strength = (stop: CameraStop) =>
       stop === "opening"
         ? 0
@@ -377,15 +403,6 @@ function Driver({
       strength(step.from) + (strength(step.to) - strength(step.from)) * t;
     camera.rotateY((-p.currentX * amount * Math.PI) / 90);
     camera.rotateX((-p.currentY * amount * Math.PI) / 180);
-    if (
-      active &&
-      amount > 0 &&
-      Math.abs(p.x - p.currentX) +
-        Math.abs(p.y - p.currentY) +
-        Math.abs(p.targetInfluence - p.influence) >
-        0.002
-    )
-      invalidate();
     camera.updateProjectionMatrix();
     camera.updateMatrixWorld();
     projections.forEach((projection, index) => {
@@ -420,7 +437,7 @@ function Driver({
     canvas.setAttribute("data-distance", String(step.distance));
     canvas.setAttribute("data-camera", camera.position.toArray().join(","));
   }, -1);
-  return <CosmicEnvironment distance={distance} pointer={pointer} />;
+  return <CosmicEnvironment pointer={pointer} />;
 }
 /** Include reflection and shadow passes in the reported per-frame cost. */
 function RenderFrame() {
@@ -450,21 +467,7 @@ export default function JourneyScene(props: JourneySceneProps) {
   const panels = useRef<(HTMLDivElement | null)[]>([]);
   const wrapper = useRef<HTMLDivElement>(null);
   const [sceneReady, setSceneReady] = useState(false);
-  const [exploring, setExploring] = useState(
-    journeyAt(props.distance.get()).explore,
-  );
-  useEffect(
-    () =>
-      props.distance.on("change", (d) => setExploring(journeyAt(d).explore)),
-    [props.distance],
-  );
   const controls = useDeskInteractions(props.active, false);
-  const modelControls = {
-    ...controls,
-    activate: (...args: Parameters<typeof controls.activate>) => {
-      if (exploring) controls.activate(...args);
-    },
-  };
   const readyCallback = props.onReady;
   const onReady = useCallback(() => {
     setSceneReady(true);
@@ -519,7 +522,7 @@ export default function JourneyScene(props: JourneySceneProps) {
         />
         <Suspense fallback={null}>
           <DeskPlatform />
-          <Model onReady={onReady} controls={modelControls} />
+          <Model onReady={onReady} controls={controls} />
           <ScreenDepthPlanes />
         </Suspense>
         <RenderFrame />
@@ -530,7 +533,7 @@ export default function JourneyScene(props: JourneySceneProps) {
           surface={wrapper}
         />
       </Canvas>
-      {exploring && !props.poster ? (
+      {!props.poster ? (
         <DeskObjectControls controls={controls} locale={props.locale} journey />
       ) : null}
       <ScreenPanels

@@ -8,7 +8,7 @@
   background: #e8eceb;
 }
 .journey[data-enhanced="true"] {
-  height: 950svh;
+  height: var(--journey-height);
 }
 .stage {
   position: relative;
@@ -717,6 +717,28 @@
   background: #34494a;
   animation: scroll-dot 1.8s ease-in-out infinite;
 }
+.continueCue {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  color: #f5f3ec;
+  background: #191919df;
+  border: 1px solid #636364;
+  border-radius: 24px;
+  font: 500 12px/1.4 var(--font-sans);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.continueCue span[aria-hidden="true"] {
+  font-size: 16px;
+  line-height: 1;
+}
 @keyframes scroll-dot {
   0%,
   100% {
@@ -765,6 +787,9 @@
 }
 
 @media (max-width: 700px) {
+  .continueCue {
+    bottom: 138px;
+  }
   .screen[data-screen="2"] .card p,
   .screen[data-screen="2"] .card a {
     font-size: 56px;

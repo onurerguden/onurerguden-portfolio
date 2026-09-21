@@ -1,6 +1,6 @@
 # Desk object interactions — September 9, 2026
 
-The review and scroll journey share one interaction runtime. No homepage integration or music asset is included. The selected track can later be configured with its path and title in `src/lib/desk-audio.ts`.
+The review and scroll journey share one interaction runtime. In the enhanced journey, direct object picking and the keyboard-accessible object disclosure remain active at every camera stop. No music asset is included. The selected track can later be configured with its path and title in `src/lib/desk-audio.ts`.
 
 ## Verified behavior
 
