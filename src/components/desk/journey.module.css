@@ -690,6 +690,7 @@
 
 .scrollCue {
   position: absolute;
+  z-index: 4;
   bottom: 5%;
   left: 50%;
   transform: translateX(-50%);
@@ -755,6 +756,7 @@
 }
 
 .foot {
+  z-index: 4;
   pointer-events: none;
 }
 .foot button {

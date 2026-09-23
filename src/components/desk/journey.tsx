@@ -62,8 +62,10 @@ export default function DeskJourney({
   const [staticMode, setStaticMode] = useState(false);
   const [chapter, setChapter] = useState(-1);
   const [finalView, setFinalView] = useState(false);
+  const [pastOpening, setPastOpening] = useState(false);
   const chapterRef = useRef(-1);
   const finalViewRef = useRef(false);
+  const pastOpeningRef = useRef(false);
   const distance = useMotionValue(0);
   const { scrollYProgress } = useScroll({
     target: section,
@@ -74,6 +76,11 @@ export default function DeskJourney({
       if (section.current?.dataset.enhanced !== "true") return;
       const d = value * journeyLength;
       distance.set(d);
+      const nextPastOpening = d > 0.08;
+      if (pastOpeningRef.current !== nextPastOpening) {
+        pastOpeningRef.current = nextPastOpening;
+        setPastOpening(nextPastOpening);
+      }
       if (section.current) section.current.dataset.travelled = String(d > 0.15);
       if (nav.current && hideNavOnScroll.current) {
         nav.current.dataset.hidden = String(d > 0.15);
@@ -154,6 +161,7 @@ export default function DeskJourney({
     setReady(false);
   }, [distance]);
   const enhanced = enabled && !staticMode && !failed;
+  const openingVisible = !enhanced || !ready || !pastOpening;
   useEffect(() => {
     if (!enhanced && intro.current) {
       intro.current.style.opacity = "1";
@@ -220,13 +228,12 @@ export default function DeskJourney({
         aria-label={en ? "From my desk to my work" : "Masamdan çalışmalarıma"}
       >
         <div className={styles.stage} ref={stage} data-journey-stage>
-          {!enhanced || !ready ? (
-            <PortraitIdentity
-              content={content}
-              opening
-              interactive={!staticMode && !failed}
-            />
-          ) : null}
+          <PortraitIdentity
+            content={content}
+            opening
+            visible={openingVisible}
+            interactive={openingVisible && !staticMode && !failed}
+          />
           {enhanced ? (
             <Boundary onFailure={onFailure}>
               <Scene
