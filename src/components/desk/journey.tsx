@@ -20,6 +20,7 @@ import {
 } from "@/lib/desk-journey";
 import assets from "@/lib/desk-assets.json";
 import styles from "./journey.module.css";
+import PortraitIdentity from "./portrait-identity";
 const Scene = dynamic(() => import("./journey-scene"), { ssr: false });
 class Boundary extends Component<
   { children: ReactNode; onFailure: () => void },
@@ -219,30 +220,11 @@ export default function DeskJourney({
         aria-label={en ? "From my desk to my work" : "Masamdan çalışmalarıma"}
       >
         <div className={styles.stage} ref={stage} data-journey-stage>
-          <noscript>
-            <Image
-              src="/images/desk/room-poster.webp"
-              alt={
-                en
-                  ? "My desk floating on a compact elliptical marble platform in space"
-                  : "Uzayda kompakt elips mermer bir platformda duran çalışma masam"
-              }
-              fill
-              sizes="100vw"
-              className={styles.poster}
-            />
-          </noscript>
-          {staticMode || failed ? (
-            <Image
-              src="/images/desk/room-poster.webp"
-              alt={
-                en
-                  ? "My desk on an elliptical marble platform against a quiet cosmic grid"
-                  : "Sakin kozmik bir ağın önünde elips mermer platformdaki çalışma masam"
-              }
-              fill
-              sizes="100vw"
-              className={styles.poster}
+          {!enhanced || !ready ? (
+            <PortraitIdentity
+              content={content}
+              opening
+              interactive={!staticMode && !failed}
             />
           ) : null}
           {enhanced ? (

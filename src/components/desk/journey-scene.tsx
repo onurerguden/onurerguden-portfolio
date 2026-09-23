@@ -28,6 +28,7 @@ import {
   type JourneyContent,
 } from "@/lib/desk-journey";
 import styles from "./journey.module.css";
+import PortraitIdentity from "./portrait-identity";
 export type JourneySceneProps = {
   poster?: boolean;
   distance: MotionValue<number>;
@@ -117,6 +118,9 @@ function ScreenPanels({
           >
             <div className={styles.screenSurface}>
               <div className={styles.track}>
+                {screenIds[i] === "UltrawideScreen" ? (
+                  <PortraitIdentity content={content} interactive={!poster} />
+                ) : null}
                 {(screenIds[i] === "UltrawideScreen" || poster
                   ? []
                   : content.screens[i]

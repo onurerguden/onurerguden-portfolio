@@ -5,6 +5,7 @@ export function getJourneyContent(locale: Locale): JourneyContent {
   const cv = process.env.NEXT_PUBLIC_CV_URL;
   return {
     name: sharedFacts.name,
+    role: en ? "AI engineer" : "AI mühendisi",
     intro: en
       ? "I build AI systems that connect models, data and real products."
       : "Modelleri, veriyi ve gerçek ürünleri bir araya getiren AI sistemleri geliştiriyorum.",

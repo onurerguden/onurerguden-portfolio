@@ -86,6 +86,7 @@ export type JourneyCard = {
 };
 export type JourneyContent = {
   name: string;
+  role: string;
   intro: string;
   cv: string;
   cvLabel: string;
