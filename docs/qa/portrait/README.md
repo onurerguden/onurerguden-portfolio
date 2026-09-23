@@ -6,7 +6,7 @@ The portrait and localized name are one DOM panel projected onto the ultrawide s
 
 ## Checked
 
-- Opening at 2400 × 1000, 1440 × 900, 390 × 844, and 320 × 720.
+- Opening at 2400 × 1000, 1440 × 900, 919 × 807, 390 × 844, and 320 × 720.
 - Full-resolution source and opening hold after scene readiness, first scroll transition, and reverse scroll restoration.
 - Portrait remains within the monitor when scrolling to the full desk and back.
 - Fine pointer movement shifts the image left and right and settles after movement ends.
