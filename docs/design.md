@@ -3,6 +3,7 @@
 Onur is an AI engineer who develops products and evaluates models. The homepage helps a recruiter find evidence quickly. Research has a dedicated route.
 
 ## Tokens and composition
+
 - Paper #f5f6f8, ink #17212b, cobalt #1947e5, muted #536171, line #dce2e9, white #ffffff.
 - Manrope variable for navigation, body, and precise UI; Newsreader variable for large titles. Both self-hosted under SIL OFL (licenses copied from packages).
 - Left-aligned compact navigation. Hero: a large, asymmetric two-column composition, strong headline on the left and a custom layered system on the right. Projects use wide technical illustrations and editorial text, never invented screenshots.
@@ -10,6 +11,7 @@ Onur is an AI engineer who develops products and evaluates models. The homepage 
 - English/Turkish body copy in first person and sentence case; no unverified availability claim.
 
 ## Content and rollout
+
 Three detailed cases: Kuyumcum, water safety, course intelligence. Three shorter archive entries: TaskFoo, urban mobility, PAM. No fake screenshots, team counts, baselines, dates or DOI. Missing supplied media does not become a fabricated product UI. See release checklist for unavailable inputs.
 
 ## September 11: room entrance
@@ -23,3 +25,9 @@ The room shell is replaced by a quiet cosmic setting while the approved screen j
 The grid is the one expressive effect. It remains behind every camera stop, bends locally under a fine pointer, ignores screens and controls, and returns to rest without a continuous animation loop. Desk-object picking and the accessible object-control disclosure also remain available throughout the journey. Touch retains scroll depth without deformation. Reduced motion, no JavaScript and WebGL failure use a capture of the same cosmic composition. The scene remains demand-rendered and keeps the existing 130 draw-call / 210,000 submitted-triangle steady-frame budget.
 
 The final full-desk view holds for 0.35 viewport heights and shows a localized continue cue before native scrolling reaches the HTML introduction. This replaces the previous full-viewport exploration hold while preserving reverse scroll and every camera transition.
+
+## September 23: ultrawide portrait
+
+The opening ultrawide now presents Onur's name in Newsreader, a localized AI engineer role in Manrope, and an approved stylized head portrait on the paper palette. The transparent portrait is layered over the name inside the existing projected monitor panel. That same panel stays on the physical screen as the camera reveals the desk; its content shrinks with the monitor rather than becoming a separate page overlay.
+
+A fine pointer shifts the portrait a few pixels with damped motion and returns it to rest when the pointer leaves. Touch, reduced motion, and the static fallback show the still composition. The source is the stylized illustration supplied by Onur; no reference photos or photo-projected textures are shipped. The desk's 3D journey and the accessible HTML continuation retain their existing behavior.
