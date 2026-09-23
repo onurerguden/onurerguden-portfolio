@@ -42,7 +42,7 @@ test("opening portrait stays sharp until scroll and returns on reverse", async (
   const image = opening.locator("img");
   await expect(image).toHaveAttribute(
     "src",
-    "/images/avatar/onur-head-v2.webp",
+    "/images/avatar/onur-head-v3.webp",
   );
   const resolution = await image.evaluate((element) => {
     const portrait = element as HTMLImageElement;

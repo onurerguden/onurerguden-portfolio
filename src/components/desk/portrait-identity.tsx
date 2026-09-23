@@ -101,7 +101,7 @@ export default function PortraitIdentity({
       <span className={styles.role}>{content.role}</span>
       <div className={styles.head} data-portrait-poster>
         <Image
-          src="/images/avatar/onur-head-v2.webp"
+          src="/images/avatar/onur-head-v3.webp"
           alt=""
           fill
           sizes="100vw"
