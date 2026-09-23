@@ -9,23 +9,26 @@
 }
 .name {
   position: absolute;
-  top: 19%;
-  left: 20%;
-  right: 20%;
+  z-index: 0;
+  top: 18%;
+  left: 50%;
+  width: max-content;
   display: flex;
-  justify-content: space-between;
-  gap: 2%;
+  justify-content: center;
+  gap: 0.22em;
+  transform: translateX(-50%);
   font:
-    550 5.8cqw/0.88 "Newsreader Variable",
-    Georgia,
-    serif;
-  letter-spacing: -0.055em;
+    800 clamp(8cqw, calc(8cqw + 12vw - 172.8px), 11.5cqw) / 0.9
+      "Manrope Variable",
+    sans-serif;
+  letter-spacing: -0.075em;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 .role {
   position: absolute;
   left: 20%;
-  top: 67%;
+  top: 50%;
   font:
     500 1.5cqw/1.4 "Manrope Variable",
     sans-serif;
@@ -33,9 +36,10 @@
 }
 .head {
   position: absolute;
+  z-index: 1;
   left: 50%;
-  top: 16.4%;
-  width: 36.19%;
+  top: 27%;
+  width: 28%;
   aspect-ratio: 1;
   transform: translate3d(
     calc(-50% + var(--portrait-x, 0px)),
@@ -49,10 +53,18 @@
 }
 .opening {
   position: absolute;
+  z-index: 2;
   inset: 0;
   overflow: clip;
   background: #f5f6f8;
   pointer-events: none;
+  transition:
+    opacity 180ms ease,
+    visibility 180ms;
+}
+.opening[data-hidden="true"] {
+  opacity: 0;
+  visibility: hidden;
 }
 .openingScreen {
   position: absolute;
@@ -62,11 +74,10 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
-@media (max-width: 700px) {
+@media (max-width: 900px) {
   .name {
     top: 20.5%;
-    left: 40%;
-    right: 40%;
+    width: auto;
     gap: 0;
     flex-direction: column;
     text-align: center;
@@ -74,15 +85,20 @@
     line-height: 0.95;
   }
   .role {
-    top: 35%;
+    top: 38%;
     left: 50%;
     transform: translateX(-50%);
     font-size: 1.45cqw;
     white-space: nowrap;
   }
   .head {
-    top: 41%;
-    width: 20%;
+    top: 44%;
+    width: 19%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .opening {
+    transition: none;
   }
 }
 @media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
