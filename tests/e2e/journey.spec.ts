@@ -26,6 +26,37 @@ async function go(page: Page, d: number) {
     )
     .toBeCloseTo(d, 1);
 }
+test("opening portrait stays sharp until scroll and returns on reverse", async ({
+  page,
+  browserName,
+}) => {
+  test.skip(browserName === "webkit", "Headless WebKit lacks reliable WebGL2.");
+  await page.goto("/tr");
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+    { timeout: 20000 },
+  );
+  const opening = page.locator("[data-opening-poster]");
+  await expect(opening).toHaveAttribute("data-hidden", "false");
+  const image = opening.locator("img");
+  await expect(image).toHaveAttribute(
+    "src",
+    "/images/avatar/onur-head-v3.webp",
+  );
+  const resolution = await image.evaluate((element) => {
+    const portrait = element as HTMLImageElement;
+    return {
+      natural: portrait.naturalWidth,
+      displayed: portrait.getBoundingClientRect().width,
+    };
+  });
+  expect(resolution.natural).toBeGreaterThanOrEqual(resolution.displayed);
+  await go(page, 0.18);
+  await expect(opening).toHaveAttribute("data-hidden", "true");
+  await go(page, 0);
+  await expect(opening).toHaveAttribute("data-hidden", "false");
+});
 for (const locale of ["en", "tr"])
   test(`${locale}: journey static content is accessible and has no model in reduced motion`, async ({
     page,

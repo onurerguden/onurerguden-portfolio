@@ -1,0 +1,120 @@
+.artwork {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  container-type: inline-size;
+  background: #f5f6f8;
+  color: #17212b;
+  pointer-events: none;
+}
+.name {
+  position: absolute;
+  z-index: 0;
+  top: 18%;
+  left: 50%;
+  width: max-content;
+  display: flex;
+  justify-content: center;
+  gap: 0.22em;
+  transform: translateX(-50%);
+  font:
+    800 clamp(8cqw, calc(8cqw + 12vw - 172.8px), 11.5cqw) / 0.9
+      "Manrope Variable",
+    sans-serif;
+  letter-spacing: -0.075em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.role {
+  position: absolute;
+  left: 20%;
+  top: 50%;
+  font:
+    500 1.5cqw/1.4 "Manrope Variable",
+    sans-serif;
+  color: #536171;
+}
+.head {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 27%;
+  width: 28%;
+  aspect-ratio: 1;
+  transform: translate3d(
+    calc(-50% + var(--portrait-x, 0px)),
+    var(--portrait-y, 0px),
+    0
+  );
+  will-change: transform;
+}
+.head img {
+  object-fit: contain;
+}
+.opening {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  overflow: clip;
+  background: #f5f6f8;
+  pointer-events: none;
+  transition:
+    opacity 180ms ease,
+    visibility 180ms;
+}
+.opening[data-hidden="true"] {
+  opacity: 0;
+  visibility: hidden;
+}
+.openingScreen {
+  position: absolute;
+  width: max(108.696%, 253.748svh);
+  aspect-ratio: 677 / 290;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+@media (max-width: 1250px) {
+  .name {
+    top: 20.5%;
+    width: auto;
+    gap: 0;
+    flex-direction: column;
+    text-align: center;
+    font-size: 3.5cqw;
+    line-height: 0.95;
+  }
+  .role {
+    top: 38%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.45cqw;
+    white-space: nowrap;
+  }
+  .head {
+    top: 44%;
+    width: 19%;
+  }
+}
+@media (min-width: 701px) and (max-width: 1250px) {
+  .name {
+    font-size: 4cqw;
+  }
+  .role {
+    top: 40%;
+  }
+  .head {
+    top: 45%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .opening {
+    transition: none;
+  }
+}
+@media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
+  .head {
+    transform: translateX(-50%);
+    will-change: auto;
+  }
+}

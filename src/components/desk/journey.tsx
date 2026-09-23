@@ -20,6 +20,7 @@ import {
 } from "@/lib/desk-journey";
 import assets from "@/lib/desk-assets.json";
 import styles from "./journey.module.css";
+import PortraitIdentity from "./portrait-identity";
 const Scene = dynamic(() => import("./journey-scene"), { ssr: false });
 class Boundary extends Component<
   { children: ReactNode; onFailure: () => void },
@@ -61,8 +62,10 @@ export default function DeskJourney({
   const [staticMode, setStaticMode] = useState(false);
   const [chapter, setChapter] = useState(-1);
   const [finalView, setFinalView] = useState(false);
+  const [pastOpening, setPastOpening] = useState(false);
   const chapterRef = useRef(-1);
   const finalViewRef = useRef(false);
+  const pastOpeningRef = useRef(false);
   const distance = useMotionValue(0);
   const { scrollYProgress } = useScroll({
     target: section,
@@ -73,6 +76,11 @@ export default function DeskJourney({
       if (section.current?.dataset.enhanced !== "true") return;
       const d = value * journeyLength;
       distance.set(d);
+      const nextPastOpening = d > 0.08;
+      if (pastOpeningRef.current !== nextPastOpening) {
+        pastOpeningRef.current = nextPastOpening;
+        setPastOpening(nextPastOpening);
+      }
       if (section.current) section.current.dataset.travelled = String(d > 0.15);
       if (nav.current && hideNavOnScroll.current) {
         nav.current.dataset.hidden = String(d > 0.15);
@@ -153,6 +161,7 @@ export default function DeskJourney({
     setReady(false);
   }, [distance]);
   const enhanced = enabled && !staticMode && !failed;
+  const openingVisible = !enhanced || !ready || !pastOpening;
   useEffect(() => {
     if (!enhanced && intro.current) {
       intro.current.style.opacity = "1";
@@ -219,32 +228,12 @@ export default function DeskJourney({
         aria-label={en ? "From my desk to my work" : "Masamdan çalışmalarıma"}
       >
         <div className={styles.stage} ref={stage} data-journey-stage>
-          <noscript>
-            <Image
-              src="/images/desk/room-poster.webp"
-              alt={
-                en
-                  ? "My desk floating on a compact elliptical marble platform in space"
-                  : "Uzayda kompakt elips mermer bir platformda duran çalışma masam"
-              }
-              fill
-              sizes="100vw"
-              className={styles.poster}
-            />
-          </noscript>
-          {staticMode || failed ? (
-            <Image
-              src="/images/desk/room-poster.webp"
-              alt={
-                en
-                  ? "My desk on an elliptical marble platform against a quiet cosmic grid"
-                  : "Sakin kozmik bir ağın önünde elips mermer platformdaki çalışma masam"
-              }
-              fill
-              sizes="100vw"
-              className={styles.poster}
-            />
-          ) : null}
+          <PortraitIdentity
+            content={content}
+            opening
+            visible={openingVisible}
+            interactive={openingVisible && !staticMode && !failed}
+          />
           {enhanced ? (
             <Boundary onFailure={onFailure}>
               <Scene

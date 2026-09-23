@@ -690,7 +690,8 @@
 
 .scrollCue {
   position: absolute;
-  bottom: 12%;
+  z-index: 4;
+  bottom: 5%;
   left: 50%;
   transform: translateX(-50%);
   display: grid;
@@ -702,7 +703,7 @@
 }
 .scrollLine {
   width: 1px;
-  height: 46px;
+  height: 24px;
   background: #768582;
   position: relative;
 }
@@ -755,6 +756,7 @@
 }
 
 .foot {
+  z-index: 4;
   pointer-events: none;
 }
 .foot button {
@@ -771,7 +773,11 @@
   white-space: nowrap;
 }
 .screen[data-screen="1"] {
-  --screen-background: #e8eceb;
+  --screen-background: #f5f6f8;
+}
+.screen[data-screen="1"] .track {
+  position: absolute;
+  inset: 0;
 }
 @media (prefers-reduced-motion: reduce) {
   .scrollLine::before {
@@ -787,6 +793,9 @@
 }
 
 @media (max-width: 700px) {
+  .scrollCue {
+    bottom: 2%;
+  }
   .continueCue {
     bottom: 138px;
   }
