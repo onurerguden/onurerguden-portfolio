@@ -40,6 +40,7 @@ export type JourneySceneProps = {
   onFocusCard: (screen: number, card: number) => void;
 };
 const screens = screenIds.map((id) => contract.screens[id]);
+const screenPixelWidths = [1000, 2000, 1000] as const;
 type ScreenPanelRefs = RefObject<(HTMLDivElement | null)[]>;
 
 const screenTransforms = screens.map((screen) => {
@@ -104,7 +105,8 @@ function ScreenPanels({
   return (
     <div className={styles.screenLayer}>
       {screens.map((screen, i) => {
-        const height = (1000 * screen.height) / screen.width;
+        const width = screenPixelWidths[i];
+        const height = (width * screen.height) / screen.width;
         return (
           <div
             key={screenIds[i]}
@@ -113,7 +115,7 @@ function ScreenPanels({
             }}
             className={styles.screen}
             data-screen={i}
-            style={{ width: 1000, height }}
+            style={{ width, height }}
             aria-label={content.labels[i]}
           >
             <div className={styles.screenSurface}>
@@ -169,7 +171,13 @@ function Driver({
   surface: RefObject<HTMLDivElement | null>;
 }) {
   const { camera, gl, size, invalidate, setFrameloop } = useThree();
-  const projections = useMemo(() => screens.map(createScreenProjection), []);
+  const projections = useMemo(
+    () =>
+      screens.map((screen, index) =>
+        createScreenProjection(screen, screenPixelWidths[index]),
+      ),
+    [],
+  );
   const frames = useRef(0);
   const pointer = useRef<CosmicPointer>({
     x: 0,
@@ -417,7 +425,9 @@ function Driver({
       if (matrix) panel.style.transform = `matrix3d(${matrix.join(",")})`;
       const surface = panel.firstElementChild as HTMLElement;
       const track = surface.firstElementChild as HTMLElement;
-      const height = (1000 * screens[index].height) / screens[index].width;
+      const height =
+        (screenPixelWidths[index] * screens[index].height) /
+        screens[index].width;
       const offset = pageOffset(
         step.reading[index],
         content.screens[index].length,

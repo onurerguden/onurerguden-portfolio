@@ -2,12 +2,12 @@
 
 The public asset `public/images/avatar/onur-head-v3.webp` is a transparent, neck-free stylized portrait of Onur. Built-in ImageGen edited the supplied illustration using Onur's front-facing photograph for identity and the supplied example for style only. The lower-chin mark was then retouched into a smaller, flatter brown mole matching the photograph. Only that small chin area from the retouch was blended into the prior public portrait; the rest of the composition was preserved. The image is 1254 × 1254 pixels and 394,172 bytes. Source face photographs, the example, the original illustration, and the discarded procedural model are excluded from the repository.
 
-The portrait and localized name are one DOM panel projected onto the ultrawide screen. At the opening camera stop, the same composition is rendered as a flat, full-resolution overlay until the first scroll and is restored when scrolling back to the top. The image is served without Next.js downsampling because the projection enlarges its CSS box beyond the responsive image hint. The image remains decorative in the accessibility tree; the page introduction supplies the semantic identity and work description.
+The portrait and localized name are one DOM panel projected onto the ultrawide screen. At the opening camera stop, the same composition is rendered as a flat, full-resolution overlay. Both versions use container-relative typography and align at the opening camera stop; the overlay fades with native scroll before the camera moves and returns on reverse scroll. The projected ultrawide panel uses 2,000 CSS pixels across for sharper text during the handoff. The image is served without Next.js downsampling because the projection enlarges its CSS box beyond the responsive image hint. The image remains decorative in the accessibility tree; the page introduction supplies the semantic identity and work description.
 
 ## Checked
 
 - Opening at 2400 × 1000, 1440 × 900, 919 × 807, 390 × 844, and 320 × 720.
-- Full-resolution source and opening hold after scene readiness, first scroll transition, and reverse scroll restoration.
+- Full-resolution source, aligned opening geometry, continuous first-scroll handoff, and reverse scroll restoration.
 - Portrait remains within the monitor when scrolling to the full desk and back.
 - Fine pointer movement shifts the image left and right and settles after movement ends.
 - Reduced motion and JavaScript-disabled flows render the static identity.

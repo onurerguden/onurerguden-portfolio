@@ -9,12 +9,10 @@ export default function PortraitIdentity({
   content,
   opening = false,
   interactive = true,
-  visible = true,
 }: {
   content: Pick<JourneyContent, "name" | "role">;
   opening?: boolean;
   interactive?: boolean;
-  visible?: boolean;
 }) {
   const artworkRef = useRef<HTMLDivElement>(null);
 
@@ -94,11 +92,13 @@ export default function PortraitIdentity({
       data-portrait-identity
       aria-hidden="true"
     >
-      <div className={styles.name}>
+      <div className={styles.name} data-portrait-name>
         <span>{words[0]}</span>
         <span>{words.slice(1).join(" ")}</span>
       </div>
-      <span className={styles.role}>{content.role}</span>
+      <span className={styles.role} data-portrait-role>
+        {content.role}
+      </span>
       <div className={styles.head} data-portrait-poster>
         <Image
           src="/images/avatar/onur-head-v3.webp"
@@ -113,7 +113,7 @@ export default function PortraitIdentity({
     </div>
   );
   return opening ? (
-    <div className={styles.opening} data-opening-poster data-hidden={!visible}>
+    <div className={styles.opening} data-opening-poster>
       <div className={styles.openingScreen}>{artwork}</div>
     </div>
   ) : (
