@@ -8,14 +8,14 @@ type Screen = {
   height: number;
 };
 
-export function createScreenProjection(screen: Screen) {
+export function createScreenProjection(screen: Screen, pixelWidth = 1000) {
   const up = new Vector3(...screen.up),
     normal = new Vector3(...screen.normal);
   const right = new Vector3().crossVectors(up, normal).normalize();
   const origin = new Vector3(...screen.position)
     .addScaledVector(right, -screen.width / 2)
     .addScaledVector(up, screen.height / 2);
-  const scale = screen.width / 1000;
+  const scale = screen.width / pixelWidth;
   return {
     model: new Matrix4().set(
       right.x * scale,

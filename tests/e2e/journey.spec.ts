@@ -38,11 +38,11 @@ test("opening portrait stays sharp until scroll and returns on reverse", async (
     { timeout: 20000 },
   );
   const opening = page.locator("[data-opening-poster]");
-  await expect(opening).toHaveAttribute("data-hidden", "false");
+  await expect(opening).toHaveCSS("opacity", "1");
   const image = opening.locator("img");
   await expect(image).toHaveAttribute(
     "src",
-    "/images/avatar/onur-head-v3.webp",
+    "/images/avatar/onur-head-v4.webp",
   );
   const resolution = await image.evaluate((element) => {
     const portrait = element as HTMLImageElement;
@@ -52,10 +52,35 @@ test("opening portrait stays sharp until scroll and returns on reverse", async (
     };
   });
   expect(resolution.natural).toBeGreaterThanOrEqual(resolution.displayed);
+  const alignment = await page.evaluate(() => {
+    const opening = document.querySelector("[data-opening-poster]");
+    const projected = document.querySelector('[data-screen="1"]');
+    return [
+      "[data-portrait-poster]",
+      "[data-portrait-name]",
+      "[data-portrait-role]",
+    ].map((selector) => {
+      const a = opening!.querySelector(selector)!.getBoundingClientRect();
+      const b = projected!.querySelector(selector)!.getBoundingClientRect();
+      return Math.max(
+        Math.abs(a.x - b.x),
+        Math.abs(a.y - b.y),
+        Math.abs(a.width - b.width),
+        Math.abs(a.height - b.height),
+      );
+    });
+  });
+  expect(Math.max(...alignment)).toBeLessThan(1);
+  await go(page, 0.075);
+  const halfwayOpacity = Number(
+    await opening.evaluate((node) => getComputedStyle(node).opacity),
+  );
+  expect(halfwayOpacity).toBeGreaterThan(0.35);
+  expect(halfwayOpacity).toBeLessThan(0.65);
   await go(page, 0.18);
-  await expect(opening).toHaveAttribute("data-hidden", "true");
+  await expect(opening).toHaveCSS("opacity", "0");
   await go(page, 0);
-  await expect(opening).toHaveAttribute("data-hidden", "false");
+  await expect(opening).toHaveCSS("opacity", "1");
 });
 for (const locale of ["en", "tr"])
   test(`${locale}: journey static content is accessible and has no model in reduced motion`, async ({

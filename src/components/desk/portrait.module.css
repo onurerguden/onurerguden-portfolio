@@ -18,10 +18,10 @@
   gap: 0.22em;
   transform: translateX(-50%);
   font:
-    800 clamp(8cqw, calc(8cqw + 12vw - 172.8px), 11.5cqw) / 0.9
-      "Manrope Variable",
+    800 8.5cqw/0.9 "Manrope Variable",
     sans-serif;
   letter-spacing: -0.075em;
+  -webkit-text-stroke: 0.01em currentColor;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -58,13 +58,10 @@
   overflow: clip;
   background: #f5f6f8;
   pointer-events: none;
-  transition:
-    opacity 180ms ease,
-    visibility 180ms;
+  opacity: 1;
 }
-.opening[data-hidden="true"] {
-  opacity: 0;
-  visibility: hidden;
+:global([data-enhanced="true"][data-ready="true"]) .opening {
+  opacity: var(--opening-opacity, 1);
 }
 .openingScreen {
   position: absolute;
@@ -105,11 +102,6 @@
   }
   .head {
     top: 45%;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .opening {
-    transition: none;
   }
 }
 @media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
