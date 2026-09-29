@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { stageCanvas } from "./helpers";
+import { forceSectionScenes, stageCanvas } from "./helpers";
 
 test.describe("About objects", () => {
   test.skip(
@@ -7,6 +7,7 @@ test.describe("About objects", () => {
     "Headless WebKit lacks WebGL2; the static shapes are covered by site tests.",
   );
   test.setTimeout(120000);
+  test.beforeEach(({ page }) => forceSectionScenes(page));
 
   test("mount only near the section, stay in budget and leave when far", async ({
     page,
