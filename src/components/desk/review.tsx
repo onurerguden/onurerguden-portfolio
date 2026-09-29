@@ -2,15 +2,9 @@
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import {
-  Component,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import assets from "@/lib/desk-assets.json";
+import SceneBoundary from "@/components/three/scene-boundary";
 import styles from "./review.module.css";
 
 const Scene = dynamic(() => import("./scene"), { ssr: false });
@@ -83,22 +77,6 @@ const copy = {
   },
 };
 
-class SceneBoundary extends Component<
-  { children: ReactNode; onFailure: () => void },
-  { failed: boolean }
-> {
-  state = { failed: false };
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-  componentDidCatch() {
-    this.props.onFailure();
-  }
-  render() {
-    return this.state.failed ? null : this.props.children;
-  }
-}
-
 export default function DeskReview({ locale }: { locale: "en" | "tr" }) {
   const t = copy[locale];
   const [progress, setProgress] = useState(0);
@@ -150,7 +128,7 @@ export default function DeskReview({ locale }: { locale: "en" | "tr" }) {
           priority
         />
         {enabled && !failed ? (
-          <SceneBoundary onFailure={handleFailure}>
+          <SceneBoundary label="Desk review" onFailure={handleFailure}>
             <Scene
               revealed={ready}
               progress={progress}
