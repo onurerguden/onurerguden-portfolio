@@ -46,7 +46,7 @@ export default async function ProjectsPage({
       </div>
       <div className="archive-grid">
         {projects.map((p) => (
-          <article className="archive-entry" key={p.slug}>
+          <article className="archive-entry" id={p.slug} key={p.slug}>
             <p className="project-category">{p.category}</p>
             <h2>
               {p.featured ? (
