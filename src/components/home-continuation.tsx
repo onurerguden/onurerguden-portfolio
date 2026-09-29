@@ -3,6 +3,7 @@ import AboutSection from "@/components/home/about-section";
 import StackSection from "@/components/home/stack-section";
 import ServicesSection from "@/components/home/services-section";
 import ProjectsSection from "@/components/home/projects-section";
+import ActivitySection from "@/components/home/activity-section";
 import ExperienceSection from "@/components/home/experience-section";
 import ContactSection from "@/components/home/contact-section";
 
@@ -18,6 +19,7 @@ export default function HomeContinuation({ locale }: { locale: Locale }) {
       <StackSection locale={locale} />
       <ServicesSection locale={locale} />
       <ProjectsSection locale={locale} />
+      <ActivitySection locale={locale} />
       <ExperienceSection locale={locale} />
       <ContactSection locale={locale} />
     </>

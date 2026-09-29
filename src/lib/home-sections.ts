@@ -4,6 +4,7 @@ export const homeSectionIds = [
   "stack",
   "services",
   "work",
+  "activity",
   "experience",
   "contact",
 ] as const;
@@ -14,6 +15,7 @@ const labels: Record<HomeSectionId, { en: string; tr: string }> = {
   stack: { en: "Tech stack", tr: "Teknolojiler" },
   services: { en: "What I do", tr: "Ne yapıyorum" },
   work: { en: "Projects", tr: "Projeler" },
+  activity: { en: "GitHub activity", tr: "GitHub aktivitesi" },
   experience: { en: "Experience", tr: "Deneyim" },
   contact: { en: "Contact", tr: "İletişim" },
 };
