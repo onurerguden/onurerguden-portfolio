@@ -1130,3 +1130,27 @@ html:has([data-journey-stage]) {
 .site-shell:has([data-journey-stage]) {
   max-width: none;
 }
+.motion-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.motion-toggle-icon {
+  width: 10px;
+  height: 12px;
+  border-inline: 3px solid currentColor;
+}
+.motion-toggle[aria-pressed="true"] .motion-toggle-icon {
+  width: 0;
+  height: 0;
+  border-block: 6px solid transparent;
+  border-inline: 10px solid currentColor;
+  border-right: 0;
+}
