@@ -22,6 +22,9 @@ export default function Navigation({ locale }: { locale: "en" | "tr" }) {
         <Link href={`/${locale}#work`}>
           {locale === "en" ? "Work" : "Projeler"}
         </Link>
+        <Link href={`/${locale}#services`}>
+          {locale === "en" ? "What I do" : "Ne yapıyorum"}
+        </Link>
         <Link href={`/${locale}/research`}>
           {locale === "en" ? "Research" : "Araştırma"}
         </Link>

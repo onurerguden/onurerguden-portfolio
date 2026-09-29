@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   useSyncExternalStore,
@@ -20,7 +21,9 @@ import {
 } from "@/lib/desk-journey";
 import assets from "@/lib/desk-assets.json";
 import { stageRegistry } from "@/lib/stage-registry";
+import type { SectionLink } from "@/lib/home-sections";
 import SceneBoundary from "@/components/three/scene-boundary";
+import MotionToggle from "@/components/motion-toggle";
 import styles from "./journey.module.css";
 import PortraitIdentity from "./portrait-identity";
 const Scene = dynamic(() => import("./journey-scene"), { ssr: false });
@@ -28,10 +31,13 @@ export default function DeskJourney({
   locale,
   content,
   introduction,
+  sections = [],
 }: {
   locale: "en" | "tr";
   content: JourneyContent;
   introduction?: ReactNode;
+  /** Home sections after the journey, listed in the nav's Sections menu. */
+  sections?: SectionLink[];
 }) {
   const en = locale === "en";
   const otherLocale = en ? "tr" : "en";
@@ -49,6 +55,11 @@ export default function DeskJourney({
   const [chapter, setChapter] = useState(-1);
   const [finalView, setFinalView] = useState(false);
   const [nearStage, setNearStage] = useState(true);
+  const [sectionsOpen, setSectionsOpen] = useState(false);
+  const sectionsButton = useRef<HTMLButtonElement>(null);
+  const sectionsMenu = useRef<HTMLDivElement>(null);
+  // A deep link from the first load, until the visitor scrolls on their own.
+  const pendingHash = useRef<string | null>(null);
   const [sceneShown, setSceneShown] = useState(false);
   const chapterRef = useRef(-1);
   const finalViewRef = useRef(false);
@@ -111,6 +122,61 @@ export default function DeskJourney({
       motion.removeEventListener("change", refresh);
     };
   }, []);
+  useEffect(() => {
+    // After the journey the nav docks to the top on every pointer type; on
+    // touch it hides while scrolling down and returns when scrolling up.
+    let lastY = window.scrollY;
+    const sync = () => {
+      const node = nav.current;
+      const content = document.getElementById("journey-content");
+      if (!node || !content) return;
+      const docked = content.getBoundingClientRect().top < 0;
+      node.dataset.docked = String(docked);
+      const y = window.scrollY;
+      if (Math.abs(y - lastY) > 8) {
+        node.dataset.scrollHidden = String(docked && y > lastY);
+        lastY = y;
+      }
+    };
+    sync();
+    window.addEventListener("scroll", sync, { passive: true });
+    return () => window.removeEventListener("scroll", sync);
+  }, []);
+  useEffect(() => {
+    const hash = location.hash;
+    if (hash && !/^#(desk-story-\d|journey-content)$/.test(hash))
+      pendingHash.current = hash;
+    const clear = () => {
+      pendingHash.current = null;
+    };
+    const events = ["wheel", "touchstart", "keydown", "pointerdown"] as const;
+    for (const event of events)
+      window.addEventListener(event, clear, { once: true, passive: true });
+    window.addEventListener("hashchange", clear);
+    return () => {
+      for (const event of events) window.removeEventListener(event, clear);
+      window.removeEventListener("hashchange", clear);
+    };
+  }, []);
+  useEffect(() => {
+    if (!sectionsOpen) return;
+    const close = (event: Event) => {
+      if (
+        event instanceof KeyboardEvent
+          ? event.key === "Escape"
+          : !sectionsMenu.current?.contains(event.target as Node)
+      ) {
+        setSectionsOpen(false);
+        if (event instanceof KeyboardEvent) sectionsButton.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", close);
+    document.addEventListener("pointerdown", close);
+    return () => {
+      document.removeEventListener("keydown", close);
+      document.removeEventListener("pointerdown", close);
+    };
+  }, [sectionsOpen]);
   useEffect(() => {
     const node = stage.current;
     if (!node) return;
@@ -197,6 +263,15 @@ export default function DeskJourney({
   }, [live]);
   // The final tabletop capture covers the stage until a remounted scene is ready.
   const posterVisible = enhanced && ready && !sceneShown;
+  // The journey grows to its pinned height after hydration; keep a deep link
+  // (e.g. /en#services) on its target unless the visitor has scrolled since.
+  useLayoutEffect(() => {
+    const hash = pendingHash.current;
+    if (!hash) return;
+    document
+      .getElementById(decodeURIComponent(hash.slice(1)))
+      ?.scrollIntoView({ behavior: "instant", block: "start" });
+  }, [enhanced, ready]);
   useEffect(() => {
     if (enhanced && ready) update(scrollYProgress.get());
   }, [enhanced, ready, scrollYProgress, update]);
@@ -398,6 +473,40 @@ export default function DeskJourney({
             </a>
           ))}
         </div>
+        {sections.length ? (
+          <div className={styles.menu} ref={sectionsMenu}>
+            <button
+              type="button"
+              ref={sectionsButton}
+              className={styles.menuButton}
+              aria-expanded={sectionsOpen}
+              aria-controls="journey-sections-menu"
+              onClick={() => setSectionsOpen((open) => !open)}
+            >
+              {en ? "Sections" : "Bölümler"}
+              <span aria-hidden="true" />
+            </button>
+            <div
+              id="journey-sections-menu"
+              className={styles.menuPanel}
+              hidden={!sectionsOpen}
+            >
+              <ul>
+                {sections.map((section) => (
+                  <li key={section.id}>
+                    <a
+                      href={`#${section.id}`}
+                      onClick={() => setSectionsOpen(false)}
+                    >
+                      {section.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <MotionToggle locale={locale} className={styles.motionToggle} />
+            </div>
+          </div>
+        ) : null}
         <Link
           className={styles.language}
           href={`/${otherLocale}`}

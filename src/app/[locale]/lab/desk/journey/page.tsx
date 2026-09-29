@@ -4,6 +4,7 @@ import { getJourneyContent } from "@/lib/desk-journey-content";
 import DeskJourney from "@/components/desk/journey";
 import HomeIntroduction from "@/components/home-introduction";
 import HomeContinuation from "@/components/home-continuation";
+import { homeSectionLinks } from "@/lib/home-sections";
 export async function generateMetadata({
   params,
 }: {
@@ -29,6 +30,7 @@ export default async function JourneyPage({
         locale={locale}
         content={getJourneyContent(locale)}
         introduction={<HomeIntroduction locale={locale} />}
+        sections={homeSectionLinks(locale)}
       />
       <HomeContinuation locale={locale} />
     </main>
