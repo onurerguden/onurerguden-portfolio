@@ -10,7 +10,6 @@ import {
 import {
   motion,
   motionValue,
-  useReducedMotion,
   useScroll,
   useTransform,
   type MotionValue,
@@ -74,7 +73,6 @@ export function StackCard({
   children: ReactNode;
 }) {
   const { progress, count } = useContext(StackProgress);
-  const reduce = useReducedMotion();
   const start = index / count;
   const depth = count - 1 - index;
   const scale = useTransform(progress, [start, 1], [1, 1 - 0.045 * depth]);
@@ -87,18 +85,15 @@ export function StackCard({
         data-stack-card
         style={{ "--i": index } as CSSProperties}
       >
-        <motion.div
-          className={styles.scaler}
-          style={reduce ? undefined : { scale }}
-        >
+        {/* Server and client render the same tree; reduced motion, phones and
+            short screens switch the transform and shade off in CSS. */}
+        <motion.div className={styles.scaler} style={{ scale }}>
           {children}
-          {reduce ? null : (
-            <motion.span
-              className={styles.shade}
-              aria-hidden="true"
-              style={{ opacity: dim }}
-            />
-          )}
+          <motion.span
+            className={styles.shade}
+            aria-hidden="true"
+            style={{ opacity: dim }}
+          />
         </motion.div>
       </li>
     </>

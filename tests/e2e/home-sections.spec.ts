@@ -125,3 +125,19 @@ test("sections pass axe with scroll-linked reveals active", async ({
     ).violations,
   ).toEqual([]);
 });
+
+for (const reducedMotion of ["no-preference", "reduce"] as const) {
+  test(`the home page hydrates without mismatches (${reducedMotion})`, async ({
+    page,
+  }) => {
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    await page.emulateMedia({ reducedMotion });
+    for (const locale of ["en", "tr"]) {
+      await page.goto(`/${locale}`);
+      await page.waitForTimeout(1200);
+    }
+    // React reports a server/client render difference as error #418/#423.
+    expect(errors).toEqual([]);
+  });
+}
