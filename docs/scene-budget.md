@@ -25,3 +25,15 @@ The schematic above is retained as historical documentation only; it is no longe
 The desk journey now ends on a thin elliptical marble platform in a cosmic field. Room walls and ceiling were removed. The replacement adds one responsive segmented grid plane, one point geometry for all stars and one platform edge; it introduces no external texture, post-processing pass or continuous animation. The existing marble texture supplies the platform top.
 
 Desktop uses 3,840 grid triangles and 240 points; mobile uses 2,304 grid triangles and 130 points. The same geometry remains visible at every camera stop. Pointer values stay in refs and shader uniforms. Frames are invalidated during scroll, pointer movement and the approximately one-second return to rest, then stop. The established steady-frame ceiling remains 130 draw calls / 210,000 submitted triangles, including reflection and shadow passes. Current measurements and screenshots live in `docs/qa/room/README.md`.
+
+## September 29 section stages
+
+The homepage now allows section scenes after the desk (see `docs/design.md`). They share one policy, implemented in `src/lib/stage-registry.ts` and `src/components/three/use-section-stage.ts`:
+
+- **At most two live WebGL contexts, including the desk.** Visible stages outrank offscreen ones; the desk has the highest priority among offscreen stages. A stage asks for a context within 60% of a viewport and gives it up after staying more than 160% away for a second.
+- **The desk releases its context** once its stage is more than 1.5 viewports away (after one second). Returning remounts it from the `useGLTF` cache; `room-poster.webp` covers the stage until the remounted scene reports ready. The section carries `data-journey-released`.
+- **Mounting** waits for the next frame and then idle time (`requestIdleCallback` with an 1.8 s timeout, or 250 ms where it is missing). Reduced motion, missing WebGL2 and an earlier failure keep a stage static for the visit.
+- **Canvas defaults** (`SectionCanvas`): demand frames, `never` when the stage is offscreen, the tab is hidden or motion is paused; DPR at most 1.5 (1.25 on coarse pointers); low-power; `aria-hidden` and `tabindex=-1`. Scenes that animate on their own declare a frame rate, capped at 30 fps on coarse pointers. Context loss shows the section's static state.
+- **Counters.** Every section canvas reports `data-stage-frames`, `data-stage-draw-calls` and `data-stage-triangles`, measured the same way as the desk.
+
+Per-section targets are recorded here as each scene lands; they are measured in the production build, not estimated.
