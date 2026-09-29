@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { journeyCanvas } from "./helpers";
 import AxeBuilder from "@axe-core/playwright";
 const paths = [
   "",
@@ -91,7 +92,7 @@ test("3D canvas is decorative, within budget and safely loses context", async ({
     "Headless WebKit may not provide WebGL; fallback is audited separately.",
   );
   await page.goto("/en");
-  const canvas = page.locator("canvas");
+  const canvas = journeyCanvas(page);
   await expect(canvas).toBeVisible({ timeout: 15000 });
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
@@ -115,7 +116,7 @@ test("3D canvas is decorative, within budget and safely loses context", async ({
   await canvas.evaluate((c) =>
     c.dispatchEvent(new Event("webglcontextlost", { cancelable: true })),
   );
-  await expect(page.locator("canvas")).toHaveCount(0);
+  await expect(journeyCanvas(page)).toHaveCount(0);
   await expect(
     page.getByRole("heading", { name: "Intelligence, put to work." }),
   ).toBeVisible();

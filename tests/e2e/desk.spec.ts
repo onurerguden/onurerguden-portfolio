@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { reviewCanvas } from "./helpers";
 import AxeBuilder from "@axe-core/playwright";
 
 for (const locale of ["en", "tr"]) {
@@ -56,7 +57,7 @@ test("desk camera visits four stops, respects budgets and stops idle rendering",
   );
   await page.goto("/en/lab/desk");
   await page.getByRole("button", { name: "Explore in 3D" }).click();
-  const canvas = page.locator("canvas");
+  const canvas = reviewCanvas(page);
   await expect
     .poll(async () => Number(await canvas.getAttribute("data-triangles")), {
       timeout: 20000,
@@ -111,7 +112,7 @@ test("reduced motion snaps the camera and context loss returns to the current po
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/en/lab/desk");
   await page.getByRole("button", { name: "Explore in 3D" }).click();
-  const canvas = page.locator("canvas");
+  const canvas = reviewCanvas(page);
   await expect
     .poll(async () => Number(await canvas.getAttribute("data-triangles")), {
       timeout: 20000,

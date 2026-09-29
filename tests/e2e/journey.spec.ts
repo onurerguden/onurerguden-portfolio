@@ -1,6 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { journeyLength } from "../../src/lib/desk-journey";
+import { journeyCanvas } from "./helpers";
 async function go(page: Page, d: number) {
   await page.evaluate(
     ({ distance, length }) => {
@@ -21,7 +22,7 @@ async function go(page: Page, d: number) {
   await expect
     .poll(
       async () =>
-        Number(await page.locator("canvas").getAttribute("data-distance")),
+        Number(await journeyCanvas(page).getAttribute("data-distance")),
       { timeout: 20000 },
     )
     .toBeCloseTo(d, 1);
@@ -130,7 +131,7 @@ test("scroll separates reading from camera travel, reverses, focuses links and e
     "true",
     { timeout: 20000 },
   );
-  const canvas = page.locator("canvas");
+  const canvas = journeyCanvas(page);
   await go(page, 2.1);
   const camera = await canvas.getAttribute("data-camera");
   await go(page, 3.6);
@@ -247,15 +248,13 @@ test("late loading keeps the current scroll position; context loss restores norm
   await expect
     .poll(
       async () =>
-        Number(await page.locator("canvas").getAttribute("data-distance")),
+        Number(await journeyCanvas(page).getAttribute("data-distance")),
       { timeout: 20000 },
     )
     .toBeCloseTo(4.2, 1);
-  await page
-    .locator("canvas")
-    .evaluate((canvas) =>
-      canvas.dispatchEvent(new Event("webglcontextlost", { cancelable: true })),
-    );
+  await journeyCanvas(page).evaluate((canvas) =>
+    canvas.dispatchEvent(new Event("webglcontextlost", { cancelable: true })),
+  );
   await expect(page.locator("[data-enhanced]")).toHaveAttribute(
     "data-enhanced",
     "false",
@@ -362,22 +361,22 @@ test("home keeps desk interactions available and exits promptly after the full v
   await page
     .getByRole("button", { name: "Wave the drawers", exact: true })
     .click();
-  await expect(page.locator("canvas")).toHaveAttribute(
+  await expect(journeyCanvas(page)).toHaveAttribute(
     "data-drawers-motion",
     "running",
   );
-  await expect(page.locator("canvas")).toHaveAttribute(
+  await expect(journeyCanvas(page)).toHaveAttribute(
     "data-drawers-motion",
     "idle",
     { timeout: 5000 },
   );
   await go(page, 7.6);
-  const camera = await page.locator("canvas").getAttribute("data-camera");
+  const camera = await journeyCanvas(page).getAttribute("data-camera");
   await expect(page.locator("[data-continue-cue]")).toContainText(
     "Scroll to continue",
   );
   await go(page, journeyLength);
-  expect(await page.locator("canvas").getAttribute("data-camera")).toBe(camera);
+  expect(await journeyCanvas(page).getAttribute("data-camera")).toBe(camera);
   await go(page, 2.1);
   await expect(page.getByText("Desk objects", { exact: true })).toBeVisible();
 });
@@ -397,7 +396,7 @@ test("cosmic grid remains active through close-ups and returns to demand-rendere
     "true",
     { timeout: 20000 },
   );
-  const canvas = page.locator("canvas");
+  const canvas = journeyCanvas(page);
 
   for (const distance of [0, 2.1, 5.5, 7.6]) {
     await go(page, distance);
