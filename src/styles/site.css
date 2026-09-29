@@ -1,3 +1,22 @@
+/* Archivo (SIL OFL) subset: uppercase titles only, see scripts/fonts. */
+@font-face {
+  font-family: "Portfolio Display";
+  font-style: normal;
+  font-weight: 800 900;
+  font-display: swap;
+  src: url("/fonts/portfolio-display-latin.woff2") format("woff2");
+  unicode-range:
+    U+0020-007E, U+00B7, U+00C2, U+00C7, U+00CE, U+00D6, U+00DB, U+00DC,
+    U+2013-2014, U+2019;
+}
+@font-face {
+  font-family: "Portfolio Display";
+  font-style: normal;
+  font-weight: 800 900;
+  font-display: swap;
+  src: url("/fonts/portfolio-display-latin-ext.woff2") format("woff2");
+  unicode-range: U+011E, U+0130, U+015E;
+}
 :root {
   --paper: #f5f6f8;
   --ink: #17212b;
@@ -5,8 +24,18 @@
   --blue: #1947e5;
   --line: #dce2e9;
   --white: #fff;
+  /* Cosmic tactile: the desk's space palette carried into the sections. */
+  --space: #080e1c;
+  --space-2: #152039;
+  --grid: #7286ad;
+  --star: #dce5f5;
+  /* Fill and accent only; never text on paper (about 1.2:1). */
+  --volt: #d8f23c;
+  --basketball: #e8762b;
   --body: "Manrope Variable", sans-serif;
   --display: "Newsreader Variable", Georgia, serif;
+  --display-heavy: "Portfolio Display", "Manrope Variable", sans-serif;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 * {
   box-sizing: border-box;
@@ -1129,6 +1158,29 @@ html:has([data-journey-stage]) {
 }
 .site-shell:has([data-journey-stage]) {
   max-width: none;
+}
+
+/* Giant section titles fill their width; --title-em comes from GiantTitle. */
+.giant-title {
+  margin: 0;
+  font-family: var(--display-heavy);
+  font-size: min(
+    var(--giant-max, 208px),
+    calc(var(--giant-fill, 92) * 1cqi / var(--title-em, 8))
+  );
+  font-weight: 900;
+  line-height: 0.86;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  text-wrap: nowrap;
+}
+.giant-title-line {
+  display: block;
+}
+/* Full-bleed band inside the padded shell, without 100vw scrollbar overflow. */
+.bleed {
+  width: 100cqi;
+  margin-inline: calc(50% - 50cqi);
 }
 .motion-toggle {
   display: inline-flex;
