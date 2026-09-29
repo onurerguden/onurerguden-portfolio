@@ -35,7 +35,11 @@ test("the Sections menu opens, navigates and closes from the keyboard", async ({
   await menu.getByRole("link", { name: "What I do" }).click();
   await expect(page).toHaveURL(/#services$/);
   await expect(menu).toBeHidden();
-  await expect(page.locator("#services-title")).toBeInViewport();
+  // Headless Chromium draws the desk with software WebGL (SwiftShader), so
+  // the smooth scroll past it can stall frames for a couple of seconds.
+  await expect(page.locator("#services-title")).toBeInViewport({
+    timeout: 15000,
+  });
 });
 
 test("pausing motion is remembered across visits", async ({ page }) => {

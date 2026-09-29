@@ -58,7 +58,7 @@ export default function DeskJourney({
   const [sectionsOpen, setSectionsOpen] = useState(false);
   const sectionsButton = useRef<HTMLButtonElement>(null);
   const sectionsMenu = useRef<HTMLDivElement>(null);
-  // A deep link from the first load, until the visitor scrolls on their own.
+  // The section a hash link is heading for, until the visitor scrolls.
   const pendingHash = useRef<string | null>(null);
   const [sceneShown, setSceneShown] = useState(false);
   const chapterRef = useRef(-1);
@@ -143,19 +143,25 @@ export default function DeskJourney({
     return () => window.removeEventListener("scroll", sync);
   }, []);
   useEffect(() => {
-    const hash = location.hash;
-    if (hash && !/^#(desk-story-\d|journey-content)$/.test(hash))
-      pendingHash.current = hash;
+    // Remember the section a link or the first load is heading for, so a
+    // journey that grows mid-scroll can put the visitor back on it. Only the
+    // visitor's own scrolling lets it go.
+    const remember = () => {
+      const hash = location.hash;
+      pendingHash.current =
+        hash && !/^#(desk-story-\d|journey-content)$/.test(hash) ? hash : null;
+    };
     const clear = () => {
       pendingHash.current = null;
     };
-    const events = ["wheel", "touchstart", "keydown", "pointerdown"] as const;
+    remember();
+    const events = ["wheel", "touchmove", "keydown"] as const;
     for (const event of events)
-      window.addEventListener(event, clear, { once: true, passive: true });
-    window.addEventListener("hashchange", clear);
+      window.addEventListener(event, clear, { passive: true });
+    window.addEventListener("hashchange", remember);
     return () => {
       for (const event of events) window.removeEventListener(event, clear);
-      window.removeEventListener("hashchange", clear);
+      window.removeEventListener("hashchange", remember);
     };
   }, []);
   useEffect(() => {
