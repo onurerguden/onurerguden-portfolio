@@ -1,6 +1,8 @@
 import { after } from "next/server";
 import { parseEvent, synchronize, verifySignature } from "@/lib/github/core";
 import { createStore } from "@/lib/github/store";
+import { refreshActivity } from "@/lib/github/activity-core";
+import { createActivityStore } from "@/lib/github/activity-store";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -82,6 +84,18 @@ export async function POST(request: Request) {
       console.error(
         "GitHub sync failed; redeliver webhook or run reconciliation.",
       );
+    }
+
+    // A push changes the contribution calendar too. GitHub can take a few
+    // minutes to count it, so reads stay eager for fifteen minutes.
+    if (kind !== "push") return;
+    const activity = createActivityStore();
+    if (!activity) return;
+    try {
+      await activity.markDirty();
+      await refreshActivity({ store: activity, token });
+    } catch {
+      console.error("GitHub activity refresh failed; snapshot retained.");
     }
   });
   return Response.json({ accepted: true }, { status: 202 });

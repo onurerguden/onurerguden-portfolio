@@ -37,3 +37,5 @@ Daily reconciliation discovers new public repositories and removes repositories 
 Run `npx vitest run tests/github-sync.test.ts` plus the repository typecheck/build. The mocked tests cover signature tampering, wrong owner, private filtering, repeated deliveries, retry after failure, complete pagination, partial-fetch preservation, rename, deletion, persisted rate limits and a deletion racing a stale fetch. Before production, verify a real signed push, repository rename, private transition and manual cron run against the configured staging integration. No live integration test is claimed without credentials.
 
 Sources: [GitHub signature validation](https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries), [repository API](https://docs.github.com/en/rest/repos/repos#list-repositories-for-a-user), and the installed Next.js `after` documentation.
+
+The contribution calendar, totals and public events shown on the home page use the same token and Redis database under a separate prefix; see `docs/github-activity.md`.
