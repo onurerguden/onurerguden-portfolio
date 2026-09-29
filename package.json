@@ -17,7 +17,8 @@
     "desk:package": "node scripts/desk/package.mjs",
     "desk:capture-cosmic": "node scripts/desk/capture-cosmic-poster.mjs",
     "check:trace": "node scripts/check-trace.mjs",
-    "tech:icons": "node scripts/tech/build-icons.mjs"
+    "tech:icons": "node scripts/tech/build-icons.mjs",
+    "bliss:build": "node scripts/bliss/build.mjs"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "5.3.0",
