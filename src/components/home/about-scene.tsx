@@ -44,16 +44,16 @@ type Body = {
 /** Where each object rests: the side gutters, away from the copy. */
 const wideSlots: Record<string, Slot> = {
   basketball: { x: -0.88, y: 0.66, z: 0.2, scale: 0.46 },
-  tennis: { x: 0.84, y: -0.66, z: 0.8, scale: 0.26 },
+  tennis: { x: 0.86, y: -0.5, z: 0.8, scale: 0.26 },
   racket: { x: 0.8, y: 0.34, z: -0.6, scale: 0.78 },
   terminal: { x: -0.8, y: -0.4, z: -0.3, scale: 0.72 },
   braces: { x: -0.42, y: 0.92, z: -1.4, scale: 0.42 },
   chip: { x: 0.5, y: 0.9, z: -1.3, scale: 0.5 },
   network: { x: -0.9, y: 0.06, z: -1.6, scale: 0.72 },
-  keycaps: { x: 0.62, y: -0.9, z: 0.1, scale: 0.62 },
+  keycaps: { x: 0.62, y: -0.72, z: 0.1, scale: 0.62 },
   "logo-0": { x: 0.93, y: 0.02, z: -0.9, scale: 0.46 },
-  "logo-1": { x: -0.6, y: -0.9, z: 0.3, scale: 0.4 },
-  "logo-2": { x: 0.36, y: -0.96, z: -1.2, scale: 0.36 },
+  "logo-1": { x: -0.6, y: -0.74, z: 0.3, scale: 0.4 },
+  "logo-2": { x: 0.34, y: -0.78, z: -1.2, scale: 0.36 },
 };
 /** Narrow screens keep a few objects in the corners. */
 const narrowSlots: Record<string, Slot> = {
