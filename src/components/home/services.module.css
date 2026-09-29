@@ -1,0 +1,209 @@
+/* "What I do": paper section with scroll-linked reveals (CSS only). */
+@property --reveal {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 1;
+}
+.section {
+  padding-block: clamp(96px, 13vw, 184px) clamp(72px, 9vw, 136px);
+  background: var(--paper);
+  color: var(--ink);
+}
+.inner {
+  width: min(1320px, 88%);
+  margin-inline: auto;
+  container-type: inline-size;
+}
+.title {
+  margin-bottom: clamp(40px, 7vw, 104px);
+}
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid #17212b2e;
+}
+.row {
+  --row-fg: var(--ink);
+  --row-muted: var(--muted);
+  --row-accent: var(--blue);
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(84px, 0.55fr) minmax(0, 3fr) minmax(
+      max-content,
+      1fr
+    );
+  gap: clamp(18px, 3vw, 48px);
+  align-items: start;
+  padding: clamp(28px, 4vw, 52px) clamp(12px, 2vw, 28px);
+  color: var(--row-fg);
+  view-timeline: --service-row block;
+}
+/* Ink wipe behind the row on hover or keyboard focus. */
+.row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--ink);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 450ms var(--ease-out);
+}
+.row::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: #17212b2e;
+  transform-origin: left;
+}
+.number {
+  display: block;
+  overflow: clip;
+  font-family: var(--display-heavy);
+  font-size: clamp(44px, 6.4vw, 96px);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+}
+.number > span {
+  display: block;
+}
+.copy h3 {
+  margin: 0 0 14px;
+  font: 750 clamp(21px, 2.1vw, 28px) / 1.2 var(--body);
+  letter-spacing: -0.02em;
+}
+/* The title link covers the whole row. */
+.link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.link:focus-visible {
+  outline: none;
+}
+.row:has(.link:focus-visible) {
+  outline: 3px solid var(--blue);
+  outline-offset: 4px;
+}
+.description {
+  max-width: 60ch;
+  margin: 0;
+  font-size: clamp(16px, 1.35vw, 19px);
+  line-height: 1.65;
+}
+.word {
+  color: color-mix(
+    in oklab,
+    var(--row-fg) calc(var(--reveal) * 100%),
+    var(--row-muted)
+  );
+}
+.tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.tech li {
+  padding: 6px 11px;
+  border: 1px solid color-mix(in oklab, var(--row-fg) 26%, transparent);
+  border-radius: 999px;
+  color: var(--row-muted);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+.proof {
+  align-self: center;
+  justify-self: end;
+  color: var(--row-accent);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.proof span {
+  display: inline-block;
+  transition: transform 350ms var(--ease-out);
+}
+.row:hover,
+.row:has(.link:focus-visible) {
+  --row-fg: var(--paper);
+  --row-muted: #aab4c1;
+  --row-accent: var(--volt);
+}
+.row:hover::before,
+.row:has(.link:focus-visible)::before {
+  transform: scaleY(1);
+  transform-origin: top;
+}
+.row:hover .proof span,
+.row:has(.link:focus-visible) .proof span {
+  transform: translateX(6px);
+}
+@media (hover: none) {
+  .row:hover {
+    --row-fg: var(--ink);
+    --row-muted: var(--muted);
+    --row-accent: var(--blue);
+  }
+  .row:hover::before {
+    transform: scaleY(0);
+  }
+}
+@media (max-width: 760px) {
+  .row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .proof {
+    justify-self: start;
+  }
+}
+
+/* Scroll-linked reveal; Firefox and reduced motion keep full ink. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .word {
+      animation: reveal-word linear both;
+      animation-timeline: --service-row;
+      animation-range: cover calc(8% + var(--i) * 1.5%) cover
+        calc(16% + var(--i) * 1.5%);
+    }
+    .number > span {
+      animation: rise-number linear both;
+      animation-timeline: --service-row;
+      animation-range: entry 15% cover 30%;
+    }
+    .row::after {
+      animation: draw-line linear both;
+      animation-timeline: --service-row;
+      animation-range: entry 0% cover 40%;
+    }
+  }
+}
+@keyframes reveal-word {
+  from {
+    --reveal: 0;
+  }
+  to {
+    --reveal: 1;
+  }
+}
+@keyframes rise-number {
+  from {
+    transform: translateY(105%);
+  }
+}
+@keyframes draw-line {
+  from {
+    transform: scaleX(0);
+  }
+}
