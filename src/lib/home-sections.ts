@@ -1,6 +1,7 @@
 /** Anchors of the home sections after the desk journey, in page order. */
 export const homeSectionIds = [
   "about",
+  "stack",
   "services",
   "work",
   "experience",
@@ -10,6 +11,7 @@ export type HomeSectionId = (typeof homeSectionIds)[number];
 
 const labels: Record<HomeSectionId, { en: string; tr: string }> = {
   about: { en: "About", tr: "Hakkımda" },
+  stack: { en: "Tech stack", tr: "Teknolojiler" },
   services: { en: "What I do", tr: "Ne yapıyorum" },
   work: { en: "Projects", tr: "Projeler" },
   experience: { en: "Experience", tr: "Deneyim" },

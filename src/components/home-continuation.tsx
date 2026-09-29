@@ -1,5 +1,6 @@
 import type { Locale } from "@/lib/content";
 import AboutSection from "@/components/home/about-section";
+import StackSection from "@/components/home/stack-section";
 import ServicesSection from "@/components/home/services-section";
 import ProjectsSection from "@/components/home/projects-section";
 import ExperienceSection from "@/components/home/experience-section";
@@ -14,6 +15,7 @@ export default function HomeContinuation({ locale }: { locale: Locale }) {
   return (
     <>
       <AboutSection locale={locale} />
+      <StackSection locale={locale} />
       <ServicesSection locale={locale} />
       <ProjectsSection locale={locale} />
       <ExperienceSection locale={locale} />
