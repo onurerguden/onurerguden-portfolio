@@ -12,7 +12,11 @@
     "title": "HealthFactor-AI",
     "summary": "Su güvenliğini iki katmanda ele alan sistem: mevcut kirliliği tespit etmek ve güvenlik eğilimini öngörmek.",
     "category": "Makine öğrenmesi · araştırma",
-    "metricLabel": "Proje değerlendirmesinde toksik su duyarlılığı"
+    "metricLabel": "Proje değerlendirmesinde toksik su duyarlılığı",
+    "mediaAlt": [
+      "İzmir su örneklerinde Ağustos 2025–Ağustos 2026 günlük ve aylık ortalama Sağlık Faktörü",
+      "Su kalitesi parametreleri ile Sağlık Faktörü arasındaki korelasyon matrisi"
+    ]
   },
   "course-intelligence": {
     "title": "Course Intelligence RAG",
@@ -28,7 +32,10 @@
     "title": "İzmir kent içi hareketlilik",
     "summary": "2021–2025 dönemine ait 27.000'i aşkın akıllı kart kaydını kümeleme, mevsimsel özellikler ve talep tahminiyle inceledim. Tahmin hatası projenin değerlendirme koşullarına aittir.",
     "category": "Veri bilimi · tahmin",
-    "metricLabel": "Projenin tahmin değerlendirmesinde MAPE"
+    "metricLabel": "Projenin tahmin değerlendirmesinde MAPE",
+    "mediaAlt": [
+      "Akıllı kart verisindeki dört DBSCAN kümesi ve gürültü noktaları, ilk iki temel bileşen üzerinde"
+    ]
   },
   "pam": {
     "title": "Modüler kimlik doğrulama",
