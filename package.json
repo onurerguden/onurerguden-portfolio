@@ -9,13 +9,14 @@
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
-    "check": "npm run typecheck && npm run lint && npm run test && npm run build",
+    "check": "npm run typecheck && npm run lint && npm run test && npm run build && npm run check:trace",
     "validate:content": "tsx scripts/validate-content.ts",
     "test:e2e": "playwright test",
     "format:check": "prettier --check src tests scripts *.ts *.mts",
     "check:links": "tsx scripts/check-external-links.ts",
     "desk:package": "node scripts/desk/package.mjs",
     "desk:capture-cosmic": "node scripts/desk/capture-cosmic-poster.mjs",
+    "check:trace": "node scripts/check-trace.mjs",
     "tech:icons": "node scripts/tech/build-icons.mjs"
   },
   "dependencies": {
