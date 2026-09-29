@@ -171,11 +171,23 @@ test("scroll separates reading from camera travel, reverses, focuses links and e
   await page.evaluate(() =>
     window.scrollTo({ top: document.body.scrollHeight, behavior: "instant" }),
   );
-  await expect(canvas).toHaveAttribute("data-active", "false");
-  await page.waitForTimeout(200);
-  const frames = await canvas.getAttribute("data-frames");
-  await page.waitForTimeout(400);
-  expect(await canvas.getAttribute("data-frames")).toBe(frames);
+  // Far below, the desk releases its WebGL context for the section scenes.
+  await expect(page.locator("[data-journey-released]")).toHaveAttribute(
+    "data-journey-released",
+    "true",
+    { timeout: 5000 },
+  );
+  await expect(canvas).toHaveCount(0);
+  // Returning remounts it from the model cache behind the final-view poster.
+  await go(page, journeyLength);
+  await expect(page.locator("[data-journey-released]")).toHaveAttribute(
+    "data-journey-released",
+    "false",
+  );
+  await expect(page.locator("[data-journey-poster]")).toHaveCount(0, {
+    timeout: 20000,
+  });
+  await expect(canvas).toHaveAttribute("data-active", "true");
 });
 test("failed model collapses the pinned journey and preserves content", async ({
   page,

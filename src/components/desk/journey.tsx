@@ -3,11 +3,11 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  Component,
   useCallback,
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type CSSProperties,
   type ReactNode,
 } from "react";
@@ -19,25 +19,11 @@ import {
   type JourneyContent,
 } from "@/lib/desk-journey";
 import assets from "@/lib/desk-assets.json";
+import { stageRegistry } from "@/lib/stage-registry";
+import SceneBoundary from "@/components/three/scene-boundary";
 import styles from "./journey.module.css";
 import PortraitIdentity from "./portrait-identity";
 const Scene = dynamic(() => import("./journey-scene"), { ssr: false });
-class Boundary extends Component<
-  { children: ReactNode; onFailure: () => void },
-  { failed: boolean }
-> {
-  state = { failed: false };
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-  componentDidCatch(error: Error) {
-    console.error("Desk scene failed", error);
-    this.props.onFailure();
-  }
-  render() {
-    return this.state.failed ? null : this.props.children;
-  }
-}
 export default function DeskJourney({
   locale,
   content,
@@ -62,6 +48,8 @@ export default function DeskJourney({
   const [staticMode, setStaticMode] = useState(false);
   const [chapter, setChapter] = useState(-1);
   const [finalView, setFinalView] = useState(false);
+  const [nearStage, setNearStage] = useState(true);
+  const [sceneShown, setSceneShown] = useState(false);
   const chapterRef = useRef(-1);
   const finalViewRef = useRef(false);
   const distance = useMotionValue(0);
@@ -124,6 +112,26 @@ export default function DeskJourney({
     };
   }, []);
   useEffect(() => {
+    const node = stage.current;
+    if (!node) return;
+    let releaseTimer = 0;
+    // Release the desk's WebGL context once it is well out of view, so the
+    // section scenes below never stack a third context (see stage-registry).
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        window.clearTimeout(releaseTimer);
+        if (entry.isIntersecting) setNearStage(true);
+        else releaseTimer = window.setTimeout(() => setNearStage(false), 1000);
+      },
+      { rootMargin: "150% 0px" },
+    );
+    observer.observe(node);
+    return () => {
+      window.clearTimeout(releaseTimer);
+      observer.disconnect();
+    };
+  }, []);
+  useEffect(() => {
     const finePointer = matchMedia("(hover: hover) and (pointer: fine)");
     const syncPointerMode = () => {
       hideNavOnScroll.current = finePointer.matches;
@@ -155,13 +163,40 @@ export default function DeskJourney({
       window.removeEventListener("pointermove", revealAtTop);
     };
   }, []);
-  const onReady = useCallback(() => setReady(true), []);
+  const onReady = useCallback(() => {
+    setReady(true);
+    setSceneShown(true);
+  }, []);
   const onFailure = useCallback(() => {
     fallbackTarget.current = Math.max(0, journeyAt(distance.get()).active);
     setFailed(true);
     setReady(false);
   }, [distance]);
   const enhanced = enabled && !staticMode && !failed;
+  useEffect(() => {
+    if (!enhanced) {
+      stageRegistry.remove("journey");
+      return;
+    }
+    stageRegistry.update("journey", {
+      priority: 3,
+      visible: active,
+      wanted: nearStage,
+    });
+  }, [enhanced, active, nearStage]);
+  useEffect(() => () => stageRegistry.remove("journey"), []);
+  const live = useSyncExternalStore(
+    stageRegistry.subscribe,
+    () => stageRegistry.isLive("journey"),
+    () => false,
+  );
+  const released = enhanced && !live;
+  useEffect(() => {
+    if (!live) return;
+    return () => setSceneShown(false);
+  }, [live]);
+  // The final tabletop capture covers the stage until a remounted scene is ready.
+  const posterVisible = enhanced && ready && !sceneShown;
   useEffect(() => {
     if (enhanced && ready) update(scrollYProgress.get());
   }, [enhanced, ready, scrollYProgress, update]);
@@ -180,10 +215,10 @@ export default function DeskJourney({
     }
   }, [enhanced]);
   useEffect(() => {
-    if (!enhanced || ready) return;
+    if (!enhanced || ready || released) return;
     const timeout = window.setTimeout(onFailure, 12000);
     return () => window.clearTimeout(timeout);
-  }, [enhanced, ready, onFailure]);
+  }, [enhanced, ready, released, onFailure]);
   const jump = useCallback(
     (screen: number, card = 0) => {
       if (!enhanced || screen === 1) return;
@@ -223,6 +258,7 @@ export default function DeskJourney({
         data-enhanced={enhanced}
         data-ready={ready}
         data-static={staticMode || failed}
+        data-journey-released={released}
         style={
           {
             "--journey-height": `${(journeyLength + 1) * 100}svh`,
@@ -236,8 +272,18 @@ export default function DeskJourney({
             opening
             interactive={!staticMode && !failed}
           />
-          {enhanced ? (
-            <Boundary onFailure={onFailure}>
+          {posterVisible ? (
+            <Image
+              className={styles.releasedPoster}
+              src={`/images/desk/room-poster.webp?v=${assets.revision}`}
+              alt=""
+              fill
+              sizes="100vw"
+              data-journey-poster
+            />
+          ) : null}
+          {enhanced && !released ? (
+            <SceneBoundary label="Desk scene" onFailure={onFailure}>
               <Scene
                 distance={distance}
                 locale={locale}
@@ -247,7 +293,7 @@ export default function DeskJourney({
                 onFailure={onFailure}
                 onFocusCard={jump}
               />
-            </Boundary>
+            </SceneBoundary>
           ) : null}
           <div className={styles.scrollCue} ref={intro}>
             <span>{en ? "Scroll down" : "Aşağı kaydır"}</span>

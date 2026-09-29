@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { journeyCanvas } from "./helpers";
 import AxeBuilder from "@axe-core/playwright";
 const paths = [
@@ -82,6 +82,45 @@ test("reduced motion keeps the HTML explanation without WebGL", async ({
   ).toBeVisible();
   await page.waitForTimeout(2200);
   await expect(page.locator("canvas")).toHaveCount(0);
+});
+async function scrollThroughHome(page: Page, check: () => Promise<void>) {
+  const { height, step } = await page.evaluate(() => ({
+    height: document.documentElement.scrollHeight,
+    step: Math.round(innerHeight / 2),
+  }));
+  for (const top of [
+    ...Array.from({ length: Math.ceil(height / step) + 1 }, (_, i) => i * step),
+    height / 2,
+    0,
+  ]) {
+    await page.evaluate((y) => scrollTo({ top: y, behavior: "instant" }), top);
+    await page.waitForTimeout(80);
+    await check();
+  }
+}
+test("reduced motion never creates WebGL anywhere on the home page", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/en");
+  await scrollThroughHome(page, async () => {
+    await expect(page.locator("canvas")).toHaveCount(0);
+  });
+});
+test("the home page never holds more than two WebGL contexts", async ({
+  page,
+  browserName,
+}) => {
+  test.skip(browserName === "webkit", "Headless WebKit lacks WebGL2.");
+  await page.goto("/en");
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+    { timeout: 20000 },
+  );
+  await scrollThroughHome(page, async () => {
+    expect(await page.locator("canvas").count()).toBeLessThanOrEqual(2);
+  });
 });
 test("3D canvas is decorative, within budget and safely loses context", async ({
   page,
