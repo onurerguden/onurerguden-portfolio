@@ -828,7 +828,8 @@ h1 {
     gap: 17px;
     font-size: 12px;
   }
-  .site-header nav a:nth-child(3) {
+  /* Phones keep the header to Work, Research and the language switch. */
+  .site-header nav .nav-secondary {
     display: none;
   }
   .site-header .language-switch {
