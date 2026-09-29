@@ -188,4 +188,8 @@ test("API endpoints fail closed without credentials", async ({ request }) => {
   expect(
     (await request.post("/api/github/webhook", { data: {} })).status(),
   ).toBe(503);
+  const activity = await request.get("/api/github/activity");
+  expect(activity.status()).toBe(503);
+  expect(activity.headers()["cache-control"]).toBe("no-store");
+  expect(await activity.json()).toEqual({ available: false });
 });
