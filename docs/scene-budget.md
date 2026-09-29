@@ -37,3 +37,7 @@ The homepage now allows section scenes after the desk (see `docs/design.md`). Th
 - **Counters.** Every section canvas reports `data-stage-frames`, `data-stage-draw-calls` and `data-stage-triangles`, measured the same way as the desk.
 
 Per-section targets are recorded here as each scene lands; they are measured in the production build, not estimated.
+
+### About objects (measured 29 September)
+
+Procedural geometry only: no model or texture downloads; the three logos share the generated icon data with the tech-stack balls. Steady frame in the production build, headless Chromium: **desktop 20 draw calls / 79,492 triangles**, **390 px phone 6 / 14,650** (budget 32 / 120,000). The first frame also renders the one-off Lightformer environment capture. The scene animates at up to 60 fps (30 on coarse pointers) only while the section is visible and motion is not paused, and unmounts once the section is more than 1.6 viewports away.
