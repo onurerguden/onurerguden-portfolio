@@ -302,10 +302,6 @@ h1 {
   top: 50%;
   background: var(--blue);
 }
-.work-section {
-  padding: 104px 0 0;
-  scroll-margin-top: 35px;
-}
 .section-heading {
   display: flex;
   justify-content: space-between;
@@ -327,36 +323,12 @@ h1 {
 .section-heading > .text-link {
   white-space: nowrap;
 }
-.project-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 55px 32px;
-}
-.project-card {
-  min-width: 0;
-}
-.project-featured {
-  grid-column: 1/-1;
-  display: grid;
-  grid-template-columns: 1.35fr 1fr;
-  gap: 54px;
-  align-items: center;
-}
 .project-art {
   height: 340px;
   overflow: hidden;
   border-radius: 12px;
   position: relative;
   transition: filter 0.25s;
-}
-.project-image-link {
-  display: block;
-}
-.project-image-link:hover .project-art {
-  filter: brightness(0.97);
-}
-.project-featured .project-art {
-  height: 445px;
 }
 .kuyumcum-art {
   background: #ede8df;
@@ -393,40 +365,10 @@ h1 {
 .phone-pair img:nth-child(2) {
   margin-top: -44px;
 }
-.project-copy {
-  padding-top: 23px;
-}
-.project-featured .project-copy {
-  padding-top: 0;
-  max-width: 400px;
-}
 .project-category {
   font-size: 12px;
   color: var(--muted);
   margin-bottom: 12px;
-}
-.project-copy h3 {
-  font-size: 27px;
-  letter-spacing: -0.9px;
-  font-weight: 600;
-  margin-bottom: 16px;
-}
-.project-copy h3 a {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-}
-.project-copy h3 span {
-  font-size: 22px;
-  font-weight: 400;
-  color: var(--muted);
-}
-.project-copy > p:not(.project-category) {
-  font-size: 14px;
-  line-height: 1.85;
-  color: var(--muted);
-  max-width: 510px;
 }
 .stack {
   display: flex;
@@ -778,22 +720,12 @@ h1 {
   .hero-description {
     font-size: 15px;
   }
-  .project-featured {
-    gap: 30px;
-    grid-template-columns: 1.15fr 1fr;
-  }
-  .project-featured .project-art {
-    height: 370px;
-  }
   .phone-pair {
     gap: 15px;
     padding-left: 20px;
   }
   .phone-pair img {
     width: 150px;
-  }
-  .project-copy h3 {
-    font-size: 23px;
   }
   .project-art {
     height: 285px;
@@ -880,9 +812,6 @@ h1 {
     font-size: 12px;
     gap: 12px;
   }
-  .work-section {
-    padding-top: 65px;
-  }
   .section-heading {
     align-items: start;
     gap: 12px;
@@ -899,14 +828,6 @@ h1 {
   .section-kicker {
     font-size: 12px;
   }
-  .project-grid {
-    grid-template-columns: 1fr;
-    gap: 38px;
-  }
-  .project-featured {
-    display: block;
-  }
-  .project-featured .project-art,
   .project-art {
     height: 335px;
   }
@@ -922,14 +843,6 @@ h1 {
     top: 22px;
     left: 23px;
     font-size: 22px;
-  }
-  .project-copy,
-  .project-featured .project-copy {
-    padding-top: 22px;
-    max-width: none;
-  }
-  .project-copy h3 {
-    font-size: 25px;
   }
   .stack {
     margin-top: 15px;
@@ -1021,9 +934,6 @@ h1 {
     transition: none !important;
   }
 }
-
-/* Readable content sizes; small type is reserved for secondary metadata. */
-.project-copy > p:not(.project-category),
 .archive-entry > p:not(.project-category),
 .hero-description,
 .prose p,

@@ -1,0 +1,319 @@
+/* Projects: navy section with sticky stacked cards. */
+.section {
+  --stack-top: clamp(24px, 6svh, 64px);
+  padding-block: clamp(96px, 12vw, 168px) clamp(80px, 10vw, 150px);
+  background: var(--space);
+  color: var(--paper);
+}
+.inner {
+  width: min(1320px, 90%);
+  margin-inline: auto;
+  container-type: inline-size;
+}
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px 32px;
+  margin-bottom: clamp(36px, 5vw, 72px);
+}
+.all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: #cbd9ff;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
+.stack {
+  display: grid;
+  gap: clamp(28px, 4vw, 56px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.marker {
+  height: 0;
+  margin-bottom: calc(-1 * clamp(28px, 4vw, 56px));
+}
+.slot {
+  position: sticky;
+  top: calc(var(--stack-top) + var(--i) * 18px);
+}
+.scaler {
+  position: relative;
+  transform-origin: 50% 0;
+}
+.shade {
+  position: absolute;
+  inset: 0;
+  border-radius: 28px;
+  background: #050912;
+  pointer-events: none;
+}
+.card {
+  display: grid;
+  gap: clamp(16px, 2vw, 24px);
+  padding: clamp(20px, 2.6vw, 34px);
+  border: 1px solid #ffffff2e;
+  border-radius: 28px;
+  background:
+    radial-gradient(120% 90% at 100% 0%, #1947e51f, transparent 60%), #0c1426;
+  box-shadow: 0 -24px 60px #02050d8c;
+}
+.cardHead {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px 22px;
+}
+.number {
+  font-family: var(--display-heavy);
+  font-size: clamp(34px, 4vw, 56px);
+  font-weight: 900;
+  line-height: 1;
+}
+.titles h3 {
+  margin: 0 0 4px;
+  font-size: clamp(19px, 1.8vw, 24px);
+  letter-spacing: -0.015em;
+}
+.titles h3 a:focus-visible,
+.pill:focus-visible,
+.linkTile:focus-visible,
+.entry:focus-visible,
+.all:focus-visible {
+  outline: 3px solid #b7ccff;
+  outline-offset: 4px;
+}
+.titles p {
+  margin: 0;
+  color: #b7c2d4;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid #ffffffb3;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    background 250ms ease,
+    color 250ms ease;
+}
+.quiet {
+  border-color: #ffffff47;
+  color: #c1cbd9;
+}
+.summary {
+  max-width: 72ch;
+  margin: 0;
+  color: #d6deea;
+  font-size: clamp(15px, 1.2vw, 17px);
+  line-height: 1.65;
+}
+.media {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  height: clamp(300px, 34vw, 440px);
+}
+.media > :first-child {
+  grid-row: 1 / -1;
+}
+.tile {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #f5f6f8;
+  color: var(--ink);
+}
+.tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 600ms var(--ease-out);
+}
+.figure {
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 10px;
+  background: #fff;
+}
+.phones {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(145deg, #f1d58a, #c99a3d);
+}
+.phones :global(.phone-pair) {
+  display: flex;
+  justify-content: center;
+  gap: 5%;
+  height: 88%;
+}
+.phones :global(.phone-pair) img {
+  width: auto;
+  height: 100%;
+  border-radius: 18px;
+  box-shadow: 0 18px 40px #3d2a0a59;
+}
+.art {
+  display: grid;
+}
+.art > :global(.project-art) {
+  height: 100%;
+  border-radius: 0;
+}
+.facts,
+.metric,
+.linkTile,
+.entry {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  padding: clamp(16px, 1.8vw, 24px);
+}
+.facts p,
+.entry span:first-child {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 650;
+}
+.facts ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.facts li {
+  padding: 6px 11px;
+  border: 1px solid #17212b33;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 650;
+}
+.metric {
+  background: var(--volt);
+}
+.metric strong {
+  font-family: var(--display-heavy);
+  font-size: clamp(38px, 4.6vw, 64px);
+  font-weight: 900;
+  line-height: 1;
+}
+.metric p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.linkTile {
+  justify-content: flex-end;
+  background: var(--blue);
+  color: #fff;
+  font-size: clamp(17px, 1.5vw, 21px);
+  font-weight: 750;
+}
+.linkTile span {
+  font-size: 1.4em;
+  transition: transform 350ms var(--ease-out);
+}
+.archive {
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+}
+.entry strong {
+  font-size: clamp(17px, 1.5vw, 20px);
+  letter-spacing: -0.01em;
+}
+.entryStack {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+@media (hover: hover) and (pointer: fine) {
+  .pill:not(.quiet):hover {
+    background: #fff;
+    color: var(--ink);
+  }
+  .card:hover .tile img {
+    transform: scale(1.035);
+  }
+  .linkTile:hover span {
+    transform: translate(4px, -4px);
+  }
+  .entry {
+    transition: background 250ms ease;
+  }
+  .entry:hover {
+    background: #e7ecf6;
+  }
+  .all:hover {
+    color: #fff;
+  }
+}
+/* Tall cards on phones and reduced motion read in normal flow. */
+@media (max-width: 760px),
+  (max-height: 620px),
+  (prefers-reduced-motion: reduce) {
+  .slot {
+    position: static;
+  }
+  /* Without stacking there is nothing to shrink or dim. */
+  .scaler {
+    transform: none !important;
+  }
+  .shade {
+    display: none;
+  }
+}
+@media (max-width: 760px) {
+  .cardHead {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .pills {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+  .media,
+  .archive {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    height: auto;
+  }
+  .media > :first-child {
+    grid-row: auto;
+    grid-column: 1 / -1;
+    aspect-ratio: 16 / 10;
+  }
+  .facts,
+  .metric,
+  .linkTile,
+  .entry {
+    min-height: 150px;
+  }
+}
