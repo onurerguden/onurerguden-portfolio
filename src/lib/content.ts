@@ -18,6 +18,17 @@ const projectSchema = z.object({
   featured: z.boolean(),
   repoUrl: z.url().optional(),
   metric: z.object({ value: z.string(), label: z.string() }).optional(),
+  media: z
+    .array(
+      z.object({
+        src: z.string().startsWith("/images/"),
+        width: z.number().int().positive(),
+        height: z.number().int().positive(),
+        alt: z.string().min(1),
+      }),
+    )
+    .max(3)
+    .optional(),
   body: z.string().optional(),
 });
 export type Project = z.infer<typeof projectSchema>;
@@ -26,7 +37,14 @@ export const sharedFacts = {
   name: "Onur Ergüden",
   email: "onurerguden5@gmail.com",
   github: "https://github.com/onurerguden",
+  githubLogin: "onurerguden",
   linkedin: "https://www.linkedin.com/in/onurerguden/",
+  work: { company: "Future Is Now", since: "2026-07" },
+  academy: {
+    name: "Google AI & Technology Academy",
+    track: "Deep Learning",
+    year: 2026,
+  },
   education: {
     university: "İzmir University of Economics",
     degree: "BSc Software Engineering",
@@ -75,13 +93,21 @@ function resolveMeasurements(body: string, locale: Locale) {
 type SharedProject = Pick<
   Project,
   "slug" | "stack" | "year" | "featured" | "repoUrl"
-> & { metricValue?: string };
+> & {
+  metricValue?: string;
+  /** Real screenshots or repository artefacts only; alt text is localized. */
+  media?: { src: string; width: number; height: number }[];
+};
 const projects: SharedProject[] = [
   {
     slug: "kuyumcum",
     stack: ["Flutter", "Dart", "Firebase", "Python", "TensorFlow", "Gemini"],
     year: "",
     featured: true,
+    media: [
+      { src: "/images/kuyumcum/map.webp", width: 756, height: 1638 },
+      { src: "/images/kuyumcum/ai-reports.webp", width: 756, height: 1638 },
+    ],
   },
   {
     slug: "water-safety",
@@ -127,6 +153,7 @@ const translationSchema = z
     summary: z.string().min(1),
     category: z.string().min(1),
     metricLabel: z.string().min(1).optional(),
+    mediaAlt: z.array(z.string().min(1)).max(3).optional(),
   })
   .strict();
 
@@ -145,8 +172,10 @@ export function getProjects(
       .join()
   )
     throw new Error(`Project parity failed: ${locale}`);
-  return projects.map(({ metricValue, ...shared }) => {
+  return projects.map(({ metricValue, media, ...shared }) => {
     const copy = translationSchema.parse(summaries[shared.slug]);
+    if ((media?.length ?? 0) !== (copy.mediaAlt?.length ?? 0))
+      throw new Error(`Media alt text mismatch: ${locale}/${shared.slug}`);
     let body: string | undefined;
     if (shared.featured) {
       const parsed = matter(
@@ -176,6 +205,14 @@ export function getProjects(
       ...(metricValue
         ? { metric: { value: metricValue, label: copy.metricLabel } }
         : {}),
+      ...(media
+        ? {
+            media: media.map((item, i) => ({
+              ...item,
+              alt: copy.mediaAlt![i],
+            })),
+          }
+        : {}),
     });
   });
 }
@@ -194,6 +231,7 @@ export function validateContent(contentRoot?: string): void {
       featured: project.featured,
       repoUrl: project.repoUrl,
       metric: project.metric?.value,
+      media: project.media?.map((item) => item.src),
     });
   if (localized[0].map(shared).join() !== localized[1].map(shared).join())
     throw new Error("Shared project facts differ across locales");
