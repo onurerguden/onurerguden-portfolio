@@ -59,7 +59,7 @@ export default function DeskJourney({
   const sectionsButton = useRef<HTMLButtonElement>(null);
   const sectionsMenu = useRef<HTMLDivElement>(null);
   // The section a hash link is heading for, until the visitor scrolls.
-  const pendingHash = useRef<string | null>(null);
+  const pendingHash = useRef<{ id: string; top: number } | null>(null);
   const [sceneShown, setSceneShown] = useState(false);
   const chapterRef = useRef(-1);
   const finalViewRef = useRef(false);
@@ -148,8 +148,16 @@ export default function DeskJourney({
     // visitor's own scrolling lets it go.
     const remember = () => {
       const hash = location.hash;
-      pendingHash.current =
-        hash && !/^#(desk-story-\d|journey-content)$/.test(hash) ? hash : null;
+      const id = decodeURIComponent(hash.slice(1));
+      const target =
+        hash && !/^#(desk-story-\d|journey-content)$/.test(hash)
+          ? document.getElementById(id)
+          : null;
+      // Where the target sat when the link was used; only a layout change
+      // that moves it justifies scrolling again.
+      pendingHash.current = target
+        ? { id, top: target.getBoundingClientRect().top + window.scrollY }
+        : null;
     };
     const clear = () => {
       pendingHash.current = null;
@@ -272,11 +280,27 @@ export default function DeskJourney({
   // The journey grows to its pinned height after hydration; keep a deep link
   // (e.g. /en#services) on its target unless the visitor has scrolled since.
   useLayoutEffect(() => {
-    const hash = pendingHash.current;
-    if (!hash) return;
-    document
-      .getElementById(decodeURIComponent(hash.slice(1)))
-      ?.scrollIntoView({ behavior: "instant", block: "start" });
+    const pending = pendingHash.current;
+    const target = pending && document.getElementById(pending.id);
+    if (!pending || !target) return;
+    const top = target.getBoundingClientRect().top + window.scrollY;
+    // Nothing moved: let a smooth scroll that is under way finish itself.
+    if (Math.abs(top - pending.top) < 2) return;
+    pending.top = top;
+    target.scrollIntoView({ behavior: "instant", block: "start" });
+    // A smooth scroll already in flight can carry past the jump; hold the
+    // target for a few frames unless the visitor scrolls themselves.
+    const padding =
+      parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) ||
+      0;
+    let frames = 0;
+    let frame = requestAnimationFrame(function hold() {
+      if (pendingHash.current !== pending || ++frames > 40) return;
+      if (Math.abs(target.getBoundingClientRect().top - padding) > 4)
+        target.scrollIntoView({ behavior: "instant", block: "start" });
+      frame = requestAnimationFrame(hold);
+    });
+    return () => cancelAnimationFrame(frame);
   }, [enhanced, ready]);
   useEffect(() => {
     if (enhanced && ready) update(scrollYProgress.get());
