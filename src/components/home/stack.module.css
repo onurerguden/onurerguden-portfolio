@@ -49,6 +49,26 @@
   position: absolute;
   inset: 0;
   z-index: 3;
+  pointer-events: none;
+}
+.ballsHolder {
+  position: absolute;
+}
+/* The close box becomes a real "toss" button once the balls are live. */
+.toss {
+  display: none;
+  padding: 0;
+  cursor: pointer;
+}
+.section:has([data-stage-state="live"]) .toss {
+  display: block;
+}
+.section:has([data-stage-state="live"]) .close[aria-hidden="true"] {
+  display: none;
+}
+.toss:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
 }
 .foreground {
   z-index: 4;
@@ -123,7 +143,7 @@
   display: flex;
   gap: 3px;
 }
-.controls span {
+.controls > * {
   position: relative;
   width: 21px;
   height: 21px;

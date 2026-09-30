@@ -149,6 +149,7 @@ export function useSectionStage(
   // with the scroll that brought the section into view.
   useEffect(() => {
     let idle = 0;
+    let settle = 0;
     const frame = requestAnimationFrame(() => {
       if (!live) {
         setIdleDone(false);
@@ -156,13 +157,18 @@ export function useSectionStage(
         return;
       }
       const done = () => setIdleDone(true);
-      // Safari has no requestIdleCallback; a short timeout plays the same role.
-      idle = hasIdleCallback()
-        ? window.requestIdleCallback(done, { timeout: 1800 })
-        : window.setTimeout(done, 250);
+      // Only a slot held for a moment mounts, so jump-scrolling past a
+      // section never creates and destroys its scene. Safari has no
+      // requestIdleCallback; a short timeout plays the same role.
+      settle = window.setTimeout(() => {
+        idle = hasIdleCallback()
+          ? window.requestIdleCallback(done, { timeout: 1800 })
+          : window.setTimeout(done, 250);
+      }, 300);
     });
     return () => {
       cancelAnimationFrame(frame);
+      window.clearTimeout(settle);
       if (hasIdleCallback()) window.cancelIdleCallback(idle);
       else window.clearTimeout(idle);
     };

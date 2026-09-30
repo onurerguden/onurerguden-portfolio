@@ -22,7 +22,7 @@ export default function StackParallax({ children }: { children: ReactNode }) {
     apply(scrollYProgress.get());
   });
   return (
-    <div ref={track} className={styles.track}>
+    <div ref={track} className={styles.track} data-stack-track>
       {children}
     </div>
   );
