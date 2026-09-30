@@ -23,6 +23,77 @@ async function ActivityData({ locale }: { locale: Locale }) {
   );
 }
 
+const bones = (count: number, className: string) =>
+  Array.from({ length: count }, (_, i) => (
+    <span key={i} className={className} />
+  ));
+
+/**
+ * Stands in while the data streams, laid out with the live panel's own
+ * classes (stats, year tabs, heatmap, languages, a full feed), so content
+ * below barely moves when the numbers arrive.
+ */
+function ActivitySkeleton({ locale }: { locale: Locale }) {
+  const en = locale === "en";
+  return (
+    <div className={styles.live} aria-busy="true">
+      <p className={styles.synced}>
+        {en ? "Loading GitHub activity… " : "GitHub aktivitesi yükleniyor… "}
+        <a className={styles.loadingLink} href={sharedFacts.github}>
+          {en ? "See my profile on GitHub" : "GitHub profilime bak"}
+        </a>
+      </p>
+      <div aria-hidden="true">
+        <p className={styles.fresh} />
+        <div className={styles.stats}>
+          {Array.from({ length: 6 }, (_, i) => (
+            <div key={i}>
+              <span className={styles.boneLabel} />
+              <span className={styles.boneValue} />
+            </div>
+          ))}
+        </div>
+        <div className={styles.tabs}>{bones(6, styles.boneTab)}</div>
+        <p className={styles.summary}>
+          <span className={styles.boneText} />
+        </p>
+        <div className={styles.grid}>
+          <div className={styles.boneHeatmap} />
+          <p className={styles.readout}> </p>
+          <div className={styles.legend}>{bones(5, styles.cell)}</div>
+        </div>
+        <div className={styles.lower}>
+          <div>
+            <span className={styles.boneHead} />
+            <div className={styles.bar}>
+              <span className={styles.boneFill} />
+            </div>
+            <ul className={styles.languages}>
+              {Array.from({ length: 6 }, (_, i) => (
+                <li key={i}>
+                  <span className={styles.boneName} />
+                  <span className={styles.boneWhen} />
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <span className={styles.boneHead} />
+            <ol className={styles.events}>
+              {Array.from({ length: 12 }, (_, i) => (
+                <li key={i}>
+                  <span className={styles.boneText} />
+                  <span className={styles.boneWhen} />
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /**
  * The frame renders with the page, so #activity always exists once; only the
  * data streams in, and Redis never blocks the first paint.
@@ -48,18 +119,7 @@ export default function ActivitySection({ locale }: { locale: Locale }) {
             <ActivityUnavailable locale={locale} profile={sharedFacts.github} />
           }
         >
-          <Suspense
-            fallback={
-              <p className={styles.placeholder}>
-                {en
-                  ? "Loading GitHub activity… "
-                  : "GitHub aktivitesi yükleniyor… "}
-                <a href={sharedFacts.github}>
-                  {en ? "See my profile on GitHub" : "GitHub profilime bak"}
-                </a>
-              </p>
-            }
-          >
+          <Suspense fallback={<ActivitySkeleton locale={locale} />}>
             <ActivityData locale={locale} />
           </Suspense>
         </ActivityBoundary>

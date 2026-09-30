@@ -193,6 +193,21 @@ test("shows totals, a keyboard heatmap and recent activity", async ({
   ).toEqual([]);
 });
 
+test("a deep link below the section stays on target as it grows", async ({
+  page,
+}) => {
+  await serve(page, [fixture()]);
+  const polled = page.waitForEvent("requestfinished", (request) =>
+    request.url().endsWith("/api/github/activity"),
+  );
+  await page.goto("/tr#contact");
+  await polled;
+  // The section grew from one line to the full panel above the target.
+  await expect(page.locator("#activity dd")).toHaveCount(6);
+  await page.waitForTimeout(500);
+  await expect(page.locator("#contact-title")).toBeInViewport();
+});
+
 test("Turkish shares put the percent sign first", async ({ page }) => {
   await serve(page, [fixture()]);
   await page.goto("/tr");
