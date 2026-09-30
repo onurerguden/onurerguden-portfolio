@@ -25,9 +25,7 @@ test("the certificate gallery opens a keyboard-friendly lightbox", async ({
   test.skip(items.length === 0, "No certificates have been added yet.");
   await page.goto("/en#certificates");
   const section = page.locator("#certificates");
-  const cards = section.getByRole("button", {
-    name: new RegExp(items[0].title),
-  });
+  const cards = section.getByRole("button", { name: items[0].title });
   await cards.first().focus();
   await page.keyboard.press("Enter");
   const dialog = page.getByRole("dialog");

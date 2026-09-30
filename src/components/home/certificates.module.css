@@ -169,3 +169,12 @@
   outline: 3px solid var(--blue);
   outline-offset: 3px;
 }
+/* On phones the verify link takes its own row so the buttons stay together. */
+@media (max-width: 520px) {
+  .dialogActions a {
+    flex-basis: 100%;
+  }
+  .dialogActions button {
+    padding: 0 14px;
+  }
+}

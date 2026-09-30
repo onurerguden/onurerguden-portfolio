@@ -71,9 +71,10 @@ export default function CertificateGallery({
               aria-haspopup="dialog"
             >
               <span className={styles.media}>
+                {/* The title names the button; the lightbox carries the alt text. */}
                 <Image
                   src={item.image.src}
-                  alt={item.alt}
+                  alt=""
                   width={item.image.width}
                   height={item.image.height}
                   sizes="(max-width: 700px) 90vw, 360px"
