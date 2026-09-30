@@ -44,11 +44,16 @@ export function clay(color: string, extra: Partial<MeshPhysicalMaterial> = {}) {
   });
 }
 
-/** Seams drawn from the object-space normal, so no texture is needed. */
+/**
+ * Seams drawn from the object-space normal, so no texture is needed. `seam` is
+ * the body of `float seamDistance(vec3 n)`, which gets the unit normal and
+ * returns its distance to the nearest seam; `width` is the seam's half width.
+ */
 function withSeams(
   material: MeshPhysicalMaterial,
   seam: string,
   seamColor: string,
+  width = 0.022,
 ) {
   const color = new Color(seamColor);
   material.onBeforeCompile = (shader) => {
@@ -65,15 +70,17 @@ function withSeams(
     shader.fragmentShader = shader.fragmentShader
       .replace(
         "#include <common>",
-        "#include <common>\nvarying vec3 vObjectNormal;\nuniform vec3 uSeamColor;",
+        `#include <common>
+        varying vec3 vObjectNormal;
+        uniform vec3 uSeamColor;
+        float seamDistance(vec3 n) {${seam}}`,
       )
       .replace(
         "#include <color_fragment>",
         `#include <color_fragment>
-        vec3 seamNormal = normalize(vObjectNormal);
-        float seamDistance = ${seam};
-        float seamWidth = fwidth(seamDistance) + 0.012;
-        diffuseColor.rgb = mix(uSeamColor, diffuseColor.rgb, smoothstep(0.022, 0.022 + seamWidth, seamDistance));`,
+        float seam = seamDistance(normalize(vObjectNormal));
+        float seamSoftness = fwidth(seam) + 0.012;
+        diffuseColor.rgb = mix(uSeamColor, diffuseColor.rgb, smoothstep(${width.toFixed(3)}, ${width.toFixed(3)} + seamSoftness, seam));`,
       );
   };
   material.customProgramCacheKey = () => seam;
@@ -83,9 +90,20 @@ function withSeams(
 export function basketball() {
   const material = withSeams(
     clay(palette.basketball, { roughness: 0.62, clearcoat: 0.25 }),
-    // Two great circles and the two curved panel seams.
-    "min(min(abs(seamNormal.x), abs(seamNormal.y)), abs(abs(seamNormal.z) - 0.72))",
-    "#241309",
+    // An eight-panel ball: the equator (y = 0), one meridian (x = 0) and a
+    // curved seam around each pole. The curved seam dips to 13° latitude where
+    // it crosses the meridian and rises to 46° halfway between. Its distance is
+    // divided by the curve's slope so the line keeps one width all the way round.
+    `float lines = min(abs(n.y), abs(n.x));
+    float ring = max(length(n.xz), 1e-3);
+    float latitude = atan(abs(n.y), ring);
+    float cos2 = (n.z * n.z - n.x * n.x) / (ring * ring);
+    float sin2 = 2.0 * n.x * n.z / (ring * ring);
+    float slope = 0.58 * sin2 / ring;
+    float curve = abs(latitude - (0.515 - 0.29 * cos2)) / sqrt(1.0 + slope * slope);
+    return min(lines, curve);`,
+    "#1f1109",
+    0.016,
   );
   return { geometry: new SphereGeometry(1, 64, 48), material };
 }
@@ -100,7 +118,7 @@ export function tennisBall() {
       sheenColor: new Color("#f7ffc4"),
     }),
     // The saddle curve of a tennis ball's seam.
-    "abs(seamNormal.y - 0.62 * (seamNormal.x * seamNormal.x - seamNormal.z * seamNormal.z))",
+    "return abs(n.y - 0.62 * (n.x * n.x - n.z * n.z));",
     "#fbfbf2",
   );
   return { geometry: new SphereGeometry(1, 48, 36), material };
