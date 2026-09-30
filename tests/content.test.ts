@@ -9,6 +9,13 @@ import {
   sharedFacts,
   validateContent,
 } from "../src/lib/content";
+import {
+  formatPeriod,
+  getExperience,
+  getServices,
+  getTechStack,
+  validateHomeContent,
+} from "../src/lib/home-content";
 
 const temporary: string[] = [];
 function fixture() {
@@ -75,5 +82,88 @@ describe("bilingual portfolio content", () => {
   it("handles unsupported routes explicitly", () => {
     expect(isLocale("fr")).toBe(false);
     expect(getProject("en", "unknown")).toBeUndefined();
+  });
+});
+
+// Fixture edits deliberately break the schema, so the value is untyped JSON.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Json = any;
+function editJson(root: string, file: string, edit: (value: Json) => void) {
+  const target = path.join(root, file);
+  const value = JSON.parse(fs.readFileSync(target, "utf8"));
+  edit(value);
+  fs.writeFileSync(target, JSON.stringify(value));
+}
+
+describe("home section content", () => {
+  it("loads every section in both languages with the same structure", () => {
+    expect(() => validateHomeContent()).not.toThrow();
+    const en = getTechStack("en");
+    const tr = getTechStack("tr");
+    expect(en.map((c) => c.items.map((i) => i.id))).toEqual(
+      tr.map((c) => c.items.map((i) => i.id)),
+    );
+    expect(getServices("en").map((s) => s.href)).toEqual([
+      "/en/projects/course-intelligence",
+      "#experience",
+      "/en/projects/water-safety",
+      "/en/projects#taskfoo",
+      "/en/projects/kuyumcum",
+    ]);
+  });
+  it("fails when a translated service is missing", () => {
+    const root = fixture();
+    editJson(root, "tr/services.json", (value) => delete value.mobile);
+    expect(() => validateHomeContent(root)).toThrow("parity");
+  });
+  it("rejects a service whose proof does not exist", () => {
+    const root = fixture();
+    editJson(root, "services.json", (value) => {
+      value[0].proof.slug = "invented-project";
+    });
+    expect(() => validateHomeContent(root)).toThrow("Unknown service proof");
+  });
+  it("rejects a technology without a generated icon", () => {
+    const root = fixture();
+    editJson(root, "tech-stack.json", (value) => {
+      value.items[0].icon = { simpleIcons: "not-an-icon" };
+    });
+    expect(() => validateHomeContent(root)).toThrow("Missing generated icon");
+  });
+  it("only accepts certificates whose images were reviewed for personal data", () => {
+    const root = fixture();
+    editJson(root, "certificates.json", (value) =>
+      value.push({
+        id: "sample",
+        issuer: "Issuer",
+        issued: "2026-05",
+        image: {
+          src: "/images/certificates/sample.webp",
+          width: 10,
+          height: 10,
+        },
+        order: 1,
+      }),
+    );
+    for (const locale of ["en", "tr"])
+      editJson(root, `${locale}/certificates.json`, (value) => {
+        value.sample = { title: "Sample", alt: "Sample certificate" };
+      });
+    expect(() => validateHomeContent(root)).toThrow("personalDataReviewed");
+  });
+  it("requires alt text for every project image", () => {
+    const root = fixture();
+    editJson(root, "tr/projects.json", (value) => {
+      value.kuyumcum.mediaAlt.pop();
+    });
+    expect(() => validateContent(root)).toThrow("Media alt text mismatch");
+  });
+  it("formats experience periods for each language", () => {
+    expect(formatPeriod("2026-07", null, "en")).toBe("Jul 2026 — present");
+    expect(formatPeriod("2026-04", "2026-06", "tr")).toBe("Nis — Haz 2026");
+    expect(getExperience("en")[0]).toMatchObject({
+      company: "Future Is Now",
+      role: "AI Engineer",
+    });
   });
 });

@@ -1,0 +1,27 @@
+{
+  "rag": {
+    "title": "RAG & LLM apps",
+    "description": "Retrieval pipelines that ground language models in real documents, with evaluation that shows where every answer comes from.",
+    "proofLabel": "See Course Intelligence"
+  },
+  "agents": {
+    "title": "Agentic workflows",
+    "description": "LangChain and LangGraph workflows that plan, call tools and hand off to a person when they should.",
+    "proofLabel": "See my work at Future Is Now"
+  },
+  "ml": {
+    "title": "ML models & evaluation",
+    "description": "Models trained on messy public data, compared honestly and explained with the metrics that matter for the decision.",
+    "proofLabel": "See HealthFactor-AI"
+  },
+  "full-stack": {
+    "title": "Full-stack products",
+    "description": "Web apps from database to interface: Spring Boot services, typed React front ends and real-time updates.",
+    "proofLabel": "See TaskFoo"
+  },
+  "mobile": {
+    "title": "Mobile apps",
+    "description": "Cross-platform Flutter apps on Firebase, with AI features built into everyday flows.",
+    "proofLabel": "See Kuyumcum"
+  }
+}

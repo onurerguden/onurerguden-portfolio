@@ -1,0 +1,27 @@
+{
+  "rag": {
+    "title": "RAG ve LLM uygulamaları",
+    "description": "Dil modellerini gerçek belgelere dayandıran bilgi erişim hatları; her cevabın nereden geldiğini gösteren değerlendirmelerle.",
+    "proofLabel": "Course Intelligence’a bak"
+  },
+  "agents": {
+    "title": "Agentic iş akışları",
+    "description": "Plan yapan, araç çağıran ve gerektiğinde bir insana devreden LangChain ve LangGraph iş akışları.",
+    "proofLabel": "Future Is Now’daki işime bak"
+  },
+  "ml": {
+    "title": "ML modelleri ve değerlendirme",
+    "description": "Dağınık açık verilerle eğitilen, dürüstçe karşılaştırılan ve karar için önemli metriklerle açıklanan modeller.",
+    "proofLabel": "HealthFactor-AI’a bak"
+  },
+  "full-stack": {
+    "title": "Full-stack ürünler",
+    "description": "Veritabanından arayüze web uygulamaları: Spring Boot servisleri, tipli React arayüzleri ve gerçek zamanlı güncellemeler.",
+    "proofLabel": "TaskFoo’ya bak"
+  },
+  "mobile": {
+    "title": "Mobil uygulamalar",
+    "description": "Firebase üzerinde, AI özelliklerini günlük akışlara yerleştiren çapraz platform Flutter uygulamaları.",
+    "proofLabel": "Kuyumcum’a bak"
+  }
+}

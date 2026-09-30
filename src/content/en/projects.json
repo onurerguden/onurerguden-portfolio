@@ -2,7 +2,11 @@
   "kuyumcum": {
     "title": "Kuyumcum",
     "summary": "A mobile ecosystem connecting precious-metal holdings, portfolio insight and local merchants. I co-developed the product and engineered its AI features.",
-    "category": "Product engineering · applied AI"
+    "category": "Product engineering · applied AI",
+    "mediaAlt": [
+      "Kuyumcum jeweler discovery map",
+      "Kuyumcum AI report list"
+    ]
   },
   "water-safety": {
     "title": "HealthFactor-AI",
