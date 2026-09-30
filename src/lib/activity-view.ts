@@ -107,6 +107,43 @@ export type HeatCell = {
   level: 0 | 1 | 2 | 3 | 4;
 };
 
+/** Contributions a calendar counts from `date` (YYYY-MM-DD) on. */
+export function countFrom(year: ActivityYear, date: string) {
+  const skip = Math.round((Date.parse(date) - Date.parse(year.start)) / DAY);
+  return year.days
+    .slice(Math.max(0, skip))
+    .reduce((sum, count) => sum + count, 0);
+}
+
+/**
+ * How long before the visit a snapshot may have been synced and still stand
+ * for what the visitor found. Older snapshots are refreshed on that visit
+ * (see `isStale`), so the next poll brings a fair starting point.
+ */
+const BASELINE_AGE = 10 * 60_000;
+
+export function isFairBaseline(snapshot: ActivitySnapshot, arrivedAt: number) {
+  return Date.parse(snapshot.syncedAt) >= arrivedAt - BASELINE_AGE;
+}
+
+/**
+ * Contributions that appeared after `baseline`, counted from its last day
+ * on: GitHub revising older days, or a full reconciliation, isn't news.
+ */
+export function newContributions(
+  baseline: ActivitySnapshot,
+  next: ActivitySnapshot,
+) {
+  const { start, days } = baseline.rolling;
+  const last = new Date(Date.parse(start) + Math.max(0, days.length - 1) * DAY)
+    .toISOString()
+    .slice(0, 10);
+  return Math.max(
+    0,
+    countFrom(next.rolling, last) - countFrom(baseline.rolling, last),
+  );
+}
+
 /**
  * GitHub-style intensity: level 0 for empty days, then quartiles of the
  * non-empty days, so a busy year and a quiet one both use the full scale.

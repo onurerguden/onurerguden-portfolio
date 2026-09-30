@@ -4,7 +4,11 @@ import type {
   ActivityEvent,
   ActivitySnapshot,
 } from "@/lib/github/activity-core";
-import { parseSnapshot } from "@/lib/activity-view";
+import {
+  isFairBaseline,
+  newContributions,
+  parseSnapshot,
+} from "@/lib/activity-view";
 import ActivityUnavailable from "./activity-unavailable";
 import ContributionGrid from "./contribution-grid";
 import styles from "./activity.module.css";
@@ -13,7 +17,10 @@ const POLL = 3 * 60_000;
 /** Failed polls wait twice as long each time, up to 15 minutes. */
 const backoff = (delay: number) =>
   Math.min(15 * 60_000, Math.max(POLL, delay * 2));
+/** The newest event time the visitor has had on screen. */
 const SEEN_KEY = "portfolio:activity-seen";
+/** SEEN_KEY as it stood when this tab's visit began. */
+const VISIT_KEY = "portfolio:activity-seen-before";
 
 /** Minute-resolution clock after hydration; null while server rendering. */
 function subscribeMinute(onChange: () => void) {
@@ -84,7 +91,6 @@ export default function ActivityLive({
   const [fresh, setFresh] = useState(0);
   const latest = useRef(initial);
   const revision = useRef(initialRevision);
-  const arrival = useRef(initial?.allTime ?? null);
   const [tab, setTab] = useState("rolling");
   const [seen, setSeen] = useState<number | null>(null);
   const now = useNow();
@@ -94,10 +100,17 @@ export default function ActivityLive({
   // data is a free 304.
   useEffect(() => {
     const controller = new AbortController();
+    const arrivedAt = Date.now();
     let timer = 0;
     let running = false;
     let delay = 0;
-    let due = Date.now() + (latest.current ? POLL : 0);
+    let due = arrivedAt + (latest.current ? POLL : 0);
+    // What the visitor found: "new since you arrived" counts from here, and
+    // only a snapshot synced around the visit qualifies.
+    let baseline =
+      latest.current && isFairBaseline(latest.current, arrivedAt)
+        ? latest.current
+        : null;
 
     const accept = (next: ActivitySnapshot, etag: string | null) => {
       const current = latest.current;
@@ -108,8 +121,8 @@ export default function ActivityLive({
       const match = etag?.match(/"activity-(\d+)"/);
       revision.current = match ? Number(match[1]) : 0;
       latest.current = next;
-      if (arrival.current === null) arrival.current = next.allTime;
-      setFresh(Math.max(0, next.allTime - arrival.current));
+      if (baseline) setFresh(newContributions(baseline, next));
+      else if (isFairBaseline(next, arrivedAt)) baseline = next;
       setSnapshot(next);
     };
     const schedule = () => {
@@ -163,20 +176,48 @@ export default function ActivityLive({
     };
   }, []);
 
-  // "New" means since the last visit, or the last two days on a first one.
+  // "New" is relative to the newest event seen on an earlier visit, or the
+  // last two days on a first one. It is read once per tab session, so a
+  // language switch or a return to the page keeps the same badges.
   useEffect(() => {
-    let previous: number | null = null;
+    let before: number | null = null;
     try {
-      previous = Number(localStorage.getItem(SEEN_KEY)) || null;
-      localStorage.setItem(SEEN_KEY, String(Date.now()));
+      let stored = sessionStorage.getItem(VISIT_KEY);
+      if (stored === null) {
+        stored = localStorage.getItem(SEEN_KEY) ?? "";
+        sessionStorage.setItem(VISIT_KEY, stored);
+      }
+      before = Number(stored) || null;
     } catch {
       // Without storage everything from the last two days is new.
     }
     const frame = requestAnimationFrame(() =>
-      setSeen(previous ?? Date.now() - 2 * 86_400_000),
+      setSeen(before ?? Date.now() - 2 * 86_400_000),
     );
     return () => cancelAnimationFrame(frame);
   }, []);
+
+  // Events only count as seen once the list has actually been on screen.
+  const list = useRef<HTMLOListElement>(null);
+  const newest = snapshot
+    ? Math.max(0, ...snapshot.events.map((event) => Date.parse(event.at)))
+    : 0;
+  useEffect(() => {
+    const node = list.current;
+    if (!node || !newest) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      try {
+        if (newest > (Number(localStorage.getItem(SEEN_KEY)) || 0))
+          localStorage.setItem(SEEN_KEY, String(newest));
+      } catch {
+        // Nothing to remember without storage.
+      }
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [newest]);
 
   const number = new Intl.NumberFormat(en ? "en-GB" : "tr-TR");
   if (!snapshot)
@@ -351,7 +392,7 @@ export default function ActivityLive({
           <h3 className={styles.subhead}>
             {en ? "Recent public activity" : "Son herkese açık hareketler"}
           </h3>
-          <ol className={styles.events}>
+          <ol ref={list} className={styles.events}>
             {snapshot.events.map((event) => {
               const at = Date.parse(event.at);
               return (

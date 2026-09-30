@@ -193,6 +193,79 @@ test("announces new contributions made while the page is open", async ({
   );
 });
 
+test("work from before the visit is not announced as new", async ({ page }) => {
+  await page.clock.install();
+  const now = Date.now();
+  await serve(page, [
+    // Synced long before the visit, then refreshed after it.
+    fixture({ syncedAt: now - 30 * 60_000 }),
+    fixture({ extra: 12, syncedAt: now }),
+    fixture({ extra: 14, syncedAt: now + 1000 }),
+  ]);
+  await page.goto("/en");
+  const section = page.locator("#activity");
+  await section.scrollIntoViewIfNeeded();
+  const total = section.locator("dd").first();
+  await expect(total).not.toBeEmpty();
+  const stale = await total.textContent();
+  const status = section.getByRole("status");
+  await page.clock.runFor(POLL + 1000);
+  // The refreshed snapshot is shown but becomes the starting point.
+  await expect(total).not.toHaveText(stale!);
+  await expect(status).toHaveText("");
+  await page.clock.runFor(POLL + 1000);
+  await expect(status).toHaveText("2 new contributions since you arrived");
+});
+
+test("new badges last for the visit and clear once seen", async ({
+  page,
+  context,
+}) => {
+  const body = fixture();
+  await serve(page, [body]);
+  // The desk renders in software WebGL above the section, so hydration and
+  // the first poll can take several seconds on a busy machine.
+  const slow = { timeout: 15_000 };
+  // No hash: a deep link would hold the page on the section's top.
+  await page.goto("/en");
+  const events = page.locator("#activity ol");
+  await expect(events.getByText("New", { exact: true })).toHaveCount(1, slow);
+  await events.scrollIntoViewIfNeeded();
+  await expect
+    .poll(() =>
+      page.evaluate(() => localStorage.getItem("portfolio:activity-seen")),
+    )
+    .not.toBeNull();
+  // Switching language keeps this visit's badges.
+  await page.goto("/tr");
+  await expect(
+    page.locator("#activity ol").getByText("Yeni", { exact: true }),
+  ).toHaveCount(1, slow);
+  // A later visit (a new tab) has already seen that push.
+  const later = await context.newPage();
+  await serve(later, [body]);
+  await later.goto("/en");
+  await expect(later.locator("#activity ol li")).toHaveCount(2, slow);
+  // Badges are decided a frame after the visit's baseline is read; only
+  // then does "no badge" mean anything.
+  await expect
+    .poll(() =>
+      later.evaluate(() =>
+        sessionStorage.getItem("portfolio:activity-seen-before"),
+      ),
+    )
+    .not.toBeNull();
+  await later.evaluate(
+    () =>
+      new Promise((done) =>
+        requestAnimationFrame(() => requestAnimationFrame(done)),
+      ),
+  );
+  await expect(
+    later.locator("#activity ol").getByText("New", { exact: true }),
+  ).toHaveCount(0);
+});
+
 test("an older cached response never replaces newer numbers", async ({
   page,
 }) => {

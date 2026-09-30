@@ -1,7 +1,10 @@
 import { describe, it, expect } from "vitest";
 import {
+  countFrom,
   heatLevels,
+  isFairBaseline,
   levelOf,
+  newContributions,
   parseSnapshot,
   weekColumns,
 } from "../src/lib/activity-view";
@@ -37,6 +40,41 @@ function snapshot(): ActivitySnapshot {
     ],
   };
 }
+
+describe("new contributions since the visitor arrived", () => {
+  /** A snapshot whose rolling calendar holds `days` from 2026-01-01. */
+  const at = (days: number[], syncedAt = "2026-01-03T10:00:00.000Z") => {
+    const base = snapshot();
+    const total = days.reduce((sum, count) => sum + count, 0);
+    return {
+      ...base,
+      syncedAt,
+      rolling: { ...base.rolling, days, total },
+    };
+  };
+
+  it("counts a calendar from a given day on", () => {
+    const year = { year: 2026, start: "2026-01-01", days: [4, 1, 2], total: 7 };
+    expect(countFrom(year, "2026-01-02")).toBe(3);
+    expect(countFrom(year, "2025-12-01")).toBe(7);
+    expect(countFrom(year, "2026-02-01")).toBe(0);
+  });
+  it("counts what appeared on the last day and after", () => {
+    expect(newContributions(at([1, 0, 2]), at([1, 0, 5]))).toBe(3);
+    // A new day began while the page was open.
+    expect(newContributions(at([1, 0, 2]), at([1, 0, 2, 4]))).toBe(4);
+  });
+  it("ignores revisions to earlier days", () => {
+    expect(newContributions(at([1, 0, 2]), at([9, 7, 2]))).toBe(0);
+    expect(newContributions(at([1, 0, 2]), at([0, 0, 1]))).toBe(0);
+  });
+  it("only starts from a snapshot synced around the visit", () => {
+    const arrived = Date.parse("2026-01-03T10:05:00.000Z");
+    expect(isFairBaseline(at([1]), arrived)).toBe(true);
+    const old = at([1], "2026-01-03T09:00:00.000Z");
+    expect(isFairBaseline(old, arrived)).toBe(false);
+  });
+});
 
 describe("activity snapshots from the network", () => {
   it("accepts a well-formed snapshot", () => {
