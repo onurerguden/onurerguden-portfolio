@@ -1,29 +1,12 @@
 import "server-only";
 import type { Snapshot, SyncStore } from "./core";
+import { createRedis } from "./redis";
 
 const PREFIX = "portfolio:github:v1:";
 const EMPTY: Snapshot = { repos: [], syncedAt: null, revision: 0 };
-// Use Redis REST directly for explicit request timeouts and no Next fetch caching.
 export function createStore(): SyncStore | null {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) return null;
-  async function command<T>(...args: (string | number)[]): Promise<T> {
-    const response = await fetch(url!, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(args),
-      cache: "no-store",
-      signal: AbortSignal.timeout(2500),
-    });
-    if (!response.ok) throw new Error("Snapshot storage unavailable");
-    const data = (await response.json()) as { result: T; error?: string };
-    if (data.error) throw new Error("Snapshot storage failed");
-    return data.result;
-  }
+  const command = createRedis();
+  if (!command) return null;
   const key = PREFIX + "snapshot";
   return {
     async read() {
