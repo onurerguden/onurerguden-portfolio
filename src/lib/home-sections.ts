@@ -5,6 +5,7 @@ export const homeSectionIds = [
   "services",
   "work",
   "activity",
+  "certificates",
   "experience",
   "contact",
 ] as const;
@@ -16,12 +17,19 @@ const labels: Record<HomeSectionId, { en: string; tr: string }> = {
   services: { en: "What I do", tr: "Ne yapıyorum" },
   work: { en: "Projects", tr: "Projeler" },
   activity: { en: "GitHub activity", tr: "GitHub aktivitesi" },
+  certificates: { en: "Certificates", tr: "Sertifikalar" },
   experience: { en: "Experience", tr: "Deneyim" },
   contact: { en: "Contact", tr: "İletişim" },
 };
 
 export type SectionLink = { id: HomeSectionId; label: string };
 
-export function homeSectionLinks(locale: "en" | "tr"): SectionLink[] {
-  return homeSectionIds.map((id) => ({ id, label: labels[id][locale] }));
+/** Sections that only exist with content (certificates) are left out otherwise. */
+export function homeSectionLinks(
+  locale: "en" | "tr",
+  { certificates = false }: { certificates?: boolean } = {},
+): SectionLink[] {
+  return homeSectionIds
+    .filter((id) => id !== "certificates" || certificates)
+    .map((id) => ({ id, label: labels[id][locale] }));
 }

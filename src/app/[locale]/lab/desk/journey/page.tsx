@@ -5,6 +5,7 @@ import DeskJourney from "@/components/desk/journey";
 import HomeIntroduction from "@/components/home-introduction";
 import HomeContinuation from "@/components/home-continuation";
 import { homeSectionLinks } from "@/lib/home-sections";
+import { getCertificates } from "@/lib/home-content";
 export async function generateMetadata({
   params,
 }: {
@@ -30,7 +31,9 @@ export default async function JourneyPage({
         locale={locale}
         content={getJourneyContent(locale)}
         introduction={<HomeIntroduction locale={locale} />}
-        sections={homeSectionLinks(locale)}
+        sections={homeSectionLinks(locale, {
+          certificates: getCertificates(locale).length > 0,
+        })}
       />
       <HomeContinuation locale={locale} />
     </main>

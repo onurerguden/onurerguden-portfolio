@@ -1,0 +1,171 @@
+/* Certificates: navy section with holographic cards and a lightbox. */
+.section {
+  padding-block: clamp(96px, 12vw, 168px);
+  background: var(--space);
+  color: var(--paper);
+}
+.inner {
+  width: min(1240px, 90%);
+  margin-inline: auto;
+  container-type: inline-size;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: clamp(20px, 3vw, 36px);
+  margin: clamp(36px, 5vw, 64px) 0 0;
+  padding: 0;
+  overflow-x: clip;
+  list-style: none;
+}
+.card {
+  --px: 0.5;
+  --py: 0.5;
+  --rx: 0deg;
+  --ry: 0deg;
+  display: grid;
+  gap: 14px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: zoom-in;
+  perspective: 900px;
+}
+.media {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 24px 60px #02050d99;
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transition: transform 500ms var(--ease-out);
+}
+.card[data-tilting="true"] .media {
+  transition: none;
+}
+.media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.foil,
+.glare {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+/* A thin rainbow foil that slides with the pointer, like a trading card. */
+.foil {
+  background: linear-gradient(
+    115deg,
+    transparent 20%,
+    #ff6ec733 calc(30% + var(--px) * 20%),
+    #7dd3fc40 calc(40% + var(--px) * 20%),
+    #d8f23c40 calc(50% + var(--px) * 20%),
+    transparent 80%
+  );
+  mix-blend-mode: color-dodge;
+}
+.glare {
+  background: radial-gradient(
+    circle at calc(var(--px) * 100%) calc(var(--py) * 100%),
+    #ffffff66,
+    transparent 45%
+  );
+  mix-blend-mode: soft-light;
+}
+.card[data-tilting="true"] .foil,
+.card[data-tilting="true"] .glare {
+  opacity: 1;
+}
+.card:focus-visible {
+  outline: none;
+}
+.card:focus-visible .media {
+  outline: 3px solid #b7ccff;
+  outline-offset: 4px;
+}
+.meta {
+  display: grid;
+  gap: 4px;
+}
+.meta strong {
+  font-size: 17px;
+}
+.meta span {
+  color: #b7c2d4;
+  font-size: 14px;
+}
+.dialog {
+  width: min(960px, 94vw);
+  max-height: 92vh;
+  padding: 0;
+  border: 0;
+  border-radius: 20px;
+  background: var(--paper);
+  color: var(--ink);
+}
+.dialog::backdrop {
+  background: #050912d9;
+}
+.dialogBody {
+  display: grid;
+}
+.dialogBody img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 64vh;
+  object-fit: contain;
+  background: #fff;
+}
+.dialogText {
+  padding: 22px 26px 26px;
+}
+.dialogText h3 {
+  margin: 0 0 6px;
+  font-size: 21px;
+}
+.dialogText p {
+  margin: 0 0 8px;
+  color: var(--muted);
+}
+.dialogActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-top: 14px;
+}
+.dialogActions a {
+  color: var(--blue);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+.dialogActions button {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 700;
+  cursor: pointer;
+}
+.dialogActions button:last-child {
+  margin-left: auto;
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fff;
+}
+.dialogActions :focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+}

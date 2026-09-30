@@ -1,7 +1,11 @@
 import type { CSSProperties } from "react";
 import GiantTitle from "@/components/giant-title";
 import { sharedFacts, type Locale } from "@/lib/content";
-import { getTechStack, readTechStack } from "@/lib/home-content";
+import {
+  getCertificates,
+  getTechStack,
+  readTechStack,
+} from "@/lib/home-content";
 import { homeSectionLinks } from "@/lib/home-sections";
 import { blissSrcSet, layerBox, type BlissLayer } from "@/lib/bliss-geometry";
 import StackBalls from "./stack-balls";
@@ -111,7 +115,9 @@ export default function StackSection({ locale }: { locale: Locale }) {
           </div>
           <XpTaskbar
             locale={locale}
-            sections={homeSectionLinks(locale)}
+            sections={homeSectionLinks(locale, {
+              certificates: getCertificates(locale).length > 0,
+            })}
             links={[
               { label: "GitHub", href: sharedFacts.github },
               { label: "LinkedIn", href: sharedFacts.linkedin },
