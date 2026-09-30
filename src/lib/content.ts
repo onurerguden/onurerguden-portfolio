@@ -116,6 +116,19 @@ const projects: SharedProject[] = [
     featured: true,
     repoUrl: "https://github.com/onurerguden/izsu_ai_project",
     metricValue: "96.3%",
+    // Rendered from the repository's own data graphs.
+    media: [
+      {
+        src: "/images/projects/water-safety/health-factor-trend.webp",
+        width: 1600,
+        height: 792,
+      },
+      {
+        src: "/images/projects/water-safety/parameter-correlation.webp",
+        width: 1200,
+        height: 1026,
+      },
+    ],
   },
   {
     slug: "course-intelligence",
@@ -138,6 +151,13 @@ const projects: SharedProject[] = [
     featured: false,
     repoUrl: "https://github.com/onurerguden/IZMIR-PUBLIC-TRANSPORTATION-ML",
     metricValue: "5.77%",
+    media: [
+      {
+        src: "/images/projects/urban-mobility/dbscan-clusters.webp",
+        width: 1600,
+        height: 1193,
+      },
+    ],
   },
   {
     slug: "pam",

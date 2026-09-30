@@ -112,6 +112,8 @@ test("the home page never holds more than two WebGL contexts", async ({
   browserName,
 }) => {
   test.skip(browserName === "webkit", "Headless WebKit lacks WebGL2.");
+  // Walking the whole page with software WebGL (SwiftShader) takes a while.
+  test.setTimeout(150000);
   await page.goto("/en");
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",

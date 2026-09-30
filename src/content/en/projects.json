@@ -12,7 +12,11 @@
     "title": "HealthFactor-AI",
     "summary": "Two layers of water-safety intelligence: detecting contamination now and forecasting how safety may change next.",
     "category": "Machine learning · research",
-    "metricLabel": "Toxic-water recall in the project evaluation"
+    "metricLabel": "Toxic-water recall in the project evaluation",
+    "mediaAlt": [
+      "Daily and monthly mean Health Factor of İzmir water samples, August 2025 to August 2026",
+      "Correlation matrix of water-quality parameters and the Health Factor"
+    ]
   },
   "course-intelligence": {
     "title": "Course Intelligence RAG",
@@ -28,7 +32,10 @@
     "title": "İzmir urban mobility",
     "summary": "I explored 27,000+ smart-card records from 2021–2025 with clustering, seasonal features and demand forecasting. Reported forecast error is specific to the project's evaluation.",
     "category": "Data science · forecasting",
-    "metricLabel": "MAPE in the project forecast evaluation"
+    "metricLabel": "MAPE in the project forecast evaluation",
+    "mediaAlt": [
+      "Four DBSCAN clusters and noise in the smart-card data, shown on its first two principal components"
+    ]
   },
   "pam": {
     "title": "Pluggable authentication",
