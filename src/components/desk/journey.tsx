@@ -162,14 +162,34 @@ export default function DeskJourney({
     const clear = () => {
       pendingHash.current = null;
     };
+    let settleBy = performance.now() + 10_000;
+    const hashChanged = () => {
+      remember();
+      settleBy = performance.now() + 10_000;
+    };
     remember();
-    const events = ["wheel", "touchmove", "keydown"] as const;
+    const events = ["wheel", "touchmove", "keydown", "pointerdown"] as const;
     for (const event of events)
       window.addEventListener(event, clear, { passive: true });
-    window.addEventListener("hashchange", remember);
+    window.addEventListener("hashchange", hashChanged);
+    // Sections that stream in later (the GitHub activity) resize the page
+    // after the journey has settled; for the first seconds after a link,
+    // keep its target in place for those too.
+    const main = document.getElementById("main");
+    const resized = new ResizeObserver(() => {
+      const pending = pendingHash.current;
+      const target = pending && document.getElementById(pending.id);
+      if (!pending || !target || performance.now() > settleBy) return;
+      const top = target.getBoundingClientRect().top + window.scrollY;
+      if (Math.abs(top - pending.top) < 2) return;
+      pending.top = top;
+      target.scrollIntoView({ behavior: "instant", block: "start" });
+    });
+    if (main) resized.observe(main);
     return () => {
       for (const event of events) window.removeEventListener(event, clear);
-      window.removeEventListener("hashchange", remember);
+      window.removeEventListener("hashchange", hashChanged);
+      resized.disconnect();
     };
   }, []);
   useEffect(() => {

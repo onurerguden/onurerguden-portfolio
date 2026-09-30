@@ -125,6 +125,9 @@ test("scroll separates reading from camera travel, reverses, focuses links and e
     browserName === "webkit",
     "Headless WebKit has no reliable WebGL2; static paths are covered.",
   );
+  // Five camera stops, an axe scan of the whole (now long) page and a
+  // release and remount of the desk take about 50 s on a busy machine.
+  test.slow();
   await page.goto("/tr/lab/desk/journey");
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
