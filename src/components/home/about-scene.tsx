@@ -239,7 +239,9 @@ function Objects({
   return (
     <>
       <Float id="basketball" groups={groups}>
-        <mesh {...parts.basketball} />
+        {/* Start in the classic three-quarter view, seen from a little above
+            the equator, with the seams' crossing on the side the gutter shows. */}
+        <mesh {...parts.basketball} rotation={[0.24, 0.78, 0]} />
       </Float>
       <Float id="tennis" groups={groups}>
         <mesh {...parts.tennis} />
