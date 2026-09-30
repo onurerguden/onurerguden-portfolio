@@ -2,9 +2,16 @@ import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 const DAY = 86_400_000;
+const POLL = 3 * 60_000;
 
-/** A deterministic snapshot shaped like the API's response. */
-function fixture(extra = 0) {
+/**
+ * A deterministic snapshot shaped like the API's response. `extra`
+ * contributions land on the last day, which both calendars include.
+ */
+function fixture({
+  extra = 0,
+  syncedAt = Date.now() - 4 * 60_000,
+}: { extra?: number; syncedAt?: number } = {}) {
   const year = (y: number, start: string, length: number) => {
     const days = Array.from({ length }, (_, i): number =>
       i % 5 === 0 ? 3 : i % 3 === 0 ? 1 : 0,
@@ -16,9 +23,11 @@ function fixture(extra = 0) {
   y2026.days[271] += extra;
   y2026.total += extra;
   const rolling = year(2026, "2025-09-29", 366);
+  rolling.days[365] += extra;
+  rolling.total += extra;
   return {
     version: 1,
-    syncedAt: new Date(Date.now() - 4 * 60_000).toISOString(),
+    syncedAt: new Date(syncedAt).toISOString(),
     rolling: {
       ...rolling,
       commits: 199,
@@ -173,7 +182,7 @@ test("announces new contributions made while the page is open", async ({
   page,
 }) => {
   await page.clock.install();
-  await serve(page, [fixture(), fixture(3)]);
+  await serve(page, [fixture(), fixture({ extra: 3, syncedAt: Date.now() })]);
   await page.goto("/tr");
   const section = page.locator("#activity");
   await section.scrollIntoViewIfNeeded();
@@ -182,4 +191,88 @@ test("announces new contributions made while the page is open", async ({
   await expect(section.getByRole("status")).toHaveText(
     "Geldiğinden beri 3 yeni katkı",
   );
+});
+
+test("an older cached response never replaces newer numbers", async ({
+  page,
+}) => {
+  await page.clock.install();
+  await serve(page, [
+    fixture(),
+    fixture({ extra: 50, syncedAt: Date.now() - 30 * 60_000 }),
+  ]);
+  await page.goto("/en");
+  const section = page.locator("#activity");
+  await section.scrollIntoViewIfNeeded();
+  const total = section.locator("dd").first();
+  await expect(total).not.toBeEmpty();
+  const before = await total.textContent();
+  const second = page.waitForEvent("requestfinished", (request) =>
+    request.url().endsWith("/api/github/activity"),
+  );
+  await page.clock.runFor(3 * 60_000 + 1000);
+  await second;
+  await expect(total).toHaveText(before!);
+  await expect(section.getByRole("status")).toHaveText("");
+});
+
+test("switching tabs mid-poll keeps a single polling chain", async ({
+  page,
+}) => {
+  await page.clock.install();
+  let calls = 0;
+  let release = () => {};
+  const held = new Promise<void>((done) => (release = done));
+  // The same snapshot every time (WebKit can't fulfil a routed 304), so
+  // each poll waits the normal three minutes.
+  const body = JSON.stringify(fixture());
+  await page.route("**/api/github/activity", async (route) => {
+    calls++;
+    // The second poll stays in flight while the visitor leaves and returns.
+    if (calls === 2) await held;
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      headers: { etag: '"activity-1"' },
+      body,
+    });
+  });
+  const finished = () =>
+    page.waitForEvent("requestfinished", (request) =>
+      request.url().endsWith("/api/github/activity"),
+    );
+  // Real time for the page to handle a response and set its next timer.
+  const settle = () => page.waitForTimeout(300);
+
+  let next = finished();
+  await page.goto("/en");
+  await next;
+  await settle();
+  await page.clock.runFor(POLL + 1000);
+  await expect.poll(() => calls).toBe(2);
+
+  await page.evaluate(() => {
+    for (const state of ["hidden", "visible"]) {
+      Object.defineProperty(document, "visibilityState", {
+        configurable: true,
+        get: () => state,
+      });
+      document.dispatchEvent(new Event("visibilitychange"));
+    }
+  });
+  await page.clock.runFor(1000);
+  await settle();
+  // Coming back while a poll is in flight must not start another one.
+  expect(calls).toBe(2);
+
+  next = finished();
+  release();
+  await next;
+  await settle();
+  await page.clock.runFor(POLL + 1000);
+  await expect.poll(() => calls).toBe(3);
+  await settle();
+  await page.clock.runFor(POLL + 1000);
+  await settle();
+  expect(calls).toBe(4);
 });

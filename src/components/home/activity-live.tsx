@@ -10,6 +10,9 @@ import ContributionGrid from "./contribution-grid";
 import styles from "./activity.module.css";
 
 const POLL = 3 * 60_000;
+/** Failed polls wait twice as long each time, up to 15 minutes. */
+const backoff = (delay: number) =>
+  Math.min(15 * 60_000, Math.max(POLL, delay * 2));
 const SEEN_KEY = "portfolio:activity-seen";
 
 /** Minute-resolution clock after hydration; null while server rendering. */
@@ -79,67 +82,85 @@ export default function ActivityLive({
   const en = locale === "en";
   const [snapshot, setSnapshot] = useState(initial);
   const [fresh, setFresh] = useState(0);
+  const latest = useRef(initial);
   const revision = useRef(initialRevision);
   const arrival = useRef(initial?.allTime ?? null);
   const [tab, setTab] = useState("rolling");
   const [seen, setSeen] = useState<number | null>(null);
   const now = useNow();
 
-  // Poll only while the tab is visible; unchanged data is a free 304.
+  // One poll at a time, and only while the tab is visible: hiding the tab
+  // stops the timer and showing it resumes the same schedule. Unchanged
+  // data is a free 304.
   useEffect(() => {
+    const controller = new AbortController();
     let timer = 0;
-    let delay = snapshot ? POLL : 0;
-    let stopped = false;
+    let running = false;
+    let delay = 0;
+    let due = Date.now() + (latest.current ? POLL : 0);
+
+    const accept = (next: ActivitySnapshot, etag: string | null) => {
+      const current = latest.current;
+      // A CDN can still hold an older revision than the page rendered with;
+      // only a later sync replaces what is on screen.
+      if (current && Date.parse(next.syncedAt) <= Date.parse(current.syncedAt))
+        return;
+      const match = etag?.match(/"activity-(\d+)"/);
+      revision.current = match ? Number(match[1]) : 0;
+      latest.current = next;
+      if (arrival.current === null) arrival.current = next.allTime;
+      setFresh(Math.max(0, next.allTime - arrival.current));
+      setSnapshot(next);
+    };
+    const schedule = () => {
+      window.clearTimeout(timer);
+      if (
+        controller.signal.aborted ||
+        running ||
+        document.visibilityState !== "visible"
+      )
+        return;
+      timer = window.setTimeout(poll, Math.max(0, due - Date.now()));
+    };
     const poll = async () => {
-      if (document.visibilityState !== "visible") return schedule();
+      if (document.visibilityState !== "visible") return;
+      running = true;
       try {
         const response = await fetch("/api/github/activity", {
           headers: revision.current
             ? { "If-None-Match": `"activity-${revision.current}"` }
             : {},
           cache: "no-store",
+          signal: controller.signal,
         });
         const next =
           response.status === 200 ? parseSnapshot(await response.json()) : null;
         if (next) {
-          const etag = response.headers.get("etag")?.match(/activity-(\d+)/);
-          if (etag) revision.current = Number(etag[1]);
-          if (arrival.current === null) arrival.current = next.allTime;
-          setFresh(Math.max(0, next.allTime - arrival.current));
-          setSnapshot(next);
+          accept(next, response.headers.get("etag"));
           delay = POLL;
         } else {
           // An unread body keeps the request open in Chromium, holding its
           // connection; the 304 and 503 bodies are empty or tiny.
           if (!response.bodyUsed) await response.text();
-          delay =
-            response.status === 304
-              ? POLL
-              : Math.min(15 * 60_000, Math.max(POLL, delay * 2));
+          delay = response.status === 304 ? POLL : backoff(delay);
         }
       } catch {
-        delay = Math.min(15 * 60_000, Math.max(POLL, delay * 2));
+        if (controller.signal.aborted) return;
+        delay = backoff(delay);
+      } finally {
+        running = false;
       }
+      due = Date.now() + delay;
       schedule();
     };
-    const schedule = () => {
-      if (!stopped) timer = window.setTimeout(poll, delay || POLL);
-    };
-    timer = window.setTimeout(poll, delay);
-    const wake = () => {
-      if (document.visibilityState === "visible") {
-        window.clearTimeout(timer);
-        timer = window.setTimeout(poll, 0);
-      }
-    };
-    document.addEventListener("visibilitychange", wake);
+
+    schedule();
+    document.addEventListener("visibilitychange", schedule);
     return () => {
-      stopped = true;
+      controller.abort();
       window.clearTimeout(timer);
-      document.removeEventListener("visibilitychange", wake);
+      document.removeEventListener("visibilitychange", schedule);
     };
-    // Polling starts once; the snapshot it receives never restarts it.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // "New" means since the last visit, or the last two days on a first one.
