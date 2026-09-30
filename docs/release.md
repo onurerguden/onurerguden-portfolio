@@ -12,6 +12,7 @@
 - [ ] Enable Vercel Speed Insights. Field p75 metrics remain unmeasured until sufficient visits exist.
 - [ ] Confirm actual iOS Safari on a physical device, not just Playwright WebKit.
 - [ ] Only after content and domain review: SITE_INDEXABLE=true on production, false on previews.
+- [x] Bliss: Onur chose the original Microsoft photograph with a visible credit and accepts the republication risk (29 September 2026, see docs/bliss.md). Revisit if Microsoft objects; the pipeline can swap the source.
 
 ## PR order
 Foundation -> design -> content -> 3D -> GitHub synchronization -> release QA. Stacked branches preserve reviewable changes without merging ahead of approval. Retarget the next PR to main after its prerequisite is merged, preserving commits.

@@ -1,0 +1,365 @@
+/* Tech stack on Bliss: pinned photo stage, XP touches, visible list. */
+.section {
+  position: relative;
+  /* A deep Luna blue keeps the text list above AA contrast. */
+  background: #1c4bb0;
+  color: #fff;
+}
+.track {
+  --s: 0;
+  height: 180svh;
+}
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: clip;
+  container-type: size;
+  isolation: isolate;
+}
+/* object-fit: cover in container units; src/lib/bliss-geometry.ts matches. */
+.frame {
+  position: absolute;
+  left: calc((100cqw - max(100cqw, 160cqh)) * 0.5);
+  top: calc((100cqh - max(100cqw, 160cqh) * 0.625) * 0.56);
+  width: max(100cqw, 160cqh);
+  aspect-ratio: 3840 / 2400;
+  container-type: size;
+}
+.layer {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  will-change: transform;
+}
+.layer img,
+.original img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.sky {
+  z-index: 1;
+  transform: translate3d(0, calc(var(--s) * 6cqh), 0);
+}
+.hill {
+  z-index: 2;
+}
+.balls {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+.foreground {
+  z-index: 4;
+  transform: translate3d(0, calc(var(--s) * -4cqh), 0);
+}
+.original {
+  display: none;
+  position: absolute;
+  inset: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .layer {
+    display: none;
+  }
+  .original {
+    display: block;
+  }
+}
+.head {
+  position: absolute;
+  inset: clamp(18px, 6svh, 64px) 0 auto;
+  z-index: 6;
+  display: grid;
+  justify-items: center;
+  gap: clamp(14px, 3svh, 30px);
+  pointer-events: none;
+  container-type: inline-size;
+}
+.title {
+  width: 100%;
+  text-align: center;
+  color: #fff;
+  text-shadow:
+    0 2px 0 #1c4fb5,
+    0 18px 50px #0a3a9a66;
+}
+/* A small Luna-style dialog. */
+.window {
+  width: min(360px, 88%);
+  overflow: hidden;
+  border: 2px solid #0831d9;
+  border-radius: 9px 9px 4px 4px;
+  background: #ece9d8;
+  color: #1b1b1b;
+  box-shadow: 0 16px 40px #0a2a7a55;
+  font:
+    13px/1.45 Tahoma,
+    "Segoe UI",
+    system-ui,
+    sans-serif;
+  pointer-events: auto;
+}
+.titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 5px 5px 10px;
+  background: linear-gradient(
+    180deg,
+    #0997ff 0%,
+    #0053ee 9%,
+    #0050ee 40%,
+    #0066ff 88%,
+    #0a5ad8 100%
+  );
+  color: #fff;
+  font-weight: 700;
+  text-shadow: 1px 1px #0f1089;
+}
+.controls {
+  display: flex;
+  gap: 3px;
+}
+.controls span {
+  position: relative;
+  width: 21px;
+  height: 21px;
+  border: 1px solid #fff;
+  border-radius: 3px;
+  background: linear-gradient(135deg, #3d8bff, #0a4ed8);
+}
+.minimize::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  bottom: 5px;
+  width: 7px;
+  height: 3px;
+  background: #fff;
+}
+.maximize::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 2px solid #fff;
+  border-top-width: 3px;
+}
+.controls .close {
+  background: linear-gradient(135deg, #f0845a, #c5330e);
+}
+.close::before,
+.close::after {
+  content: "";
+  position: absolute;
+  top: 9px;
+  left: 4px;
+  width: 11px;
+  height: 2px;
+  background: #fff;
+  transform: rotate(45deg);
+}
+.close::after {
+  transform: rotate(-45deg);
+}
+.window p {
+  margin: 0;
+  padding: 10px 12px 12px;
+}
+/* Taskbar with a start menu and İzmir clock. */
+.taskbar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 7;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  height: 40px;
+  background: linear-gradient(
+    180deg,
+    #1f2f86 0,
+    #3165c4 3%,
+    #3682e5 6%,
+    #4490e6 10%,
+    #3883e5 12%,
+    #2b71e0 15%,
+    #2663da 18%,
+    #2258d5 23%,
+    #2157d6 38%,
+    #245ddb 54%,
+    #2562df 86%,
+    #1d4ec0 95%,
+    #1941a5 98%
+  );
+  font:
+    12px/1 Tahoma,
+    "Segoe UI",
+    system-ui,
+    sans-serif;
+}
+.start {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 108px;
+  padding: 0 22px 0 10px;
+  border: 0;
+  border-radius: 0 12px 12px 0;
+  background: linear-gradient(
+    180deg,
+    #5ecf57 0%,
+    #3c9b3c 12%,
+    #3d963d 60%,
+    #2f7d2f 100%
+  );
+  box-shadow: inset -2px 0 4px #1a4d1a80;
+  color: #fff;
+  font:
+    italic 700 19px/1 "Trebuchet MS",
+    Tahoma,
+    sans-serif;
+  text-shadow: 1px 1px 2px #1a3d1a;
+  cursor: pointer;
+}
+.start[aria-expanded="true"] {
+  background: linear-gradient(180deg, #2f7d2f, #3d963d 40%, #2f7d2f);
+}
+.start:focus-visible,
+.startMenu a:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -4px;
+}
+.orb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 30%,
+    #fff 0 12%,
+    #d8f23c 13% 45%,
+    #6aa01b 100%
+  );
+  box-shadow: 0 0 0 2px #ffffff80;
+}
+.startMenu {
+  position: absolute;
+  bottom: 40px;
+  left: 0;
+  display: grid;
+  min-width: 250px;
+  padding-bottom: 8px;
+  overflow: hidden;
+  border: 2px solid #0831d9;
+  border-radius: 8px 8px 0 0;
+  background: #fff;
+  box-shadow: 4px -4px 16px #0000004d;
+}
+.startMenu[hidden] {
+  display: none;
+}
+.startHeader {
+  margin: 0 0 6px;
+  padding: 14px 14px 12px;
+  background: linear-gradient(180deg, #1868ce, #0e60cb 40%, #1453c6);
+  color: #fff;
+  font:
+    700 15px/1 Tahoma,
+    system-ui,
+    sans-serif;
+  text-shadow: 1px 1px #0f1089;
+}
+.startMenu a {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 16px;
+  color: #1b1b1b;
+  font-size: 13px;
+}
+.startMenu a:hover,
+.startMenu a:focus-visible {
+  background: #316ac5;
+  color: #fff;
+}
+.startDivider {
+  height: 1px;
+  margin: 6px 10px;
+  background: #d8d8d8;
+}
+.tray {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 14px;
+  border-left: 1px solid #0f3aa0;
+  background: linear-gradient(
+    180deg,
+    #0c59b9 1%,
+    #139ee9 6%,
+    #18b5f2 10%,
+    #139beb 14%,
+    #1290e8 19%,
+    #0d8dea 63%,
+    #0c78d0 92%,
+    #0a5eab 100%
+  );
+  box-shadow: inset 1px 0 1px #18bbff;
+  color: #fff;
+}
+.credit {
+  font-size: 11px;
+  opacity: 0.92;
+}
+.clock {
+  min-width: 36px;
+  text-align: right;
+}
+@media (max-width: 560px) {
+  .credit {
+    max-width: 150px;
+    font-size: 10px;
+    line-height: 1.2;
+  }
+}
+/* The full list, readable without the balls. */
+.listWindow {
+  width: min(1180px, 90%);
+  margin: 0 auto;
+  padding: clamp(28px, 4vw, 48px) 0 clamp(64px, 8vw, 110px);
+}
+.listTitle {
+  margin: 0 0 18px;
+  font: 700 clamp(18px, 1.6vw, 22px) / 1.3 var(--body);
+}
+.groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 22px 32px;
+}
+.groups h4 {
+  margin: 0 0 10px;
+  color: #dbe8ff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.groups ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.groups li {
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #ffffff26;
+  font-size: 13px;
+  font-weight: 650;
+}
