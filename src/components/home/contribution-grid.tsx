@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import type { ActivityYear } from "@/lib/github/activity-core";
 import {
   GRID_KEYS,
@@ -12,12 +12,56 @@ import {
 } from "@/lib/activity-view";
 import styles from "./activity.module.css";
 
+const formats = {
+  en: {
+    day: new Intl.DateTimeFormat("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      timeZone: "UTC",
+    }),
+    month: new Intl.DateTimeFormat("en-GB", {
+      month: "short",
+      timeZone: "UTC",
+    }),
+  },
+  tr: {
+    day: new Intl.DateTimeFormat("tr-TR", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      timeZone: "UTC",
+    }),
+    month: new Intl.DateTimeFormat("tr-TR", {
+      month: "short",
+      timeZone: "UTC",
+    }),
+  },
+};
+const weekdays = {
+  en: ["", "Mon", "", "Wed", "", "Fri", ""],
+  tr: ["", "Pzt", "", "Çar", "", "Cum", ""],
+};
+
+function describe(cell: HeatCell, locale: "en" | "tr") {
+  const when = formats[locale].day.format(Date.parse(cell.date));
+  if (locale === "en")
+    return `${cell.count === 0 ? "No" : cell.count} contribution${cell.count === 1 ? "" : "s"} on ${when}`;
+  return cell.count === 0
+    ? `${when}: katkı yok`
+    : `${when}: ${cell.count} katkı`;
+}
+
+/** The day a pointer or focus event happened on, if it was a day cell. */
+const dateOf = (target: EventTarget) =>
+  target instanceof HTMLElement ? (target.dataset.date ?? null) : null;
+
 /**
  * A contribution heatmap as an ARIA grid: weekdays are rows and weeks are
  * columns. One cell is tabbable; arrow keys, Home/End and PageUp/PageDown
  * move between days, and a single readout describes the active cell.
  */
-export default function ContributionGrid({
+function ContributionGrid({
   year,
   locale,
   label,
@@ -35,14 +79,22 @@ export default function ContributionGrid({
     );
     return map;
   }, [weeks]);
+  const labels = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const column of weeks)
+      for (const cell of column)
+        if (cell) map.set(cell.date, describe(cell, locale));
+    return map;
+  }, [weeks, locale]);
   // Focus is kept by date, so fresh data that shifts the weeks keeps it on
   // the same day, or on the latest one if that day has left the window.
   const [activeDate, setActiveDate] = useState<string | null>(null);
   const active =
     (activeDate !== null && positions.get(activeDate)) || latestCell(weeks);
-  const [shown, setShown] = useState<HeatCell | null>(null);
+  const activeKey = weeks[active.week]?.[active.day]?.date ?? null;
+  const [shown, setShown] = useState<string | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
-  const cells = useRef(new Map<string, HTMLTableCellElement>());
+  const table = useRef<HTMLTableElement>(null);
 
   // Each year (the parent keys by year) opens on its most recent week.
   useEffect(() => {
@@ -50,20 +102,6 @@ export default function ContributionGrid({
     if (node) node.scrollLeft = node.scrollWidth;
   }, []);
 
-  const date = new Intl.DateTimeFormat(en ? "en-GB" : "tr-TR", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-  const describe = (cell: HeatCell) => {
-    const when = date.format(Date.parse(cell.date));
-    if (en)
-      return `${cell.count === 0 ? "No" : cell.count} contribution${cell.count === 1 ? "" : "s"} on ${when}`;
-    return cell.count === 0
-      ? `${when}: katkı yok`
-      : `${when}: ${cell.count} katkı`;
-  };
   const onKeyDown = (event: React.KeyboardEvent) => {
     if (!GRID_KEYS.includes(event.key)) return;
     event.preventDefault();
@@ -71,76 +109,90 @@ export default function ContributionGrid({
     const cell = target && weeks[target.week][target.day];
     if (!cell) return;
     setActiveDate(cell.date);
-    cells.current.get(cell.date)?.focus();
+    table.current
+      ?.querySelector<HTMLElement>(`[data-date="${cell.date}"]`)
+      ?.focus();
   };
 
-  const months = new Intl.DateTimeFormat(en ? "en-GB" : "tr-TR", {
-    month: "short",
-    timeZone: "UTC",
-  });
-  const weekdays = en
-    ? ["", "Mon", "", "Wed", "", "Fri", ""]
-    : ["", "Pzt", "", "Çar", "", "Cum", ""];
+  // The cells depend only on the data and the tabbable day, so hovering
+  // re-renders the readout and nothing else.
+  const head = useMemo(
+    () => (
+      <thead aria-hidden="true">
+        <tr>
+          <th />
+          {monthSpans(weeks).map((month, i) => (
+            <th key={i} colSpan={month.span} className={styles.month}>
+              {month.date ? (
+                <span>
+                  {formats[locale].month.format(Date.parse(month.date))}
+                </span>
+              ) : null}
+            </th>
+          ))}
+        </tr>
+      </thead>
+    ),
+    [weeks, locale],
+  );
+  const body = useMemo(
+    () => (
+      <tbody>
+        {weekdays[locale].map((weekday, day) => (
+          <tr key={day}>
+            <th className={styles.weekday} aria-hidden="true">
+              {weekday}
+            </th>
+            {weeks.map((column, w) => {
+              const cell = column[day];
+              if (!cell) return <td key={w} role="presentation" />;
+              return (
+                <td
+                  key={w}
+                  role="gridcell"
+                  data-date={cell.date}
+                  tabIndex={cell.date === activeKey ? 0 : -1}
+                  aria-label={labels.get(cell.date)}
+                  data-level={cell.level}
+                  className={styles.cell}
+                />
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    ),
+    [weeks, labels, activeKey, locale],
+  );
+
   return (
     <div className={styles.grid}>
       <div className={styles.gridScroller} ref={scroller}>
         <table
+          ref={table}
           role="grid"
           aria-label={label}
           aria-readonly="true"
           className={styles.heatmap}
           onKeyDown={onKeyDown}
+          onFocus={(event) => {
+            const date = dateOf(event.target);
+            if (!date) return;
+            setActiveDate(date);
+            setShown(date);
+          }}
+          onPointerOver={(event) => {
+            const date = dateOf(event.target);
+            if (date) setShown(date);
+          }}
           onPointerLeave={() => setShown(null)}
         >
-          <thead aria-hidden="true">
-            <tr>
-              <th />
-              {monthSpans(weeks).map((month, i) => (
-                <th key={i} colSpan={month.span} className={styles.month}>
-                  {month.date ? (
-                    <span>{months.format(Date.parse(month.date))}</span>
-                  ) : null}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {Array.from({ length: 7 }, (_, day) => (
-              <tr key={day}>
-                <th className={styles.weekday} aria-hidden="true">
-                  {weekdays[day]}
-                </th>
-                {weeks.map((week, w) => {
-                  const cell = week[day];
-                  if (!cell) return <td key={w} role="presentation" />;
-                  const focused = active.week === w && active.day === day;
-                  return (
-                    <td
-                      key={w}
-                      role="gridcell"
-                      ref={(node) => {
-                        if (node) cells.current.set(cell.date, node);
-                        else cells.current.delete(cell.date);
-                      }}
-                      tabIndex={focused ? 0 : -1}
-                      aria-label={describe(cell)}
-                      data-level={cell.level}
-                      className={styles.cell}
-                      onFocus={() => {
-                        setActiveDate(cell.date);
-                        setShown(cell);
-                      }}
-                      onPointerEnter={() => setShown(cell)}
-                    />
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
+          {head}
+          {body}
         </table>
       </div>
       <p className={styles.readout} aria-hidden="true">
-        {shown ? describe(shown) : " "}
+        {(shown && labels.get(shown)) || " "}
       </p>
       <div className={styles.legend} aria-hidden="true">
         <span>{en ? "Less" : "Az"}</span>
@@ -152,3 +204,6 @@ export default function ContributionGrid({
     </div>
   );
 }
+
+/** Memoised: the parent's minute clock never re-renders the grid. */
+export default memo(ContributionGrid);

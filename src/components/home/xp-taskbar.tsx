@@ -1,6 +1,7 @@
 "use client";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { SectionLink } from "@/lib/home-sections";
+import { useMinute } from "@/lib/use-minute";
 import styles from "./stack.module.css";
 
 const clockFormat = new Intl.DateTimeFormat("en-GB", {
@@ -8,22 +9,10 @@ const clockFormat = new Intl.DateTimeFormat("en-GB", {
   minute: "2-digit",
   timeZone: "Europe/Istanbul",
 });
-function subscribeClock(onChange: () => void) {
-  let timer = 0;
-  const tick = () => {
-    onChange();
-    timer = window.setTimeout(tick, 60_000 - (Date.now() % 60_000) + 50);
-  };
-  timer = window.setTimeout(tick, 60_000 - (Date.now() % 60_000) + 50);
-  return () => window.clearTimeout(timer);
-}
 /** İzmir time, rendered only after hydration so server and client match. */
 function useIzmirClock() {
-  return useSyncExternalStore(
-    subscribeClock,
-    () => clockFormat.format(Date.now()),
-    () => "",
-  );
+  const minute = useMinute();
+  return minute === null ? "" : clockFormat.format(minute);
 }
 
 export default function XpTaskbar({

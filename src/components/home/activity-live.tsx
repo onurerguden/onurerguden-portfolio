@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import type {
   ActivityEvent,
   ActivitySnapshot,
@@ -9,6 +9,7 @@ import {
   newContributions,
   parseSnapshot,
 } from "@/lib/activity-view";
+import { useMinute } from "@/lib/use-minute";
 import ActivityUnavailable from "./activity-unavailable";
 import ContributionGrid from "./contribution-grid";
 import styles from "./activity.module.css";
@@ -22,21 +23,33 @@ const SEEN_KEY = "portfolio:activity-seen";
 /** SEEN_KEY as it stood when this tab's visit began. */
 const VISIT_KEY = "portfolio:activity-seen-before";
 
-/** Minute-resolution clock after hydration; null while server rendering. */
-function subscribeMinute(onChange: () => void) {
-  const timer = window.setInterval(onChange, 30_000);
-  return () => window.clearInterval(timer);
+function formatsFor(tag: string, locale: "en" | "tr") {
+  return {
+    number: new Intl.NumberFormat(tag),
+    weekday: new Intl.DateTimeFormat(tag, {
+      weekday: "long",
+      timeZone: "UTC",
+    }),
+    synced: new Intl.DateTimeFormat(tag, {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone: "Europe/Istanbul",
+    }),
+    day: new Intl.DateTimeFormat(tag, {
+      day: "numeric",
+      month: "short",
+      timeZone: "Europe/Istanbul",
+    }),
+    relative: new Intl.RelativeTimeFormat(locale, { numeric: "auto" }),
+  };
 }
-function useNow() {
-  return useSyncExternalStore(
-    subscribeMinute,
-    () => Math.floor(Date.now() / 30_000) * 30_000,
-    () => null,
-  );
-}
+const formats = {
+  en: formatsFor("en-GB", "en"),
+  tr: formatsFor("tr-TR", "tr"),
+};
 
 function ago(time: number, now: number, locale: "en" | "tr") {
-  const format = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+  const format = formats[locale].relative;
   const minutes = Math.round((time - now) / 60_000);
   if (Math.abs(minutes) < 60) return format.format(minutes, "minute");
   const hours = Math.round(minutes / 60);
@@ -93,7 +106,7 @@ export default function ActivityLive({
   const revision = useRef(initialRevision);
   const [tab, setTab] = useState("rolling");
   const [seen, setSeen] = useState<number | null>(null);
-  const now = useNow();
+  const now = useMinute();
 
   // One poll at a time, and only while the tab is visible: hiding the tab
   // stops the timer and showing it resumes the same schedule. Unchanged
@@ -219,7 +232,8 @@ export default function ActivityLive({
     return () => observer.disconnect();
   }, [newest]);
 
-  const number = new Intl.NumberFormat(en ? "en-GB" : "tr-TR");
+  const format = formats[locale];
+  const number = format.number;
   if (!snapshot)
     return <ActivityUnavailable locale={locale} profile={profile} />;
 
@@ -232,10 +246,7 @@ export default function ActivityLive({
   const weekdayName =
     weekday === null
       ? "—"
-      : new Intl.DateTimeFormat(en ? "en-GB" : "tr-TR", {
-          weekday: "long",
-          timeZone: "UTC",
-        }).format(Date.UTC(2026, 0, 4 + weekday));
+      : format.weekday.format(Date.UTC(2026, 0, 4 + weekday));
   const synced = Date.parse(snapshot.syncedAt);
   const stats = [
     {
@@ -285,11 +296,7 @@ export default function ActivityLive({
         {en ? "Synced with GitHub " : "GitHub ile eşitlendi: "}
         {now === null ? (
           <time dateTime={snapshot.syncedAt}>
-            {new Intl.DateTimeFormat(en ? "en-GB" : "tr-TR", {
-              dateStyle: "medium",
-              timeStyle: "short",
-              timeZone: "Europe/Istanbul",
-            }).format(synced)}
+            {format.synced.format(synced)}
           </time>
         ) : (
           <time dateTime={snapshot.syncedAt}>{ago(synced, now, locale)}</time>
@@ -408,11 +415,7 @@ export default function ActivityLive({
                     ) : null}
                     <time dateTime={event.at}>
                       {now === null
-                        ? new Intl.DateTimeFormat(en ? "en-GB" : "tr-TR", {
-                            day: "numeric",
-                            month: "short",
-                            timeZone: "Europe/Istanbul",
-                          }).format(at)
+                        ? format.day.format(at)
                         : ago(at, now, locale)}
                     </time>
                   </span>
