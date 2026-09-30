@@ -41,3 +41,7 @@ Per-section targets are recorded here as each scene lands; they are measured in 
 ### About objects (measured 29 September)
 
 Procedural geometry only: no model or texture downloads; the three logos share the generated icon data with the tech-stack balls. Steady frame in the production build, headless Chromium: **desktop 20 draw calls / 79,492 triangles**, **390 px phone 6 / 14,650** (budget 32 / 120,000). The first frame also renders the one-off Lightformer environment capture. The scene animates at up to 60 fps (30 on coarse pointers) only while the section is visible and motion is not paused, and unmounts once the section is more than 1.6 viewports away.
+
+### Tech-stack balls (measured 30 September)
+
+One instanced sphere mesh draws every ball, with logos sampled from a texture atlas drawn at runtime from the generated icon paths (no image download). Steady frame in the production build, headless Chromium with scenes forced on: **1 draw call** (plus the one-off Lightformer capture) and **58,320 triangles** for 27 balls on desktop, **38,880** for 18 on a 390 px phone (budget 8 / 80,000). The simulation is a fixed-step 2D solver (`src/lib/physics/ball-world.ts`): about 0.05 ms per frame for the full pile in Node. Frames render only while a ball moves or the pointer is over the stage; a settled pile draws nothing, and scroll events alone drive the drop, launch and return.
