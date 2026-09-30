@@ -1,0 +1,9 @@
+{
+  "about": "Compressed bytes for /en under reduced motion, before any scrolling. Measured 30 Sep 2026: main 195,465 script / 98,040 font / 10,101 CSS / 1,085,266 image; this release 206,898 / 106,048 / 16,560 / 1,085,266. Script is main plus the plan's 20 KB allowance. Images are almost all the 1,076,728-byte opening portrait that predates this work.",
+  "firstLoad": {
+    "script": 215945,
+    "font": 112000,
+    "image": 1150000,
+    "stylesheet": 20000
+  }
+}
