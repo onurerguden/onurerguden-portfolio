@@ -1,10 +1,16 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ActivityYear } from "@/lib/github/activity-core";
-import { latestCell, weekColumns, type HeatCell } from "@/lib/activity-view";
+import {
+  GRID_KEYS,
+  latestCell,
+  monthSpans,
+  nextCell,
+  weekColumns,
+  type HeatCell,
+  type Position,
+} from "@/lib/activity-view";
 import styles from "./activity.module.css";
-
-type Position = { week: number; day: number };
 
 /**
  * A contribution heatmap as an ARIA grid: weekdays are rows and weeks are
@@ -22,7 +28,18 @@ export default function ContributionGrid({
 }) {
   const en = locale === "en";
   const weeks = useMemo(() => weekColumns(year), [year]);
-  const [active, setActive] = useState<Position>(() => latestCell(weeks));
+  const positions = useMemo(() => {
+    const map = new Map<string, Position>();
+    weeks.forEach((column, week) =>
+      column.forEach((cell, day) => cell && map.set(cell.date, { week, day })),
+    );
+    return map;
+  }, [weeks]);
+  // Focus is kept by date, so fresh data that shifts the weeks keeps it on
+  // the same day, or on the latest one if that day has left the window.
+  const [activeDate, setActiveDate] = useState<string | null>(null);
+  const active =
+    (activeDate !== null && positions.get(activeDate)) || latestCell(weeks);
   const [shown, setShown] = useState<HeatCell | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const cells = useRef(new Map<string, HTMLTableCellElement>());
@@ -47,37 +64,14 @@ export default function ContributionGrid({
       ? `${when}: katkı yok`
       : `${when}: ${cell.count} katkı`;
   };
-  const move = (next: Position) => {
-    const week = Math.max(0, Math.min(weeks.length - 1, next.week));
-    const day = Math.max(0, Math.min(6, next.day));
-    // Padding days outside the year are skipped towards the requested side.
-    let target: Position | null = weeks[week][day] ? { week, day } : null;
-    for (let step = 1; !target && step < 7; step++) {
-      const direction = next.week >= active.week ? -1 : 1;
-      const w = week + direction * step;
-      if (w >= 0 && w < weeks.length && weeks[w][day])
-        target = { week: w, day };
-    }
-    if (!target) return;
-    setActive(target);
-    cells.current.get(`${target.week}:${target.day}`)?.focus();
-  };
   const onKeyDown = (event: React.KeyboardEvent) => {
-    const { week, day } = active;
-    const moves: Record<string, Position> = {
-      ArrowLeft: { week: week - 1, day },
-      ArrowRight: { week: week + 1, day },
-      ArrowUp: { week, day: day - 1 },
-      ArrowDown: { week, day: day + 1 },
-      Home: { week: 0, day },
-      End: { week: weeks.length - 1, day },
-      PageUp: { week: week - 4, day },
-      PageDown: { week: week + 4, day },
-    };
-    const next = moves[event.key];
-    if (!next) return;
+    if (!GRID_KEYS.includes(event.key)) return;
     event.preventDefault();
-    move(next);
+    const target = nextCell(weeks, active, event.key);
+    const cell = target && weeks[target.week][target.day];
+    if (!cell) return;
+    setActiveDate(cell.date);
+    cells.current.get(cell.date)?.focus();
   };
 
   const months = new Intl.DateTimeFormat(en ? "en-GB" : "tr-TR", {
@@ -101,16 +95,13 @@ export default function ContributionGrid({
           <thead aria-hidden="true">
             <tr>
               <th />
-              {weeks.map((week, i) => {
-                const first = week.find(
-                  (cell) => cell?.date.endsWith("-01") || false,
-                );
-                return (
-                  <th key={i} className={styles.month}>
-                    {first ? months.format(Date.parse(first.date)) : ""}
-                  </th>
-                );
-              })}
+              {monthSpans(weeks).map((month, i) => (
+                <th key={i} colSpan={month.span} className={styles.month}>
+                  {month.date ? (
+                    <span>{months.format(Date.parse(month.date))}</span>
+                  ) : null}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -128,16 +119,15 @@ export default function ContributionGrid({
                       key={w}
                       role="gridcell"
                       ref={(node) => {
-                        const key = `${w}:${day}`;
-                        if (node) cells.current.set(key, node);
-                        else cells.current.delete(key);
+                        if (node) cells.current.set(cell.date, node);
+                        else cells.current.delete(cell.date);
                       }}
                       tabIndex={focused ? 0 : -1}
                       aria-label={describe(cell)}
                       data-level={cell.level}
                       className={styles.cell}
                       onFocus={() => {
-                        setActive({ week: w, day });
+                        setActiveDate(cell.date);
                         setShown(cell);
                       }}
                       onPointerEnter={() => setShown(cell)}
@@ -150,7 +140,7 @@ export default function ContributionGrid({
         </table>
       </div>
       <p className={styles.readout} aria-hidden="true">
-        {shown ? describe(shown) : " "}
+        {shown ? describe(shown) : " "}
       </p>
       <div className={styles.legend} aria-hidden="true">
         <span>{en ? "Less" : "Az"}</span>

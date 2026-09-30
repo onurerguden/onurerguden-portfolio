@@ -1,10 +1,12 @@
 import { describe, it, expect } from "vitest";
 import {
   countFrom,
-  heatLevels,
+  heatScale,
   isFairBaseline,
-  levelOf,
+  latestCell,
+  monthSpans,
   newContributions,
+  nextCell,
   parseSnapshot,
   weekColumns,
 } from "../src/lib/activity-view";
@@ -109,13 +111,16 @@ describe("activity snapshots from the network", () => {
 
 describe("contribution heatmap", () => {
   it("spreads non-empty days over four levels", () => {
-    const thresholds = heatLevels([0, 1, 2, 3, 4, 5, 6, 7, 8, 0]);
-    expect(levelOf(0, thresholds)).toBe(0);
-    expect(levelOf(1, thresholds)).toBe(1);
-    expect(levelOf(8, thresholds)).toBe(4);
+    const level = heatScale([0, 1, 2, 3, 4, 5, 6, 7, 8, 0]);
+    expect([0, 1, 4, 6, 8].map(level)).toEqual([0, 1, 2, 3, 4]);
+  });
+  it("gives the busiest day the darkest level in a sparse year", () => {
+    expect(heatScale([0, 5, 0])(5)).toBe(4);
+    const ties = heatScale([1, 1, 1, 2, 2]);
+    expect([1, 2].map(ties)).toEqual([1, 4]);
   });
   it("keeps an empty year at level zero", () => {
-    expect(levelOf(0, heatLevels([0, 0, 0]))).toBe(0);
+    expect(heatScale([0, 0, 0])(0)).toBe(0);
   });
   it("lays out Sunday-first week columns with padding", () => {
     // 2026-01-01 is a Thursday.
@@ -130,5 +135,59 @@ describe("contribution heatmap", () => {
     expect(weeks[0][4]?.date).toBe("2026-01-01");
     expect(weeks[1][0]?.date).toBe("2026-01-04");
     expect(weeks[1].slice(1)).toEqual([null, null, null, null, null, null]);
+  });
+});
+
+describe("heatmap layout and keyboard", () => {
+  // 2025-12-31 is a Wednesday; the calendar runs to Thursday 2026-03-05.
+  const weeks = weekColumns({
+    year: 2026,
+    start: "2025-12-31",
+    days: Array.from({ length: 65 }, () => 1),
+    total: 65,
+  });
+
+  it("labels months across the weeks they span", () => {
+    const spans = monthSpans(weeks);
+    expect(spans.reduce((sum, month) => sum + month.span, 0)).toBe(
+      weeks.length,
+    );
+    expect(spans.map((month) => month.date)).toEqual([
+      "2026-01-01",
+      "2026-02-01",
+      // March has one week in view: no room for a label.
+      null,
+    ]);
+  });
+  it("keeps up and down within the week and stops at padding", () => {
+    const last = weeks.length - 1;
+    // Thursday 5 March is the last day; Friday is padding.
+    expect(weeks[last][4]?.date).toBe("2026-03-05");
+    expect(nextCell(weeks, { week: last, day: 4 }, "ArrowDown")).toBeNull();
+    expect(nextCell(weeks, { week: last, day: 4 }, "ArrowUp")).toEqual({
+      week: last,
+      day: 3,
+    });
+    expect(nextCell(weeks, { week: 1, day: 0 }, "ArrowUp")).toBeNull();
+  });
+  it("moves along the row and steps back over padding", () => {
+    const last = weeks.length - 1;
+    // Saturday of the last week is padding: End lands a week earlier.
+    expect(nextCell(weeks, { week: 3, day: 6 }, "End")).toEqual({
+      week: last - 1,
+      day: 6,
+    });
+    // Sunday of the first week is padding: Home stays on week 1.
+    expect(nextCell(weeks, { week: 1, day: 0 }, "Home")).toBeNull();
+    expect(nextCell(weeks, { week: 1, day: 0 }, "ArrowLeft")).toBeNull();
+    expect(nextCell(weeks, { week: 1, day: 3 }, "ArrowLeft")).toEqual({
+      week: 0,
+      day: 3,
+    });
+    expect(nextCell(weeks, { week: 1, day: 3 }, "PageDown")).toEqual({
+      week: 5,
+      day: 3,
+    });
+    expect(latestCell(weeks)).toEqual({ week: last, day: 4 });
   });
 });

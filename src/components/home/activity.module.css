@@ -150,6 +150,12 @@
   color: var(--muted);
   font-size: 11px;
   text-align: left;
+}
+/* A zero-width label overflows into the weeks it spans instead of widening
+   the first column, so every day stays a square. */
+.month span {
+  display: block;
+  width: 0;
   white-space: nowrap;
 }
 .weekday {

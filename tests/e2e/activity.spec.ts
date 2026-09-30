@@ -11,7 +11,8 @@ const POLL = 3 * 60_000;
 function fixture({
   extra = 0,
   syncedAt = Date.now() - 4 * 60_000,
-}: { extra?: number; syncedAt?: number } = {}) {
+  rollingStart = "2025-09-29",
+}: { extra?: number; syncedAt?: number; rollingStart?: string } = {}) {
   const year = (y: number, start: string, length: number) => {
     const days = Array.from({ length }, (_, i): number =>
       i % 5 === 0 ? 3 : i % 3 === 0 ? 1 : 0,
@@ -22,7 +23,7 @@ function fixture({
   const y2026 = year(2026, "2026-01-01", 272);
   y2026.days[271] += extra;
   y2026.total += extra;
-  const rolling = year(2026, "2025-09-29", 366);
+  const rolling = year(2026, rollingStart, 366);
   rolling.days[365] += extra;
   rolling.total += extra;
   return {
@@ -148,10 +149,24 @@ test("shows totals, a keyboard heatmap and recent activity", async ({
   await expect(section.getByText("New", { exact: true })).toHaveCount(1);
 
   const grid = section.getByRole("grid");
+  // Month labels never widen a week: every day is the same square.
+  const widths = await grid
+    .locator('[role="gridcell"]')
+    .evaluateAll((cells) =>
+      cells.map((cell) => cell.getBoundingClientRect().width),
+    );
+  expect(Math.max(...widths) - Math.min(...widths)).toBeLessThan(0.5);
+
   const focusable = grid.locator('[role="gridcell"][tabindex="0"]');
   await expect(focusable).toHaveCount(1);
   await focusable.focus();
   const first = await focusable.getAttribute("aria-label");
+  // The last day is a Tuesday: below it is padding, so focus stays put.
+  await page.keyboard.press("ArrowDown");
+  await expect(grid.locator('[role="gridcell"]:focus')).toHaveAttribute(
+    "aria-label",
+    first!,
+  );
   await page.keyboard.press("ArrowLeft");
   await expect(grid.locator('[role="gridcell"]:focus')).not.toHaveAttribute(
     "aria-label",
@@ -176,6 +191,29 @@ test("shows totals, a keyboard heatmap and recent activity", async ({
         .analyze()
     ).violations,
   ).toEqual([]);
+});
+
+test("heatmap focus stays on its day when the window moves", async ({
+  page,
+}) => {
+  await page.clock.install();
+  await serve(page, [
+    fixture(),
+    // A week later the rolling window has dropped its first week.
+    fixture({ syncedAt: Date.now(), rollingStart: "2025-10-06" }),
+  ]);
+  await page.goto("/en");
+  const grid = page.locator("#activity").getByRole("grid");
+  await grid.scrollIntoViewIfNeeded();
+  const tabbable = grid.locator('[role="gridcell"][tabindex="0"]');
+  await tabbable.focus();
+  for (let i = 0; i < 3; i++) await page.keyboard.press("ArrowLeft");
+  const day = await tabbable.getAttribute("aria-label");
+  await page.clock.runFor(POLL + 1000);
+  // The new window ends a week later.
+  await expect(grid.locator('[aria-label$="on 6 Oct 2026"]')).toHaveCount(1);
+  await expect(tabbable).toHaveCount(1);
+  await expect(tabbable).toHaveAttribute("aria-label", day!);
 });
 
 test("announces new contributions made while the page is open", async ({

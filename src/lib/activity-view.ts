@@ -146,30 +146,32 @@ export function newContributions(
 
 /**
  * GitHub-style intensity: level 0 for empty days, then quartiles of the
- * non-empty days, so a busy year and a quiet one both use the full scale.
+ * non-empty days. The busiest day is always level 4, so a quiet year and a
+ * busy one both reach the darkest colour.
  */
-export function heatLevels(days: number[]) {
+export function heatScale(
+  days: number[],
+): (count: number) => HeatCell["level"] {
   const active = days.filter((count) => count > 0).sort((a, b) => a - b);
-  if (!active.length) return [Infinity, Infinity, Infinity];
+  const max = active.at(-1) ?? 0;
   const at = (q: number) =>
     active[Math.min(active.length - 1, Math.floor(q * active.length))];
-  return [at(0.25), at(0.5), at(0.75)];
+  const thresholds = active.length ? [at(0.25), at(0.5), at(0.75)] : [];
+  return (count) => {
+    if (count <= 0) return 0;
+    if (count >= max) return 4;
+    return (1 +
+      thresholds.filter((threshold) => count > threshold)
+        .length) as HeatCell["level"];
+  };
 }
 
-export function levelOf(
-  count: number,
-  thresholds: number[],
-): HeatCell["level"] {
-  if (count <= 0) return 0;
-  if (count <= thresholds[0]) return 1;
-  if (count <= thresholds[1]) return 2;
-  if (count <= thresholds[2]) return 3;
-  return 4;
-}
+export type Grid = (HeatCell | null)[][];
+export type Position = { week: number; day: number };
 
 /** Weeks as columns of seven days, Sunday first; days outside the year are null. */
-export function weekColumns(year: ActivityYear): (HeatCell | null)[][] {
-  const thresholds = heatLevels(year.days);
+export function weekColumns(year: ActivityYear): Grid {
+  const level = heatScale(year.days);
   const start = Date.parse(year.start);
   const lead = new Date(start).getUTCDay();
   const slots: (HeatCell | null)[] = Array.from({ length: lead }, () => null);
@@ -177,19 +179,82 @@ export function weekColumns(year: ActivityYear): (HeatCell | null)[][] {
     slots.push({
       date: new Date(start + i * DAY).toISOString().slice(0, 10),
       count,
-      level: levelOf(count, thresholds),
+      level: level(count),
     }),
   );
   while (slots.length % 7) slots.push(null);
-  const weeks: (HeatCell | null)[][] = [];
+  const weeks: Grid = [];
   for (let i = 0; i < slots.length; i += 7) weeks.push(slots.slice(i, i + 7));
   return weeks;
 }
 
+/**
+ * Header cells over the weeks: each month's label spans the weeks until the
+ * next one starts. A month with fewer than three weeks in view gets no
+ * label, as there is no room to print it.
+ */
+export function monthSpans(weeks: Grid) {
+  const starts = weeks.flatMap((week, index) => {
+    const first = week.find((cell) => cell?.date.endsWith("-01"));
+    return first ? [{ index, date: first.date }] : [];
+  });
+  const spans: { date: string | null; span: number }[] = [];
+  if ((starts[0]?.index ?? weeks.length) > 0)
+    spans.push({ date: null, span: starts[0]?.index ?? weeks.length });
+  starts.forEach(({ index, date }, i) => {
+    const span = (starts[i + 1]?.index ?? weeks.length) - index;
+    spans.push({ date: span >= 3 ? date : null, span });
+  });
+  return spans;
+}
+
 /** The most recent day in the grid, where keyboard focus starts. */
-export function latestCell(weeks: (HeatCell | null)[][]) {
+export function latestCell(weeks: Grid): Position {
   for (let week = weeks.length - 1; week >= 0; week--)
     for (let day = 6; day >= 0; day--)
       if (weeks[week][day]) return { week, day };
   return { week: 0, day: 0 };
+}
+
+export const GRID_KEYS = [
+  "ArrowLeft",
+  "ArrowRight",
+  "ArrowUp",
+  "ArrowDown",
+  "Home",
+  "End",
+  "PageUp",
+  "PageDown",
+];
+
+/**
+ * Where a grid key moves focus from `from`, or null to stay put. Up and
+ * down stay within the week and stop at padding; the other keys move along
+ * the weekday row and step back over padding towards where they started.
+ */
+export function nextCell(
+  weeks: Grid,
+  from: Position,
+  key: string,
+): Position | null {
+  const { week, day } = from;
+  if (key === "ArrowUp" || key === "ArrowDown") {
+    const target = day + (key === "ArrowUp" ? -1 : 1);
+    return weeks[week]?.[target] ? { week, day: target } : null;
+  }
+  const last = weeks.length - 1;
+  const wanted = {
+    ArrowLeft: week - 1,
+    ArrowRight: week + 1,
+    Home: 0,
+    End: last,
+    PageUp: week - 4,
+    PageDown: week + 4,
+  }[key];
+  if (wanted === undefined) return null;
+  const target = Math.max(0, Math.min(last, wanted));
+  const back = target > week ? -1 : 1;
+  for (let w = target; w !== week; w += back)
+    if (weeks[w][day]) return { week: w, day };
+  return null;
 }
