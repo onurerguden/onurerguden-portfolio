@@ -1,7 +1,7 @@
 import HomeIntroduction from "@/components/home-introduction";
 import { notFound } from "next/navigation";
-import { isLocale } from "@/lib/content";
-import { pageMetadata } from "@/lib/site";
+import { isLocale, sharedFacts } from "@/lib/content";
+import { pageMetadata, siteOrigin } from "@/lib/site";
 import DeskJourney from "@/components/desk/journey";
 import { getJourneyContent } from "@/lib/desk-journey-content";
 import HomeContinuation from "@/components/home-continuation";
@@ -31,8 +31,28 @@ export default async function Home({
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
+  // Structured data so search engines can connect the profiles.
+  const person = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: sharedFacts.name,
+    jobTitle: locale === "en" ? "AI Engineer" : "AI Mühendisi",
+    worksFor: { "@type": "Organization", name: sharedFacts.work.company },
+    alumniOf: {
+      "@type": "CollegeOrUniversity",
+      name: sharedFacts.education.university,
+    },
+    url: `${siteOrigin()}/${locale}`,
+    sameAs: [sharedFacts.github, sharedFacts.linkedin],
+  };
   return (
     <main id="main" tabIndex={-1}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(person).replace(/</g, "\\u003c"),
+        }}
+      />
       <DeskJourney
         locale={locale}
         content={getJourneyContent(locale)}

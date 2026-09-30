@@ -19,6 +19,8 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "node_modules/@fontsource-variable/archivo/files"
 OUTPUT = ROOT / "public/fonts"
 METRICS = ROOT / "src/lib/display-metrics.json"
+# Open Graph images are rendered by satori, which reads TTF but not WOFF2.
+OG = ROOT / "assets/fonts"
 FAMILY = "Portfolio Display"
 
 # Titles are uppercased with text-transform, so lowercase glyphs are never used.
@@ -76,14 +78,33 @@ def advances(target: Path, text: str) -> dict[str, float]:
     }
 
 
+def og_instance(source: str, text: str, target: Path) -> None:
+    """A static weight-900 TTF of the same subset for social images."""
+    font = TTFont(SOURCE / source, recalcTimestamp=False)
+    font = instancer.instantiateVariableFont(font, {"wdth": 125, "wght": 900})
+    options = subset.Options()
+    options.layout_features = ["kern", "case"]
+    options.name_IDs = ["*"]
+    options.notdef_outline = True
+    subsetter = subset.Subsetter(options)
+    subsetter.populate(text=text)
+    subsetter.subset(font)
+    rename(font)
+    font.flavor = None
+    font.recalcTimestamp = False
+    font.save(target)
+
+
 def main() -> None:
     OUTPUT.mkdir(parents=True, exist_ok=True)
+    OG.mkdir(parents=True, exist_ok=True)
     total = 0
     widths: dict[str, float] = {}
     for name, (source, text) in FILES.items():
         target = OUTPUT / f"portfolio-display-{name}.woff2"
         size = build(source, text, target)
         widths.update(advances(target, text))
+        og_instance(source, text, OG / f"og-display-{name}.ttf")
         total += size
         print(f"{target.relative_to(ROOT)}: {size:,} bytes")
     METRICS.write_text(

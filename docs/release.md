@@ -14,6 +14,15 @@
 - [ ] Only after content and domain review: SITE_INDEXABLE=true on production, false on previews.
 - [x] Bliss: Onur chose the original Microsoft photograph with a visible credit and accepts the republication risk (29 September 2026, see docs/bliss.md). Revisit if Microsoft objects; the pipeline can swap the source.
 
+## S+ home page inputs
+- [ ] Onur reviews the About paragraph and the five What I do rows (EN/TR), including the basketball and tennis line.
+- [ ] Onur confirms the technology list in `src/content/tech-stack.json`.
+- [ ] Onur supplies the certificates folder; each image goes through `npm run certificate` and a personal-data review before `personalDataReviewed: true`.
+- [ ] Onur confirms which evaluation the Course Intelligence "100% on the quantitative set" refers to; the repository's `evaluation_results_enhanced.json` rates that set 5 excellent, 4 good and 1 poor.
+- [ ] Optional: TaskFoo and ScoreStack screenshots for the archive card.
+- [ ] Vercel: `GITHUB_TOKEN` (fine-grained, public read-only) and Upstash credentials; call `/api/cron/github` once, then check the activity totals against the GitHub profile.
+- [ ] Physical iPhone Safari pass: About objects, balls, desk release and restore, memory and context loss.
+
 ## PR order
 Foundation -> design -> content -> 3D -> GitHub synchronization -> release QA. Stacked branches preserve reviewable changes without merging ahead of approval. Retarget the next PR to main after its prerequisite is merged, preserving commits.
 
