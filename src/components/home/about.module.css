@@ -1,0 +1,159 @@
+/* Navy "About me" band. The static composition doubles as the 3D poster. */
+.section {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  min-height: min(100svh, 980px);
+  display: grid;
+  align-items: center;
+  padding-block: clamp(96px, 12vw, 176px);
+  background:
+    radial-gradient(
+      ellipse 70% 60% at 50% 42%,
+      color-mix(in oklab, var(--space-2) 85%, transparent),
+      transparent 70%
+    ),
+    var(--space);
+  color: var(--paper);
+}
+.inner {
+  position: relative;
+  z-index: 2;
+  width: min(1120px, 88%);
+  margin-inline: auto;
+  text-align: center;
+  container-type: inline-size;
+}
+.title {
+  margin-inline: auto;
+}
+.copy {
+  max-width: 62ch;
+  margin: clamp(28px, 4vw, 48px) auto 0;
+}
+.copy p {
+  margin-bottom: 18px;
+  color: #d9e1ee;
+  font-size: clamp(17px, 1.45vw, 20px);
+  line-height: 1.7;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 14px 22px;
+  margin-top: clamp(24px, 3vw, 36px);
+}
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 0 26px;
+  border-radius: 999px;
+  background: var(--blue);
+  color: #fff;
+  font-weight: 750;
+  box-shadow:
+    0 0 0 1px #4d7cff,
+    0 16px 40px #1947e55c;
+  transition:
+    transform 350ms var(--ease-out),
+    box-shadow 350ms var(--ease-out),
+    background 250ms ease;
+}
+.cta span {
+  transition: transform 350ms var(--ease-out);
+}
+.secondary {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: #cbd9ff;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
+.cta:focus-visible,
+.secondary:focus-visible {
+  outline: 3px solid #b7ccff;
+  outline-offset: 5px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .cta:hover {
+    background: #2857ee;
+    transform: translateY(-2px);
+    box-shadow:
+      0 0 0 1px #7da0ff,
+      0 22px 50px #1947e575;
+  }
+  .cta:hover span {
+    transform: translateX(4px);
+  }
+  .secondary:hover {
+    color: #fff;
+  }
+}
+/* Static clay shapes in the corners; hidden once the 3D scene is live. */
+.decor {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 500ms ease;
+}
+.section[data-stage-state="live"] .decor {
+  opacity: 0;
+}
+.decor span {
+  position: absolute;
+  border-radius: 50%;
+}
+.ball {
+  top: 7%;
+  left: 2%;
+  width: clamp(88px, 12vw, 180px);
+  aspect-ratio: 1;
+  background:
+    radial-gradient(circle at 34% 30%, #ffb27a 0 8%, transparent 30%),
+    radial-gradient(circle at 60% 65%, #9c4213, transparent 70%),
+    var(--basketball);
+  box-shadow: inset -14px -18px 36px #0000004d;
+}
+.tennis {
+  right: 8%;
+  bottom: 14%;
+  width: clamp(64px, 8vw, 120px);
+  aspect-ratio: 1;
+  background:
+    radial-gradient(circle at 34% 30%, #fbffd6 0 8%, transparent 32%),
+    radial-gradient(circle at 60% 65%, #93a71d, transparent 70%), var(--volt);
+  box-shadow: inset -10px -14px 28px #0000003d;
+}
+.chip {
+  top: 9%;
+  right: 5%;
+  width: clamp(54px, 6vw, 96px);
+  aspect-ratio: 1;
+  border-radius: 22% !important;
+  background: linear-gradient(145deg, #3c6bff, #1535a8);
+  box-shadow:
+    inset -8px -10px 22px #00000040,
+    0 0 0 6px #1947e526;
+  transform: rotate(-14deg);
+}
+@media (max-width: 700px) {
+  .ball {
+    top: auto;
+    bottom: 3%;
+    left: -8%;
+  }
+  .chip {
+    top: 3%;
+    right: 6%;
+  }
+  .tennis {
+    bottom: 4%;
+  }
+}

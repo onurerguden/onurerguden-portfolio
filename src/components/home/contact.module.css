@@ -1,0 +1,70 @@
+.section {
+  padding-block: clamp(104px, 13vw, 184px);
+  background:
+    radial-gradient(ellipse 60% 70% at 50% 110%, #1947e547, transparent 70%),
+    var(--space);
+  color: var(--paper);
+  text-align: center;
+}
+.inner {
+  width: min(1180px, 88%);
+  margin-inline: auto;
+  container-type: inline-size;
+}
+.lead {
+  margin-bottom: clamp(18px, 2.4vw, 30px);
+  color: #cbd6e6;
+  font-size: clamp(16px, 1.4vw, 19px);
+}
+.mail {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  margin-top: clamp(30px, 4vw, 52px);
+  padding: 0 28px;
+  border: 1px solid #ffffff3d;
+  border-radius: 999px;
+  color: #fff;
+  font-size: clamp(16px, 1.6vw, 21px);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  transition:
+    background 300ms ease,
+    color 300ms ease,
+    border-color 300ms ease,
+    transform 350ms var(--ease-out);
+}
+.links {
+  display: flex;
+  justify-content: center;
+  gap: 8px 26px;
+  margin: 26px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #cbd9ff;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
+.mail:focus-visible,
+.links a:focus-visible {
+  outline: 3px solid #b7ccff;
+  outline-offset: 5px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .mail:hover {
+    border-color: var(--volt);
+    background: var(--volt);
+    color: var(--ink);
+    transform: translateY(-2px);
+  }
+  .links a:hover {
+    color: #fff;
+  }
+}
