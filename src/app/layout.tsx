@@ -2,9 +2,12 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import "@fontsource-variable/manrope";
 import "@fontsource-variable/newsreader";
+import { siteOrigin } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  // Share cards on every route, including the lab pages, resolve here.
+  metadataBase: new URL(siteOrigin()),
   title: {
     default: "Onur Ergüden — AI Engineer",
     template: "%s | Onur Ergüden",
