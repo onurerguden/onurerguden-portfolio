@@ -804,3 +804,9 @@
     font-size: 56px;
   }
 }
+
+/* Shown only while the released desk scene remounts after scrolling back. */
+.releasedPoster {
+  object-fit: cover;
+  background: #080e1c;
+}

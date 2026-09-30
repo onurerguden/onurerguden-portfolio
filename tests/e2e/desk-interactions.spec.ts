@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { journeyCanvas, reviewCanvas } from "./helpers";
 import sharp from "sharp";
 import AxeBuilder from "@axe-core/playwright";
 import { PerspectiveCamera, Vector3 } from "three";
@@ -23,7 +24,7 @@ for (const locale of ["en", "tr"] as const) {
             name: locale === "en" ? "Explore in 3D" : "3D olarak incele",
           })
           .click();
-      const canvas = page.locator("canvas");
+      const canvas = journey ? journeyCanvas(page) : reviewCanvas(page);
       await expect(canvas).toHaveAttribute("data-lights", "1.000", {
         timeout: 20000,
       });
@@ -163,7 +164,7 @@ test("review objects accept direct pointer clicks and reduced motion keeps funct
   test.skip(browserName === "webkit", "Requires WebGL2.");
   await page.goto("/en/lab/desk");
   await page.getByRole("button", { name: "Explore in 3D" }).click();
-  const canvas = page.locator("canvas");
+  const canvas = reviewCanvas(page);
   await expect(canvas).toHaveAttribute("data-lights", "1.000", {
     timeout: 20000,
   });

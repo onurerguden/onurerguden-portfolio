@@ -9,6 +9,7 @@ import {
   ShaderMaterial,
   Vector2,
 } from "three";
+import { seededRandom } from "@/lib/random";
 
 export type CosmicPointer = {
   x: number;
@@ -59,14 +60,6 @@ const gridFragmentShader = `
     gl_FragColor = vec4(vec3(0.447, 0.525, 0.678), alpha);
   }
 `;
-
-function seededRandom(seed: number) {
-  let value = seed >>> 0;
-  return () => {
-    value = (value * 1664525 + 1013904223) >>> 0;
-    return value / 4294967296;
-  };
-}
 
 function createStars(count: number) {
   const random = seededRandom(0x0e8d2026);
