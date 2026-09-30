@@ -1,7 +1,8 @@
 /* Tech stack on Bliss: pinned photo stage, XP touches, visible list. */
 .section {
   position: relative;
-  background: #2d6fd6;
+  /* A deep Luna blue keeps the text list above AA contrast. */
+  background: #1c4bb0;
   color: #fff;
 }
 .track {
