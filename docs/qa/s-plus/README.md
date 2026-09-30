@@ -27,10 +27,10 @@ Compressed bytes for `/en` before any scrolling, from the production build on 30
 
 | Resource | `main` | This release | Ceiling |
 | --- | --- | --- | --- |
-| Script (reduced motion) | 195,465 | 206,898 (+11.2 KB) | 215,945 (`main` + 20 KB, as planned) |
-| Script (full motion, desk scene included) | 507,179 | 519,095 (+11.6 KB) | not enforced |
+| Script (reduced motion) | 195,465 | 208,623 (+13.2 KB) | 215,945 (`main` + 20 KB, as planned) |
+| Script (full motion, desk scene included) | 507,179 | 520,584 (+13.4 KB) | not enforced |
 | Font | 98,040 | 106,048 (+8.0 KB, the display font) | 112,000 |
-| CSS | 10,101 | 16,560 | 20,000 |
+| CSS | 10,101 | 16,832 | 20,000 |
 | Image | 1,085,266 | 1,085,266 | 1,150,000 |
 
 The image total is almost entirely the opening portrait, `public/images/avatar/onur-head-v4.webp` (1,076,728 bytes, 1254 × 1254 with alpha), which predates this work and is served at full resolution on purpose (`docs/design.md`, 23 September). A trial AVIF at quality 70 is 152,577 bytes (43 dB PSNR). It is left for Onur to decide, since the start screen is still being designed.
@@ -41,4 +41,5 @@ The image total is almost entirely the opening portrait, `public/images/avatar/o
 - **Firefox isn't in the Playwright matrix.** By design it shows the finished state of the Services reveal (no scroll timelines); this is unverified in a real Firefox.
 - **No field data yet.** Live activity has only been verified against the real GitHub API from the command line; Redis, the webhook and the cron await Vercel configuration.
 - **Lab page only.** The `/lab/desk` review page (noindex, 404 in production) has six e2e failures that predate this work; the same six fail on `main` (04fb538, rerun on 30 September): `desk.spec.ts` "desk camera visits four stops…" and `desk-interactions.spec.ts` "review desk actions and keyboard access" (EN and TR) on desktop and Pixel 7 Chromium. After "Explore in 3D", the HTML screen panels are projected thousands of pixels wide and cover the desk (`lab-desk-review-panels.webp`, 1440 px). The home page journey is not affected. They are left for the desk redesign rather than patched here.
+- **Timing under load.** With the machine's load average at 8–11 (other apps running), a few WebGL-heavy tests failed now and then: journey camera stops, and the Sections menu landing on Pixel 7. In the Sections case the trace shows the page on target within a second, then a 12-second renderer stall during which the viewport check could not answer. Each passed on isolated reruns. The long journey walkthrough now has a slow-test budget, since it takes 48–52 s under load.
 - **Unread polls.** Chromium keeps a `fetch` open until its body is read, so the activity poll now reads its empty 304 and small 503 bodies. Without that, the page never reached network idle while the API was unavailable.
