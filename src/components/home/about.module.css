@@ -103,8 +103,38 @@
   pointer-events: none;
   transition: opacity 500ms ease;
 }
-.section[data-stage-state="live"] .decor {
+.section:has([data-stage-state="live"]) .decor {
   opacity: 0;
+}
+/* The WebGL objects sit behind the copy and never take pointer input. */
+.stage {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.pause {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  margin-top: 18px;
+  padding: 0 16px;
+  border: 1px solid #ffffff38;
+  border-radius: 999px;
+  background: transparent;
+  color: #b7c2d4;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.pause:focus-visible {
+  outline: 3px solid #b7ccff;
+  outline-offset: 4px;
+}
+/* Only offered once the objects are actually moving. */
+.section:not(:has([data-stage-state="live"])) .pause {
+  display: none;
 }
 .decor span {
   position: absolute;

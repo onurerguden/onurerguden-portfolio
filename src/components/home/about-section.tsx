@@ -1,20 +1,18 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
 import GiantTitle from "@/components/giant-title";
+import MotionToggle from "@/components/motion-toggle";
 import type { Locale } from "@/lib/content";
-import { getAbout } from "@/lib/home-content";
+import { getAbout, readTechStack } from "@/lib/home-content";
+import AboutStage from "./about-stage";
 import styles from "./about.module.css";
 
-/** Navy "About me" band; the floating 3D objects mount into `stage`. */
-export default function AboutSection({
-  locale,
-  stage,
-}: {
-  locale: Locale;
-  stage?: ReactNode;
-}) {
+/** Navy "About me" band with floating procedural objects around the copy. */
+export default function AboutSection({ locale }: { locale: Locale }) {
   const en = locale === "en";
   const about = getAbout(locale);
+  const logos = readTechStack().items.flatMap((item) =>
+    item.aboutLogo && "simpleIcons" in item.icon ? [item.icon.simpleIcons] : [],
+  );
   return (
     <section
       id="about"
@@ -26,7 +24,7 @@ export default function AboutSection({
         <span className={styles.tennis} />
         <span className={styles.chip} />
       </div>
-      {stage}
+      <AboutStage logos={logos} />
       <div className={styles.inner} data-about-copy>
         <GiantTitle
           id="about-title"
@@ -49,6 +47,7 @@ export default function AboutSection({
             {en ? "My research" : "Araştırmalarım"}
           </Link>
         </div>
+        <MotionToggle locale={locale} className={styles.pause} />
       </div>
     </section>
   );

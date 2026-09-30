@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { journeyCanvas } from "./helpers";
+import { forceSectionScenes, journeyCanvas } from "./helpers";
 import AxeBuilder from "@axe-core/playwright";
 const paths = [
   "",
@@ -114,6 +114,7 @@ test("the home page never holds more than two WebGL contexts", async ({
   test.skip(browserName === "webkit", "Headless WebKit lacks WebGL2.");
   // Walking the whole page with software WebGL (SwiftShader) takes a while.
   test.setTimeout(150000);
+  await forceSectionScenes(page);
   await page.goto("/en");
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",

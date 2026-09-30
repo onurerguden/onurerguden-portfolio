@@ -11,3 +11,13 @@ export const reviewCanvas = (page: Page) =>
   page.locator("[data-desk-stage] canvas");
 export const stageCanvas = (page: Page, id: string) =>
   page.locator(`canvas[data-stage-canvas="${id}"]`);
+
+/**
+ * Headless Chromium renders WebGL in software, where section scenes stay
+ * static by design. Tests of those scenes opt back in explicitly.
+ */
+export async function forceSectionScenes(page: Page) {
+  await page.addInitScript(() =>
+    localStorage.setItem("portfolio:force-3d", "1"),
+  );
+}
