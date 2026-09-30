@@ -1,6 +1,105 @@
-import type { ActivityYear } from "@/lib/github/activity-core";
+import type {
+  ActivityEvent,
+  ActivitySnapshot,
+  ActivityYear,
+} from "@/lib/github/activity-core";
 
 const DAY = 86_400_000;
+
+type Loose = Record<string, unknown>;
+const isObject = (value: unknown): value is Loose =>
+  typeof value === "object" && value !== null;
+const isCount = (value: unknown): value is number =>
+  Number.isInteger(value) && (value as number) >= 0;
+const isTime = (value: unknown): value is string =>
+  typeof value === "string" && !Number.isNaN(Date.parse(value));
+const isText = (value: unknown) => value == null || typeof value === "string";
+
+function isYear(value: unknown): value is ActivityYear {
+  return (
+    isObject(value) &&
+    Number.isInteger(value.year) &&
+    typeof value.start === "string" &&
+    /^\d{4}-\d{2}-\d{2}$/.test(value.start) &&
+    isTime(value.start) &&
+    Array.isArray(value.days) &&
+    value.days.every(isCount) &&
+    isCount(value.total)
+  );
+}
+
+function isEvent(value: unknown): value is ActivityEvent {
+  if (
+    !isObject(value) ||
+    typeof value.id !== "string" ||
+    typeof value.repo !== "string" ||
+    !/^[\w.-]+\/[\w.-]+$/.test(value.repo) ||
+    !isTime(value.at)
+  )
+    return false;
+  switch (value.kind) {
+    case "push":
+      return (
+        (value.commits == null || isCount(value.commits)) &&
+        isText(value.branch)
+      );
+    case "pull_request":
+      return (
+        ["opened", "merged", "closed", "reopened"].includes(
+          value.action as string,
+        ) && isCount(value.number)
+      );
+    case "create":
+      return (
+        ["repository", "branch", "tag"].includes(value.ref as string) &&
+        isText(value.name)
+      );
+    case "release":
+      return isText(value.tag);
+    default:
+      return false;
+  }
+}
+
+/**
+ * Checks a snapshot from the API or the store before anything renders it,
+ * so a changed or damaged payload shows "unavailable" instead of breaking
+ * the page. Events of kinds this build doesn't know are dropped.
+ */
+export function parseSnapshot(value: unknown): ActivitySnapshot | null {
+  if (!isObject(value)) return null;
+  const { rolling, streaks, busiestWeekday: weekday } = value;
+  const valid =
+    value.version === 1 &&
+    isTime(value.syncedAt) &&
+    isYear(rolling) &&
+    ["commits", "pullRequests", "reviews", "issues", "restricted"].every(
+      (key) => isCount((rolling as Loose)[key]),
+    ) &&
+    Array.isArray(value.years) &&
+    value.years.every(isYear) &&
+    isCount(value.allTime) &&
+    isObject(streaks) &&
+    isCount(streaks.current) &&
+    isCount(streaks.longest) &&
+    (weekday === null ||
+      (Number.isInteger(weekday) &&
+        (weekday as number) >= 0 &&
+        (weekday as number) <= 6)) &&
+    Array.isArray(value.languages) &&
+    value.languages.every(
+      (language) =>
+        isObject(language) &&
+        typeof language.name === "string" &&
+        typeof language.share === "number" &&
+        language.share >= 0 &&
+        language.share <= 100,
+    ) &&
+    Array.isArray(value.events);
+  if (!valid) return null;
+  const snapshot = value as unknown as ActivitySnapshot;
+  return { ...snapshot, events: (value.events as unknown[]).filter(isEvent) };
+}
 
 export type HeatCell = {
   date: string;

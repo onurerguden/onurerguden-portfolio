@@ -91,6 +91,32 @@ test("without live data the section says so and links to GitHub", async ({
   await poll;
 });
 
+test("a response in an unknown shape leaves the page working", async ({
+  page,
+}) => {
+  const errors: Error[] = [];
+  page.on("pageerror", (error) => errors.push(error));
+  const poll = page.waitForEvent("requestfinished", (request) =>
+    request.url().endsWith("/api/github/activity"),
+  );
+  await serve(page, [{ version: 2, years: "soon", rolling: null }]);
+  await page.goto("/en#activity");
+  await poll;
+  // Two frames give React time to render whatever the poll returned.
+  await page.evaluate(
+    () =>
+      new Promise((done) =>
+        requestAnimationFrame(() => requestAnimationFrame(done)),
+      ),
+  );
+  const section = page.locator("#activity");
+  await expect(
+    section.getByText("Live GitHub activity is unavailable right now."),
+  ).toBeVisible();
+  await expect(page.locator("#contact")).toBeAttached();
+  expect(errors).toEqual([]);
+});
+
 test("shows totals, a keyboard heatmap and recent activity", async ({
   page,
 }) => {

@@ -4,6 +4,8 @@ import type {
   ActivityEvent,
   ActivitySnapshot,
 } from "@/lib/github/activity-core";
+import { parseSnapshot } from "@/lib/activity-view";
+import ActivityUnavailable from "./activity-unavailable";
 import ContributionGrid from "./contribution-grid";
 import styles from "./activity.module.css";
 
@@ -97,8 +99,9 @@ export default function ActivityLive({
             : {},
           cache: "no-store",
         });
-        if (response.status === 200) {
-          const next = (await response.json()) as ActivitySnapshot;
+        const next =
+          response.status === 200 ? parseSnapshot(await response.json()) : null;
+        if (next) {
           const etag = response.headers.get("etag")?.match(/activity-(\d+)/);
           if (etag) revision.current = Number(etag[1]);
           if (arrival.current === null) arrival.current = next.allTime;
@@ -108,7 +111,7 @@ export default function ActivityLive({
         } else {
           // An unread body keeps the request open in Chromium, holding its
           // connection; the 304 and 503 bodies are empty or tiny.
-          await response.text();
+          if (!response.bodyUsed) await response.text();
           delay =
             response.status === 304
               ? POLL
@@ -156,17 +159,7 @@ export default function ActivityLive({
 
   const number = new Intl.NumberFormat(en ? "en-GB" : "tr-TR");
   if (!snapshot)
-    return (
-      <p className={styles.unavailable}>
-        {en
-          ? "Live GitHub activity is unavailable right now. "
-          : "Canlı GitHub aktivitesi şu anda kullanılamıyor. "}
-        <a href={profile}>
-          {en ? "See my profile on GitHub" : "GitHub profilime bak"}
-          <span aria-hidden="true"> ↗</span>
-        </a>
-      </p>
-    );
+    return <ActivityUnavailable locale={locale} profile={profile} />;
 
   const years = [...snapshot.years].sort((a, b) => b.year - a.year);
   const current =
