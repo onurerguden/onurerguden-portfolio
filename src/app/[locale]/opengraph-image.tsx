@@ -42,7 +42,7 @@ export default async function Image({
         background:
           "radial-gradient(circle at 70% 30%, #152039 0%, #080e1c 70%)",
         color: "#f5f6f8",
-        fontFamily: "Portfolio Display",
+        fontFamily: '"Portfolio Display", "Portfolio Display Ext"',
         position: "relative",
       }}
     >
@@ -88,8 +88,10 @@ export default async function Image({
           weight: 900,
           style: "normal",
         },
+        // Satori keeps one file per family, weight and style, so the
+        // Turkish capitals need a family of their own to be found.
         {
-          name: "Portfolio Display",
+          name: "Portfolio Display Ext",
           data: latinExt,
           weight: 900,
           style: "normal",
