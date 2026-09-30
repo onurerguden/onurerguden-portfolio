@@ -105,8 +105,15 @@ export default function ActivityLive({
           setFresh(Math.max(0, next.allTime - arrival.current));
           setSnapshot(next);
           delay = POLL;
-        } else if (response.status === 304) delay = POLL;
-        else delay = Math.min(15 * 60_000, Math.max(POLL, delay * 2));
+        } else {
+          // An unread body keeps the request open in Chromium, holding its
+          // connection; the 304 and 503 bodies are empty or tiny.
+          await response.text();
+          delay =
+            response.status === 304
+              ? POLL
+              : Math.min(15 * 60_000, Math.max(POLL, delay * 2));
+        }
       } catch {
         delay = Math.min(15 * 60_000, Math.max(POLL, delay * 2));
       }

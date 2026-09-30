@@ -74,6 +74,11 @@ async function serve(page: Page, bodies: object[]) {
 test("without live data the section says so and links to GitHub", async ({
   page,
 }) => {
+  // The local server has no Redis, so the first poll gets a 503. It must
+  // still finish, or it holds a connection and the page never goes idle.
+  const poll = page.waitForEvent("requestfinished", (request) =>
+    request.url().endsWith("/api/github/activity"),
+  );
   await page.goto("/en#activity");
   const section = page.locator("#activity");
   await expect(
@@ -83,6 +88,7 @@ test("without live data the section says so and links to GitHub", async ({
     section.getByRole("link", { name: "See my profile on GitHub" }),
   ).toHaveAttribute("href", "https://github.com/onurerguden");
   await expect(section.locator("dd")).toHaveCount(0);
+  await poll;
 });
 
 test("shows totals, a keyboard heatmap and recent activity", async ({
