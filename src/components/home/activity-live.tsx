@@ -1,13 +1,12 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import type {
-  ActivityEvent,
-  ActivitySnapshot,
-} from "@/lib/github/activity-core";
+import type { ActivitySnapshot } from "@/lib/github/activity-core";
 import {
+  describeEvent,
   isFairBaseline,
   newContributions,
   parseSnapshot,
+  timeAgo,
 } from "@/lib/activity-view";
 import { useMinute } from "@/lib/use-minute";
 import ActivityUnavailable from "./activity-unavailable";
@@ -23,9 +22,14 @@ const SEEN_KEY = "portfolio:activity-seen";
 /** SEEN_KEY as it stood when this tab's visit began. */
 const VISIT_KEY = "portfolio:activity-seen-before";
 
-function formatsFor(tag: string, locale: "en" | "tr") {
+function formatsFor(tag: string) {
   return {
     number: new Intl.NumberFormat(tag),
+    // Turkish writes the sign first: %48,5.
+    percent: new Intl.NumberFormat(tag, {
+      style: "percent",
+      maximumFractionDigits: 1,
+    }),
     weekday: new Intl.DateTimeFormat(tag, {
       weekday: "long",
       timeZone: "UTC",
@@ -40,53 +44,9 @@ function formatsFor(tag: string, locale: "en" | "tr") {
       month: "short",
       timeZone: "Europe/Istanbul",
     }),
-    relative: new Intl.RelativeTimeFormat(locale, { numeric: "auto" }),
   };
 }
-const formats = {
-  en: formatsFor("en-GB", "en"),
-  tr: formatsFor("tr-TR", "tr"),
-};
-
-function ago(time: number, now: number, locale: "en" | "tr") {
-  const format = formats[locale].relative;
-  const minutes = Math.round((time - now) / 60_000);
-  if (Math.abs(minutes) < 60) return format.format(minutes, "minute");
-  const hours = Math.round(minutes / 60);
-  if (Math.abs(hours) < 36) return format.format(hours, "hour");
-  return format.format(Math.round(hours / 24), "day");
-}
-
-function describeEvent(event: ActivityEvent, en: boolean) {
-  const repo = event.repo.split("/")[1];
-  switch (event.kind) {
-    case "push":
-      return en
-        ? `Pushed ${event.commits ?? "new"} commit${event.commits === 1 ? "" : "s"} to ${repo}`
-        : `${repo} deposuna ${event.commits ?? "yeni"} commit gönderdim`;
-    case "pull_request": {
-      const verb = {
-        opened: en ? "Opened" : "açtım",
-        merged: en ? "Merged" : "birleştirdim",
-        closed: en ? "Closed" : "kapattım",
-        reopened: en ? "Reopened" : "yeniden açtım",
-      }[event.action];
-      return en
-        ? `${verb} pull request #${event.number} in ${repo}`
-        : `${repo} deposunda #${event.number} numaralı PR'ı ${verb}`;
-    }
-    case "create":
-      if (event.ref === "repository")
-        return en ? `Created ${repo}` : `${repo} deposunu oluşturdum`;
-      return en
-        ? `Created ${event.ref} ${event.name ?? ""} in ${repo}`
-        : `${repo} deposunda ${event.name ?? ""} ${event.ref === "tag" ? "etiketini" : "dalını"} oluşturdum`;
-    case "release":
-      return en
-        ? `Released ${event.tag ?? "a version"} of ${repo}`
-        : `${repo} için ${event.tag ?? "yeni bir sürüm"} yayımladım`;
-  }
-}
+const formats = { en: formatsFor("en-GB"), tr: formatsFor("tr-TR") };
 
 export default function ActivityLive({
   initial,
@@ -299,7 +259,9 @@ export default function ActivityLive({
             {format.synced.format(synced)}
           </time>
         ) : (
-          <time dateTime={snapshot.syncedAt}>{ago(synced, now, locale)}</time>
+          <time dateTime={snapshot.syncedAt}>
+            {timeAgo(synced, now, locale)}
+          </time>
         )}
       </p>
       <p className={styles.fresh} role="status">
@@ -372,57 +334,77 @@ export default function ActivityLive({
               ? "Languages in public repositories"
               : "Herkese açık depolardaki diller"}
           </h3>
-          <div className={styles.bar} aria-hidden="true">
-            {snapshot.languages.map((language, i) => (
-              <span
-                key={language.name}
-                style={{ flexGrow: language.share }}
-                data-slot={i}
-              />
-            ))}
-          </div>
-          <ul className={styles.languages}>
-            {snapshot.languages.map((language, i) => (
-              <li key={language.name}>
-                <span
-                  className={styles.swatch}
-                  data-slot={i}
-                  aria-hidden="true"
-                />
-                {language.name}
-                <span>{number.format(language.share)}%</span>
-              </li>
-            ))}
-          </ul>
+          {snapshot.languages.length ? (
+            <>
+              <div className={styles.bar} aria-hidden="true">
+                {snapshot.languages.map((language, i) => (
+                  <span
+                    key={language.name}
+                    style={{ flexGrow: language.share }}
+                    data-slot={i}
+                  />
+                ))}
+              </div>
+              <ul className={styles.languages}>
+                {snapshot.languages.map((language, i) => (
+                  <li key={language.name}>
+                    <span
+                      className={styles.swatch}
+                      data-slot={i}
+                      aria-hidden="true"
+                    />
+                    {language.name}
+                    <span>{format.percent.format(language.share / 100)}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p className={styles.empty}>
+              {en ? "No language data yet." : "Henüz dil verisi yok."}
+            </p>
+          )}
         </div>
         <div>
           <h3 className={styles.subhead}>
             {en ? "Recent public activity" : "Son herkese açık hareketler"}
           </h3>
-          <ol ref={list} className={styles.events}>
-            {snapshot.events.map((event) => {
-              const at = Date.parse(event.at);
-              return (
-                <li key={event.id}>
-                  <a href={`https://github.com/${event.repo}`}>
-                    {describeEvent(event, en)}
-                  </a>
-                  <span className={styles.when}>
-                    {seen !== null && at > seen ? (
-                      <span className={styles.newBadge}>
-                        {en ? "New" : "Yeni"}
-                      </span>
-                    ) : null}
-                    <time dateTime={event.at}>
-                      {now === null
-                        ? format.day.format(at)
-                        : ago(at, now, locale)}
-                    </time>
-                  </span>
-                </li>
-              );
-            })}
-          </ol>
+          {snapshot.events.length ? (
+            <ol ref={list} className={styles.events}>
+              {snapshot.events.map((event) => {
+                const at = Date.parse(event.at);
+                return (
+                  <li key={event.id}>
+                    <a href={`https://github.com/${event.repo}`}>
+                      {describeEvent(event, locale)}
+                    </a>
+                    <span className={styles.when}>
+                      {seen !== null && at > seen ? (
+                        <span className={styles.newBadge}>
+                          {en ? "New" : "Yeni"}
+                        </span>
+                      ) : null}
+                      <time dateTime={event.at}>
+                        {now === null
+                          ? format.day.format(at)
+                          : timeAgo(at, now, locale)}
+                      </time>
+                    </span>
+                  </li>
+                );
+              })}
+            </ol>
+          ) : (
+            <p className={styles.empty}>
+              {en
+                ? "No public pushes, pull requests or releases lately. "
+                : "Son zamanlarda herkese açık bir push, pull request ya da sürüm yok. "}
+              <a href={profile}>
+                {en ? "See my profile on GitHub" : "GitHub profilime bak"}
+                <span aria-hidden="true"> ↗</span>
+              </a>
+            </p>
+          )}
         </div>
       </div>
     </div>

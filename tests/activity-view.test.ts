@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   countFrom,
+  describeEvent,
   heatScale,
   isFairBaseline,
   latestCell,
@@ -8,9 +9,54 @@ import {
   newContributions,
   nextCell,
   parseSnapshot,
+  timeAgo,
   weekColumns,
 } from "../src/lib/activity-view";
-import type { ActivitySnapshot } from "../src/lib/github/activity-core";
+import type {
+  ActivityEvent,
+  ActivitySnapshot,
+} from "../src/lib/github/activity-core";
+
+describe("activity wording", () => {
+  const base = { id: "1", repo: "onurerguden/portfolio", at: "2026-01-01" };
+  const both = (event: ActivityEvent) =>
+    [describeEvent(event, "en"), describeEvent(event, "tr")] as const;
+
+  it("names branches and tags only when GitHub gives the name", () => {
+    expect(
+      both({ ...base, kind: "create", ref: "branch", name: "feat/x" }),
+    ).toEqual([
+      "Created branch feat/x in portfolio",
+      "portfolio deposunda feat/x dalını oluşturdum",
+    ]);
+    expect(both({ ...base, kind: "create", ref: "tag", name: null })).toEqual([
+      "Created a tag in portfolio",
+      "portfolio deposunda yeni bir etiket oluşturdum",
+    ]);
+  });
+  it("leaves out unknown commit counts and pull request numbers", () => {
+    expect(
+      both({ ...base, kind: "push", commits: null, branch: null }),
+    ).toEqual(["Pushed to portfolio", "portfolio deposuna gönderim yaptım"]);
+    expect(both({ ...base, kind: "push", commits: 1, branch: "main" })[0]).toBe(
+      "Pushed 1 commit to portfolio",
+    );
+    expect(
+      both({ ...base, kind: "pull_request", action: "merged", number: 0 }),
+    ).toEqual([
+      "Merged a pull request in portfolio",
+      "portfolio deposunda bir pull request birleştirdim",
+    ]);
+  });
+  it("never says a time is in the future", () => {
+    const now = Date.parse("2026-01-01T12:00:00Z");
+    expect(timeAgo(now + 2 * 60_000, now, "en")).toBe("just now");
+    expect(timeAgo(now + 2 * 60_000, now, "tr")).toBe("az önce");
+    expect(timeAgo(now - 5 * 60_000, now, "en")).toBe("5 minutes ago");
+    expect(timeAgo(now - 3 * 3_600_000, now, "tr")).toBe("3 saat önce");
+    expect(timeAgo(now - 3 * 86_400_000, now, "en")).toBe("3 days ago");
+  });
+});
 
 function snapshot(): ActivitySnapshot {
   const year = { year: 2026, start: "2026-01-01", days: [1, 0, 2], total: 3 };

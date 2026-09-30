@@ -107,6 +107,71 @@ export type HeatCell = {
   level: 0 | 1 | 2 | 3 | 4;
 };
 
+const relative = {
+  en: new Intl.RelativeTimeFormat("en", { numeric: "auto" }),
+  tr: new Intl.RelativeTimeFormat("tr", { numeric: "auto" }),
+};
+
+/**
+ * "5 minutes ago". Times ahead of `now` (a visitor clock running behind
+ * the server's) read as just now instead of "in 2 minutes".
+ */
+export function timeAgo(time: number, now: number, locale: "en" | "tr") {
+  const minutes = Math.round((Math.min(time, now) - now) / 60_000);
+  if (minutes === 0) return locale === "en" ? "just now" : "az önce";
+  const format = relative[locale];
+  if (minutes > -60) return format.format(minutes, "minute");
+  const hours = Math.round(minutes / 60);
+  if (hours > -36) return format.format(hours, "hour");
+  return format.format(Math.round(hours / 24), "day");
+}
+
+/** One line per public event, in the first person, in either language. */
+export function describeEvent(event: ActivityEvent, locale: "en" | "tr") {
+  const en = locale === "en";
+  const repo = event.repo.split("/")[1];
+  switch (event.kind) {
+    case "push":
+      // GitHub leaves the size out of some pushes and reports 0 for others.
+      if (!event.commits)
+        return en ? `Pushed to ${repo}` : `${repo} deposuna gönderim yaptım`;
+      return en
+        ? `Pushed ${event.commits} commit${event.commits === 1 ? "" : "s"} to ${repo}`
+        : `${repo} deposuna ${event.commits} commit gönderdim`;
+    case "pull_request": {
+      const verb = {
+        opened: en ? "Opened" : "açtım",
+        merged: en ? "Merged" : "birleştirdim",
+        closed: en ? "Closed" : "kapattım",
+        reopened: en ? "Reopened" : "yeniden açtım",
+      }[event.action];
+      if (!event.number)
+        return en
+          ? `${verb} a pull request in ${repo}`
+          : `${repo} deposunda bir pull request ${verb}`;
+      return en
+        ? `${verb} pull request #${event.number} in ${repo}`
+        : `${repo} deposunda #${event.number} numaralı PR'ı ${verb}`;
+    }
+    case "create": {
+      if (event.ref === "repository")
+        return en ? `Created ${repo}` : `${repo} deposunu oluşturdum`;
+      const tag = event.ref === "tag";
+      if (!event.name)
+        return en
+          ? `Created a ${event.ref} in ${repo}`
+          : `${repo} deposunda yeni bir ${tag ? "etiket" : "dal"} oluşturdum`;
+      return en
+        ? `Created ${event.ref} ${event.name} in ${repo}`
+        : `${repo} deposunda ${event.name} ${tag ? "etiketini" : "dalını"} oluşturdum`;
+    }
+    case "release":
+      return en
+        ? `Released ${event.tag ?? "a version"} of ${repo}`
+        : `${repo} için ${event.tag ?? "yeni bir sürüm"} yayımladım`;
+  }
+}
+
 /** Contributions a calendar counts from `date` (YYYY-MM-DD) on. */
 export function countFrom(year: ActivityYear, date: string) {
   const skip = Math.round((Date.parse(date) - Date.parse(year.start)) / DAY);

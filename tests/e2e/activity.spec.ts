@@ -193,6 +193,26 @@ test("shows totals, a keyboard heatmap and recent activity", async ({
   ).toEqual([]);
 });
 
+test("Turkish shares put the percent sign first", async ({ page }) => {
+  await serve(page, [fixture()]);
+  await page.goto("/tr");
+  const languages = page.locator("#activity ul").last();
+  await expect(languages.getByText("%48,5", { exact: true })).toBeAttached();
+  await expect(languages.getByText("%30", { exact: true })).toBeAttached();
+});
+
+test("empty feeds and language lists say so", async ({ page }) => {
+  await serve(page, [{ ...fixture(), events: [], languages: [] }]);
+  await page.goto("/en");
+  const section = page.locator("#activity");
+  await section.scrollIntoViewIfNeeded();
+  await expect(section.getByText("No language data yet.")).toBeVisible();
+  await expect(
+    section.getByText("No public pushes, pull requests or releases lately."),
+  ).toBeVisible();
+  await expect(section.locator("ol")).toHaveCount(0);
+});
+
 test("heatmap focus stays on its day when the window moves", async ({
   page,
 }) => {

@@ -119,7 +119,8 @@
 }
 .tabs button:focus-visible,
 .cell:focus-visible,
-.events a:focus-visible {
+.events a:focus-visible,
+.empty a:focus-visible {
   outline: 3px solid var(--blue);
   outline-offset: 2px;
 }
@@ -275,6 +276,19 @@ td.cell:hover {
   width: 10px;
   height: 10px;
   border-radius: 3px;
+}
+.empty {
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 14px;
+}
+.empty a {
+  color: var(--blue);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 .events {
   margin: 0;
