@@ -5,7 +5,20 @@ import {
   useFrame,
   useThree,
   type CanvasProps,
+  type EventManager,
 } from "@react-three/fiber";
+
+/**
+ * Section scenes listen to the page themselves and never use R3F's pointer
+ * events. A no-op manager skips per-move raycasting and cannot fail when a
+ * canvas is removed while it is still being created.
+ */
+const noEvents = (): EventManager<HTMLElement> => ({
+  enabled: false,
+  priority: 0,
+  connect: () => {},
+  disconnect: () => {},
+});
 
 type Props = {
   id: string;
@@ -51,6 +64,7 @@ export default function SectionCanvas({
       style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
       dpr={coarse ? [1, 1.25] : [1, 1.5]}
       frameloop="demand"
+      events={noEvents}
       orthographic={orthographic}
       camera={camera}
       gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
