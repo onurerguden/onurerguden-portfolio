@@ -22,6 +22,9 @@
   --chip-size: 12px;
   --period-size: clamp(17px, 1.6vw, 22px);
   --rail-inset: clamp(40px, 4.5vw, 64px);
+  --accent-text: var(--accent);
+  --rail: color-mix(in oklab, var(--accent) 34%, transparent);
+  --node: var(--accent);
   padding-block: clamp(96px, 12vw, 168px) clamp(72px, 9vw, 136px);
   background: var(--bg);
   color: var(--text);
@@ -44,6 +47,20 @@
   --chip-size: calc(13 * var(--u));
   --period-size: calc(17 * var(--u));
   --rail-inset: calc(34 * var(--u));
+  /*
+   * The desk's displays stay light, so they read as lit screens against the
+   * dark space around the desk. Volt stays a fill; text links turn cobalt,
+   * since volt text on paper is about 1.2:1.
+   */
+  --bg: var(--paper);
+  --text: var(--ink);
+  --text-muted: var(--muted);
+  --hairline: #17212b26;
+  --surface-2: #e3e8ef;
+  --accent-text: var(--blue);
+  --focus: var(--blue);
+  --rail: #17212b33;
+  --node: var(--ink);
   padding: calc(34 * var(--u)) calc(20 * var(--u)) calc(64 * var(--u));
   color: var(--text);
 }
@@ -71,7 +88,7 @@
 .row {
   --row-fg: var(--text);
   --row-muted: var(--text-muted);
-  --row-accent: var(--accent);
+  --row-accent: var(--accent-text);
   --row-fill: var(--surface-2);
   position: relative;
   isolation: isolate;
@@ -141,7 +158,7 @@
   .row[data-linked]:hover {
     --row-fg: var(--text);
     --row-muted: var(--text-muted);
-    --row-accent: var(--accent);
+    --row-accent: var(--accent-text);
   }
 }
 
@@ -241,7 +258,7 @@
   bottom: 0;
   left: calc(var(--rail-inset) / 2 - var(--u));
   width: calc(2 * var(--u));
-  background: color-mix(in oklab, var(--accent) 34%, transparent);
+  background: var(--rail);
 }
 .role {
   --node-top: calc(var(--row-pad-block) + var(--period-size) * 0.65);
@@ -260,7 +277,7 @@
   left: calc(var(--rail-inset) / -2);
   width: calc(14 * var(--u));
   height: calc(14 * var(--u));
-  border: calc(2 * var(--u)) solid var(--accent);
+  border: calc(2 * var(--u)) solid var(--node);
   border-radius: 50%;
   background: var(--bg);
   translate: -50% -50%;
@@ -281,7 +298,7 @@
   top: var(--node-top);
   bottom: calc(-1 * var(--node-top));
   left: calc(var(--rail-inset) / -2 - var(--u));
-  border-left: calc(2 * var(--u)) dashed var(--accent);
+  border-left: calc(2 * var(--u)) dashed var(--node);
   transform: scaleY(var(--reveal, 1));
   transform-origin: top;
 }

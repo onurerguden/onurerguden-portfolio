@@ -615,13 +615,10 @@
 }
 
 /* The portrait monitor is a lit dark display. */
+/* The portrait monitor stays a light display, like the ultrawide. */
 .screen[data-screen="0"] {
-  color: var(--text);
-}
-.screen[data-screen="0"] .screenSurface {
-  background:
-    radial-gradient(120% 28% at 50% 0%, #1b2a4a 0%, transparent 70%),
-    var(--surface-1);
+  --screen-background: var(--paper);
+  color: var(--ink);
 }
 .screen[data-screen="0"] .track {
   position: relative;

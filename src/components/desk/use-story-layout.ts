@@ -1,8 +1,15 @@
 "use client";
 import { useEffect, useRef, useState, type RefObject } from "react";
-import { closeupScale, panelHeight } from "@/lib/desk-story/camera";
+import {
+  closeupScale,
+  panelHeight,
+  screenPixelWidths,
+} from "@/lib/desk-story/camera";
 import { buildTimeline, type Timeline } from "@/lib/desk-story/timeline";
 import type { PanelRefs } from "./screen-panels";
+
+const panelWidth = screenPixelWidths[0];
+const minimumColumn = 320;
 
 export type RevealRow = {
   node: HTMLElement;
@@ -77,7 +84,13 @@ export function useStoryLayout(
       const height = stageNode.offsetHeight;
       if (!width || !height) return;
       const scale = closeupScale(0, width, height);
-      panel.style.setProperty("--screen-scale", scale.toFixed(4));
+      // Lay the monitor out as a column at least 320 visible px wide; a
+      // smaller projection (short landscape windows, high zoom) shrinks the
+      // text rather than breaking it word by word.
+      panel.style.setProperty(
+        "--screen-scale",
+        Math.max(scale, minimumColumn / panelWidth).toFixed(4),
+      );
       const panelPx = panel.offsetHeight;
       const overflow = Math.max(0, track.offsetHeight - panelPx);
       const experience = track.querySelector<HTMLElement>(
