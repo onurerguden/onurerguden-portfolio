@@ -305,8 +305,10 @@ test("new badges last for the visit and clear once seen", async ({
   await expect(events.getByText("New", { exact: true })).toHaveCount(1, slow);
   await events.scrollIntoViewIfNeeded();
   await expect
-    .poll(() =>
-      page.evaluate(() => localStorage.getItem("portfolio:activity-seen")),
+    .poll(
+      () =>
+        page.evaluate(() => localStorage.getItem("portfolio:activity-seen")),
+      slow,
     )
     .not.toBeNull();
   // Switching language keeps this visit's badges.
