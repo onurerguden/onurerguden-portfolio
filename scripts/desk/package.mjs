@@ -46,16 +46,11 @@ await writeFile(
 );
 console.log(artifacts);
 
-await writeFile(
-  "src/lib/desk-assets.json",
-  JSON.stringify(
-    {
-      revision: createHash("sha256")
-        .update(artifacts.map((a) => a.sha256).join(":"))
-        .digest("hex")
-        .slice(0, 16),
-    },
-    null,
-    2,
-  ) + "\n",
-);
+// The room posters keep their own revisions (capture-cosmic-poster.mjs).
+const assetsPath = "src/lib/desk-assets.json";
+const assets = JSON.parse(await readFile(assetsPath, "utf8"));
+assets.revision = createHash("sha256")
+  .update(artifacts.map((a) => a.sha256).join(":"))
+  .digest("hex")
+  .slice(0, 16);
+await writeFile(assetsPath, JSON.stringify(assets, null, 2) + "\n");

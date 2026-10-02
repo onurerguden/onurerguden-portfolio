@@ -27,7 +27,7 @@ import {
   type Timeline,
 } from "@/lib/desk-story/timeline";
 import type { JourneyContent } from "@/lib/desk-story/content";
-import { roomPosterSrc } from "@/lib/desk-asset-urls";
+import { roomPoster } from "@/lib/desk-asset-urls";
 import { stageRegistry } from "@/lib/stage-registry";
 import { homeSections, type SectionLink } from "@/lib/home-sections";
 import { currentSection } from "@/lib/current-section";
@@ -612,11 +612,10 @@ export default function DeskJourney({
           />
           {posterVisible ? (
             <Image
+              {...roomPoster(locale)}
               className={styles.releasedPoster}
-              src={roomPosterSrc(locale)}
               alt=""
               fill
-              sizes="100vw"
               data-journey-poster
             />
           ) : null}

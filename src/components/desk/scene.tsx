@@ -8,7 +8,7 @@ import { createScreenProjection, projectScreen } from "@/lib/desk-projection";
 import contract from "@/lib/desk-scene.json";
 import occluders from "@/lib/desk-occluders.json";
 import { createScreenOcclusion, screenMaskImage } from "@/lib/desk-occlusion";
-import assets from "@/lib/desk-assets.json";
+import { deskModelSrc } from "@/lib/desk-asset-urls";
 import styles from "./review.module.css";
 import DeskLighting from "./lighting";
 import InteractionScene from "./interaction-scene";
@@ -66,10 +66,7 @@ export function Model({
   controls,
 }: Pick<Props, "onReady"> & { controls: DeskInteractions }) {
   const invalidate = useThree((state) => state.invalidate);
-  const { scene } = useGLTF(
-    `/models/desk/onur-desk.glb?v=${assets.revision}`,
-    "/decoders/draco/",
-  );
+  const { scene } = useGLTF(deskModelSrc, "/decoders/draco/");
   // useGLTF caches the source. Each mounted view owns transforms and materials.
   const model = useMemo(() => {
     const clone = scene.clone(true);
