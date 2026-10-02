@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { useId } from "react";
+import RagDiagram from "@/components/case/rag-diagram";
 export default function ProjectArt({
   slug,
   locale = "en",
@@ -94,27 +95,7 @@ export default function ProjectArt({
     );
   return (
     <div className="project-art rag-art">
-      <div className="retrieval-diagram">
-        <div className="document-stack" aria-hidden="true">
-          <i />
-          <i />
-          <i />
-        </div>
-        <span className="diagram-connector" />
-        <div className="retrieval-core">FAISS</div>
-        <span className="diagram-connector" />
-        <div className="answer-block">
-          {locale === "en" ? "Grounded answer" : "Kaynaklı yanıt"}
-          <span>Llama 3.1</span>
-        </div>
-      </div>
-      <div className="rag-caption">
-        <span>SBERT</span>
-        <span>
-          {locale === "en" ? "Semantic retrieval" : "Anlamsal erişim"}
-        </span>
-        <span>{locale === "en" ? "Context control" : "Bağlam kontrolü"}</span>
-      </div>
+      <RagDiagram locale={locale} />
     </div>
   );
 }

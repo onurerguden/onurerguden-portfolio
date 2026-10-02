@@ -2,8 +2,8 @@
 .section {
   --stack-top: clamp(24px, 6svh, 64px);
   padding-block: clamp(96px, 12vw, 168px) clamp(80px, 10vw, 150px);
-  background: var(--space);
-  color: var(--paper);
+  background: var(--bg);
+  color: var(--text);
 }
 .inner {
   width: min(1320px, 90%);
@@ -86,7 +86,7 @@
 .linkTile:focus-visible,
 .entry:focus-visible,
 .all:focus-visible {
-  outline: 3px solid #b7ccff;
+  outline: 3px solid var(--focus);
   outline-offset: 4px;
 }
 .titles p {
@@ -140,12 +140,15 @@
 .media > :first-child {
   grid-row: 1 / -1;
 }
+/* Media sits in dark frames, uncropped and uncoloured; white figures read
+   like prints on a dark wall. */
 .tile {
   position: relative;
   overflow: hidden;
+  border: 1px solid var(--hairline);
   border-radius: 20px;
-  background: #f5f6f8;
-  color: var(--ink);
+  background: var(--surface-1);
+  color: var(--text);
 }
 .tile img {
   width: 100%;
@@ -157,8 +160,10 @@
   display: grid;
   place-items: center;
   margin: 0;
-  padding: 10px;
-  background: #fff;
+  padding: 14px;
+}
+.figure img {
+  border-radius: 10px;
 }
 .phones {
   display: grid;
@@ -197,7 +202,7 @@
 .facts p,
 .entry span:first-child {
   margin: 0;
-  color: var(--muted);
+  color: var(--text-muted);
   font-size: 13px;
   font-weight: 650;
 }
@@ -211,13 +216,15 @@
 }
 .facts li {
   padding: 6px 11px;
-  border: 1px solid #17212b33;
+  border: 1px solid var(--hairline);
   border-radius: 999px;
   font-size: 12px;
   font-weight: 650;
 }
 .metric {
-  background: var(--volt);
+  border-color: transparent;
+  background: var(--accent);
+  color: var(--accent-ink);
 }
 .metric strong {
   font-family: var(--display-heavy);
@@ -233,12 +240,13 @@
 }
 .linkTile {
   justify-content: flex-end;
-  background: var(--blue);
-  color: #fff;
+  background: var(--surface-2);
+  color: var(--text);
   font-size: clamp(17px, 1.5vw, 21px);
   font-weight: 750;
 }
 .linkTile span {
+  color: var(--accent);
   font-size: 1.4em;
   transition: transform 350ms var(--ease-out);
 }
@@ -251,14 +259,15 @@
   letter-spacing: -0.01em;
 }
 .entryStack {
-  color: var(--muted);
+  color: var(--text-muted);
   font-size: 12px;
   font-weight: 600;
 }
 @media (hover: hover) and (pointer: fine) {
   .pill:not(.quiet):hover {
-    background: #fff;
-    color: var(--ink);
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--accent-ink);
   }
   .card:hover .tile img {
     transform: scale(1.035);
@@ -270,7 +279,7 @@
     transition: background 250ms ease;
   }
   .entry:hover {
-    background: #e7ecf6;
+    background: var(--surface-2);
   }
   .all:hover {
     color: #fff;
