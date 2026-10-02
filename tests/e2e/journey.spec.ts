@@ -104,6 +104,13 @@ test("scroll separates reading from camera travel, reverses, focuses links and e
   // Five camera stops, an axe scan of the whole (now long) page and a
   // release and remount of the desk take about 50 s on a busy machine.
   test.slow();
+  // The optimizer answers 400 to a src outside images.localPatterns.
+  const rejectedImages: string[] = [];
+  page.on("response", (response) => {
+    if (response.url().includes("/_next/image") && !response.ok()) {
+      rejectedImages.push(response.url());
+    }
+  });
   await page.goto("/tr/lab/desk/journey");
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
@@ -176,6 +183,7 @@ test("scroll separates reading from camera travel, reverses, focuses links and e
     timeout: 20000,
   });
   await expect(canvas).toHaveAttribute("data-active", "true");
+  expect(rejectedImages).toEqual([]);
 });
 test("failed model collapses the pinned journey and preserves content", async ({
   page,

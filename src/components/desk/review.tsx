@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
-import assets from "@/lib/desk-assets.json";
+import { deskImageSrc } from "@/lib/desk-asset-urls";
 import SceneBoundary from "@/components/three/scene-boundary";
 import styles from "./review.module.css";
 
@@ -126,7 +126,7 @@ export default function DeskReview({
       </header>
       <div className={styles.stage} ref={stage} data-desk-stage>
         <Image
-          src={`/images/desk/${ids[index]}.webp?v=${assets.revision}`}
+          src={deskImageSrc(ids[index])}
           alt={t.description}
           fill
           sizes="(max-width: 800px) 100vw, 1200px"
@@ -211,12 +211,9 @@ export default function DeskReview({
       <div className={styles.detailGallery}>
         {["mouse-detail", "headphones-detail", "riser-detail"].map((id, i) => (
           <figure key={id}>
-            <a
-              href={`/images/desk/${id}.webp?v=${assets.revision}`}
-              aria-label={t.detailViews[i]}
-            >
+            <a href={deskImageSrc(id)} aria-label={t.detailViews[i]}>
               <Image
-                src={`/images/desk/${id}.webp?v=${assets.revision}`}
+                src={deskImageSrc(id)}
                 alt={t.detailViews[i]}
                 width={1280}
                 height={960}
