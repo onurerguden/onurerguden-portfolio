@@ -24,6 +24,11 @@ export const homeSections = [
   { id: "about", place: "flow", label: { en: "About", tr: "Hakkımda" } },
   { id: "work", place: "flow", label: { en: "Projects", tr: "Projeler" } },
   {
+    id: "research",
+    place: "flow",
+    label: { en: "Research", tr: "Araştırma" },
+  },
+  {
     id: "activity",
     place: "flow",
     label: { en: "GitHub activity", tr: "GitHub aktivitesi" },

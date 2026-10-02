@@ -85,18 +85,30 @@ export default function PortraitIdentity({
   }, [interactive]);
 
   const words = content.name.split(" ");
+  // The opening's name is the page's only h1; the ultrawide's copy of it is
+  // decoration, hidden from assistive technology.
+  const Name = opening ? "h1" : "div";
   const artwork = (
     <div
       ref={artworkRef}
       className={styles.artwork}
       data-portrait-identity
-      aria-hidden="true"
+      aria-hidden={opening ? undefined : true}
     >
-      <div className={styles.name} data-portrait-name>
+      <Name
+        className={styles.name}
+        data-portrait-name
+        // The name is drawn as two stacked words; say it as one, with my role.
+        aria-label={opening ? `${content.name}, ${content.role}` : undefined}
+      >
         <span>{words[0]}</span>
         <span>{words.slice(1).join(" ")}</span>
-      </div>
-      <span className={styles.role} data-portrait-role>
+      </Name>
+      <span
+        className={styles.role}
+        data-portrait-role
+        aria-hidden={opening ? true : undefined}
+      >
         {content.role}
       </span>
       <div className={styles.head} data-portrait-poster>

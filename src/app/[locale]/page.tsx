@@ -1,4 +1,3 @@
-import HomeIntroduction from "@/components/home-introduction";
 import { notFound } from "next/navigation";
 import { isLocale, sharedFacts } from "@/lib/content";
 import { pageMetadata, siteOrigin } from "@/lib/site";
@@ -49,7 +48,7 @@ export default async function Home({
     sameAs: [sharedFacts.github, sharedFacts.linkedin],
   };
   return (
-    <main id="main" tabIndex={-1}>
+    <main id="main" tabIndex={-1} data-home>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -64,7 +63,6 @@ export default async function Home({
           experience: <ExperienceRail locale={locale} />,
           stack: <XpDesktop locale={locale} />,
         }}
-        introduction={<HomeIntroduction locale={locale} />}
         sections={homeSectionLinks(locale, {
           certificates: getCertificates(locale).length > 0,
         })}

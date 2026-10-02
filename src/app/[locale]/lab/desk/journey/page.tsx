@@ -5,7 +5,6 @@ import ServiceRows from "@/components/sections/service-rows";
 import ExperienceRail from "@/components/sections/experience-rail";
 import XpDesktop from "@/components/xp/xp-desktop";
 import DeskJourney from "@/components/desk/journey";
-import HomeIntroduction from "@/components/home-introduction";
 import HomeContinuation from "@/components/home-continuation";
 import { homeSectionLinks } from "@/lib/home-sections";
 import { getCertificates } from "@/lib/home-content";
@@ -29,7 +28,7 @@ export default async function JourneyPage({
   const { locale } = await params;
   if (!isLocale(locale) || process.env.VERCEL_ENV === "production") notFound();
   return (
-    <main id="main" tabIndex={-1}>
+    <main id="main" tabIndex={-1} data-home>
       <DeskJourney
         locale={locale}
         content={getJourneyContent(locale)}
@@ -38,7 +37,6 @@ export default async function JourneyPage({
           experience: <ExperienceRail locale={locale} />,
           stack: <XpDesktop locale={locale} />,
         }}
-        introduction={<HomeIntroduction locale={locale} />}
         sections={homeSectionLinks(locale, {
           certificates: getCertificates(locale).length > 0,
         })}

@@ -150,12 +150,12 @@ test("scroll separates reading from camera travel, reverses, focuses links and e
     ).violations,
   ).toEqual([]);
   const skip = page
-    .getByRole("link", { name: "İçeriğe geç", exact: true })
+    .getByRole("link", { name: "Masa turunu geç", exact: true })
     .last();
   await skip.focus();
   await expect(skip).toBeFocused();
   await page.keyboard.press("Enter");
-  await expect(page.locator("#journey-content")).toBeInViewport();
+  await expect(page.locator("#about")).toBeInViewport();
   await page.evaluate(() =>
     window.scrollTo({ top: document.body.scrollHeight, behavior: "instant" }),
   );
@@ -251,7 +251,7 @@ test("late loading keeps the current scroll position; context loss restores norm
     "false",
   );
   await expect(page.locator("main h1")).toBeVisible();
-  await expect(page.locator("#desk-story-1")).toBeVisible();
+  await expect(page.locator("#services")).toBeVisible();
 });
 
 test("narrow and zoom-equivalent viewports preserve screen links and readable type", async ({
@@ -296,11 +296,11 @@ test("narrow and zoom-equivalent viewports preserve screen links and readable ty
       () => document.documentElement.scrollWidth <= innerWidth + 1,
     ),
   ).toBe(true);
-  const skip = page.getByRole("link", { name: "Skip to work" });
+  const skip = page.getByRole("link", { name: "Skip the desk tour" });
   await skip.focus();
   await expect(skip).toBeFocused();
   await page.keyboard.press("Enter");
-  await expect(page.locator("#journey-content")).toBeInViewport();
+  await expect(page.locator("#about")).toBeInViewport();
 });
 
 test("portrait screen uses scene depth instead of a CSS cutout", async ({
