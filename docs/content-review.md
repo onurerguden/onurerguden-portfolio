@@ -49,3 +49,13 @@ Optional, only with Onur's approval: the repository's own rating of the quantita
 
 - Footer colophon — EN: "Built with Next.js, React Three Fiber and Blender. Source code ↗" · TR: "Next.js, React Three Fiber ve Blender ile geliştirildi. Kaynak kod ↗"
 - 404 — EN: "This page isn’t here." · TR: "Bu sayfa burada değil."
+
+## Home flow (PR 4)
+
+- Opening `h1`: "Onur Ergüden, AI engineer" / "Onur Ergüden, AI mühendisi" (the role is visually hidden; the name is the existing artwork).
+- Removed: the "Intelligence, put to work." / "Fikirden çalışan zekâya." introduction and the "AI & research" cards before About.
+- Skip link: "Skip the desk tour" / "Masa turunu geç" → About.
+- About facts — Degree / Lisans: BSc Software Engineering · İzmir University of Economics · June 2026 · GPA 3.30 / 4.00; Academy / Akademi: Google AI & Technology Academy · Deep Learning · 2026; Publication / Yayın: IJEA · Accepted · publication pending. Source: `sharedFacts`.
+- About actions: "Contact me" / "Bana ulaş", the existing CV link, "My research" / "Araştırmalarım" (now to `#research`).
+- Research teaser: the approach paragraph, publication summary and three questions are the Research page's own text, now shared from `src/lib/research.ts`. Links: "HealthFactor-AI case study" / "HealthFactor-AI vaka çalışması", "Research details" / "Araştırma ayrıntıları". Authors are listed as published; "O. Ergüden" is emphasised, with no "first author" wording.
+- Course Intelligence diagram: steps named in the case study (course documents, hierarchical chunks, SBERT embeddings, FAISS search, filters + context, Llama 3.1 (8B), grounded answer), captioned "Conceptual diagram" / "Kavramsal diyagram".

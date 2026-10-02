@@ -13,8 +13,8 @@
       color-mix(in oklab, var(--space-2) 85%, transparent),
       transparent 70%
     ),
-    var(--space);
-  color: var(--paper);
+    var(--bg);
+  color: var(--text);
 }
 .inner {
   position: relative;
@@ -45,6 +45,7 @@
   gap: 14px 22px;
   margin-top: clamp(24px, 3vw, 36px);
 }
+/* Volt means "act": one primary action, then the CV, then research. */
 .cta {
   display: inline-flex;
   align-items: center;
@@ -52,12 +53,10 @@
   min-height: 52px;
   padding: 0 26px;
   border-radius: 999px;
-  background: var(--blue);
-  color: #fff;
+  background: var(--accent);
+  color: var(--accent-ink);
   font-weight: 750;
-  box-shadow:
-    0 0 0 1px #4d7cff,
-    0 16px 40px #1947e55c;
+  box-shadow: 0 16px 40px #d8f23c2e;
   transition:
     transform 350ms var(--ease-out),
     box-shadow 350ms var(--ease-out),
@@ -75,18 +74,33 @@
   text-decoration: underline;
   text-underline-offset: 6px;
 }
+.outline {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 1px solid #ffffff5c;
+  border-radius: 999px;
+  color: var(--text);
+  font-weight: 700;
+  transition:
+    border-color 250ms ease,
+    background 250ms ease;
+}
 .cta:focus-visible,
+.outline:focus-visible,
 .secondary:focus-visible {
-  outline: 3px solid #b7ccff;
+  outline: 3px solid var(--focus);
   outline-offset: 5px;
 }
 @media (hover: hover) and (pointer: fine) {
   .cta:hover {
-    background: #2857ee;
     transform: translateY(-2px);
-    box-shadow:
-      0 0 0 1px #7da0ff,
-      0 22px 50px #1947e575;
+    box-shadow: 0 22px 50px #d8f23c47;
+  }
+  .outline:hover {
+    border-color: var(--text);
+    background: #ffffff14;
   }
   .cta:hover span {
     transform: translateX(4px);
@@ -129,7 +143,7 @@
   cursor: pointer;
 }
 .pause:focus-visible {
-  outline: 3px solid #b7ccff;
+  outline: 3px solid var(--focus);
   outline-offset: 4px;
 }
 /* Only offered once the objects are actually moving. */
@@ -185,5 +199,57 @@
   }
   .tennis {
     bottom: 4%;
+  }
+}
+
+/* Degree, academy and publication. */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  width: min(880px, 100%);
+  margin: clamp(28px, 4vw, 44px) auto 0;
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+  border-radius: 18px;
+  background: var(--hairline);
+  text-align: left;
+}
+.facts > div {
+  padding: 16px 18px;
+  background: color-mix(in oklab, var(--bg) 82%, transparent);
+}
+.facts dt {
+  margin-bottom: 6px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.facts dd {
+  margin: 0;
+  color: var(--text);
+  font-weight: 700;
+  line-height: 1.4;
+}
+.facts dd span {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-body);
+  font-size: 14px;
+  font-weight: 500;
+}
+.facts a {
+  color: var(--accent);
+  text-underline-offset: 4px;
+}
+.facts a:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+@media (max-width: 700px) {
+  .facts {
+    grid-template-columns: 1fr;
   }
 }

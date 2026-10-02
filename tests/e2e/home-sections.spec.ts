@@ -7,6 +7,7 @@ const order = [
   "stack",
   "about",
   "work",
+  "research",
   "activity",
   "contact",
 ];
@@ -151,3 +152,45 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
     expect(errors).toEqual([]);
   });
 }
+
+test("older desk chapter links land on the sections that hold that content", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const [alias, id] of [
+    ["desk-story-0", "work"],
+    ["desk-story-1", "research"],
+    ["desk-story-2", "about"],
+  ]) {
+    await page.goto(`/en#${alias}`);
+    await expect(page.locator(`#${id}-title`)).toBeInViewport({
+      timeout: 10000,
+    });
+  }
+});
+
+test("research, education and the name read before any 3D", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/en");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Onur Ergüden, AI engineer" }),
+  ).toHaveCount(1);
+  const research = page.locator("#research");
+  await expect(
+    research.getByText("Accepted · publication pending"),
+  ).toBeVisible();
+  await expect(research.locator("ol li")).toHaveCount(3);
+  await expect(
+    research.locator("strong", { hasText: "O. Ergüden" }),
+  ).toHaveCount(1);
+  const facts = page.locator("#about dl");
+  await expect(facts).toContainText("BSc Software Engineering");
+  await expect(facts).toContainText("3.30 / 4.00");
+  await expect(facts).toContainText("Google AI & Technology Academy");
+  // One primary action; the CV and research follow it.
+  const actions = page.locator("#about").getByRole("link");
+  await expect(actions.filter({ hasText: "Contact me" })).toHaveCount(1);
+  await expect(actions.filter({ hasText: /CV/ })).toHaveCount(1);
+});

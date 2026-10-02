@@ -94,13 +94,11 @@ export default function DeskJourney({
   locale,
   content,
   screens,
-  introduction,
   sections = [],
 }: {
   locale: "en" | "tr";
   content: JourneyContent;
   screens: ScreenContent;
-  introduction?: ReactNode;
   /** Home sections, listed in the nav's Sections menu. */
   sections?: SectionLink[];
 }) {
@@ -114,6 +112,8 @@ export default function DeskJourney({
   const hideNavOnScroll = useRef(false);
   // The static section to land on when the desk gives way to the page.
   const fallbackTarget = useRef<string | null>(null);
+  // Bumped to end a focus reveal's hold on its position.
+  const revealHold = useRef(0);
   const [enabled, setEnabled] = useState(false);
   const [ready, setReady] = useState(false);
   const [active, setActive] = useState(true);
@@ -259,8 +259,12 @@ export default function DeskJourney({
         ? { id, top: target.getBoundingClientRect().top + window.scrollY }
         : null;
     };
-    const clear = () => {
+    const clear = (event: Event) => {
       pendingHash.current = null;
+      // Tab moves focus, which is what starts a reveal; anything else is
+      // the visitor taking over.
+      if (!(event instanceof KeyboardEvent && event.key === "Tab"))
+        revealHold.current++;
     };
     let settleBy = performance.now() + 10_000;
     const hashChanged = () => {
@@ -486,8 +490,10 @@ export default function DeskJourney({
           window.scrollY +
           d * layout.current.stage.height;
         let frames = 0;
+        const token = ++revealHold.current;
         requestAnimationFrame(function hold() {
-          if (++frames > 20) return;
+          // Anything the visitor does next (or a step button) ends the hold.
+          if (++frames > 20 || token !== revealHold.current) return;
           if (Math.abs(window.scrollY - target()) > 2) jumpTo(d);
           requestAnimationFrame(hold);
         });
@@ -496,7 +502,9 @@ export default function DeskJourney({
       const screen = Number(panel.dataset.screen);
       const { timeline } = measure;
       if (screen === 0) {
-        const row = target.closest<HTMLElement>("[data-reveal-row]") ?? target;
+        // The focused element itself, not its row: a link can sit at the
+        // foot of a row taller than the window.
+        const row = target;
         const top = localTop(row, track);
         const { overflow, window } = measure.screens.portrait;
         const offset = story.reading[0] * overflow;
@@ -697,7 +705,10 @@ export default function DeskJourney({
                               ? "Previous"
                               : "Önceki"
                         }: ${chapterLabels[index]}`}
-                        onClick={() => jumpTo(targets[index])}
+                        onClick={() => {
+                          revealHold.current++;
+                          jumpTo(targets[index]);
+                        }}
                       >
                         <span aria-hidden="true">{i ? "↓" : "↑"}</span>
                       </button>
@@ -745,15 +756,14 @@ export default function DeskJourney({
         onSkip={(event) => {
           if (!plainClick(event)) return;
           event.preventDefault();
-          history.pushState(null, "", "#journey-content");
-          const target = document.getElementById("journey-content");
+          history.pushState(null, "", "#about");
+          const target = document.getElementById("about");
           target?.scrollIntoView({ behavior: "instant", block: "start" });
           target?.focus({ preventScroll: true });
         }}
       />
-      <div id="journey-content" tabIndex={-1}>
-        {introduction}
-      </div>
+      {/* Where the desk ends: the nav docks once this has scrolled past. */}
+      <div id="journey-content" />
       {failed ? (
         <p className={styles.unavailable} role="status">
           {en
@@ -762,25 +772,6 @@ export default function DeskJourney({
         </p>
       ) : null}
       {!enhanced ? chapterIds.map((id) => screenSection(id, true)) : null}
-      <div className={styles.stories} data-fallback={!enhanced}>
-        <section id="desk-story-1" tabIndex={-1} data-research>
-          <h2>{content.research.label}</h2>
-          <Image
-            src={`/images/desk/ultrawide.webp?v=${assets.revision}`}
-            alt={content.research.label}
-            width={1280}
-            height={960}
-            sizes="(max-width:700px) 90vw, 640px"
-          />
-          {content.research.cards.map((card) => (
-            <article key={card.title}>
-              <h3>{card.title}</h3>
-              <p>{card.body}</p>
-              <a href={card.href}>{card.action}</a>
-            </article>
-          ))}
-        </section>
-      </div>
     </>
   );
 }

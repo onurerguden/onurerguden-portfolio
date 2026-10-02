@@ -134,75 +134,14 @@ img {
 .skip-link:focus {
   transform: none;
 }
-.hero {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1.04fr 1fr;
-  align-items: center;
-  min-height: 680px;
-  padding: 48px 0 0;
-  column-gap: 12px;
-}
-.hero-copy {
-  z-index: 1;
-  padding-bottom: 50px;
-}
-.intro-line {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 14px;
-  color: var(--muted);
-  margin-bottom: 32px;
-}
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--blue);
-}
+
 h1 {
   font: clamp(64px, 7.7vw, 118px)/0.98 var(--display);
   font-weight: 450;
   letter-spacing: -5px;
   margin-bottom: 29px;
 }
-.hero-description {
-  max-width: 455px;
-  font-size: 17px;
-  line-height: 1.8;
-  color: var(--muted);
-  margin-bottom: 32px;
-}
-.hero-actions {
-  display: flex;
-  align-items: center;
-  gap: 28px;
-  flex-wrap: wrap;
-}
-.button {
-  display: inline-flex;
-  gap: 25px;
-  align-items: center;
-  justify-content: center;
-  padding: 16px 22px;
-  min-height: 52px;
-  border-radius: 7px;
-  font-size: 14px;
-  font-weight: 600;
-}
-.button-primary {
-  background: var(--blue);
-  color: white;
-  box-shadow: 0 4px 10px #1947e514;
-  transition: background 0.2s;
-}
-.button-primary:hover {
-  background: #1038bf;
-}
-.button span {
-  font-size: 19px;
-}
+
 .text-link {
   font-size: 14px;
   font-weight: 600;
@@ -211,71 +150,7 @@ h1 {
   text-decoration-color: #a8b3c3;
   line-height: 2;
 }
-.hero-visual {
-  height: 580px;
-  min-width: 0;
-  position: relative;
-  margin-top: -42px;
-}
-.hero-bottom {
-  grid-column: 1/-1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--line);
-  padding: 28px 0 34px;
-  margin-top: 16px;
-}
-.hero-bottom p {
-  font-size: 12px;
-  color: var(--muted);
-  margin: 0;
-}
-.hero-bottom strong {
-  font-size: 14px;
-  color: var(--ink);
-  display: block;
-  font-weight: 650;
-  margin-top: 2px;
-}
-.scroll-hint {
-  display: flex;
-  align-items: center;
-  gap: 22px;
-  font-size: 12px;
-  color: var(--muted);
-}
-.scroll-hint span {
-  font-size: 23px;
-}
-.initial-system {
-  position: relative;
-  height: 100%;
-  perspective: 800px;
-}
-.initial-system span {
-  position: absolute;
-  left: 20%;
-  top: 20%;
-  height: 240px;
-  width: 70%;
-  border: 1px solid #aec0f0;
-  background: #e0e7f8;
-  transform: rotateX(58deg) rotateZ(-25deg);
-  box-shadow: 0 20px 40px #17212b08;
-}
-.initial-system span:nth-child(2) {
-  top: 30%;
-  background: #c9d7f4;
-}
-.initial-system span:nth-child(3) {
-  top: 40%;
-  background: #7f9fe9;
-}
-.initial-system span:nth-child(4) {
-  top: 50%;
-  background: var(--blue);
-}
+
 .section-heading {
   display: flex;
   justify-content: space-between;
@@ -375,81 +250,26 @@ h1 {
   font-size: 12px;
 }
 .rag-art {
-  background: #e8ebf7;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 25px;
-}
-.retrieval-diagram {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-}
-.document-stack {
-  width: 73px;
-  height: 80px;
-  position: relative;
-}
-.document-stack i {
-  position: absolute;
-  inset: 0 15px 0 0;
-  border: 1px solid #8e9bcb;
-  border-radius: 5px;
-  background: repeating-linear-gradient(
-    0deg,
-    #fff 0px,
-    #fff 13px,
-    #dce2f5 14px,
-    #fff 15px
-  );
-  transform: rotate(-12deg);
-}
-.document-stack i:nth-child(2) {
-  transform: rotate(-4deg);
-}
-.document-stack i:nth-child(3) {
-  transform: rotate(5deg);
-}
-.diagram-connector {
-  width: 26px;
-  height: 1px;
-  background: #8b9ccf;
-}
-.retrieval-core {
-  width: 74px;
-  height: 74px;
   display: grid;
   place-items: center;
-  background: #2448b9;
-  color: white;
-  border-radius: 14px;
-  font-size: 14px;
-  box-shadow: 0 12px 25px #2448b91a;
+  padding: 18px;
+  background: var(--surface-1);
 }
-.answer-block {
-  background: #f5f7fe;
-  border: 1px solid #cbd4ef;
-  border-radius: 8px;
-  padding: 17px 12px;
-  font-size: 12px;
+.rag-diagram {
+  width: 100%;
+  margin: 0;
 }
-.answer-block span {
+.rag-diagram svg {
   display: block;
-  font-size: 12px;
-  color: #626f91;
-  margin-top: 8px;
+  width: 100%;
+  height: auto;
 }
-.rag-caption {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  color: #4d6087;
+.rag-diagram figcaption {
+  margin-top: 6px;
+  color: var(--text-muted);
   font-size: 12px;
-  margin-top: 42px;
-  flex-wrap: wrap;
 }
+
 .page-intro {
   padding: 65px 0 55px;
   max-width: 900px;
@@ -647,20 +467,7 @@ h1 {
   .site-shell {
     padding: 0 5%;
   }
-  .hero {
-    min-height: 610px;
-    padding-top: 30px;
-  }
-  .hero h1 {
-    font-size: 80px;
-    letter-spacing: -3px;
-  }
-  .hero-visual {
-    height: 510px;
-  }
-  .hero-description {
-    font-size: 15px;
-  }
+
   .phone-pair {
     gap: 15px;
     padding-left: 20px;
@@ -671,10 +478,7 @@ h1 {
   .project-art {
     height: 285px;
   }
-  .retrieval-diagram {
-    transform: scale(0.9);
-    transform-origin: center;
-  }
+
   .case-layout {
     grid-template-columns: 170px 1fr;
     gap: 35px;
@@ -684,50 +488,7 @@ h1 {
   .site-shell {
     padding: 0 6%;
   }
-  .hero {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    padding-top: 37px;
-    min-height: 0;
-  }
-  .hero-copy {
-    padding-bottom: 0;
-  }
-  .intro-line {
-    margin-bottom: 24px;
-    font-size: 12px;
-  }
-  .hero h1 {
-    font-size: clamp(65px, 13vw, 90px);
-    letter-spacing: -2.8px;
-  }
-  .hero-description {
-    font-size: 15px;
-    max-width: 430px;
-  }
-  .hero-actions {
-    gap: 25px;
-  }
-  .hero-visual {
-    height: 390px;
-    margin: 8px -5% 0;
-  }
-  .hero-bottom {
-    margin-top: 20px;
-    padding: 20px 0 27px;
-    gap: 15px;
-  }
-  .hero-bottom p {
-    font-size: 12px;
-  }
-  .hero-bottom strong {
-    font-size: 13px;
-  }
-  .scroll-hint {
-    font-size: 12px;
-    gap: 12px;
-  }
+
   .section-heading {
     align-items: start;
     gap: 12px;
@@ -834,7 +595,6 @@ h1 {
   }
 }
 .archive-entry > p:not(.project-category),
-.hero-description,
 .prose p,
 .prose li {
   font-size: 1rem;
@@ -905,4 +665,16 @@ html:has([data-journey-stage]) {
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+/* An invisible target for an older link to the section that follows. */
+.anchor-alias {
+  display: block;
+  height: 0;
+}
+/* The home page is dark end to end, including overscroll and the gaps
+   between full-bleed bands; other pages follow with the global switch. */
+html:has(main[data-home]),
+html:has(main[data-home]) body {
+  background: var(--bg);
+  color: var(--text);
 }

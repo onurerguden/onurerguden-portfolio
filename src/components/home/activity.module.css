@@ -1,8 +1,8 @@
-/* GitHub activity: paper section, cobalt heatmap. */
+/* GitHub activity: dark section, volt heatmap over atmosphere. */
 .section {
   padding-block: clamp(96px, 12vw, 168px);
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--bg);
+  color: var(--text);
 }
 .inner {
   width: min(1320px, 90%);
@@ -13,7 +13,8 @@
   margin-top: clamp(32px, 5vw, 64px);
 }
 .loadingLink {
-  color: var(--blue);
+  color: var(--text);
+  text-decoration-color: var(--accent);
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 5px;
@@ -31,7 +32,7 @@
 .bar .boneFill {
   display: block;
   border-radius: 6px;
-  background: #e6ebf2;
+  background: var(--surface-2);
 }
 .bar .boneFill {
   flex-grow: 1;
@@ -82,11 +83,12 @@
 }
 .unavailable {
   margin-top: clamp(32px, 5vw, 56px);
-  color: var(--muted);
+  color: var(--text-muted);
   font-size: 17px;
 }
 .unavailable a {
-  color: var(--blue);
+  color: var(--text);
+  text-decoration-color: var(--accent);
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 5px;
@@ -96,7 +98,7 @@
   align-items: center;
   gap: 10px;
   margin: 0;
-  color: var(--muted);
+  color: var(--text-muted);
   font-size: 14px;
 }
 .pulse {
@@ -118,7 +120,7 @@
 .fresh {
   min-height: 1.5em;
   margin: 6px 0 0;
-  color: var(--blue);
+  color: var(--accent);
   font-weight: 700;
 }
 .stats {
@@ -127,9 +129,9 @@
   gap: 1px;
   margin: 18px 0 clamp(32px, 4vw, 48px);
   overflow: hidden;
-  border: 1px solid var(--line);
+  border: 1px solid var(--hairline);
   border-radius: 20px;
-  background: var(--line);
+  background: var(--hairline);
 }
 .stats div {
   display: flex;
@@ -137,10 +139,10 @@
   justify-content: flex-end;
   gap: 6px;
   padding: clamp(16px, 2vw, 24px);
-  background: #fff;
+  background: var(--surface-1);
 }
 .stats dt {
-  color: var(--muted);
+  color: var(--text-muted);
   font-size: 13px;
   font-weight: 600;
 }
@@ -161,24 +163,24 @@
 .tabs button {
   min-height: 40px;
   padding: 0 16px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--hairline);
   border-radius: 999px;
-  background: #fff;
-  color: var(--ink);
+  background: var(--surface-1);
+  color: var(--text);
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
 }
 .tabs button[aria-selected="true"] {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--paper);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
 }
 .tabs button:focus-visible,
 .cell:focus-visible,
 .events a:focus-visible,
 .empty a:focus-visible {
-  outline: 3px solid var(--blue);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 .summary {
@@ -187,9 +189,9 @@
 }
 .grid {
   padding: clamp(14px, 2vw, 22px);
-  border: 1px solid var(--line);
+  border: 1px solid var(--hairline);
   border-radius: 20px;
-  background: #fff;
+  background: var(--surface-1);
 }
 .gridScroller {
   overflow-x: auto;
@@ -205,7 +207,7 @@
 }
 .month {
   height: 16px;
-  color: var(--muted);
+  color: var(--text-muted);
   font-size: 11px;
   text-align: left;
 }
@@ -218,7 +220,7 @@
 }
 .weekday {
   padding-right: 6px !important;
-  color: var(--muted);
+  color: var(--text-muted);
   font-size: 11px;
   text-align: right;
   white-space: nowrap;
@@ -229,28 +231,29 @@
   height: 12px;
   padding: 0;
   border-radius: 3px;
-  background: #e6ebf2;
+  background: var(--surface-2);
 }
+/* Five steps; the level is also in each cell's label and the readout. */
 .cell[data-level="1"] {
-  background: #c3d3ff;
+  background: color-mix(in oklab, var(--accent) 18%, var(--surface-2));
 }
 .cell[data-level="2"] {
-  background: #86a6ff;
+  background: color-mix(in oklab, var(--accent) 38%, var(--surface-2));
 }
 .cell[data-level="3"] {
-  background: #4f79f5;
+  background: color-mix(in oklab, var(--accent) 62%, var(--surface-2));
 }
 .cell[data-level="4"] {
-  background: var(--blue);
+  background: var(--accent);
 }
 td.cell:hover {
-  outline: 2px solid var(--ink);
+  outline: 2px solid var(--text);
   outline-offset: 1px;
 }
 .readout {
   min-height: 1.4em;
   margin: 10px 0 0;
-  color: var(--muted);
+  color: var(--text-muted);
   font-size: 13px;
 }
 .legend {
@@ -259,7 +262,7 @@ td.cell:hover {
   justify-content: flex-end;
   gap: 4px;
   margin-top: 4px;
-  color: var(--muted);
+  color: var(--text-muted);
   font-size: 12px;
 }
 .legend .cell {
@@ -289,23 +292,23 @@ td.cell:hover {
 }
 .bar span,
 .swatch {
-  background: var(--blue);
+  background: var(--accent);
 }
 .bar span[data-slot="1"],
 .swatch[data-slot="1"] {
-  background: #4f79f5;
+  background: #7aa2ff;
 }
 .bar span[data-slot="2"],
 .swatch[data-slot="2"] {
-  background: #86a6ff;
+  background: #f5f6f8;
 }
 .bar span[data-slot="3"],
 .swatch[data-slot="3"] {
-  background: #17212b;
+  background: #8b98ad;
 }
 .bar span[data-slot="4"],
 .swatch[data-slot="4"] {
-  background: #536171;
+  background: #4c5b77;
 }
 .bar span[data-slot="5"],
 .swatch[data-slot="5"] {
@@ -326,7 +329,7 @@ td.cell:hover {
 }
 .languages li span:last-child {
   margin-left: auto;
-  color: var(--muted);
+  color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
 .swatch {
@@ -337,12 +340,13 @@ td.cell:hover {
 .empty {
   margin: 0;
   padding-top: 12px;
-  border-top: 1px solid var(--line);
-  color: var(--muted);
+  border-top: 1px solid var(--hairline);
+  color: var(--text-muted);
   font-size: 14px;
 }
 .empty a {
-  color: var(--blue);
+  color: var(--text);
+  text-decoration-color: var(--accent);
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 4px;
@@ -357,28 +361,28 @@ td.cell:hover {
   justify-content: space-between;
   gap: 16px;
   padding: 12px 0;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--hairline);
   font-size: 14px;
 }
 .events a {
   font-weight: 600;
 }
 .events a:hover {
-  color: var(--blue);
+  color: var(--accent);
 }
 .when {
   display: flex;
   flex-shrink: 0;
   align-items: center;
   gap: 8px;
-  color: var(--muted);
+  color: var(--text-muted);
   font-size: 13px;
 }
 .newBadge {
   padding: 2px 8px;
   border-radius: 999px;
-  background: var(--volt);
-  color: var(--ink);
+  background: var(--accent);
+  color: var(--accent-ink);
   font-size: 11px;
   font-weight: 800;
 }

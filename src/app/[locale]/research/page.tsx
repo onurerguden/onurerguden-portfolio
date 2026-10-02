@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isLocale, sharedFacts } from "@/lib/content";
 import { pageMetadata } from "@/lib/site";
+import { getResearch } from "@/lib/research";
 export async function generateMetadata({
   params,
 }: {
@@ -27,6 +28,7 @@ export default async function ResearchPage({
   if (!isLocale(locale)) notFound();
   const en = locale === "en";
   const publication = sharedFacts.publication;
+  const research = getResearch(locale);
   return (
     <main id="main" tabIndex={-1}>
       <div className="page-intro">
@@ -38,11 +40,7 @@ export default async function ResearchPage({
             ? "Better questions. Grounded answers."
             : "Daha iyi sorular. Sağlam yanıtlar."}
         </h1>
-        <p>
-          {en
-            ? "My interests sit at the intersection of applied machine learning, data science and reliable AI systems. I want to understand how models behave beyond a single evaluation score."
-            : "Uygulamalı makine öğrenmesi, veri bilimi ve güvenilir AI sistemleriyle ilgileniyorum. Modellerin davranışını tek bir değerlendirme puanının ötesinde anlamak istiyorum."}
-        </p>
+        <p>{research.approach}</p>
       </div>
       <section
         className="research-publication"
@@ -54,11 +52,7 @@ export default async function ResearchPage({
         <p>
           <strong>{publication.journal}</strong>
         </p>
-        <p>
-          {en
-            ? "A two-layer approach to current contamination detection and future water-safety trends."
-            : "Mevcut kirliliğin tespiti ve gelecekteki su güvenliği eğilimleri için iki katmanlı yaklaşım."}
-        </p>
+        <p>{research.publicationSummary}</p>
         <Link className="text-link" href={`/${locale}/projects/water-safety`}>
           {en ? "Read the research project" : "Araştırma projesini oku"} ↗
         </Link>
@@ -69,21 +63,9 @@ export default async function ResearchPage({
             {en ? "Questions I’m exploring" : "Üzerinde düşündüğüm sorular"}
           </h2>
           <ul>
-            <li>
-              {en
-                ? "How should retrieval systems behave when the available evidence cannot support an answer?"
-                : "Mevcut kanıt yanıtı desteklemiyorsa bilgi erişim sistemleri nasıl davranmalı?"}
-            </li>
-            <li>
-              {en
-                ? "How well do predictive models generalize across time and changing data sources?"
-                : "Tahmin modelleri zaman içinde ve veri kaynakları değiştiğinde ne kadar genellenebilir?"}
-            </li>
-            <li>
-              {en
-                ? "How can evaluation separate model quality from data leakage and dataset-specific shortcuts?"
-                : "Değerlendirme, model kalitesini veri sızıntısından ve veriye özgü kestirmelerden nasıl ayırabilir?"}
-            </li>
+            {research.questions.map((question) => (
+              <li key={question}>{question}</li>
+            ))}
           </ul>
         </section>
         <section>

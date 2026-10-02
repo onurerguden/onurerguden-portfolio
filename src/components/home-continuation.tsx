@@ -6,6 +6,7 @@ import ProjectsSection from "@/components/home/projects-section";
 import ActivitySection from "@/components/home/activity-section";
 import CertificatesSection from "@/components/home/certificates-section";
 import ContactSection from "@/components/home/contact-section";
+import ResearchTeaser from "@/components/sections/research-teaser";
 
 type FlowSectionId = Exclude<
   HomeSectionId,
@@ -14,10 +15,22 @@ type FlowSectionId = Exclude<
 const sections: Record<FlowSectionId, (locale: Locale) => ReactNode> = {
   about: (locale) => <AboutSection locale={locale} />,
   work: (locale) => <ProjectsSection locale={locale} />,
+  research: (locale) => <ResearchTeaser locale={locale} />,
   activity: (locale) => <ActivitySection locale={locale} />,
   // Renders nothing until a certificate has been added.
   certificates: (locale) => <CertificatesSection locale={locale} />,
   contact: (locale) => <ContactSection locale={locale} />,
+};
+
+/**
+ * Earlier links to the desk's chapters (#desk-story-0, 1 and 2: selected
+ * work, research, about and contact) land just before the sections that
+ * now hold that content.
+ */
+const aliases: Partial<Record<FlowSectionId, string>> = {
+  work: "desk-story-0",
+  research: "desk-story-1",
+  about: "desk-story-2",
 };
 
 /**
@@ -28,7 +41,16 @@ const sections: Record<FlowSectionId, (locale: Locale) => ReactNode> = {
 export default function HomeContinuation({ locale }: { locale: Locale }) {
   return homeSections.map((section) =>
     section.place !== "flow" ? null : (
-      <Fragment key={section.id}>{sections[section.id](locale)}</Fragment>
+      <Fragment key={section.id}>
+        {aliases[section.id] ? (
+          <span
+            id={aliases[section.id]}
+            className="anchor-alias"
+            aria-hidden="true"
+          />
+        ) : null}
+        {sections[section.id](locale)}
+      </Fragment>
     ),
   );
 }

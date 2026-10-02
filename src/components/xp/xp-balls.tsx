@@ -12,7 +12,7 @@ import SceneBoundary from "@/components/three/scene-boundary";
 import { useSectionStage } from "@/components/three/use-section-stage";
 import { coverFrame } from "@/lib/bliss-geometry";
 import { laptopPhase } from "@/lib/desk-story/store";
-import { unprojectPoint } from "@/lib/desk-projection";
+import { unprojectPoint } from "@/lib/screen-geometry";
 import type { BallItem } from "./tech-atlas";
 import { dropEvent } from "./xp-drop";
 import { ballAt, drop, sim } from "./xp-sim";

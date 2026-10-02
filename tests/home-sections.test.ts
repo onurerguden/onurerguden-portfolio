@@ -13,6 +13,7 @@ describe("home section registry", () => {
       "stack",
       "about",
       "work",
+      "research",
       "activity",
       "certificates",
       "contact",

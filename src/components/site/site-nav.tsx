@@ -127,8 +127,8 @@ export function JourneyNav({
       data-revealed="false"
       aria-label={en ? "Journey sections" : "Yolculuk bölümleri"}
     >
-      <a className={styles.skip} href="#journey-content" onClick={onSkip}>
-        {en ? "Skip to work" : "İçeriğe geç"}
+      <a className={styles.skip} href="#about" onClick={onSkip}>
+        {en ? "Skip the desk tour" : "Masa turunu geç"}
       </a>
       <Brand locale={locale} />
       <div className={styles.links}>

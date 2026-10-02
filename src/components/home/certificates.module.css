@@ -1,8 +1,8 @@
 /* Certificates: navy section with holographic cards and a lightbox. */
 .section {
   padding-block: clamp(96px, 12vw, 168px);
-  background: var(--space);
-  color: var(--paper);
+  background: var(--bg);
+  color: var(--text);
 }
 .inner {
   width: min(1240px, 90%);
@@ -88,7 +88,7 @@
   outline: none;
 }
 .card:focus-visible .media {
-  outline: 3px solid #b7ccff;
+  outline: 3px solid var(--focus);
   outline-offset: 4px;
 }
 .meta {
@@ -99,7 +99,7 @@
   font-size: 17px;
 }
 .meta span {
-  color: #b7c2d4;
+  color: var(--text-muted);
   font-size: 14px;
 }
 .dialog {
@@ -107,9 +107,10 @@
   max-height: 92vh;
   padding: 0;
   border: 0;
+  border: 1px solid var(--hairline);
   border-radius: 20px;
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--surface-1);
+  color: var(--text);
 }
 .dialog::backdrop {
   background: #050912d9;
@@ -123,6 +124,7 @@
   height: auto;
   max-height: 64vh;
   object-fit: contain;
+  /* The certificate itself, on white, framed by the dark panel. */
   background: #fff;
 }
 .dialogText {
@@ -134,7 +136,7 @@
 }
 .dialogText p {
   margin: 0 0 8px;
-  color: var(--muted);
+  color: var(--text-muted);
 }
 .dialogActions {
   display: flex;
@@ -144,7 +146,8 @@
   margin-top: 14px;
 }
 .dialogActions a {
-  color: var(--blue);
+  color: var(--text);
+  text-decoration-color: var(--accent);
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 5px;
@@ -152,21 +155,21 @@
 .dialogActions button {
   min-height: 44px;
   padding: 0 18px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--hairline);
   border-radius: 999px;
-  background: #fff;
-  color: var(--ink);
+  background: var(--surface-2);
+  color: var(--text);
   font-weight: 700;
   cursor: pointer;
 }
 .dialogActions button:last-child {
   margin-left: auto;
-  border-color: var(--ink);
-  background: var(--ink);
-  color: #fff;
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
 }
 .dialogActions :focus-visible {
-  outline: 3px solid var(--blue);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 /* On phones the verify link takes its own row so the buttons stay together. */

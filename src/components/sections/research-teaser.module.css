@@ -1,0 +1,117 @@
+.section {
+  padding-block: clamp(96px, 12vw, 168px);
+  background: var(--bg);
+  color: var(--text);
+}
+.inner {
+  width: min(1320px, 88%);
+  margin-inline: auto;
+  container-type: inline-size;
+}
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: clamp(28px, 5vw, 72px);
+  align-items: start;
+  margin-top: clamp(36px, 5vw, 72px);
+}
+.approach {
+  max-width: 34ch;
+  margin: 0;
+  color: var(--text-body);
+  font-size: clamp(19px, 1.8vw, 24px);
+  line-height: 1.55;
+}
+.paper {
+  padding: clamp(22px, 3vw, 34px);
+  border: 1px solid var(--hairline);
+  border-radius: 22px;
+  background: var(--surface-1);
+}
+.status {
+  display: inline-block;
+  margin: 0 0 18px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 13px;
+  font-weight: 750;
+}
+.paper h3 {
+  margin: 0 0 12px;
+  font: 750 clamp(19px, 1.7vw, 23px) / 1.35 var(--body);
+  letter-spacing: -0.01em;
+}
+.journal {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-weight: 650;
+}
+.authors,
+.summary {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.authors strong {
+  color: var(--text);
+}
+.summary {
+  margin-top: 14px;
+  color: var(--text-body);
+}
+.questionsTitle {
+  margin: clamp(48px, 6vw, 88px) 0 18px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.questions {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--hairline);
+}
+.questions li {
+  display: grid;
+  grid-template-columns: clamp(48px, 6vw, 84px) minmax(0, 1fr);
+  gap: 16px;
+  padding: clamp(18px, 2.4vw, 28px) 0;
+  border-bottom: 1px solid var(--hairline);
+  font-size: clamp(17px, 1.5vw, 21px);
+  line-height: 1.5;
+}
+.questions span {
+  color: var(--accent);
+  font-family: var(--display-heavy);
+  font-weight: 900;
+}
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  margin-top: clamp(28px, 4vw, 44px);
+}
+.links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--text);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
+.links a:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 4px;
+}
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

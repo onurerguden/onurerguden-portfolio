@@ -3,12 +3,14 @@ import { PerspectiveCamera } from "three";
 import contract from "../src/lib/desk-scene.json";
 import {
   createScreenProjection,
-  projectPoint,
   projectScreen,
+} from "../src/lib/desk-projection";
+import {
+  projectPoint,
   quadRect,
   unprojectPoint,
-} from "../src/lib/desk-projection";
-import { cameraAnchors } from "../src/lib/desk-story/camera";
+} from "../src/lib/screen-geometry";
+import { cameraAnchors } from "../src/lib/desk-story/anchors";
 
 function projected(
   screen: keyof typeof contract.screens,
