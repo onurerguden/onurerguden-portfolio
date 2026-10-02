@@ -234,19 +234,3 @@ export function remapDistance(from: Timeline, to: Timeline, distance: number) {
     b.start + ((distance - a.start) / (a.end - a.start)) * (b.end - b.start)
   );
 }
-
-/** Hold each page still before moving to the next page. */
-export function pageOffset(progress: number, count: number) {
-  const steps = count * 2 - 1;
-  const value = clamp(progress) * steps;
-  const segment = Math.min(steps - 1, Math.floor(value));
-  return Math.min(
-    count - 1,
-    Math.floor(segment / 2) + (segment % 2 ? ease(value - segment) : 0),
-  );
-}
-
-/** The still portion of page `page` within a paged reading segment. */
-export function pageFraction(page: number, count: number) {
-  return (page * 2 + 0.5) / (count * 2 - 1);
-}

@@ -25,9 +25,6 @@
   },
   "bmc-intern": {
     "role": "Yazılım mühendisliği stajyeri",
-    "highlights": [
-      "SAP ABAP uygulamaları.",
-      "Depo envanter iş akışları."
-    ]
+    "highlights": ["SAP ABAP uygulamaları.", "Depo envanter iş akışları."]
   }
 }

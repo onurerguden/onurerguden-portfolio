@@ -17,13 +17,13 @@ import { useScroll, useMotionValueEvent, useMotionValue } from "motion/react";
 import {
   arrivalDistance,
   clamp,
-  pageFraction,
-  pageOffset,
   readDistance,
   readRange,
   remapDistance,
+  riseRange,
   roomDistance,
   storyAt,
+  type StoryState,
   type Timeline,
 } from "@/lib/desk-story/timeline";
 import type { JourneyContent } from "@/lib/desk-story/content";
@@ -31,12 +31,15 @@ import assets from "@/lib/desk-assets.json";
 import { stageRegistry } from "@/lib/stage-registry";
 import { homeSections, type SectionLink } from "@/lib/home-sections";
 import { currentSection } from "@/lib/current-section";
+import { laptopPhase, type LaptopPhase } from "@/lib/desk-story/store";
 import SceneBoundary from "@/components/three/scene-boundary";
 import { JourneyNav, plainClick } from "@/components/site/site-nav";
 import monitorStyles from "@/components/sections/monitor.module.css";
+import xpStyles from "@/components/xp/xp.module.css";
 import styles from "./journey.module.css";
 import PortraitIdentity from "./portrait-identity";
 import ScreenPanels from "./screen-panels";
+import { paintScreens } from "./paint-screens";
 import {
   localTop,
   useStoryLayout,
@@ -44,45 +47,59 @@ import {
 } from "./use-story-layout";
 const Scene = dynamic(() => import("./journey-scene"), { ssr: false });
 
-/** Server-rendered sections the portrait monitor shows. */
-export type MonitorContent = { services: ReactNode; experience: ReactNode };
+/** Server-rendered sections shown on the desk's screens. */
+export type ScreenContent = {
+  services: ReactNode;
+  experience: ReactNode;
+  stack: ReactNode;
+};
 
 /** Sections on the desk's screens, in story order. */
-const chapterIds = ["services", "experience", "desk-story-2"] as const;
+const chapterIds = ["services", "experience", "stack"] as const;
 
-function chapterDistances(measure: StoryMeasure, laptopPages: number) {
+function chapterDistances(measure: StoryMeasure) {
   const { timeline, portrait } = measure;
+  const { overflow, scale } = measure.screens.portrait;
   // Experience starts with its title just under the monitor's top edge.
-  const experience = portrait.overflow
-    ? (portrait.experienceTop - 24 / portrait.scale) / portrait.overflow
+  const experience = overflow
+    ? (portrait.experienceTop - 24 / scale) / overflow
     : 0;
   return [
     arrivalDistance(timeline, 0),
     readDistance(timeline, 0, experience),
-    readDistance(timeline, 2, pageFraction(0, laptopPages)),
+    arrivalDistance(timeline, 2),
   ];
 }
 
 /** The chapter on screen at `distance`, or -1 between screens. */
-function chapterAt(measure: StoryMeasure, distance: number): number {
-  const story = storyAt(measure.timeline, distance);
+function chapterAt(measure: StoryMeasure, story: StoryState): number {
   if (story.active === 0) {
-    const { overflow, height, experienceTop } = measure.portrait;
-    return story.reading[0] * overflow + height / 2 >= experienceTop ? 1 : 0;
+    const { overflow, window } = measure.screens.portrait;
+    const { experienceTop } = measure.portrait;
+    return story.reading[0] * overflow + window / 2 >= experienceTop ? 1 : 0;
   }
   return story.active === 2 ? 2 : -1;
+}
+
+/** Where the MacBook's balls are in their story; see LaptopPhase. */
+function phaseAt(measure: StoryMeasure, story: StoryState): LaptopPhase {
+  const [start, end] = readRange(measure.timeline, 0);
+  if (story.distance < (start + end) / 2) return "away";
+  if (story.arrival[2] < 1) return "near";
+  if (story.rise[2] <= 0) return "desk";
+  return story.rise[2] < 1 ? "rise" : "gone";
 }
 
 export default function DeskJourney({
   locale,
   content,
-  monitor,
+  screens,
   introduction,
   sections = [],
 }: {
   locale: "en" | "tr";
   content: JourneyContent;
-  monitor: MonitorContent;
+  screens: ScreenContent;
   introduction?: ReactNode;
   /** Home sections, listed in the nav's Sections menu. */
   sections?: SectionLink[];
@@ -105,6 +122,9 @@ export default function DeskJourney({
   const [chapter, setChapter] = useState(-1);
   const [around, setAround] = useState<[number, number]>([-1, 0]);
   const [finalView, setFinalView] = useState(false);
+  // A screen fills the view, so the desk behind it can stop drawing.
+  const [covered, setCovered] = useState(false);
+  const [diving, setDiving] = useState(false);
   const [nearStage, setNearStage] = useState(true);
   // The section a hash link is heading for, until the visitor scrolls.
   const pendingHash = useRef<{ id: string; top: number } | null>(null);
@@ -112,14 +132,11 @@ export default function DeskJourney({
   const chapterRef = useRef(-1);
   const aroundRef = useRef<[number, number]>([-1, 0]);
   const finalViewRef = useRef(false);
+  const coverRef = useRef({ covered: false, diving: false });
   const distance = useMotionValue(0);
   const enhanced = enabled && !staticMode && !failed;
   const { layout, measured } = useStoryLayout(enhanced, stage, panels);
-  const laptopPages = content.laptop.cards.length;
-  const targets = useMemo(
-    () => chapterDistances(measured, laptopPages),
-    [measured, laptopPages],
-  );
+  const targets = useMemo(() => chapterDistances(measured), [measured]);
   const { scrollYProgress } = useScroll({
     target: section,
     offset: ["start start", "end end"],
@@ -135,6 +152,9 @@ export default function DeskJourney({
       measure.timeline.length,
     );
     distance.set(d);
+    // For QA: the desk stops drawing behind a takeover, so the scene's own
+    // counters can lag; the story's distance never does.
+    node.dataset.distance = d.toFixed(3);
     // Complete the poster handoff while the opening camera is still stationary.
     const openingProgress = Math.min(1, d / 0.15);
     const openingOpacity =
@@ -146,12 +166,24 @@ export default function DeskJourney({
       if (d > 0.15) nav.current.dataset.revealed = "false";
     }
     const state = storyAt(measure.timeline, d);
+    paintScreens(measure, state, panels.current);
+    laptopPhase.set(phaseAt(measure, state));
+    const dive = Math.max(...state.dive);
+    const nextCover = { covered: dive >= 1, diving: dive > 0 };
+    if (
+      nextCover.covered !== coverRef.current.covered ||
+      nextCover.diving !== coverRef.current.diving
+    ) {
+      coverRef.current = nextCover;
+      setCovered(nextCover.covered);
+      setDiving(nextCover.diving);
+    }
     const nextFinalView = state.from === "room" && state.to === "room";
     if (finalViewRef.current !== nextFinalView) {
       finalViewRef.current = nextFinalView;
       setFinalView(nextFinalView);
     }
-    const nextChapter = chapterAt(measure, d);
+    const nextChapter = chapterAt(measure, state);
     if (chapterRef.current !== nextChapter) {
       chapterRef.current = nextChapter;
       setChapter(nextChapter);
@@ -159,7 +191,7 @@ export default function DeskJourney({
     if (d < measure.timeline.length)
       currentSection.set(nextChapter >= 0 ? chapterIds[nextChapter] : null);
     // The chapters before and after this point, for the step buttons.
-    const distances = chapterDistances(measure, laptopPages);
+    const distances = chapterDistances(measure);
     const previous = distances.findLastIndex((t) => t < d - 0.02);
     const next = distances.findIndex((t) => t > d + 0.02);
     if (aroundRef.current[0] !== previous || aroundRef.current[1] !== next) {
@@ -170,7 +202,7 @@ export default function DeskJourney({
       intro.current.style.opacity = String(1 - Math.min(1, d / 0.5));
       intro.current.style.visibility = d >= 0.5 ? "hidden" : "visible";
     }
-  }, [distance, layout, laptopPages]);
+  }, [distance, layout]);
   useMotionValueEvent(scrollYProgress, "change", update);
   useEffect(() => {
     const motion = matchMedia("(prefers-reduced-motion: reduce)");
@@ -317,7 +349,8 @@ export default function DeskJourney({
     setSceneShown(true);
   }, []);
   const remember = useCallback(() => {
-    const index = chapterAt(layout.current, distance.get());
+    const measure = layout.current;
+    const index = chapterAt(measure, storyAt(measure.timeline, distance.get()));
     fallbackTarget.current = index >= 0 ? chapterIds[index] : null;
   }, [layout, distance]);
   const onFailure = useCallback(() => {
@@ -407,7 +440,10 @@ export default function DeskJourney({
         fallbackTarget.current = null;
       }
     }
-    if (!enhanced) currentSection.set(null);
+    if (!enhanced) {
+      currentSection.set(null);
+      laptopPhase.set("away");
+    }
   }, [enhanced]);
   useEffect(() => {
     if (!enhanced || ready || released) return;
@@ -438,63 +474,98 @@ export default function DeskJourney({
       const track = panel?.querySelector<HTMLElement>("[data-track]");
       if (!panel || !track) return;
       const measure = layout.current;
+      // The browser scrolls a focused element into view after this event,
+      // to where the panel's untransformed box would be (smoothly, over
+      // several frames); hold the story's position until it has done so.
+      const settle = (d: number) => {
+        jumpTo(d);
+        const node = section.current;
+        if (!node) return;
+        const target = () =>
+          node.getBoundingClientRect().top +
+          window.scrollY +
+          d * layout.current.stage.height;
+        let frames = 0;
+        requestAnimationFrame(function hold() {
+          if (++frames > 20) return;
+          if (Math.abs(window.scrollY - target()) > 2) jumpTo(d);
+          requestAnimationFrame(hold);
+        });
+      };
       const story = storyAt(measure.timeline, distance.get());
       const screen = Number(panel.dataset.screen);
+      const { timeline } = measure;
       if (screen === 0) {
         const row = target.closest<HTMLElement>("[data-reveal-row]") ?? target;
         const top = localTop(row, track);
-        const { overflow, height } = measure.portrait;
+        const { overflow, window } = measure.screens.portrait;
         const offset = story.reading[0] * overflow;
         if (
           story.active === 0 &&
+          story.dive[0] >= (measure.screens.portrait.dive ? 1 : 0) &&
           top >= offset &&
-          top + row.offsetHeight <= offset + height * 0.9
+          top + row.offsetHeight <= offset + window * 0.9
         )
           return;
-        jumpTo(
+        settle(
           readDistance(
-            measure.timeline,
+            timeline,
             0,
-            overflow ? (top - height * 0.3) / overflow : 0,
+            overflow ? (top - window * 0.3) / overflow : 0,
           ),
         );
       } else if (screen === 2) {
-        const cards = [...track.querySelectorAll("article")];
-        const page = Math.max(0, cards.indexOf(target.closest("article")!));
-        if (
-          story.active === 2 &&
-          pageOffset(story.reading[2], cards.length) === page
-        )
-          return;
-        jumpTo(
-          readDistance(measure.timeline, 2, pageFraction(page, cards.length)),
-        );
+        const list = panel.querySelector<HTMLElement>("[data-explorer-list]");
+        const entry = target.closest<HTMLElement>("li");
+        if (list && entry && list.contains(entry)) {
+          // A link in the list: open the Explorer and read to its row.
+          const top = localTop(entry, list);
+          const { overflow, window } = measure.screens.macbook;
+          const offset = story.reading[2] * overflow;
+          if (
+            story.rise[2] >= 1 &&
+            story.active === 2 &&
+            top >= offset &&
+            top + entry.offsetHeight <= offset + window * 0.9
+          )
+            return;
+          settle(
+            readDistance(
+              timeline,
+              2,
+              overflow ? (top - window * 0.3) / overflow : 0,
+            ),
+          );
+        } else if (story.active !== 2 || story.rise[2] > 0) {
+          // The desktop's own controls: back to the XP desktop.
+          const [rise] = riseRange(timeline, 2);
+          settle(rise - 0.05);
+        }
       }
     },
     [distance, jumpTo, layout],
   );
-  const chapterLabels = [
-    ...homeSections
-      .filter((s) => s.place === "monitor")
-      .map((s) => s.label[locale]),
-    content.laptop.label,
-  ];
+  const chapterLabels = homeSections
+    .filter((s) => s.place !== "flow")
+    .map((s) => s.label[locale]);
   const measuredReady = enhanced && measured.stage.height > 0;
   const story = measured.timeline;
-  const monitorSections = (page: boolean) => (
-    <>
-      {(["services", "experience"] as const).map((id) => (
-        <section
-          key={id}
-          id={page ? id : undefined}
-          tabIndex={page ? -1 : undefined}
-          className={page ? `${monitorStyles.page} bleed` : undefined}
-          aria-labelledby={`${id}-title`}
-        >
-          {monitor[id]}
-        </section>
-      ))}
-    </>
+  const screenSection = (id: (typeof chapterIds)[number], page: boolean) => (
+    <section
+      key={id}
+      id={page ? id : undefined}
+      tabIndex={page ? -1 : undefined}
+      className={
+        page
+          ? `${id === "stack" ? xpStyles.page : monitorStyles.page} bleed`
+          : id === "stack"
+            ? xpStyles.screen
+            : undefined
+      }
+      aria-labelledby={`${id}-title`}
+    >
+      {screens[id]}
+    </section>
   );
   return (
     <>
@@ -546,6 +617,8 @@ export default function DeskJourney({
               className={styles.scene}
               ref={wrapper}
               style={{ opacity: sceneShown ? 1 : 0 }}
+              data-diving={diving}
+              data-covered={covered}
               onFocus={reveal}
             >
               <ScreenPanels
@@ -554,16 +627,18 @@ export default function DeskJourney({
                 interactive={!staticMode && !failed}
                 monitor={
                   <div className={monitorStyles.screen}>
-                    {monitorSections(false)}
+                    {screenSection("services", false)}
+                    {screenSection("experience", false)}
                   </div>
                 }
+                laptop={screenSection("stack", false)}
               />
               {!released ? (
                 <SceneBoundary label="Desk scene" onFailure={onFailure}>
                   <Scene
                     distance={distance}
                     locale={locale}
-                    active={active}
+                    active={active && !covered}
                     onReady={onReady}
                     onFailure={onFailure}
                     wrapper={wrapper}
@@ -686,7 +761,7 @@ export default function DeskJourney({
             : "3D kullanılamıyor. Aynı içeriği aşağıda inceleyebilirsin."}
         </p>
       ) : null}
-      {!enhanced ? monitorSections(true) : null}
+      {!enhanced ? chapterIds.map((id) => screenSection(id, true)) : null}
       <div className={styles.stories} data-fallback={!enhanced}>
         <section id="desk-story-1" tabIndex={-1} data-research>
           <h2>{content.research.label}</h2>
@@ -705,25 +780,6 @@ export default function DeskJourney({
             </article>
           ))}
         </section>
-        {!enhanced ? (
-          <section id="desk-story-2" tabIndex={-1}>
-            <h2>{content.laptop.label}</h2>
-            <Image
-              src={`/images/desk/macbook.webp?v=${assets.revision}`}
-              alt={content.laptop.label}
-              width={1280}
-              height={960}
-              sizes="(max-width:700px) 90vw, 640px"
-            />
-            {content.laptop.cards.map((card) => (
-              <article key={card.title}>
-                <h3>{card.title}</h3>
-                <p>{card.body}</p>
-                <a href={card.href}>{card.action}</a>
-              </article>
-            ))}
-          </section>
-        ) : null}
       </div>
     </>
   );

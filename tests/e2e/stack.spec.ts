@@ -1,37 +1,36 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
+import { go, story } from "./helpers";
 
-/** Scrolls so the pinned stage is at the middle of its travel (--s = 0). */
-async function centreStack(page: import("@playwright/test").Page) {
+async function hydrated(page: Page) {
   // The motion store marks <html> once the page has hydrated.
   await page.waitForFunction(
     () => document.documentElement.dataset.motionPaused !== undefined,
   );
-  await page.evaluate(() => {
-    const track = document.querySelector("#stack > div") as HTMLElement;
-    const rect = track.getBoundingClientRect();
-    scrollTo({
-      top: scrollY + rect.top + rect.height / 2 - innerHeight / 2,
-      behavior: "instant",
-    });
-  });
-  await page.waitForTimeout(300);
 }
 
-test("the Bliss layers line up exactly at rest and separate with scroll", async ({
+test("Bliss parts as the camera reaches the MacBook and rests at the desktop", async ({
   page,
+  browserName,
 }) => {
-  await page.goto("/en");
-  await centreStack(page);
+  test.skip(browserName === "webkit", "Headless WebKit lacks reliable WebGL2.");
+  await page.goto("/en/lab/desk/journey");
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+    { timeout: 20000 },
+  );
+  const s = await story(page);
   const skyShift = () =>
     page.evaluate(() => {
-      const sky = document.querySelector("#stack picture") as HTMLElement;
+      const sky = document.querySelector(
+        '[data-screen="2"] [data-xp] picture',
+      ) as HTMLElement;
       return new DOMMatrixReadOnly(getComputedStyle(sky).transform).m42;
     });
+  await go(page, s.chapters.stack + 0.2);
   expect(Math.abs(await skyShift())).toBeLessThan(1);
-  await page.evaluate(() =>
-    scrollBy({ top: innerHeight * 0.6, behavior: "instant" }),
-  );
-  await expect.poll(skyShift).toBeGreaterThan(4);
+  await go(page, s.chapters.stack - 0.5);
+  await expect.poll(skyShift).toBeLessThan(-4);
 });
 
 test("reduced motion shows only the original photograph", async ({ page }) => {
@@ -41,8 +40,8 @@ test("reduced motion shows only the original photograph", async ({ page }) => {
   });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/en");
+  await hydrated(page);
   await page.locator("#stack").scrollIntoViewIfNeeded();
-  await centreStack(page);
   await expect
     .poll(() => requested.filter((url) => url.includes("/original-")).length)
     .toBeGreaterThan(0);
@@ -52,15 +51,19 @@ test("reduced motion shows only the original photograph", async ({ page }) => {
 test("the start menu works from the keyboard", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/tr");
-  await centreStack(page);
+  await hydrated(page);
+  await page.locator("#stack").scrollIntoViewIfNeeded();
   const start = page.getByRole("button", { name: "start" });
   await start.focus();
   await page.keyboard.press("Enter");
   await expect(start).toHaveAttribute("aria-expanded", "true");
   const menu = page.getByRole("menu", { name: "Bir bölüme git" });
   await expect(menu.getByRole("menuitem").first()).toBeFocused();
+  // Both columns are one list for the arrow keys.
   await page.keyboard.press("ArrowUp");
-  await expect(menu.getByRole("menuitem").last()).toBeFocused();
+  await expect(
+    menu.getByRole("menuitem", { name: "CV’mi iste" }),
+  ).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(menu).toBeHidden();
   await expect(start).toBeFocused();
@@ -69,9 +72,23 @@ test("the start menu works from the keyboard", async ({ page }) => {
   await expect(page).toHaveURL(/#services$/);
 });
 
-test("every technology is listed in text", async ({ page }) => {
+test("every technology is listed in text with where it was used", async ({
+  page,
+}) => {
   await page.goto("/en");
-  const list = page.locator("#stack h4 + ul li");
-  await expect(list).toHaveCount(32);
-  await expect(page.getByText("All technologies (32)")).toBeAttached();
+  const explorer = page.locator("[data-explorer]");
+  await expect(explorer.locator("h4 + ul li")).toHaveCount(32);
+  await expect(
+    explorer.getByRole("heading", {
+      name: "All technologies (32)",
+      includeHidden: true,
+    }),
+  ).toBeAttached();
+  const python = explorer.locator("li", { hasText: "Python" }).first();
+  // The panel may still be hidden while the desk loads; count the links.
+  await expect(python.locator("a")).toHaveCount(3);
+  // Nothing is claimed for a tool without a public example.
+  await expect(
+    explorer.locator("li", { hasText: "Figma" }).locator("a"),
+  ).toHaveCount(0);
 });

@@ -13,7 +13,7 @@ export const screenIds = [
 export type ScreenId = (typeof screenIds)[number];
 export const screens = screenIds.map((id) => contract.screens[id]);
 /** CSS width of each projected panel; its height follows the screen's aspect. */
-export const screenPixelWidths = [1000, 2000, 1000] as const;
+export const screenPixelWidths = [1000, 2000, 1280] as const;
 export const screenStops: readonly CameraStop[] = [
   "portrait",
   "opening",

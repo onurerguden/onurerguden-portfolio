@@ -1,8 +1,10 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { useEffect, useId, useRef, useState } from "react";
 import type { SectionLink } from "@/lib/home-sections";
+import { setMotionPaused, useMotionPreference } from "@/lib/motion-preference";
 import { useMinute } from "@/lib/use-minute";
-import styles from "./stack.module.css";
+import styles from "./xp.module.css";
 
 const clockFormat = new Intl.DateTimeFormat("en-GB", {
   hour: "2-digit",
@@ -15,6 +17,13 @@ function useIzmirClock() {
   return minute === null ? "" : clockFormat.format(minute);
 }
 
+const itemSelector = '[role="menuitem"], [role="menuitemcheckbox"]';
+
+/**
+ * The XP taskbar: a two-column Start menu (sections on the white side,
+ * profiles and CV on the blue side, Pause motion where XP had Turn off), the
+ * Bliss credit and the İzmir clock.
+ */
 export default function XpTaskbar({
   locale,
   sections,
@@ -26,16 +35,18 @@ export default function XpTaskbar({
 }) {
   const en = locale === "en";
   const time = useIzmirClock();
+  const { paused, reduced } = useMotionPreference();
   const [open, setOpen] = useState(false);
+  const id = useId();
   const button = useRef<HTMLButtonElement>(null);
   const menu = useRef<HTMLDivElement>(null);
   const items = () => [
-    ...(menu.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? []),
+    ...(menu.current?.querySelectorAll<HTMLElement>(itemSelector) ?? []),
   ];
 
   useEffect(() => {
     if (!open) return;
-    items()[0]?.focus();
+    items()[0]?.focus({ preventScroll: true });
     const outside = (event: PointerEvent) => {
       if (
         !menu.current?.contains(event.target as Node) &&
@@ -71,7 +82,7 @@ export default function XpTaskbar({
         className={styles.start}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-controls="xp-start-menu"
+        aria-controls={id}
         onClick={() => setOpen((value) => !value)}
       >
         <span className={styles.orb} aria-hidden="true" />
@@ -79,33 +90,61 @@ export default function XpTaskbar({
       </button>
       <div
         ref={menu}
-        id="xp-start-menu"
+        id={id}
         className={styles.startMenu}
         role="menu"
         aria-label={en ? "Jump to a section" : "Bir bölüme git"}
         hidden={!open}
         onKeyDown={onMenuKey}
       >
-        <p className={styles.startHeader} aria-hidden="true">
+        <div className={styles.startHeader} aria-hidden="true">
+          <Image
+            className={styles.avatar}
+            src="/images/avatar/onur-head-v4.webp"
+            alt=""
+            width={48}
+            height={48}
+            sizes="48px"
+          />
           Onur Ergüden
-        </p>
-        {sections.map((section) => (
-          <a
-            key={section.id}
-            role="menuitem"
-            tabIndex={-1}
-            href={`#${section.id}`}
-            onClick={() => setOpen(false)}
-          >
-            {section.label}
-          </a>
-        ))}
-        <span className={styles.startDivider} role="separator" />
-        {links.map((link) => (
-          <a key={link.href} role="menuitem" tabIndex={-1} href={link.href}>
-            {link.label}
-          </a>
-        ))}
+        </div>
+        <div className={styles.startColumns}>
+          <div className={styles.startPrograms} role="group">
+            {sections.map((section) => (
+              <a
+                key={section.id}
+                role="menuitem"
+                tabIndex={-1}
+                href={`#${section.id}`}
+                onClick={() => setOpen(false)}
+              >
+                {section.label}
+              </a>
+            ))}
+          </div>
+          <div className={styles.startPlaces} role="group">
+            {links.map((link) => (
+              <a key={link.href} role="menuitem" tabIndex={-1} href={link.href}>
+                {link.label}
+              </a>
+            ))}
+          </div>
+        </div>
+        {reduced ? null : (
+          <div className={styles.startFooter}>
+            <button
+              type="button"
+              role="menuitemcheckbox"
+              aria-checked={paused}
+              tabIndex={-1}
+              data-no-physics
+              onClick={() => setMotionPaused(!paused)}
+            >
+              <span className={styles.power} aria-hidden="true" />
+              {en ? "Pause motion" : "Hareketi duraklat"}
+            </button>
+          </div>
+        )}
       </div>
       <div className={styles.tray}>
         <span className={styles.credit}>

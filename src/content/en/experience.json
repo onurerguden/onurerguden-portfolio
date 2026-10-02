@@ -9,10 +9,7 @@
   },
   "fin-intern": {
     "role": "AI engineering intern",
-    "highlights": [
-      "AI prototypes.",
-      "Retrieval-based application features."
-    ]
+    "highlights": ["AI prototypes.", "Retrieval-based application features."]
   },
   "vbt-intern": {
     "role": "Software engineering intern",
@@ -25,9 +22,6 @@
   },
   "bmc-intern": {
     "role": "Software engineering intern",
-    "highlights": [
-      "SAP ABAP applications.",
-      "Warehouse inventory workflows."
-    ]
+    "highlights": ["SAP ABAP applications.", "Warehouse inventory workflows."]
   }
 }

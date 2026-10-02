@@ -3,6 +3,7 @@ import { isLocale } from "@/lib/content";
 import { getJourneyContent } from "@/lib/desk-story/content";
 import ServiceRows from "@/components/sections/service-rows";
 import ExperienceRail from "@/components/sections/experience-rail";
+import XpDesktop from "@/components/xp/xp-desktop";
 import RoomPosterPreview from "@/components/desk/room-poster-preview";
 export const metadata = {
   title: "Room poster review",
@@ -20,9 +21,10 @@ export default async function RoomPosterPage({
       <RoomPosterPreview
         locale={locale}
         content={getJourneyContent(locale)}
-        monitor={{
+        screens={{
           services: <ServiceRows locale={locale} />,
           experience: <ExperienceRail locale={locale} />,
+          stack: <XpDesktop locale={locale} />,
         }}
       />
     </main>

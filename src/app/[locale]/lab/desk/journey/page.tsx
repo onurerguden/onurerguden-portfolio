@@ -3,6 +3,7 @@ import { isLocale } from "@/lib/content";
 import { getJourneyContent } from "@/lib/desk-story/content";
 import ServiceRows from "@/components/sections/service-rows";
 import ExperienceRail from "@/components/sections/experience-rail";
+import XpDesktop from "@/components/xp/xp-desktop";
 import DeskJourney from "@/components/desk/journey";
 import HomeIntroduction from "@/components/home-introduction";
 import HomeContinuation from "@/components/home-continuation";
@@ -32,9 +33,10 @@ export default async function JourneyPage({
       <DeskJourney
         locale={locale}
         content={getJourneyContent(locale)}
-        monitor={{
+        screens={{
           services: <ServiceRows locale={locale} />,
           experience: <ExperienceRail locale={locale} />,
+          stack: <XpDesktop locale={locale} />,
         }}
         introduction={<HomeIntroduction locale={locale} />}
         sections={homeSectionLinks(locale, {

@@ -38,3 +38,15 @@ export function pageMetadata(
     },
   };
 }
+
+/** My CV when a public copy is configured, otherwise a request by email. */
+export function cvLink(locale: "en" | "tr", email: string) {
+  const cv = process.env.NEXT_PUBLIC_CV_URL;
+  const en = locale === "en";
+  return cv
+    ? { href: cv, label: en ? "Download CV" : "CV’yi indir" }
+    : {
+        href: `mailto:${email}?subject=CV%20request`,
+        label: en ? "Request my CV" : "CV’mi iste",
+      };
+}

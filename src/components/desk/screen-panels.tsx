@@ -20,18 +20,17 @@ export default function ScreenPanels({
   panels,
   content,
   monitor,
+  laptop,
   interactive,
-  laptop = true,
 }: {
   panels: PanelRefs;
-  content: JourneyContent;
+  content: Pick<JourneyContent, "name" | "role">;
   /** What I do and Experience, rendered once on the portrait monitor. */
   monitor?: ReactNode;
+  /** The XP desktop with my tech stack, on the MacBook. */
+  laptop?: ReactNode;
   interactive: boolean;
-  /** The MacBook's pages; the poster capture leaves them out. */
-  laptop?: boolean;
 }) {
-  const cards = content.laptop.cards;
   return (
     <div className={styles.screenLayer}>
       {screenIds.map((id, i) => (
@@ -46,8 +45,6 @@ export default function ScreenPanels({
           // The ultrawide repeats the opening identity, which is the h1.
           aria-hidden={id === "UltrawideScreen" ? true : undefined}
           inert={id === "UltrawideScreen" ? true : undefined}
-          role={id === "MacBookScreen" ? "group" : undefined}
-          aria-label={id === "MacBookScreen" ? content.laptop.label : undefined}
         >
           <div className={styles.screenSurface}>
             <div className={styles.track} data-track>
@@ -55,29 +52,7 @@ export default function ScreenPanels({
                 <PortraitIdentity content={content} interactive={interactive} />
               ) : null}
               {id === "PortraitScreen" ? monitor : null}
-              {id === "MacBookScreen" && laptop
-                ? cards.map((card, j) => (
-                    <article
-                      key={card.title}
-                      style={{ height: panelHeight(i) }}
-                      className={styles.card}
-                    >
-                      <span className={styles.label}>
-                        {content.laptop.label}
-                      </span>
-                      <h2>{card.title}</h2>
-                      <p>{card.body}</p>
-                      <a href={card.href}>
-                        {card.action}
-                        <span aria-hidden="true"> ↗</span>
-                      </a>
-                      <span className={styles.page}>
-                        {String(j + 1).padStart(2, "0")} /{" "}
-                        {String(cards.length).padStart(2, "0")}
-                      </span>
-                    </article>
-                  ))
-                : null}
+              {id === "MacBookScreen" ? laptop : null}
             </div>
           </div>
         </div>

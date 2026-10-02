@@ -1,6 +1,30 @@
 [
-  { "id": "fin-ai-engineer", "company": "Future Is Now", "start": "2026-07", "end": null, "tools": ["python", "langchain", "langgraph", "qdrant"] },
-  { "id": "fin-intern", "company": "Future Is Now", "start": "2026-04", "end": "2026-06" },
-  { "id": "vbt-intern", "company": "VBT Software", "start": "2025-08", "end": "2025-09", "tools": ["spring-boot", "react", "typescript", "postgresql", "docker"], "proof": { "kind": "project", "slug": "taskfoo" } },
-  { "id": "bmc-intern", "company": "BMC Otomotiv", "start": "2025-07", "end": "2025-08", "tools": ["sap-abap"] }
+  {
+    "id": "fin-ai-engineer",
+    "company": "Future Is Now",
+    "start": "2026-07",
+    "end": null,
+    "tools": ["python", "langchain", "langgraph", "qdrant"]
+  },
+  {
+    "id": "fin-intern",
+    "company": "Future Is Now",
+    "start": "2026-04",
+    "end": "2026-06"
+  },
+  {
+    "id": "vbt-intern",
+    "company": "VBT Software",
+    "start": "2025-08",
+    "end": "2025-09",
+    "tools": ["spring-boot", "react", "typescript", "postgresql", "docker"],
+    "proof": { "kind": "project", "slug": "taskfoo" }
+  },
+  {
+    "id": "bmc-intern",
+    "company": "BMC Otomotiv",
+    "start": "2025-07",
+    "end": "2025-08",
+    "tools": ["sap-abap"]
+  }
 ]

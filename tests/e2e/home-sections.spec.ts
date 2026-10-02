@@ -120,6 +120,8 @@ test("sections pass axe with scroll-linked reveals active", async ({
   page,
 }) => {
   await page.goto("/tr");
+  // The desk replaces the static sections with its anchors once measured.
+  await page.locator("[data-story]").waitFor();
   for (const id of order) {
     await page.locator(`#${id}`).scrollIntoViewIfNeeded();
     await page.waitForTimeout(150);
