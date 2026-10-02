@@ -24,63 +24,16 @@ type Props = {
   reduced: boolean;
   active: boolean;
   locale: "en" | "tr";
+  /** Lines for each screen, first line as its label; from the site's copy. */
+  screenCopy: string[][];
   onReady: () => void;
   onFailure: () => void;
 };
-const screenCopy = {
-  en: [
-    [
-      "Selected work",
-      "Kuyumcum",
-      "Software for a real trade.",
-      "HealthFactor AI",
-      "Machine learning for water safety.",
-      "Course Intelligence",
-      "Retrieval, with context.",
-    ],
-    [
-      "AI & research",
-      "Questions worth testing.",
-      "Applied machine learning · Retrieval · Data science",
-      "From an experiment to a useful system.",
-    ],
-    [
-      "Onur Ergüden",
-      "Software engineer",
-      "I build, evaluate and keep learning.",
-      "İzmir, Türkiye",
-    ],
-  ],
-  tr: [
-    [
-      "Seçili çalışmalar",
-      "Kuyumcum",
-      "Gerçek bir iş için yazılım.",
-      "HealthFactor AI",
-      "Su güvenliği için makine öğrenmesi.",
-      "Course Intelligence",
-      "Bağlamıyla birlikte bilgi.",
-    ],
-    [
-      "AI ve araştırma",
-      "Sınanmaya değer sorular.",
-      "Uygulamalı makine öğrenmesi · Retrieval · Veri bilimi",
-      "Deneyden kullanışlı bir sisteme.",
-    ],
-    [
-      "Onur Ergüden",
-      "Yazılım mühendisi",
-      "Geliştiriyor, değerlendiriyor ve öğreniyorum.",
-      "İzmir, Türkiye",
-    ],
-  ],
-};
-
 function Screens({
-  locale,
+  copy,
   container,
 }: {
-  locale: Props["locale"];
+  copy: Props["screenCopy"];
   container: RefObject<HTMLDivElement | null>;
 }) {
   return (
@@ -92,7 +45,7 @@ function Screens({
           className={`${styles.screen} ${index === 0 ? styles.portraitScreen : index === 2 ? styles.macbookScreen : ""}`}
           style={{ width: 1000, height: (1000 * screen.height) / screen.width }}
         >
-          {screenCopy[locale][index].map((line, i) =>
+          {(copy[index] ?? []).map((line, i) =>
             i === 0 ? (
               <div className={styles.screenLabel} key={line}>
                 {line}
@@ -163,7 +116,13 @@ function CameraJourney({
   const current = useRef(progress);
   const transition = useRef({ from: progress, started: 0 });
   const projections = useMemo(
-    () => Object.values(contract.screens).map(createScreenProjection),
+    // Each panel is 1000 CSS px wide (see Screens). Passing the projection
+    // straight to map() made the array index its width, and the panels
+    // thousands of pixels wide.
+    () =>
+      Object.values(contract.screens).map((screen) =>
+        createScreenProjection(screen, 1000),
+      ),
     [],
   );
   const masks = useMemo(
@@ -330,7 +289,7 @@ export default function DeskScene(props: Props) {
         </Suspense>
         <CameraJourney {...props} active={controls.active} panels={panels} />
       </Canvas>
-      <Screens locale={props.locale} container={panels} />
+      <Screens copy={props.screenCopy} container={panels} />
       {props.revealed ? (
         <DeskObjectControls controls={controls} locale={props.locale} />
       ) : null}

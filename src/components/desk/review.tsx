@@ -77,7 +77,13 @@ const copy = {
   },
 };
 
-export default function DeskReview({ locale }: { locale: "en" | "tr" }) {
+export default function DeskReview({
+  locale,
+  screenCopy,
+}: {
+  locale: "en" | "tr";
+  screenCopy: string[][];
+}) {
   const t = copy[locale];
   const [progress, setProgress] = useState(0);
   const [enabled, setEnabled] = useState(false);
@@ -135,6 +141,7 @@ export default function DeskReview({ locale }: { locale: "en" | "tr" }) {
               reduced={reduced}
               active={visible}
               locale={locale}
+              screenCopy={screenCopy}
               onReady={handleReady}
               onFailure={handleFailure}
             />
