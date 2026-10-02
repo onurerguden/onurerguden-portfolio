@@ -1,0 +1,336 @@
+/* Case studies: giant title, role, real media, sticky facts and long-form
+   prose sized for reading (65–72 characters, 1.7 line height). */
+.page {
+  padding-bottom: clamp(64px, 8vw, 120px);
+}
+.hero {
+  padding: clamp(28px, 5vw, 64px) 0 clamp(32px, 5vw, 56px);
+  container-type: inline-size;
+}
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-bottom: clamp(16px, 3vw, 36px);
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 650;
+}
+.back:hover {
+  color: var(--text);
+}
+.category {
+  margin: 0 0 14px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.title {
+  margin-bottom: clamp(20px, 3vw, 36px);
+}
+.summary {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--text-body);
+  font-size: clamp(19px, 1.8vw, 24px);
+  line-height: 1.5;
+}
+.role {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 14px;
+  margin: 20px 0 0;
+  color: var(--text);
+  font-weight: 700;
+}
+.role span {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Media: uncropped, uncoloured, framed on the dark. */
+.phones {
+  display: flex;
+  justify-content: center;
+  gap: clamp(16px, 4vw, 56px);
+  padding: clamp(24px, 4vw, 48px);
+  border: 1px solid var(--hairline);
+  border-radius: 24px;
+  background:
+    radial-gradient(80% 60% at 50% 0%, #f1d58a33, transparent 70%),
+    var(--surface-1);
+}
+.phone {
+  width: min(300px, 42%);
+  margin: 0;
+}
+.phone img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 6px solid #10141d;
+  border-radius: 32px;
+  box-shadow: 0 30px 60px #02050d99;
+}
+.phone:nth-child(2) {
+  margin-top: clamp(24px, 6vw, 72px);
+}
+.figures {
+  display: grid;
+  gap: clamp(16px, 2.4vw, 28px);
+}
+.figure {
+  margin: 0;
+  padding: clamp(12px, 2vw, 22px);
+  border: 1px solid var(--hairline);
+  border-radius: 22px;
+  background: var(--surface-1);
+}
+.figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+.figure figcaption {
+  margin-top: 12px;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.diagram {
+  padding: clamp(14px, 2.4vw, 28px);
+  border: 1px solid var(--hairline);
+  border-radius: 22px;
+  background: var(--surface-1);
+}
+
+/* Facts beside the prose. */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(200px, 250px) minmax(0, 1fr);
+  gap: clamp(32px, 6vw, 96px);
+  margin-top: clamp(48px, 6vw, 88px);
+}
+.aside {
+  position: sticky;
+  top: 110px;
+  align-self: start;
+  display: grid;
+  gap: 28px;
+  font-size: 14px;
+}
+.aside h2 {
+  margin: 0 0 10px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.aside p {
+  margin: 0;
+  color: var(--text-body);
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.chips li {
+  padding: 6px 11px;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  color: var(--text-body);
+  font-size: 12px;
+  font-weight: 650;
+}
+.source {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--text);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+.toc ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-left: 1px solid var(--hairline);
+}
+.toc a {
+  display: block;
+  margin-left: -1px;
+  padding: 8px 0 8px 14px;
+  border-left: 2px solid transparent;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.toc a:hover {
+  color: var(--text);
+}
+.toc a[aria-current="location"] {
+  border-left-color: var(--accent);
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* Long-form prose. */
+.prose {
+  max-width: 68ch;
+  color: var(--text-body);
+  font-size: 17px;
+  line-height: 1.7;
+}
+.prose h2 {
+  margin: clamp(40px, 5vw, 64px) 0 16px;
+  color: var(--text);
+  font: 800 clamp(26px, 2.6vw, 34px) / 1.2 var(--body);
+  letter-spacing: -0.02em;
+  scroll-margin-top: 110px;
+}
+.prose h2:first-child {
+  margin-top: 0;
+}
+.prose h3 {
+  margin: 32px 0 12px;
+  color: var(--text);
+  font-size: 20px;
+}
+.prose p {
+  margin: 0 0 18px;
+  line-height: 1.7;
+}
+.prose ul,
+.prose ol {
+  padding-left: 22px;
+}
+.prose li {
+  margin-bottom: 10px;
+}
+.prose li::marker {
+  color: var(--accent);
+}
+.prose strong {
+  color: var(--text);
+}
+.prose a {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 4px;
+}
+.prose code {
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  font-size: 0.88em;
+  overflow-wrap: anywhere;
+}
+
+/* The other case studies. */
+.others {
+  margin-top: clamp(72px, 9vw, 128px);
+  padding-top: clamp(32px, 4vw, 48px);
+  border-top: 1px solid var(--hairline);
+}
+.others h2 {
+  margin: 0 0 24px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.others ul {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.others a {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  height: 100%;
+  min-height: 180px;
+  padding: 22px 22px 52px;
+  border: 1px solid var(--hairline);
+  border-radius: 20px;
+  background: var(--surface-1);
+  color: var(--text-body);
+  line-height: 1.5;
+  transition:
+    background var(--dur-hover) var(--ease-out),
+    color var(--dur-hover) var(--ease-out);
+}
+.others strong {
+  color: var(--text);
+  font-size: 20px;
+}
+.otherCategory {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+.otherArrow {
+  position: absolute;
+  right: 22px;
+  bottom: 18px;
+  color: var(--accent);
+  font-size: 22px;
+  transition: transform var(--dur-hover) var(--ease-out);
+}
+.archiveLink {
+  align-content: end !important;
+}
+@media (hover: hover) and (pointer: fine) {
+  .others a:hover {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+  .others a:hover strong,
+  .others a:hover .otherCategory,
+  .others a:hover .otherArrow {
+    color: var(--accent-ink);
+  }
+  .others a:hover .otherArrow {
+    transform: translateX(4px);
+  }
+}
+.others a:focus-visible,
+.back:focus-visible,
+.source:focus-visible,
+.toc a:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 4px;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .aside {
+    position: static;
+  }
+  .others ul {
+    grid-template-columns: 1fr;
+  }
+}
