@@ -3,6 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import {
+  caseHeadings,
   getProject,
   getProjects,
   isLocale,
@@ -234,5 +235,29 @@ describe("technology evidence", () => {
       });
       expect(() => validateHomeContent(root)).toThrow(/technology evidence/i);
     }
+  });
+});
+
+describe("case studies", () => {
+  it("state my role on case studies only", () => {
+    for (const locale of ["en", "tr"] as const)
+      for (const project of getProjects(locale))
+        expect(Boolean(project.role)).toBe(project.featured);
+    const root = fixture();
+    editJson(root, "en/projects.json", (value) => {
+      value.pam.role = "Invented role";
+    });
+    expect(() => validateContent(root)).toThrow("Role belongs");
+  });
+  it("keep the same sections in both languages", () => {
+    for (const slug of ["kuyumcum", "water-safety", "course-intelligence"]) {
+      const en = caseHeadings(getProject("en", slug)?.body ?? "");
+      const tr = caseHeadings(getProject("tr", slug)?.body ?? "");
+      expect(en.length).toBeGreaterThan(2);
+      expect(tr).toHaveLength(en.length);
+    }
+    const root = fixture();
+    fs.appendFileSync(path.join(root, "tr/kuyumcum.mdx"), "\n## Ek bölüm\n");
+    expect(() => validateContent(root)).toThrow("sections differ");
   });
 });

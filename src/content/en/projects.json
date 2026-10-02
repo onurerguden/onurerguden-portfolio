@@ -3,6 +3,7 @@
     "title": "Kuyumcum",
     "summary": "A mobile ecosystem connecting precious-metal holdings, portfolio insight and local merchants. I co-developed the product and engineered its AI features.",
     "category": "Product engineering · applied AI",
+    "role": "Co-developer · AI features",
     "mediaAlt": [
       "Kuyumcum jeweler discovery map",
       "Kuyumcum AI report list"
@@ -12,6 +13,7 @@
     "title": "HealthFactor-AI",
     "summary": "Two layers of water-safety intelligence: detecting contamination now and forecasting how safety may change next.",
     "category": "Machine learning · research",
+    "role": "Two-layer framework, data pipeline and models",
     "metricLabel": "Toxic-water recall in the project evaluation",
     "mediaAlt": [
       "Daily and monthly mean Health Factor of İzmir water samples, August 2025 to August 2026",
@@ -21,7 +23,8 @@
   "course-intelligence": {
     "title": "Course Intelligence RAG",
     "summary": "A departmental knowledge assistant combining local language models, semantic retrieval and deliberately constrained answers.",
-    "category": "Retrieval · LLM systems"
+    "category": "Retrieval · LLM systems",
+    "role": "Retrieval and LLM orchestration architecture"
   },
   "taskfoo": {
     "title": "TaskFoo",
