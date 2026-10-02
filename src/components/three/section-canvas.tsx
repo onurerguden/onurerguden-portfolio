@@ -66,7 +66,9 @@ export default function SectionCanvas({
       className={className}
       style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
       dpr={coarse ? [1, 1.25] : [1, 1.5]}
-      frameloop="demand"
+      // The prop too, not only setFrameloop: R3F reapplies it whenever the
+      // Canvas re-renders (a resize, say), which would restart a paused scene.
+      frameloop={active && !paused ? "demand" : "never"}
       events={noEvents}
       orthographic={orthographic}
       camera={camera}
@@ -102,6 +104,7 @@ function StageDriver({
   const invalidate = useThree((state) => state.invalidate);
   const advance = useThree((state) => state.advance);
   const setFrameloop = useThree((state) => state.setFrameloop);
+  const getState = useThree((state) => state.get);
 
   useEffect(() => {
     const canvas = gl.domElement;
@@ -124,9 +127,13 @@ function StageDriver({
     gl.domElement.dataset.stageActive = String(running);
     setFrameloop(running ? "demand" : "never");
     if (running) invalidate();
-    // Pausing keeps a finished still rather than a half-drawn buffer.
-    else if (active) advance(performance.now());
-  }, [running, active, gl, invalidate, advance, setFrameloop]);
+    else {
+      // R3F's loop still draws frames invalidated before "never"; drop them
+      // so a paused scene stops on exactly one finished still.
+      getState().internal.frames = 0;
+      if (active) advance(performance.now());
+    }
+  }, [running, active, gl, invalidate, advance, setFrameloop, getState]);
 
   useEffect(() => {
     if (!running || !fps) return;

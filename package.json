@@ -9,7 +9,7 @@
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
-    "check": "npm run typecheck && npm run lint && npm run test && npm run build && npm run check:trace",
+    "check": "npm run typecheck && npm run lint && npm run test && npm run build && npm run check:trace && npm run check:assets",
     "validate:content": "tsx scripts/validate-content.ts",
     "test:e2e": "playwright test",
     "format:check": "prettier --check src tests scripts *.ts *.mts",
@@ -17,6 +17,9 @@
     "desk:package": "node scripts/desk/package.mjs",
     "desk:capture-cosmic": "node scripts/desk/capture-cosmic-poster.mjs",
     "check:trace": "node scripts/check-trace.mjs",
+    "check:assets": "node scripts/check-assets.mjs",
+    "og:thumbs": "node scripts/og/build-thumbs.mjs",
+    "desk:portrait": "node scripts/desk/portrait-avif.mjs",
     "tech:icons": "node scripts/tech/build-icons.mjs",
     "bliss:build": "node scripts/bliss/build.mjs",
     "certificate": "node scripts/certificates/optimize.mjs"

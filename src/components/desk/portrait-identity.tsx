@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef } from "react";
 import type { JourneyContent } from "@/lib/desk-story/content";
 import styles from "./portrait.module.css";
@@ -112,15 +111,20 @@ export default function PortraitIdentity({
         {content.role}
       </span>
       <div className={styles.head} data-portrait-poster>
-        <Image
-          src="/images/avatar/onur-head-v4.webp"
-          alt=""
-          fill
-          sizes="100vw"
-          loading="eager"
-          fetchPriority={opening ? "high" : "auto"}
-          unoptimized
-        />
+        {/* AVIF at the same 1254 px, 152 KB instead of the WebP's 1.08 MB
+            (PSNR 43.3 dB; docs/qa/desk-story/portrait-avif). */}
+        <picture>
+          <source type="image/avif" srcSet="/images/avatar/onur-head-v4.avif" />
+          <img
+            src="/images/avatar/onur-head-v4.webp"
+            alt=""
+            width={1254}
+            height={1254}
+            loading="eager"
+            decoding="async"
+            fetchPriority={opening ? "high" : "auto"}
+          />
+        </picture>
       </div>
     </div>
   );

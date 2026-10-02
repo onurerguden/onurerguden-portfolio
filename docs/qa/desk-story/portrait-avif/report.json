@@ -1,0 +1,15 @@
+{
+  "source": "public/images/avatar/onur-head-v4.webp",
+  "target": "public/images/avatar/onur-head-v4.avif",
+  "width": 1254,
+  "height": 1254,
+  "quality": 70,
+  "psnr": 43.28,
+  "minimumPsnr": 42,
+  "webpBytes": 1076728,
+  "avifBytes": 151986,
+  "format": {
+    "webp": "webp",
+    "avif": "heif"
+  }
+}

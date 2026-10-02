@@ -613,7 +613,7 @@ export default function DeskJourney({
           {posterVisible ? (
             <Image
               className={styles.releasedPoster}
-              src={`/images/desk/room-poster.webp?v=${assets.revision}`}
+              src={`/images/desk/room-poster-${locale}.webp?v=${assets.posterRevision}`}
               alt=""
               fill
               sizes="100vw"
