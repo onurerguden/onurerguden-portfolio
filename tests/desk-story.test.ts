@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
+import { cameraAnchors } from "../src/lib/desk-story/anchors";
 import {
-  cameraAnchors,
   closeupScale,
   divesAt,
   screenStops,

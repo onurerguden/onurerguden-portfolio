@@ -17,8 +17,8 @@ import { Matrix4, Quaternion, Vector3, PerspectiveCamera } from "three";
 import type { MotionValue } from "motion/react";
 import { Model } from "./scene";
 import { createScreenProjection, projectScreen } from "@/lib/desk-projection";
+import { cameraAnchors } from "@/lib/desk-story/anchors";
 import {
-  cameraAnchors,
   screenIds,
   screenStops,
   screens,
