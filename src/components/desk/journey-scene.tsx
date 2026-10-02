@@ -1,5 +1,6 @@
 "use client";
 import {
+  memo,
   Suspense,
   useCallback,
   useEffect,
@@ -18,14 +19,12 @@ import { Model } from "./scene";
 import { createScreenProjection, projectScreen } from "@/lib/desk-projection";
 import {
   cameraAnchors,
-  panelHeight,
   screenIds,
-  screenPixelWidths,
   screenStops,
   screens,
   type CameraStop,
 } from "@/lib/desk-story/camera";
-import { clamp, pageOffset, storyAt } from "@/lib/desk-story/timeline";
+import { storyAt } from "@/lib/desk-story/timeline";
 import type { PanelRefs } from "./screen-panels";
 import type { StoryMeasure } from "./use-story-layout";
 export type JourneySceneProps = {
@@ -101,12 +100,10 @@ function Driver({
   wrapper: surface,
 }: JourneySceneProps) {
   const { camera, gl, size, invalidate, setFrameloop } = useThree();
-  const projections = useMemo(
-    () =>
-      screens.map((screen, index) =>
-        createScreenProjection(screen, screenPixelWidths[index]),
-      ),
-    [],
+  // One projection per screen and panel width; a diving screen's panel
+  // changes width with the viewport.
+  const projections = useRef(
+    new Map<string, ReturnType<typeof createScreenProjection>>(),
   );
   const frames = useRef(0);
   const pointer = useRef<CosmicPointer>({
@@ -293,39 +290,49 @@ function Driver({
     camera.rotateX((-p.currentY * amount * Math.PI) / 180);
     camera.updateProjectionMatrix();
     camera.updateMatrixWorld();
-    projections.forEach((projection, index) => {
-      const panel = panels.current[index];
+    panels.current.forEach((panel, index) => {
       if (!panel) return;
+      const layout =
+        index === 0
+          ? story.screens.portrait
+          : index === 2
+            ? story.screens.macbook
+            : null;
+      // While a screen takes over the view, the journey places it instead.
+      if (layout?.dive && step.dive[index] > 0) return;
+      // A diving screen's panel is laid out for the whole view; the desk
+      // shows its top, cropped to the screen's shape.
+      const panelWidth = layout?.width ?? panel.offsetWidth;
+      const crop = layout?.dive
+        ? Math.min(
+            panelWidth,
+            layout.height * (screens[index].width / screens[index].height),
+          )
+        : panelWidth;
+      const offsetX = (panelWidth - crop) / 2;
+      const key = `${index}:${crop}`;
+      let projection = projections.current.get(key);
+      if (!projection) {
+        projection = createScreenProjection(screens[index], crop);
+        projections.current.set(key, projection);
+      }
       const matrix = projectScreen(projection, camera, size.width, size.height);
       // Hidden by opacity, not visibility, so a panel behind the camera
       // stays in the accessibility tree.
       panel.style.visibility = "visible";
       panel.style.opacity = matrix ? "" : "0";
-      if (matrix) panel.style.transform = `matrix3d(${matrix.join(",")})`;
-      const surface = panel.firstElementChild as HTMLElement;
-      const track = surface.firstElementChild as HTMLElement;
-      if (screenIds[index] === "PortraitScreen") {
-        const { overflow, height, rows } = story.portrait;
-        const offset = step.reading[index] * overflow;
-        track.style.transform = `translateY(${-offset}px)`;
-        panel.dataset.offset = offset.toFixed(1);
-        // Rows light up as the monitor's window reaches them: the window
-        // opens while the camera arrives, then slides with the content.
-        const windowBottom = offset + height * step.arrival[index];
-        for (const row of rows) {
-          const value = clamp(
-            (windowBottom - row.top) / Math.max(1, row.height * 0.75),
-          );
-          if (row.value !== undefined && Math.abs(row.value - value) < 0.002)
-            continue;
-          row.value = value;
-          row.node.style.setProperty("--reveal", value.toFixed(3));
+      if (matrix) {
+        if (offsetX) {
+          // Shift the panel so the crop's left edge meets the screen's.
+          for (let row = 0; row < 4; row++)
+            matrix[12 + row] -= offsetX * matrix[row];
         }
-      } else if (screenIds[index] === "MacBookScreen") {
-        const page = pageOffset(step.reading[index], track.childElementCount);
-        track.style.transform = `translateY(${-page * panelHeight(index)}px)`;
-        panel.dataset.page = String(page);
+        panel.style.transform = `matrix3d(${matrix.join(",")})`;
       }
+      const cropHeight = crop / (screens[index].width / screens[index].height);
+      panel.style.clipPath = layout?.dive
+        ? `inset(0 ${offsetX}px ${layout.height - cropHeight}px ${offsetX}px)`
+        : "";
       const current = step.active === index;
       panel.dataset.active = String(current);
       panel.style.pointerEvents = current ? "auto" : "none";
@@ -370,7 +377,7 @@ function RenderFrame() {
   }, 1);
   return null;
 }
-export default function JourneyScene(props: JourneySceneProps) {
+function JourneyScene(props: JourneySceneProps) {
   const controls = useDeskInteractions(props.active, false);
   const readyCallback = props.onReady;
   const onReady = useCallback(() => readyCallback(), [readyCallback]);
@@ -384,7 +391,9 @@ export default function JourneyScene(props: JourneySceneProps) {
           zIndex: 1,
           pointerEvents: "none",
         }}
-        shadows
+        // PCF, which three now renders for PCFSoft anyway; naming it keeps
+        // R3F from marking the cached shadow maps dirty on every render.
+        shadows="percentage"
         dpr={[1, 1.5]}
         frameloop="demand"
         camera={{ fov: 43, near: 0.01, far: 30 }}
@@ -431,3 +440,10 @@ export default function JourneyScene(props: JourneySceneProps) {
     </>
   );
 }
+
+/**
+ * R3F's Canvas reconfigures the renderer on every render, which also marks
+ * the cached shadow maps dirty; the journey re-renders as chapters change
+ * while scrolling, so the scene only re-renders when its own props do.
+ */
+export default memo(JourneyScene);

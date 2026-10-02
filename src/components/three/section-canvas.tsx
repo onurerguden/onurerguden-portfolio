@@ -35,6 +35,8 @@ type Props = {
   className?: string;
   camera?: CanvasProps["camera"];
   orthographic?: boolean;
+  /** How the canvas measures itself; see R3F's `resize` option. */
+  resize?: CanvasProps["resize"];
   children: ReactNode;
 };
 
@@ -51,6 +53,7 @@ export default function SectionCanvas({
   className,
   camera,
   orthographic,
+  resize,
   children,
 }: Props) {
   const coarse = useMemo(
@@ -67,6 +70,7 @@ export default function SectionCanvas({
       events={noEvents}
       orthographic={orthographic}
       camera={camera}
+      resize={resize}
       gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
     >
       <StageDriver
@@ -105,6 +109,9 @@ function StageDriver({
     canvas.setAttribute("aria-hidden", "true");
     canvas.setAttribute("tabindex", "-1");
     const lost = (event: Event) => {
+      // Releasing a stage loses its context on purpose, after the canvas
+      // has left the page; only a live canvas losing it is a failure.
+      if (!canvas.isConnected) return;
       event.preventDefault();
       console.error(`${id} WebGL context lost`);
       onFailure();

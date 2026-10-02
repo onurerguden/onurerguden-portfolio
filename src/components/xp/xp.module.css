@@ -1,0 +1,693 @@
+/*
+ * My tech stack as a Windows XP desktop on Bliss. `.screen` is the MacBook's
+ * panel (or its takeover on a phone), where `--u` is one visible CSS px;
+ * `.page` is the same markup in the document flow, with the original photo
+ * and the list in place of the balls.
+ */
+.screen {
+  --u: calc(1px / var(--screen-scale, 1));
+  position: absolute;
+  inset: 0 0 var(--takeover-bottom, 0px);
+}
+.page {
+  --u: 1px;
+  position: relative;
+  background: var(--bg);
+  color: var(--text);
+}
+.desktop {
+  --s: 0;
+  --rise: 0;
+  position: relative;
+  height: 100%;
+  overflow: clip;
+  container: xp / size;
+  isolation: isolate;
+  font-family: Tahoma, "Segoe UI", system-ui, sans-serif;
+}
+/* In the page the photo takes one screen; the open list follows it. */
+.page .desktop {
+  height: auto;
+  overflow: visible;
+  container-type: inline-size;
+}
+/* object-fit: cover in container units; src/lib/bliss-geometry.ts matches. */
+.frame {
+  position: absolute;
+  left: calc((100cqw - max(100cqw, 160cqh)) * 0.5);
+  top: calc((100cqh - max(100cqw, 160cqh) * 0.625) * 0.56);
+  width: max(100cqw, 160cqh);
+  aspect-ratio: 3840 / 2400;
+  container-type: size;
+}
+.page .frame {
+  position: relative;
+  inset: auto;
+  width: auto;
+  height: 100svh;
+  min-height: 560px;
+  aspect-ratio: auto;
+  overflow: clip;
+}
+.page .taskbar {
+  top: calc(max(100svh, 560px) - 40px);
+  bottom: auto;
+}
+.layer {
+  position: absolute;
+  left: 0;
+  width: 100%;
+}
+.layer img,
+.original img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.page .original img {
+  object-fit: cover;
+  object-position: 50% 56%;
+}
+/* The layers part as the camera arrives (--s: -1 to 0) and leaves (0 to 1). */
+.sky {
+  z-index: 1;
+  transform: translate3d(0, calc(var(--s) * 6cqh), 0);
+}
+.hill {
+  z-index: 2;
+}
+.foreground {
+  z-index: 4;
+  transform: translate3d(0, calc(var(--s) * -4cqh), 0);
+}
+.ballsHolder {
+  position: absolute;
+  z-index: 3;
+}
+.original {
+  display: none;
+  position: absolute;
+  inset: 0;
+}
+.page .layer,
+.page .ballsHolder {
+  display: none;
+}
+.page .original {
+  display: block;
+}
+/* The close box drops the balls again once they are live. */
+.drop {
+  display: none;
+  padding: 0;
+  cursor: pointer;
+}
+.screen:has([data-stage-state="live"]) .drop {
+  display: block;
+}
+.screen:has([data-stage-state="live"]) .close[aria-hidden="true"] {
+  display: none;
+}
+.drop[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: default;
+}
+.drop:focus-visible {
+  outline: calc(2 * var(--u)) solid #fff;
+  outline-offset: calc(2 * var(--u));
+}
+.withoutBalls,
+.page .withBalls {
+  display: none;
+}
+.page .withoutBalls,
+.screen:not(:has([data-stage-state="live"])) .withoutBalls {
+  display: block;
+}
+.screen:not(:has([data-stage-state="live"])) .withBalls {
+  display: none;
+}
+.head {
+  position: absolute;
+  inset: calc(var(--takeover-top, 0px) + 40 * var(--u)) 0 auto;
+  z-index: 6;
+  display: grid;
+  justify-items: center;
+  gap: calc(22 * var(--u));
+  pointer-events: none;
+  container-type: inline-size;
+}
+.title {
+  width: 100%;
+  text-align: center;
+  color: #fff;
+  text-shadow:
+    0 calc(2 * var(--u)) 0 #1c4fb5,
+    0 calc(18 * var(--u)) calc(50 * var(--u)) #0a3a9a66;
+}
+.screen .title {
+  font-size: calc(var(--giant-fill) * 1cqi / var(--title-em));
+  max-width: none;
+}
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+}
+/* A small Luna-style dialog. */
+.window {
+  width: min(calc(360 * var(--u)), 88%);
+  overflow: hidden;
+  border: calc(2 * var(--u)) solid #0831d9;
+  border-radius: calc(9 * var(--u)) calc(9 * var(--u)) calc(4 * var(--u))
+    calc(4 * var(--u));
+  background: #ece9d8;
+  color: #1b1b1b;
+  box-shadow: 0 calc(16 * var(--u)) calc(40 * var(--u)) #0a2a7a55;
+  font:
+    calc(13 * var(--u))/1.45 Tahoma,
+    "Segoe UI",
+    system-ui,
+    sans-serif;
+  pointer-events: auto;
+}
+.titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(12 * var(--u));
+  padding: calc(5 * var(--u)) calc(5 * var(--u)) calc(5 * var(--u))
+    calc(10 * var(--u));
+  background: linear-gradient(
+    180deg,
+    #0997ff 0%,
+    #0053ee 9%,
+    #0050ee 40%,
+    #0066ff 88%,
+    #0a5ad8 100%
+  );
+  color: #fff;
+  font-weight: 700;
+  text-shadow: var(--u) var(--u) #0f1089;
+}
+.controls {
+  display: flex;
+  gap: calc(3 * var(--u));
+}
+.controls > * {
+  position: relative;
+  width: calc(21 * var(--u));
+  height: calc(21 * var(--u));
+  border: var(--u) solid #fff;
+  border-radius: calc(3 * var(--u));
+  background: linear-gradient(135deg, #3d8bff, #0a4ed8);
+}
+.minimize::after {
+  content: "";
+  position: absolute;
+  left: calc(5 * var(--u));
+  bottom: calc(5 * var(--u));
+  width: calc(7 * var(--u));
+  height: calc(3 * var(--u));
+  background: #fff;
+}
+.maximize::after {
+  content: "";
+  position: absolute;
+  inset: calc(4 * var(--u));
+  border: calc(2 * var(--u)) solid #fff;
+  border-top-width: calc(3 * var(--u));
+}
+.controls .close {
+  background: linear-gradient(135deg, #f0845a, #c5330e);
+}
+.close::before,
+.close::after {
+  content: "";
+  position: absolute;
+  top: calc(9 * var(--u));
+  left: calc(4 * var(--u));
+  width: calc(11 * var(--u));
+  height: calc(2 * var(--u));
+  background: #fff;
+  transform: rotate(45deg);
+}
+.close::after {
+  transform: rotate(-45deg);
+}
+.window p {
+  margin: 0;
+  padding: calc(10 * var(--u)) calc(12 * var(--u)) calc(12 * var(--u));
+}
+/* Taskbar with a start menu and İzmir clock. */
+.taskbar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 7;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  height: calc(40 * var(--u));
+  background: linear-gradient(
+    180deg,
+    #1f2f86 0,
+    #3165c4 3%,
+    #3682e5 6%,
+    #4490e6 10%,
+    #3883e5 12%,
+    #2b71e0 15%,
+    #2663da 18%,
+    #2258d5 23%,
+    #2157d6 38%,
+    #245ddb 54%,
+    #2562df 86%,
+    #1d4ec0 95%,
+    #1941a5 98%
+  );
+  font:
+    calc(12 * var(--u))/1 Tahoma,
+    "Segoe UI",
+    system-ui,
+    sans-serif;
+}
+.start {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(8 * var(--u));
+  min-width: calc(108 * var(--u));
+  padding: 0 calc(22 * var(--u)) 0 calc(10 * var(--u));
+  border: 0;
+  border-radius: 0 calc(12 * var(--u)) calc(12 * var(--u)) 0;
+  background: linear-gradient(
+    180deg,
+    #5ecf57 0%,
+    #3c9b3c 12%,
+    #3d963d 60%,
+    #2f7d2f 100%
+  );
+  box-shadow: inset -2px 0 calc(4 * var(--u)) #1a4d1a80;
+  color: #fff;
+  font:
+    italic 700 calc(19 * var(--u))/1 "Trebuchet MS",
+    Tahoma,
+    sans-serif;
+  text-shadow: var(--u) var(--u) calc(2 * var(--u)) #1a3d1a;
+  cursor: pointer;
+}
+.start[aria-expanded="true"] {
+  background: linear-gradient(180deg, #2f7d2f, #3d963d 40%, #2f7d2f);
+}
+.start:focus-visible,
+.startMenu a:focus-visible {
+  outline: calc(2 * var(--u)) solid #fff;
+  outline-offset: calc(-4 * var(--u));
+}
+.orb {
+  width: calc(20 * var(--u));
+  height: calc(20 * var(--u));
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 30%,
+    #fff 0 12%,
+    #d8f23c 13% 45%,
+    #6aa01b 100%
+  );
+  box-shadow: 0 0 0 calc(2 * var(--u)) #ffffff80;
+}
+.startMenu {
+  position: absolute;
+  bottom: calc(40 * var(--u));
+  left: 0;
+  display: grid;
+  width: min(calc(400 * var(--u)), 96cqw);
+  overflow: hidden;
+  border: calc(2 * var(--u)) solid #0831d9;
+  border-radius: calc(8 * var(--u)) calc(8 * var(--u)) 0 0;
+  background: #fff;
+  box-shadow: calc(4 * var(--u)) calc(-4 * var(--u)) calc(16 * var(--u))
+    #0000004d;
+}
+.startMenu[hidden] {
+  display: none;
+}
+.startHeader {
+  display: flex;
+  align-items: center;
+  gap: calc(10 * var(--u));
+  padding: calc(10 * var(--u)) calc(12 * var(--u));
+  background: linear-gradient(180deg, #1868ce, #0e60cb 40%, #1453c6);
+  color: #fff;
+  font:
+    700 calc(15 * var(--u)) / 1 Tahoma,
+    system-ui,
+    sans-serif;
+  text-shadow: var(--u) var(--u) #0f1089;
+}
+.avatar {
+  width: calc(42 * var(--u));
+  height: calc(42 * var(--u));
+  border: calc(2 * var(--u)) solid #fff;
+  border-radius: calc(4 * var(--u));
+  background: #f5f6f8;
+  object-fit: cover;
+}
+.startColumns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.startPrograms,
+.startPlaces {
+  display: grid;
+  align-content: start;
+  padding: calc(6 * var(--u)) 0;
+}
+/* XP's right column: places on light blue. */
+.startPlaces {
+  border-left: var(--u) solid #95bdee;
+  background: #d3e5fa;
+}
+.startMenu a,
+.startFooter button {
+  display: flex;
+  align-items: center;
+  gap: calc(8 * var(--u));
+  min-height: calc(44 * var(--u));
+  padding: 0 calc(14 * var(--u));
+  color: #1b1b1b;
+  font-size: calc(13 * var(--u));
+  text-decoration: none;
+}
+.startPlaces a {
+  color: #0a246a;
+  font-weight: 700;
+}
+.startMenu a:hover,
+.startMenu a:focus-visible,
+.startFooter button:hover,
+.startFooter button:focus-visible {
+  background: #316ac5;
+  color: #fff;
+}
+/* Pause motion sits where XP put "Turn off computer". */
+.startFooter {
+  display: flex;
+  justify-content: flex-end;
+  padding: calc(4 * var(--u)) calc(6 * var(--u));
+  background: linear-gradient(180deg, #4282d6, #3b77cd 50%, #2c63c0);
+}
+.startFooter button {
+  border: 0;
+  border-radius: calc(3 * var(--u));
+  background: transparent;
+  color: #fff;
+  font-family: inherit;
+  cursor: pointer;
+}
+.startFooter button:focus-visible {
+  outline: calc(2 * var(--u)) solid #fff;
+  outline-offset: calc(-2 * var(--u));
+}
+.power {
+  width: calc(22 * var(--u));
+  height: calc(22 * var(--u));
+  border-radius: calc(4 * var(--u));
+  background: radial-gradient(circle at 50% 40%, #ffb36b, #e2581a 70%);
+  box-shadow: inset 0 0 0 calc(2 * var(--u)) #fff8;
+}
+.startFooter button[aria-checked="true"] .power {
+  background: radial-gradient(circle at 50% 40%, #8be27a, #2f9a2f 70%);
+}
+.tray {
+  display: flex;
+  align-items: center;
+  gap: calc(14 * var(--u));
+  padding: 0 calc(14 * var(--u));
+  border-left: var(--u) solid #0f3aa0;
+  background: linear-gradient(
+    180deg,
+    #0c59b9 1%,
+    #139ee9 6%,
+    #18b5f2 10%,
+    #139beb 14%,
+    #1290e8 19%,
+    #0d8dea 63%,
+    #0c78d0 92%,
+    #0a5eab 100%
+  );
+  box-shadow: inset var(--u) 0 var(--u) #18bbff;
+  color: #fff;
+}
+.credit {
+  font-size: calc(11 * var(--u));
+  opacity: 0.92;
+}
+.clock {
+  min-width: calc(36 * var(--u));
+  text-align: right;
+}
+
+@container xp (max-width: 700px) {
+  .credit {
+    max-width: calc(150 * var(--u));
+    font-size: calc(10 * var(--u));
+    line-height: 1.2;
+  }
+  .startColumns {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* The XP balloon tip naming a ball. */
+.balloon {
+  position: absolute;
+  display: grid;
+  gap: calc(3 * var(--u));
+  width: max-content;
+  max-width: calc(260 * var(--u));
+  padding: calc(9 * var(--u)) calc(12 * var(--u));
+  border: var(--u) solid #000;
+  border-radius: calc(8 * var(--u));
+  background: #ffffe1;
+  color: #000;
+  box-shadow: calc(3 * var(--u)) calc(3 * var(--u)) calc(8 * var(--u)) #0004;
+  font:
+    calc(13 * var(--u)) / 1.35 Tahoma,
+    "Segoe UI",
+    system-ui,
+    sans-serif;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+}
+.balloon[data-pinned="true"] {
+  pointer-events: auto;
+}
+.balloon::after {
+  content: "";
+  position: absolute;
+  bottom: calc(-10 * var(--u));
+  left: calc(50% - 6 * var(--u));
+  border: calc(6 * var(--u)) solid transparent;
+  border-top: calc(10 * var(--u)) solid #000;
+  border-bottom: 0;
+}
+.balloon strong {
+  font-size: calc(15 * var(--u));
+}
+.balloonCategory {
+  color: #444;
+}
+.balloon a {
+  color: #0b4ccf;
+}
+
+/* "All technologies": an Explorer window in Details view. */
+.explorer {
+  position: absolute;
+  z-index: 7;
+  top: calc(var(--takeover-top, 0px) + 26 * var(--u));
+  bottom: calc(56 * var(--u));
+  left: 50%;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  width: min(calc(820 * var(--u)), 92cqw);
+  overflow: hidden;
+  border: calc(3 * var(--u)) solid #0831d9;
+  border-radius: calc(9 * var(--u)) calc(9 * var(--u)) calc(4 * var(--u))
+    calc(4 * var(--u));
+  background: #fff;
+  color: #000;
+  box-shadow: 0 calc(20 * var(--u)) calc(50 * var(--u)) #0a2a7a66;
+  font-size: calc(14 * var(--u));
+  /* Below the screen until it rises; still in the accessibility tree. */
+  transform: translate(-50%, calc((1 - var(--rise)) * 130cqh));
+}
+.explorerTitle {
+  display: flex;
+  align-items: center;
+  gap: calc(8 * var(--u));
+  margin: 0;
+  font: inherit;
+  font-weight: 700;
+}
+.folder {
+  width: calc(18 * var(--u));
+  height: calc(14 * var(--u));
+  border-radius: calc(2 * var(--u));
+  background: linear-gradient(180deg, #ffe58a, #f2c437);
+  box-shadow: inset 0 calc(-3 * var(--u)) 0 #d9a514;
+}
+.address {
+  display: flex;
+  gap: calc(10 * var(--u));
+  align-items: center;
+  padding: calc(5 * var(--u)) calc(10 * var(--u));
+  border-bottom: var(--u) solid #c8c4b0;
+  background: #ece9d8;
+  color: #444;
+  font-size: calc(13 * var(--u));
+}
+.path {
+  flex: 1;
+  padding: calc(3 * var(--u)) calc(8 * var(--u));
+  border: var(--u) solid #7f9db9;
+  background: #fff;
+  color: #000;
+}
+.explorerBody {
+  overflow: clip;
+}
+.explorerList {
+  /* Rows measure their place from here (see localTop). */
+  position: relative;
+  padding: 0 calc(14 * var(--u)) calc(18 * var(--u));
+  will-change: transform;
+}
+.columns,
+.entry {
+  display: grid;
+  grid-template-columns: calc(26 * var(--u)) minmax(0, 0.8fr) minmax(0, 1.4fr);
+  gap: calc(10 * var(--u));
+  align-items: center;
+}
+.columns {
+  padding: calc(7 * var(--u)) 0;
+  border-bottom: var(--u) solid #e3e1d6;
+  background: #fff;
+  color: #555;
+  font-size: calc(12 * var(--u));
+}
+.columns span:first-child {
+  grid-column: 2;
+}
+.group h4 {
+  margin: calc(16 * var(--u)) 0 calc(6 * var(--u));
+  padding-bottom: calc(4 * var(--u));
+  border-bottom: var(--u) solid #6b8bd8;
+  color: #1c3fa5;
+  font-size: calc(14 * var(--u));
+  font-weight: 700;
+}
+.group ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.entry {
+  min-height: calc(36 * var(--u));
+  padding: calc(4 * var(--u)) 0;
+  font-size: calc(16 * var(--u));
+}
+.entry:hover {
+  background: #e8f0fd;
+}
+.entryIcon {
+  display: grid;
+  place-items: center;
+}
+.techIcon {
+  width: calc(20 * var(--u));
+  height: calc(20 * var(--u));
+}
+.monogram {
+  display: grid;
+  place-items: center;
+  width: calc(20 * var(--u));
+  height: calc(20 * var(--u));
+  border-radius: calc(4 * var(--u));
+  background: #17212b;
+  color: #fff;
+  font-size: calc(11 * var(--u));
+  font-weight: 800;
+}
+.entryName {
+  font-weight: 650;
+}
+.used {
+  grid-column: 3;
+  color: #333;
+}
+.used a {
+  display: inline-block;
+  min-height: calc(24 * var(--u));
+  color: #0b4ccf;
+}
+.used a:focus-visible {
+  outline: calc(2 * var(--u)) solid #0b4ccf;
+  outline-offset: calc(2 * var(--u));
+}
+.status {
+  padding: calc(4 * var(--u)) calc(10 * var(--u));
+  border-top: var(--u) solid #c8c4b0;
+  background: #ece9d8;
+  color: #333;
+  font-size: calc(12 * var(--u));
+}
+/* In the page the window sits below the desktop, fully open. */
+.page .explorer {
+  position: relative;
+  inset: auto;
+  left: auto;
+  width: min(1180px, 92%);
+  margin: clamp(28px, 4vw, 48px) auto clamp(64px, 8vw, 110px);
+  transform: none;
+  font-size: 15px;
+}
+.page .explorerBody {
+  overflow: visible;
+}
+@container xp (max-width: 700px) {
+  .explorer {
+    width: 94cqw;
+  }
+  .columns,
+  .entry {
+    grid-template-columns: calc(24 * var(--u)) minmax(0, 1fr);
+  }
+  .columns span:last-child {
+    display: none;
+  }
+  .used {
+    grid-column: 2;
+    font-size: calc(14 * var(--u));
+  }
+}
+@media (max-width: 700px) {
+  .page .columns,
+  .page .entry {
+    grid-template-columns: 24px minmax(0, 1fr);
+  }
+  .page .columns span:last-child {
+    display: none;
+  }
+  .page .used {
+    grid-column: 2;
+  }
+}
+@media (forced-colors: active) {
+  .balloon {
+    border-color: CanvasText;
+  }
+}

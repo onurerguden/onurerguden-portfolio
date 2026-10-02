@@ -2,41 +2,316 @@
   "categories": [
     { "id": "languages", "label": { "en": "Languages", "tr": "Diller" } },
     { "id": "ai-ml", "label": { "en": "AI & ML", "tr": "AI ve ML" } },
-    { "id": "web-mobile", "label": { "en": "Web & mobile", "tr": "Web ve mobil" } },
-    { "id": "data-tools", "label": { "en": "Data & tools", "tr": "Veri ve araçlar" } }
+    {
+      "id": "web-mobile",
+      "label": { "en": "Web & mobile", "tr": "Web ve mobil" }
+    },
+    {
+      "id": "data-tools",
+      "label": { "en": "Data & tools", "tr": "Veri ve araçlar" }
+    }
   ],
   "items": [
-    { "id": "python", "name": "Python", "category": "languages", "icon": { "simpleIcons": "python" }, "ball": "yellow", "priority": 1, "aboutLogo": true, "evidence": [{ "kind": "project", "slug": "water-safety" }, { "kind": "project", "slug": "course-intelligence" }, { "kind": "project", "slug": "urban-mobility" }] },
-    { "id": "java", "name": "Java", "category": "languages", "icon": { "monogram": "Java" }, "ball": "white", "priority": 1, "evidence": [{ "kind": "project", "slug": "taskfoo" }, { "kind": "project", "slug": "pam" }] },
-    { "id": "typescript", "name": "TypeScript", "category": "languages", "icon": { "simpleIcons": "typescript" }, "ball": "white", "priority": 1, "evidence": [{ "kind": "project", "slug": "taskfoo" }, { "kind": "site" }] },
-    { "id": "javascript", "name": "JavaScript", "category": "languages", "icon": { "simpleIcons": "javascript" }, "ball": "yellow", "priority": 2 },
-    { "id": "dart", "name": "Dart", "category": "languages", "icon": { "simpleIcons": "dart" }, "ball": "white", "priority": 2, "evidence": [{ "kind": "project", "slug": "kuyumcum" }] },
-    { "id": "cplusplus", "name": "C++", "category": "languages", "icon": { "simpleIcons": "cplusplus" }, "ball": "white", "priority": 3 },
-    { "id": "tensorflow", "name": "TensorFlow", "category": "ai-ml", "icon": { "simpleIcons": "tensorflow" }, "ball": "white", "priority": 1, "aboutLogo": true, "evidence": [{ "kind": "project", "slug": "kuyumcum" }] },
-    { "id": "scikit-learn", "name": "scikit-learn", "category": "ai-ml", "icon": { "simpleIcons": "scikitlearn" }, "ball": "white", "priority": 1, "aboutLogo": true, "evidence": [{ "kind": "project", "slug": "water-safety" }, { "kind": "project", "slug": "urban-mobility" }] },
-    { "id": "xgboost", "name": "XGBoost", "category": "ai-ml", "icon": { "monogram": "XGB" }, "ball": "yellow", "priority": 2, "evidence": [{ "kind": "project", "slug": "urban-mobility" }] },
-    { "id": "pandas", "name": "pandas", "category": "ai-ml", "icon": { "simpleIcons": "pandas" }, "ball": "white", "priority": 2, "evidence": [{ "kind": "project", "slug": "water-safety" }, { "kind": "project", "slug": "urban-mobility" }] },
-    { "id": "numpy", "name": "NumPy", "category": "ai-ml", "icon": { "simpleIcons": "numpy" }, "ball": "white", "priority": 2 },
-    { "id": "hugging-face", "name": "Hugging Face", "category": "ai-ml", "icon": { "simpleIcons": "huggingface" }, "ball": "white", "priority": 1, "aboutLogo": true, "evidence": [{ "kind": "project", "slug": "course-intelligence" }] },
-    { "id": "langchain", "name": "LangChain", "category": "ai-ml", "icon": { "simpleIcons": "langchain" }, "ball": "yellow", "priority": 1, "aboutLogo": true, "evidence": [{ "kind": "experience", "id": "fin-ai-engineer" }] },
-    { "id": "langgraph", "name": "LangGraph", "category": "ai-ml", "icon": { "simpleIcons": "langgraph" }, "ball": "white", "priority": 1, "evidence": [{ "kind": "experience", "id": "fin-ai-engineer" }] },
-    { "id": "qdrant", "name": "Qdrant", "category": "ai-ml", "icon": { "simpleIcons": "qdrant" }, "ball": "white", "priority": 2, "evidence": [{ "kind": "experience", "id": "fin-ai-engineer" }] },
-    { "id": "faiss", "name": "FAISS", "category": "ai-ml", "icon": { "monogram": "FAISS" }, "ball": "yellow", "priority": 2, "evidence": [{ "kind": "project", "slug": "course-intelligence" }] },
-    { "id": "llama", "name": "Llama", "category": "ai-ml", "icon": { "monogram": "Llama" }, "ball": "white", "priority": 2, "evidence": [{ "kind": "project", "slug": "course-intelligence" }] },
-    { "id": "gemini", "name": "Gemini", "category": "ai-ml", "icon": { "simpleIcons": "googlegemini" }, "ball": "white", "priority": 1, "evidence": [{ "kind": "project", "slug": "kuyumcum" }] },
-    { "id": "chromadb", "name": "ChromaDB", "category": "ai-ml", "icon": { "monogram": "Chroma" }, "ball": "white", "priority": 3 },
-    { "id": "matplotlib", "name": "Matplotlib", "category": "ai-ml", "icon": { "monogram": "Plot" }, "ball": "white", "priority": 3, "evidence": [{ "kind": "project", "slug": "urban-mobility" }] },
-    { "id": "react", "name": "React", "category": "web-mobile", "icon": { "simpleIcons": "react" }, "ball": "white", "priority": 1, "evidence": [{ "kind": "project", "slug": "taskfoo" }, { "kind": "site" }] },
-    { "id": "nextjs", "name": "Next.js", "category": "web-mobile", "icon": { "simpleIcons": "nextdotjs" }, "ball": "white", "priority": 2, "evidence": [{ "kind": "site" }] },
-    { "id": "spring-boot", "name": "Spring Boot", "category": "web-mobile", "icon": { "simpleIcons": "springboot" }, "ball": "white", "priority": 1, "evidence": [{ "kind": "project", "slug": "taskfoo" }] },
-    { "id": "flutter", "name": "Flutter", "category": "web-mobile", "icon": { "simpleIcons": "flutter" }, "ball": "yellow", "priority": 1, "evidence": [{ "kind": "project", "slug": "kuyumcum" }] },
-    { "id": "firebase", "name": "Firebase", "category": "web-mobile", "icon": { "simpleIcons": "firebase" }, "ball": "white", "priority": 2, "evidence": [{ "kind": "project", "slug": "kuyumcum" }] },
-    { "id": "threejs", "name": "Three.js", "category": "web-mobile", "icon": { "simpleIcons": "threedotjs" }, "ball": "white", "priority": 2, "evidence": [{ "kind": "site" }] },
-    { "id": "postgresql", "name": "PostgreSQL", "category": "data-tools", "icon": { "simpleIcons": "postgresql" }, "ball": "white", "priority": 1, "evidence": [{ "kind": "project", "slug": "taskfoo" }] },
-    { "id": "docker", "name": "Docker", "category": "data-tools", "icon": { "simpleIcons": "docker" }, "ball": "white", "priority": 1, "evidence": [{ "kind": "project", "slug": "taskfoo" }] },
-    { "id": "git", "name": "Git", "category": "data-tools", "icon": { "simpleIcons": "git" }, "ball": "white", "priority": 2, "evidence": [{ "kind": "site" }] },
-    { "id": "sap-abap", "name": "SAP ABAP", "category": "data-tools", "icon": { "simpleIcons": "sap" }, "ball": "white", "priority": 3, "evidence": [{ "kind": "experience", "id": "bmc-intern" }] },
-    { "id": "blender", "name": "Blender", "category": "data-tools", "icon": { "simpleIcons": "blender" }, "ball": "yellow", "priority": 2, "evidence": [{ "kind": "site" }] },
-    { "id": "figma", "name": "Figma", "category": "data-tools", "icon": { "simpleIcons": "figma" }, "ball": "white", "priority": 3 }
+    {
+      "id": "python",
+      "name": "Python",
+      "category": "languages",
+      "icon": { "simpleIcons": "python" },
+      "ball": "yellow",
+      "priority": 1,
+      "aboutLogo": true,
+      "evidence": [
+        { "kind": "project", "slug": "water-safety" },
+        { "kind": "project", "slug": "course-intelligence" },
+        { "kind": "project", "slug": "urban-mobility" }
+      ]
+    },
+    {
+      "id": "java",
+      "name": "Java",
+      "category": "languages",
+      "icon": { "monogram": "Java" },
+      "ball": "white",
+      "priority": 1,
+      "evidence": [
+        { "kind": "project", "slug": "taskfoo" },
+        { "kind": "project", "slug": "pam" }
+      ]
+    },
+    {
+      "id": "typescript",
+      "name": "TypeScript",
+      "category": "languages",
+      "icon": { "simpleIcons": "typescript" },
+      "ball": "white",
+      "priority": 1,
+      "evidence": [{ "kind": "project", "slug": "taskfoo" }, { "kind": "site" }]
+    },
+    {
+      "id": "javascript",
+      "name": "JavaScript",
+      "category": "languages",
+      "icon": { "simpleIcons": "javascript" },
+      "ball": "yellow",
+      "priority": 2
+    },
+    {
+      "id": "dart",
+      "name": "Dart",
+      "category": "languages",
+      "icon": { "simpleIcons": "dart" },
+      "ball": "white",
+      "priority": 2,
+      "evidence": [{ "kind": "project", "slug": "kuyumcum" }]
+    },
+    {
+      "id": "cplusplus",
+      "name": "C++",
+      "category": "languages",
+      "icon": { "simpleIcons": "cplusplus" },
+      "ball": "white",
+      "priority": 3
+    },
+    {
+      "id": "tensorflow",
+      "name": "TensorFlow",
+      "category": "ai-ml",
+      "icon": { "simpleIcons": "tensorflow" },
+      "ball": "white",
+      "priority": 1,
+      "aboutLogo": true,
+      "evidence": [{ "kind": "project", "slug": "kuyumcum" }]
+    },
+    {
+      "id": "scikit-learn",
+      "name": "scikit-learn",
+      "category": "ai-ml",
+      "icon": { "simpleIcons": "scikitlearn" },
+      "ball": "white",
+      "priority": 1,
+      "aboutLogo": true,
+      "evidence": [
+        { "kind": "project", "slug": "water-safety" },
+        { "kind": "project", "slug": "urban-mobility" }
+      ]
+    },
+    {
+      "id": "xgboost",
+      "name": "XGBoost",
+      "category": "ai-ml",
+      "icon": { "monogram": "XGB" },
+      "ball": "yellow",
+      "priority": 2,
+      "evidence": [{ "kind": "project", "slug": "urban-mobility" }]
+    },
+    {
+      "id": "pandas",
+      "name": "pandas",
+      "category": "ai-ml",
+      "icon": { "simpleIcons": "pandas" },
+      "ball": "white",
+      "priority": 2,
+      "evidence": [
+        { "kind": "project", "slug": "water-safety" },
+        { "kind": "project", "slug": "urban-mobility" }
+      ]
+    },
+    {
+      "id": "numpy",
+      "name": "NumPy",
+      "category": "ai-ml",
+      "icon": { "simpleIcons": "numpy" },
+      "ball": "white",
+      "priority": 2
+    },
+    {
+      "id": "hugging-face",
+      "name": "Hugging Face",
+      "category": "ai-ml",
+      "icon": { "simpleIcons": "huggingface" },
+      "ball": "white",
+      "priority": 1,
+      "aboutLogo": true,
+      "evidence": [{ "kind": "project", "slug": "course-intelligence" }]
+    },
+    {
+      "id": "langchain",
+      "name": "LangChain",
+      "category": "ai-ml",
+      "icon": { "simpleIcons": "langchain" },
+      "ball": "yellow",
+      "priority": 1,
+      "aboutLogo": true,
+      "evidence": [{ "kind": "experience", "id": "fin-ai-engineer" }]
+    },
+    {
+      "id": "langgraph",
+      "name": "LangGraph",
+      "category": "ai-ml",
+      "icon": { "simpleIcons": "langgraph" },
+      "ball": "white",
+      "priority": 1,
+      "evidence": [{ "kind": "experience", "id": "fin-ai-engineer" }]
+    },
+    {
+      "id": "qdrant",
+      "name": "Qdrant",
+      "category": "ai-ml",
+      "icon": { "simpleIcons": "qdrant" },
+      "ball": "white",
+      "priority": 2,
+      "evidence": [{ "kind": "experience", "id": "fin-ai-engineer" }]
+    },
+    {
+      "id": "faiss",
+      "name": "FAISS",
+      "category": "ai-ml",
+      "icon": { "monogram": "FAISS" },
+      "ball": "yellow",
+      "priority": 2,
+      "evidence": [{ "kind": "project", "slug": "course-intelligence" }]
+    },
+    {
+      "id": "llama",
+      "name": "Llama",
+      "category": "ai-ml",
+      "icon": { "monogram": "Llama" },
+      "ball": "white",
+      "priority": 2,
+      "evidence": [{ "kind": "project", "slug": "course-intelligence" }]
+    },
+    {
+      "id": "gemini",
+      "name": "Gemini",
+      "category": "ai-ml",
+      "icon": { "simpleIcons": "googlegemini" },
+      "ball": "white",
+      "priority": 1,
+      "evidence": [{ "kind": "project", "slug": "kuyumcum" }]
+    },
+    {
+      "id": "chromadb",
+      "name": "ChromaDB",
+      "category": "ai-ml",
+      "icon": { "monogram": "Chroma" },
+      "ball": "white",
+      "priority": 3
+    },
+    {
+      "id": "matplotlib",
+      "name": "Matplotlib",
+      "category": "ai-ml",
+      "icon": { "monogram": "Plot" },
+      "ball": "white",
+      "priority": 3,
+      "evidence": [{ "kind": "project", "slug": "urban-mobility" }]
+    },
+    {
+      "id": "react",
+      "name": "React",
+      "category": "web-mobile",
+      "icon": { "simpleIcons": "react" },
+      "ball": "white",
+      "priority": 1,
+      "evidence": [{ "kind": "project", "slug": "taskfoo" }, { "kind": "site" }]
+    },
+    {
+      "id": "nextjs",
+      "name": "Next.js",
+      "category": "web-mobile",
+      "icon": { "simpleIcons": "nextdotjs" },
+      "ball": "white",
+      "priority": 2,
+      "evidence": [{ "kind": "site" }]
+    },
+    {
+      "id": "spring-boot",
+      "name": "Spring Boot",
+      "category": "web-mobile",
+      "icon": { "simpleIcons": "springboot" },
+      "ball": "white",
+      "priority": 1,
+      "evidence": [{ "kind": "project", "slug": "taskfoo" }]
+    },
+    {
+      "id": "flutter",
+      "name": "Flutter",
+      "category": "web-mobile",
+      "icon": { "simpleIcons": "flutter" },
+      "ball": "yellow",
+      "priority": 1,
+      "evidence": [{ "kind": "project", "slug": "kuyumcum" }]
+    },
+    {
+      "id": "firebase",
+      "name": "Firebase",
+      "category": "web-mobile",
+      "icon": { "simpleIcons": "firebase" },
+      "ball": "white",
+      "priority": 2,
+      "evidence": [{ "kind": "project", "slug": "kuyumcum" }]
+    },
+    {
+      "id": "threejs",
+      "name": "Three.js",
+      "category": "web-mobile",
+      "icon": { "simpleIcons": "threedotjs" },
+      "ball": "white",
+      "priority": 2,
+      "evidence": [{ "kind": "site" }]
+    },
+    {
+      "id": "postgresql",
+      "name": "PostgreSQL",
+      "category": "data-tools",
+      "icon": { "simpleIcons": "postgresql" },
+      "ball": "white",
+      "priority": 1,
+      "evidence": [{ "kind": "project", "slug": "taskfoo" }]
+    },
+    {
+      "id": "docker",
+      "name": "Docker",
+      "category": "data-tools",
+      "icon": { "simpleIcons": "docker" },
+      "ball": "white",
+      "priority": 1,
+      "evidence": [{ "kind": "project", "slug": "taskfoo" }]
+    },
+    {
+      "id": "git",
+      "name": "Git",
+      "category": "data-tools",
+      "icon": { "simpleIcons": "git" },
+      "ball": "white",
+      "priority": 2,
+      "evidence": [{ "kind": "site" }]
+    },
+    {
+      "id": "sap-abap",
+      "name": "SAP ABAP",
+      "category": "data-tools",
+      "icon": { "simpleIcons": "sap" },
+      "ball": "white",
+      "priority": 3,
+      "evidence": [{ "kind": "experience", "id": "bmc-intern" }]
+    },
+    {
+      "id": "blender",
+      "name": "Blender",
+      "category": "data-tools",
+      "icon": { "simpleIcons": "blender" },
+      "ball": "yellow",
+      "priority": 2,
+      "evidence": [{ "kind": "site" }]
+    },
+    {
+      "id": "figma",
+      "name": "Figma",
+      "category": "data-tools",
+      "icon": { "simpleIcons": "figma" },
+      "ball": "white",
+      "priority": 3
+    }
   ]
 }

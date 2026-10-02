@@ -34,34 +34,7 @@
   contain: paint;
   transition: opacity 0.25s;
 }
-.intro {
-  position: absolute;
-  z-index: 2;
-  top: 80px;
-  left: 5%;
-  max-width: 480px;
-  padding: 22px;
-  background: linear-gradient(110deg, #151515ed, #151515c9);
-  border-left: 2px solid #a9bdf2;
-}
-.intro h1 {
-  font: 500 clamp(32px, 4vw, 60px)/1.04 var(--font-sans);
-  letter-spacing: -0.045em;
-  margin: 12px 0 18px;
-  color: #fff;
-}
-.intro p {
-  font: 400 16px/1.5 var(--font-sans);
-  margin: 0 0 10px;
-  color: #e1e1df;
-}
-.intro a {
-  display: inline-block;
-  margin-top: 8px;
-  color: #cbd9ff;
-  text-underline-offset: 5px;
-  padding: 10px 0;
-}
+
 .foot button {
   font: 500 12px/1.3 var(--font-sans);
   color: #f5f3ec;
@@ -72,8 +45,7 @@
   min-height: 44px;
   text-decoration: none;
 }
-.foot button:focus-visible,
-.intro a:focus-visible {
+.foot button:focus-visible {
   outline: 3px solid #b7ccff;
   outline-offset: 4px;
 }
@@ -131,86 +103,7 @@
 .track {
   will-change: transform;
 }
-.card {
-  position: relative;
-  box-sizing: border-box;
-  padding: 90px 75px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 28px;
-  overflow: clip;
-  font-family: var(--font-sans);
-  background: #e8eceb;
-}
-.card h2 {
-  font: 550 82px/1.05 var(--font-sans);
-  letter-spacing: -0.045em;
-  margin: 0;
-  color: #152526;
-  text-wrap: balance;
-}
-.card p {
-  font: 400 52px/1.4 var(--font-sans);
-  margin: 0;
-  color: #34494a;
-}
-.card a {
-  pointer-events: auto;
-  align-self: flex-start;
-  display: inline-block;
-  font: 550 50px/1.3 var(--font-sans);
-  color: #193e9a;
-  text-decoration: underline;
-  text-underline-offset: 10px;
-  margin-top: 24px;
-  padding: 20px 0;
-}
-.card a:focus-visible {
-  outline: 8px solid #1947e5;
-  outline-offset: 8px;
-}
-.label {
-  font: 450 38px/1.3 var(--font-sans);
-  color: #4b605f;
-  margin-bottom: 28px;
-}
-.page {
-  position: absolute;
-  bottom: 48px;
-  right: 65px;
-  font: 400 28px/1.2 var(--font-sans);
-  color: #526464;
-}
-.screen[data-screen="1"] .card {
-  padding: 34px 55px;
-  gap: 12px;
-  align-items: center;
-  text-align: center;
-}
-.screen[data-screen="1"] .card h2 {
-  font-size: 48px;
-  max-width: 700px;
-}
-.screen[data-screen="1"] .card p {
-  font-size: 32px;
-  max-width: 720px;
-}
-.screen[data-screen="1"] .card a {
-  font-size: 30px;
-  align-self: center;
-  margin-top: 0;
-  padding: 12px 0;
-}
-.screen[data-screen="1"] .label {
-  font-size: 24px;
-  margin-bottom: 0;
-}
-.screen[data-screen="1"] .page {
-  font-size: 18px;
-  bottom: 18px;
-  right: 24px;
-}
+
 .screen[data-screen="2"] {
   clip-path: polygon(
     0 0,
@@ -223,30 +116,7 @@
     0 100%
   );
 }
-.screen[data-screen="2"] .card {
-  padding: 65px 60px;
-  gap: 18px;
-}
-.screen[data-screen="2"] .card h2 {
-  font-size: 72px;
-}
-.screen[data-screen="2"] .card p {
-  font-size: 48px;
-  line-height: 1.3;
-}
-.screen[data-screen="2"] .label {
-  font-size: 30px;
-  margin-bottom: 0;
-}
-.screen[data-screen="2"] .card a {
-  font-size: 48px;
-  margin-top: 0;
-  padding: 10px 0;
-}
-.screen[data-screen="2"] .page {
-  bottom: 22px;
-  font-size: 24px;
-}
+
 .stories {
   padding: 50px 5%;
   background: #f5f3ed;
@@ -284,28 +154,6 @@
 }
 
 @media (max-width: 700px) {
-  .intro {
-    top: 140px;
-    left: 5%;
-    right: 5%;
-    max-width: none;
-    padding: 18px;
-  }
-  .intro p {
-    font-size: 15px;
-  }
-  .screen[data-screen="1"] .card h2 {
-    max-width: 420px;
-    font-size: 42px;
-  }
-  .screen[data-screen="1"] .card p {
-    max-width: 420px;
-    font-size: 32px;
-  }
-  .screen[data-screen="1"] .card {
-    padding: 30px 0;
-    gap: 10px;
-  }
   .foot {
     bottom: 16px;
   }
@@ -325,35 +173,13 @@
 .foot {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
-.foot button,
-.card a,
-.intro a {
+.foot button {
   touch-action: manipulation;
   -webkit-tap-highlight-color: #a9bdf244;
 }
 .foot button:hover {
   background: #ebeff5;
   color: #182027;
-}
-.card a:hover {
-  color: #091f61;
-  text-decoration-thickness: 4px;
-}
-.intro a:hover {
-  color: #fff;
-}
-.card h2,
-.card p {
-  overflow-wrap: anywhere;
-}
-.card a {
-  min-height: 130px;
-}
-.screen[data-screen="1"] .card a {
-  min-height: 64px;
-}
-.screen[data-screen="2"] .card a {
-  min-height: 128px;
 }
 
 .screenSurface::after {
@@ -363,98 +189,6 @@
   background: #000;
   opacity: var(--screen-shade, 0);
   pointer-events: none;
-}
-
-@media (max-height: 600px) {
-  .intro {
-    top: 112px;
-    padding: 12px;
-  }
-  .intro h1 {
-    font-size: 28px;
-    margin: 8px 0;
-  }
-  .intro p:nth-of-type(2) {
-    display: none;
-  }
-}
-
-/* Project evidence gives the portrait monitor the density of a working display. */
-.screenVisual {
-  height: 580px;
-  flex: 0 0 580px;
-  width: 100%;
-  overflow: clip;
-  border: 1px solid #acb9bd;
-  border-radius: 20px;
-}
-.screenVisual > div {
-  height: 100%;
-  min-height: 0;
-}
-.screenVisual :global(.app-wordmark) {
-  font-size: 52px;
-}
-.screenVisual :global(.phone-pair) {
-  height: 455px;
-  gap: 30px;
-}
-.screenVisual :global(.phone-pair img) {
-  width: 185px;
-  height: auto;
-  max-height: 420px;
-  object-fit: contain;
-  border-radius: 16px;
-}
-.screenVisual :global(.art-caption),
-.screenVisual :global(.rag-caption) {
-  font-size: 28px;
-}
-.screenVisual :global(.retrieval-core),
-.screenVisual :global(.answer-block) {
-  font-size: 32px;
-}
-.screenVisual :global(.answer-block span) {
-  font-size: 22px;
-}
-.screenVisual :global(.retrieval-diagram) {
-  transform: scale(1.35);
-  transform-origin: center;
-}
-.screenVisual svg {
-  height: 470px;
-}
-.screen[data-screen="0"] .card {
-  justify-content: flex-start;
-  gap: 24px;
-  padding-top: 100px;
-}
-.screen[data-screen="0"] .label {
-  margin-bottom: 8px;
-}
-.screen[data-screen="0"] .card h2 {
-  font-size: 78px;
-}
-.screen[data-screen="0"] .card p {
-  font-size: 52px;
-}
-.screenVisual :global(.retrieval-core) {
-  width: 130px;
-  height: 130px;
-  flex-shrink: 0;
-}
-.screenVisual :global(.answer-block) {
-  width: 230px;
-  min-height: 130px;
-  padding: 22px;
-}
-.screen[data-screen="1"] .card {
-  background: #e0eaf0;
-  border-top: 12px solid #91aebd;
-}
-.screen[data-screen="2"] .card {
-  background: #eaece5;
-  border-top: 12px solid #a7b19a;
 }
 
 .scrollCue {
@@ -568,10 +302,6 @@
   .continueCue {
     bottom: 138px;
   }
-  .screen[data-screen="2"] .card p,
-  .screen[data-screen="2"] .card a {
-    font-size: 56px;
-  }
 }
 
 /* Shown only while the released desk scene remounts after scrolling back. */
@@ -580,7 +310,7 @@
   background: #080e1c;
 }
 
-/* Real elements for #services, #experience and #desk-story-2 while the desk
+/* Real elements for #services, #experience and #stack while the desk
    runs: placed at the scroll distance where each chapter is on screen. */
 .storyAnchor {
   position: absolute;
@@ -614,7 +344,6 @@
   margin: 24px auto;
 }
 
-/* The portrait monitor is a lit dark display. */
 /* The portrait monitor stays a light display, like the ultrawide. */
 .screen[data-screen="0"] {
   --screen-background: var(--paper);
@@ -622,4 +351,31 @@
 }
 .screen[data-screen="0"] .track {
   position: relative;
+}
+
+/* A screen too small to read on the desk takes over the view. While it grows
+   it sits above the desk; once it fills the view the desk stops drawing. */
+.scene[data-diving="true"] .screenLayer {
+  z-index: 2;
+}
+.scene[data-covered="true"] details[data-journey] {
+  display: none;
+}
+.screen[data-dive="true"] {
+  --takeover-top: calc(72px + env(safe-area-inset-top, 0px));
+  --takeover-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+}
+/* Below the XP desktop, the journey's own controls sit on the dark. */
+.screen[data-screen="2"][data-dive="true"] .screenSurface {
+  background: var(--bg);
+}
+/* The XP desktop fills the MacBook's panel; its list scrolls inside it. */
+.screen[data-screen="2"] .track {
+  position: absolute;
+  inset: 0;
+  will-change: auto;
+}
+/* Raised above the desk, only the screen taking over may show. */
+.scene[data-diving="true"] .screen:not([data-diving="true"]) {
+  opacity: 0 !important;
 }

@@ -61,7 +61,8 @@
   --focus: var(--blue);
   --rail: #17212b33;
   --node: var(--ink);
-  padding: calc(34 * var(--u)) calc(20 * var(--u)) calc(64 * var(--u));
+  padding: calc(var(--takeover-top, 0px) + 34 * var(--u)) calc(20 * var(--u))
+    calc(var(--takeover-bottom, 0px) + 64 * var(--u));
   color: var(--text);
 }
 .screen > section + section {

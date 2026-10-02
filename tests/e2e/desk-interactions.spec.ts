@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { journeyCanvas, reviewCanvas } from "./helpers";
+import { go, journeyCanvas, reviewCanvas, story } from "./helpers";
 import sharp from "sharp";
 import AxeBuilder from "@axe-core/playwright";
 import { PerspectiveCamera, Vector3 } from "three";
@@ -28,14 +28,8 @@ for (const locale of ["en", "tr"] as const) {
       await expect(canvas).toHaveAttribute("data-lights", "1.000", {
         timeout: 20000,
       });
-      if (journey) {
-        await page.evaluate(() =>
-          window.scrollTo({ top: innerHeight * 7.8, behavior: "instant" }),
-        );
-        await expect
-          .poll(async () => Number(await canvas.getAttribute("data-distance")))
-          .toBeCloseTo(7.8, 1);
-      }
+      // The final view of the desk, where every object is in frame.
+      if (journey) await go(page, (await story(page)).room + 0.1);
       const summary = page.getByText(
         locale === "en" ? "Desk objects" : "Masa objeleri",
         { exact: true },

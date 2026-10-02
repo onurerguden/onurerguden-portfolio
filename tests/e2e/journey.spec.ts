@@ -1,46 +1,7 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { journeyCanvas } from "./helpers";
+import { go, journeyCanvas, scrollToDistance, story, within } from "./helpers";
 
-/** The measured story: lengths in stage heights, as the journey reports it. */
-type Story = {
-  length: number;
-  portrait: [number, number];
-  macbook: [number, number];
-  room: number;
-  chapters: Record<"services" | "experience" | "desk-story-2", number>;
-};
-async function story(page: Page): Promise<Story> {
-  const section = page.locator("[data-story]");
-  await expect(section).toHaveCount(1, { timeout: 20000 });
-  return JSON.parse((await section.getAttribute("data-story"))!);
-}
-const within = ([start, end]: [number, number], fraction: number) =>
-  start + (end - start) * fraction;
-/** Scroll to a story distance without waiting for the desk to draw it. */
-async function scrollToDistance(page: Page, d: number) {
-  await page.evaluate((distance) => {
-    const section = document.querySelector("[data-enhanced]") as HTMLElement;
-    const stage = document.querySelector("[data-journey-stage]") as HTMLElement;
-    window.scrollTo({
-      top:
-        scrollY +
-        section.getBoundingClientRect().top +
-        stage.offsetHeight * distance,
-      behavior: "instant",
-    });
-  }, d);
-}
-async function go(page: Page, d: number) {
-  await scrollToDistance(page, d);
-  await expect
-    .poll(
-      async () =>
-        Number(await journeyCanvas(page).getAttribute("data-distance")),
-      { timeout: 20000 },
-    )
-    .toBeCloseTo(d, 1);
-}
 test("opening portrait stays sharp until scroll and returns on reverse", async ({
   page,
   browserName,
@@ -160,13 +121,21 @@ test("scroll separates reading from camera travel, reverses, focuses links and e
   ).toBeGreaterThan(100);
   await go(page, within(s.portrait, 0.05));
   expect(await canvas.getAttribute("data-camera")).toBe(camera);
-  await go(page, within(s.macbook, 0.1));
+  // On the way to the MacBook (which may fill a phone's view and stop the
+  // desk drawing) the camera moves.
+  await go(page, s.portrait[1] + 0.6);
   expect(await canvas.getAttribute("data-camera")).not.toBe(camera);
-  await page.locator('[data-screen="2"] a').last().focus();
+  await go(page, within(s.macbook, 0.1));
+  await page.locator('[data-screen="2"] [data-explorer-list] a').last().focus();
+  // The story's own distance: the desk may stop drawing behind a takeover.
   await expect
-    .poll(async () => Number(await canvas.getAttribute("data-distance")))
+    .poll(async () =>
+      Number(await page.locator("[data-story]").getAttribute("data-distance")),
+    )
     .toBeGreaterThan(within(s.macbook, 0.5));
-  await expect(page.locator('[data-screen="2"] a').last()).toBeInViewport();
+  await expect(
+    page.locator('[data-screen="2"] [data-explorer-list] a').last(),
+  ).toBeInViewport();
   expect(
     Number(await canvas.getAttribute("data-draw-calls")),
   ).toBeLessThanOrEqual(130);
@@ -300,15 +269,13 @@ test("narrow and zoom-equivalent viewports preserve screen links and readable ty
   const s = await story(page);
   for (const [screen, d] of [
     [0, within(s.portrait, 0.02)],
-    [2, within(s.macbook, 0.1)],
+    [2, within(s.macbook, 0.05)],
   ]) {
     await go(page, d);
     const text = page
       .locator(
-        `[data-screen="${screen}"] ${screen ? "article" : "[data-reveal-row]"}`,
+        `[data-screen="${screen}"] ${screen ? "[data-explorer-list] li" : "[data-reveal-row] p"}`,
       )
-      .first()
-      .locator("p")
       .first();
     const font = await text.evaluate((p) => {
       const actual = p.getBoundingClientRect().height;
@@ -695,12 +662,12 @@ test("keyboard focus and the step buttons bring monitor content into view", asyn
     )
     .toBeGreaterThan(s.chapters.experience);
   await expect(link).toBeInViewport();
-  await page.getByRole("button", { name: "Next: About & contact" }).click();
+  await page.getByRole("button", { name: "Next: Tech stack" }).click();
   await expect
     .poll(async () =>
       Number(await journeyCanvas(page).getAttribute("data-distance")),
     )
-    .toBeCloseTo(s.chapters["desk-story-2"], 1);
+    .toBeCloseTo(s.chapters.stack, 1);
   await page.getByRole("button", { name: "Previous: Experience" }).click();
   await expect
     .poll(async () =>

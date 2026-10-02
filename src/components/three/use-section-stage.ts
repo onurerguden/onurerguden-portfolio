@@ -55,6 +55,13 @@ type Options = {
   requested?: boolean;
   nearMargin?: string;
   farMargin?: string;
+  /**
+   * Set by stages whose element is projected (the MacBook's balls): an
+   * intersection observer cannot tell where the camera is, so the story
+   * says when the stage is visible and wanted instead.
+   */
+  visible?: boolean;
+  wanted?: boolean;
 };
 
 /**
@@ -70,6 +77,8 @@ export function useSectionStage(
     requested = true,
     nearMargin = "60% 0px",
     farMargin = "160% 0px",
+    visible: visibleOverride,
+    wanted: wantedOverride,
   }: Options,
 ) {
   const motion = useMotionPreference();
@@ -135,8 +144,20 @@ export function useSectionStage(
       stageRegistry.remove(id);
       return;
     }
-    stageRegistry.update(id, { priority, visible, wanted });
-  }, [id, eligible, priority, visible, wanted]);
+    stageRegistry.update(id, {
+      priority,
+      visible: visibleOverride ?? visible,
+      wanted: wantedOverride ?? wanted,
+    });
+  }, [
+    id,
+    eligible,
+    priority,
+    visible,
+    wanted,
+    visibleOverride,
+    wantedOverride,
+  ]);
   useEffect(() => () => stageRegistry.remove(id), [id]);
 
   const live = useSyncExternalStore(
@@ -175,7 +196,7 @@ export function useSectionStage(
   }, [live]);
 
   const mount = eligible && live && idleDone;
-  const active = mount && visible && pageVisible;
+  const active = mount && (visibleOverride ?? visible) && pageVisible;
   const state: StageState = failed
     ? "failed"
     : !eligible

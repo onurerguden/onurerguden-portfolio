@@ -1,7 +1,27 @@
 [
-  { "id": "rag", "proof": { "kind": "project", "slug": "course-intelligence" }, "tech": ["python", "llama", "faiss", "hugging-face"] },
-  { "id": "agents", "proof": { "kind": "section", "id": "experience" }, "tech": ["langchain", "langgraph", "qdrant"] },
-  { "id": "ml", "proof": { "kind": "project", "slug": "water-safety" }, "tech": ["python", "scikit-learn", "xgboost", "pandas"] },
-  { "id": "full-stack", "proof": { "kind": "project", "slug": "taskfoo" }, "tech": ["spring-boot", "react", "typescript", "postgresql"] },
-  { "id": "mobile", "proof": { "kind": "project", "slug": "kuyumcum" }, "tech": ["flutter", "dart", "firebase", "gemini"] }
+  {
+    "id": "rag",
+    "proof": { "kind": "project", "slug": "course-intelligence" },
+    "tech": ["python", "llama", "faiss", "hugging-face"]
+  },
+  {
+    "id": "agents",
+    "proof": { "kind": "section", "id": "experience" },
+    "tech": ["langchain", "langgraph", "qdrant"]
+  },
+  {
+    "id": "ml",
+    "proof": { "kind": "project", "slug": "water-safety" },
+    "tech": ["python", "scikit-learn", "xgboost", "pandas"]
+  },
+  {
+    "id": "full-stack",
+    "proof": { "kind": "project", "slug": "taskfoo" },
+    "tech": ["spring-boot", "react", "typescript", "postgresql"]
+  },
+  {
+    "id": "mobile",
+    "proof": { "kind": "project", "slug": "kuyumcum" },
+    "tech": ["flutter", "dart", "firebase", "gemini"]
+  }
 ]

@@ -1,12 +1,15 @@
 "use client";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useMotionValue } from "motion/react";
 import type { JourneyContent } from "@/lib/desk-story/content";
+import { storyAt } from "@/lib/desk-story/timeline";
 import monitorStyles from "@/components/sections/monitor.module.css";
+import xpStyles from "@/components/xp/xp.module.css";
 import JourneyScene from "./journey-scene";
 import ScreenPanels from "./screen-panels";
+import { paintScreens } from "./paint-screens";
 import { useStoryLayout } from "./use-story-layout";
-import type { MonitorContent } from "./journey";
+import type { ScreenContent } from "./journey";
 import styles from "./journey.module.css";
 const noop = () => {};
 
@@ -14,17 +17,21 @@ const noop = () => {};
 export default function RoomPosterPreview({
   locale,
   content,
-  monitor,
+  screens,
 }: {
   locale: "en" | "tr";
   content: JourneyContent;
-  monitor: MonitorContent;
+  screens: ScreenContent;
 }) {
   const wrapper = useRef<HTMLDivElement>(null);
   const panels = useRef<(HTMLDivElement | null)[]>([]);
   const { layout, measured } = useStoryLayout(true, wrapper, panels);
   const distance = useMotionValue(0);
-  distance.set(measured.timeline.length);
+  useEffect(() => {
+    const end = measured.timeline.length;
+    distance.set(end);
+    paintScreens(measured, storyAt(measured.timeline, end), panels.current);
+  }, [measured, distance]);
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 20 }}>
       <div className={styles.scene} ref={wrapper}>
@@ -32,16 +39,20 @@ export default function RoomPosterPreview({
           panels={panels}
           content={content}
           interactive={false}
-          laptop={false}
           monitor={
             <div className={monitorStyles.screen}>
               <section aria-labelledby="services-title">
-                {monitor.services}
+                {screens.services}
               </section>
               <section aria-labelledby="experience-title">
-                {monitor.experience}
+                {screens.experience}
               </section>
             </div>
+          }
+          laptop={
+            <section className={xpStyles.screen} aria-labelledby="stack-title">
+              {screens.stack}
+            </section>
           }
         />
         <JourneyScene
