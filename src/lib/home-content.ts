@@ -1,7 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { z } from "zod";
-import { getProjects, locales, type Locale } from "./content";
+import { getProjects, locales, type Locale, type Project } from "./content";
+import { homeSectionIds } from "./home-sections";
+import { siteRepository } from "./site";
 import techIcons from "./tech-icons.generated.json";
 
 /**
@@ -24,6 +26,87 @@ function parity(
 }
 const id = z.string().regex(/^[a-z0-9-]+$/);
 const month = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/);
+
+/* Evidence --------------------------------------------------------------- */
+
+/**
+ * Where a claim can be checked: a project, a role, a home section or this
+ * site's own public source. Services, roles and technologies share it.
+ */
+const proofSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("project"), slug: id }).strict(),
+  z.object({ kind: z.literal("experience"), id }).strict(),
+  z.object({ kind: z.literal("section"), id }).strict(),
+  z.object({ kind: z.literal("site") }).strict(),
+]);
+export type Proof = z.infer<typeof proofSchema>;
+export type ProofLink = {
+  kind: Proof["kind"];
+  href: string;
+  label: string;
+  /** Leaves the site (the public repository). */
+  external: boolean;
+};
+
+type ProofContext = {
+  locale: Locale;
+  projects: Project[];
+  experience: { id: string; company: string }[];
+};
+
+function resolveProof(proof: Proof, context: ProofContext): ProofLink {
+  const { locale } = context;
+  switch (proof.kind) {
+    case "project": {
+      const project = context.projects.find((p) => p.slug === proof.slug);
+      if (!project) throw new Error(`Unknown proof project: ${proof.slug}`);
+      // Featured projects have a case study; archive entries are anchors.
+      return {
+        kind: "project",
+        href: project.featured
+          ? `/${locale}/projects/${project.slug}`
+          : `/${locale}/projects#${project.slug}`,
+        label: project.title,
+        external: false,
+      };
+    }
+    case "experience": {
+      const role = context.experience.find((entry) => entry.id === proof.id);
+      if (!role) throw new Error(`Unknown proof role: ${proof.id}`);
+      return {
+        kind: "experience",
+        href: "#experience",
+        label: role.company,
+        external: false,
+      };
+    }
+    case "section": {
+      if (!homeSectionIds.some((section) => section === proof.id))
+        throw new Error(`Unknown proof section: ${proof.id}`);
+      return {
+        kind: "section",
+        href: `#${proof.id}`,
+        label: proof.id,
+        external: false,
+      };
+    }
+    case "site":
+      return {
+        kind: "site",
+        href: siteRepository,
+        label: locale === "en" ? "This site" : "Bu site",
+        external: true,
+      };
+  }
+}
+
+function proofContext(locale: Locale, root: string): ProofContext {
+  return {
+    locale,
+    projects: getProjects(locale, root),
+    experience: readExperience(root),
+  };
+}
 
 /* Technologies ----------------------------------------------------------- */
 
@@ -55,7 +138,7 @@ const techFileSchema = z
             ball: z.enum(["white", "yellow"]),
             priority: z.union([z.literal(1), z.literal(2), z.literal(3)]),
             aboutLogo: z.boolean().optional(),
-            evidence: z.array(id).optional(),
+            evidence: z.array(proofSchema).optional(),
           })
           .strict(),
       )
@@ -70,7 +153,7 @@ export function readTechStack(root = defaultRoot()): TechFile {
   const data = techFileSchema.parse(read(root, "tech-stack.json"));
   const categories = new Set(data.categories.map((category) => category.id));
   const seen = new Set<string>();
-  const projects = new Set(getProjects("en", root).map((p) => p.slug));
+  const context = proofContext("en", root);
   for (const item of data.items) {
     if (seen.has(item.id)) throw new Error(`Duplicate technology: ${item.id}`);
     seen.add(item.id);
@@ -78,21 +161,42 @@ export function readTechStack(root = defaultRoot()): TechFile {
       throw new Error(`Unknown technology category: ${item.category}`);
     if ("simpleIcons" in item.icon && !iconSlugs.has(item.icon.simpleIcons))
       throw new Error(`Missing generated icon: ${item.icon.simpleIcons}`);
-    for (const slug of item.evidence ?? [])
-      if (!projects.has(slug))
-        throw new Error(`Unknown technology evidence: ${item.id} → ${slug}`);
+    for (const proof of item.evidence ?? []) {
+      if (proof.kind === "section")
+        throw new Error(`Technology evidence cannot be a section: ${item.id}`);
+      try {
+        resolveProof(proof, context);
+      } catch {
+        throw new Error(`Unknown technology evidence: ${item.id}`);
+      }
+    }
   }
   return data;
 }
 
+export type TechEntry = {
+  id: string;
+  name: string;
+  icon: TechItem["icon"];
+  evidence: ProofLink[];
+};
+
 export function getTechStack(locale: Locale, root = defaultRoot()) {
   const data = readTechStack(root);
+  const context = proofContext(locale, root);
   return data.categories.map((category) => ({
     id: category.id,
     label: category.label[locale],
     items: data.items
       .filter((item) => item.category === category.id)
-      .map(({ id: itemId, name }) => ({ id: itemId, name })),
+      .map((item): TechEntry => ({
+        id: item.id,
+        name: item.name,
+        icon: item.icon,
+        evidence: (item.evidence ?? []).map((proof) =>
+          resolveProof(proof, context),
+        ),
+      })),
   }));
 }
 
@@ -101,10 +205,7 @@ export function getTechStack(locale: Locale, root = defaultRoot()) {
 const serviceSchema = z
   .object({
     id,
-    proof: z.discriminatedUnion("kind", [
-      z.object({ kind: z.literal("project"), slug: id }).strict(),
-      z.object({ kind: z.literal("section"), id }).strict(),
-    ]),
+    proof: proofSchema,
     tech: z.array(id).min(1),
   })
   .strict();
@@ -115,7 +216,6 @@ const serviceCopySchema = z
     proofLabel: z.string().min(1),
   })
   .strict();
-const serviceSections = new Set(["experience"]);
 
 export type Service = {
   id: string;
@@ -140,24 +240,14 @@ export function getServices(locale: Locale, root = defaultRoot()): Service[] {
     services.map((service) => service.id),
     copy,
   );
-  const projects = getProjects(locale, root);
-  const tech = new Map(
-    readTechStack(root).items.map((item) => [item.id, item.name]),
-  );
+  const context = proofContext(locale, root);
+  const tech = techNames(root);
   return services.map((service) => {
     let href: string;
-    if (service.proof.kind === "project") {
-      const slug = service.proof.slug;
-      const project = projects.find((p) => p.slug === slug);
-      if (!project) throw new Error(`Unknown service proof: ${slug}`);
-      // Featured projects have a case study; archive entries are anchors.
-      href = project.featured
-        ? `/${locale}/projects/${slug}`
-        : `/${locale}/projects#${slug}`;
-    } else {
-      if (!serviceSections.has(service.proof.id))
-        throw new Error(`Unknown service section: ${service.proof.id}`);
-      href = `#${service.proof.id}`;
+    try {
+      href = resolveProof(service.proof, context).href;
+    } catch {
+      throw new Error(`Unknown service proof: ${service.id}`);
     }
     return {
       id: service.id,
@@ -172,6 +262,12 @@ export function getServices(locale: Locale, root = defaultRoot()): Service[] {
   });
 }
 
+/** Technology names by id, read without resolving their evidence. */
+function techNames(root: string) {
+  const data = techFileSchema.parse(read(root, "tech-stack.json"));
+  return new Map(data.items.map((item) => [item.id, item.name]));
+}
+
 /* Experience ------------------------------------------------------------- */
 
 const experienceSchema = z
@@ -180,21 +276,36 @@ const experienceSchema = z
     company: z.string().min(1),
     start: month,
     end: month.nullable(),
+    /** Technology ids from tech-stack.json. */
+    tools: z.array(id).optional(),
+    proof: proofSchema.optional(),
   })
   .strict();
 const experienceCopySchema = z
-  .object({ role: z.string().min(1), description: z.string().min(1) })
+  .object({
+    role: z.string().min(1),
+    /** One to three contributions, written from verified sources only. */
+    highlights: z.array(z.string().min(1)).min(1).max(3),
+    /** The link text for the role's proof, when it has one. */
+    proofLabel: z.string().min(1).optional(),
+  })
   .strict();
 
 export type Experience = {
   id: string;
   company: string;
   role: string;
-  description: string;
+  highlights: string[];
+  tools: string[];
+  proof: (ProofLink & { action: string }) | null;
   start: string;
   end: string | null;
   period: string;
 };
+
+function readExperience(root: string) {
+  return z.array(experienceSchema).min(1).parse(read(root, "experience.json"));
+}
 
 function formatMonth(value: string, locale: Locale, year: boolean) {
   const [y, m] = value.split("-").map(Number);
@@ -219,10 +330,7 @@ export function getExperience(
   locale: Locale,
   root = defaultRoot(),
 ): Experience[] {
-  const entries = z
-    .array(experienceSchema)
-    .min(1)
-    .parse(read(root, "experience.json"));
+  const entries = readExperience(root);
   const copy = z
     .record(z.string(), experienceCopySchema)
     .parse(read(root, locale, "experience.json"));
@@ -232,11 +340,29 @@ export function getExperience(
     entries.map((entry) => entry.id),
     copy,
   );
-  return entries.map((entry) => ({
-    ...entry,
-    ...copy[entry.id],
-    period: formatPeriod(entry.start, entry.end, locale),
-  }));
+  const tech = techNames(root);
+  const context = proofContext(locale, root);
+  return entries.map((entry) => {
+    const proof = entry.proof ? resolveProof(entry.proof, context) : null;
+    const action = copy[entry.id].proofLabel;
+    if (Boolean(proof) !== Boolean(action))
+      throw new Error(`Experience proof and its label differ: ${entry.id}`);
+    return {
+      id: entry.id,
+      company: entry.company,
+      role: copy[entry.id].role,
+      highlights: copy[entry.id].highlights,
+      tools: (entry.tools ?? []).map((techId) => {
+        const name = tech.get(techId);
+        if (!name) throw new Error(`Unknown experience tool: ${techId}`);
+        return name;
+      }),
+      proof: proof && action ? { ...proof, action } : null,
+      start: entry.start,
+      end: entry.end,
+      period: formatPeriod(entry.start, entry.end, locale),
+    };
+  });
 }
 
 /* Certificates ----------------------------------------------------------- */
@@ -304,6 +430,12 @@ export function validateHomeContent(root?: string): void {
     getCertificates(locale, root);
     getAbout(locale, root);
   }
+  // Each role lists the same number of contributions in both languages.
+  const [en, tr] = locales.map((locale) => getExperience(locale, root));
+  en.forEach((entry, index) => {
+    if (entry.highlights.length !== tr[index].highlights.length)
+      throw new Error(`Experience highlight parity failed: ${entry.id}`);
+  });
 }
 
 /* About ------------------------------------------------------------------ */

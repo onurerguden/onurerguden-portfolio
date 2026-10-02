@@ -163,7 +163,76 @@ describe("home section content", () => {
     expect(formatPeriod("2026-04", "2026-06", "tr")).toBe("Nis — Haz 2026");
     expect(getExperience("en")[0]).toMatchObject({
       company: "Future Is Now",
-      role: "AI Engineer",
+      role: "AI engineer",
     });
+  });
+  it("links each role to its proof and tools in both languages", () => {
+    for (const locale of ["en", "tr"] as const) {
+      const roles = getExperience(locale);
+      expect(roles).toHaveLength(4);
+      const vbt = roles.find((role) => role.id === "vbt-intern");
+      expect(vbt?.proof).toMatchObject({
+        kind: "project",
+        href: `/${locale}/projects#taskfoo`,
+      });
+      expect(vbt?.tools).toContain("Spring Boot");
+      expect(roles.filter((role) => role.proof)).toHaveLength(1);
+    }
+  });
+  it("keeps the same number of contributions per role in both languages", () => {
+    const root = fixture();
+    editJson(root, "tr/experience.json", (value) => {
+      value["bmc-intern"].highlights.pop();
+    });
+    expect(() => validateHomeContent(root)).toThrow("highlight parity");
+  });
+  it("needs a link label for every role with proof, and only those", () => {
+    const root = fixture();
+    editJson(root, "en/experience.json", (value) => {
+      delete value["vbt-intern"].proofLabel;
+    });
+    expect(() => validateHomeContent(root)).toThrow("proof and its label");
+  });
+  it("rejects a role tool that is not in the technology list", () => {
+    const root = fixture();
+    editJson(root, "experience.json", (value) => {
+      value[0].tools.push("invented-tool");
+    });
+    expect(() => validateHomeContent(root)).toThrow("Unknown experience tool");
+  });
+});
+
+describe("technology evidence", () => {
+  it("links technologies to projects, roles or this site", () => {
+    const items = getTechStack("en").flatMap((category) => category.items);
+    expect(items).toHaveLength(32);
+    const evidence = (id: string) =>
+      items.find((item) => item.id === id)?.evidence ?? [];
+    expect(evidence("python").map((proof) => proof.href)).toEqual([
+      "/en/projects/water-safety",
+      "/en/projects/course-intelligence",
+      "/en/projects#urban-mobility",
+    ]);
+    expect(evidence("langgraph")).toEqual([
+      expect.objectContaining({ kind: "experience", label: "Future Is Now" }),
+    ]);
+    expect(evidence("threejs")).toEqual([
+      expect.objectContaining({ kind: "site", external: true }),
+    ]);
+    // No evidence is invented for tools without a public example.
+    expect(evidence("figma")).toEqual([]);
+  });
+  it("rejects evidence that points nowhere", () => {
+    for (const proof of [
+      { kind: "project", slug: "invented" },
+      { kind: "experience", id: "invented" },
+      { kind: "section", id: "about" },
+    ]) {
+      const root = fixture();
+      editJson(root, "tech-stack.json", (value) => {
+        value.items[0].evidence = [proof];
+      });
+      expect(() => validateHomeContent(root)).toThrow(/technology evidence/i);
+    }
   });
 });

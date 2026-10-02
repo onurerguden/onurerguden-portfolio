@@ -1,18 +1,33 @@
 {
   "fin-ai-engineer": {
-    "role": "AI Engineer",
-    "description": "Full-stack AI products, agentic workflows and RAG pipelines."
+    "role": "AI engineer",
+    "highlights": [
+      "Full-stack, client-facing AI applications.",
+      "Agentic workflows with LangChain and LangGraph.",
+      "Qdrant-based retrieval architectures for RAG pipelines."
+    ]
   },
   "fin-intern": {
-    "role": "AI Engineer Intern",
-    "description": "AI prototypes and retrieval-based application features."
+    "role": "AI engineering intern",
+    "highlights": [
+      "AI prototypes.",
+      "Retrieval-based application features."
+    ]
   },
   "vbt-intern": {
-    "role": "Software Engineering Intern",
-    "description": "TaskFoo: Spring Boot, React and PostgreSQL."
+    "role": "Software engineering intern",
+    "highlights": [
+      "TaskFoo’s project, epic and task workflows.",
+      "Role-based access control with PostgreSQL persistence.",
+      "Docker packaging."
+    ],
+    "proofLabel": "See TaskFoo"
   },
   "bmc-intern": {
-    "role": "Software Engineering Intern",
-    "description": "SAP ABAP applications and warehouse inventory workflows."
+    "role": "Software engineering intern",
+    "highlights": [
+      "SAP ABAP applications.",
+      "Warehouse inventory workflows."
+    ]
   }
 }

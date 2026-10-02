@@ -46,6 +46,17 @@
   font-size: 16px;
   line-height: 1.7;
 }
+.description ul {
+  margin: 0;
+  padding-left: 18px;
+}
+.description a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--blue);
+  font-weight: 700;
+}
 @media (max-width: 760px) {
   .row {
     grid-template-columns: 1fr;

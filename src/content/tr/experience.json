@@ -1,18 +1,33 @@
 {
   "fin-ai-engineer": {
     "role": "AI mühendisi",
-    "description": "Full-stack AI ürünleri, agentic iş akışları ve RAG pipeline’ları."
+    "highlights": [
+      "Full-stack, müşteriye yönelik AI uygulamaları.",
+      "LangChain ve LangGraph ile agentic iş akışları.",
+      "RAG pipeline’ları için Qdrant tabanlı bilgi getirme mimarileri."
+    ]
   },
   "fin-intern": {
     "role": "AI mühendisliği stajyeri",
-    "description": "AI prototipleri ve bilgi erişimi tabanlı uygulama özellikleri."
+    "highlights": [
+      "AI prototipleri.",
+      "Bilgi erişimi tabanlı uygulama özellikleri."
+    ]
   },
   "vbt-intern": {
     "role": "Yazılım mühendisliği stajyeri",
-    "description": "TaskFoo: Spring Boot, React ve PostgreSQL."
+    "highlights": [
+      "TaskFoo’nun proje, epic ve görev akışları.",
+      "PostgreSQL ile rol tabanlı yetkilendirme.",
+      "Docker ile paketleme."
+    ],
+    "proofLabel": "TaskFoo’ya bak"
   },
   "bmc-intern": {
     "role": "Yazılım mühendisliği stajyeri",
-    "description": "SAP ABAP uygulamaları ve depo envanter iş akışları."
+    "highlights": [
+      "SAP ABAP uygulamaları.",
+      "Depo envanter iş akışları."
+    ]
   }
 }

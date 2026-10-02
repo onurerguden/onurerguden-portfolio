@@ -30,7 +30,16 @@ export default function ExperienceSection({ locale }: { locale: Locale }) {
                 <h3>{entry.company}</h3>
                 <p className={styles.role}>{entry.role}</p>
               </div>
-              <p className={styles.description}>{entry.description}</p>
+              <div className={styles.description}>
+                <ul>
+                  {entry.highlights.map((highlight) => (
+                    <li key={highlight}>{highlight}</li>
+                  ))}
+                </ul>
+                {entry.proof ? (
+                  <a href={entry.proof.href}>{entry.proof.action} ↗</a>
+                ) : null}
+              </div>
             </li>
           ))}
         </ol>
