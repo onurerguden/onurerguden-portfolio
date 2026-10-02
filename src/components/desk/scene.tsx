@@ -294,7 +294,9 @@ export default function DeskScene(props: Props) {
   return (
     <div className={styles.canvas} style={{ opacity: props.revealed ? 1 : 0 }}>
       <Canvas
-        shadows
+        // PCF, which three now renders for PCFSoft anyway; naming it keeps
+        // R3F from marking the cached shadow maps dirty on every render.
+        shadows="percentage"
         dpr={[1, 1.5]}
         frameloop="demand"
         camera={{ position: [0.12, 0.69, 1.48], fov: 43, near: 0.01, far: 12 }}

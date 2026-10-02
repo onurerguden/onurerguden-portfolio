@@ -1,5 +1,6 @@
 "use client";
 import {
+  memo,
   Suspense,
   useCallback,
   useEffect,
@@ -370,7 +371,7 @@ function RenderFrame() {
   }, 1);
   return null;
 }
-export default function JourneyScene(props: JourneySceneProps) {
+function JourneyScene(props: JourneySceneProps) {
   const controls = useDeskInteractions(props.active, false);
   const readyCallback = props.onReady;
   const onReady = useCallback(() => readyCallback(), [readyCallback]);
@@ -384,7 +385,9 @@ export default function JourneyScene(props: JourneySceneProps) {
           zIndex: 1,
           pointerEvents: "none",
         }}
-        shadows
+        // PCF, which three now renders for PCFSoft anyway; naming it keeps
+        // R3F from marking the cached shadow maps dirty on every render.
+        shadows="percentage"
         dpr={[1, 1.5]}
         frameloop="demand"
         camera={{ fov: 43, near: 0.01, far: 30 }}
@@ -431,3 +434,10 @@ export default function JourneyScene(props: JourneySceneProps) {
     </>
   );
 }
+
+/**
+ * R3F's Canvas reconfigures the renderer on every render, which also marks
+ * the cached shadow maps dirty; the journey re-renders as chapters change
+ * while scrolling, so the scene only re-renders when its own props do.
+ */
+export default memo(JourneyScene);
