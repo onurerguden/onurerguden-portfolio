@@ -1,4 +1,6 @@
+import { Fragment, type ReactNode } from "react";
 import type { Locale } from "@/lib/content";
+import { homeSections, type HomeSectionId } from "@/lib/home-sections";
 import AboutSection from "@/components/home/about-section";
 import StackSection from "@/components/home/stack-section";
 import ServicesSection from "@/components/home/services-section";
@@ -8,22 +10,21 @@ import CertificatesSection from "@/components/home/certificates-section";
 import ExperienceSection from "@/components/home/experience-section";
 import ContactSection from "@/components/home/contact-section";
 
-/**
- * Everything after the desk journey, in story order: who I am, what I use,
- * what I do, the proof, live activity, credentials, then how to reach me.
- * Certificates render only once one has been added.
- */
+const sections: Record<HomeSectionId, (locale: Locale) => ReactNode> = {
+  services: (locale) => <ServicesSection locale={locale} />,
+  experience: (locale) => <ExperienceSection locale={locale} />,
+  stack: (locale) => <StackSection locale={locale} />,
+  about: (locale) => <AboutSection locale={locale} />,
+  work: (locale) => <ProjectsSection locale={locale} />,
+  activity: (locale) => <ActivitySection locale={locale} />,
+  // Renders nothing until a certificate has been added.
+  certificates: (locale) => <CertificatesSection locale={locale} />,
+  contact: (locale) => <ContactSection locale={locale} />,
+};
+
+/** Everything after the desk journey, in the order of `homeSections`. */
 export default function HomeContinuation({ locale }: { locale: Locale }) {
-  return (
-    <>
-      <AboutSection locale={locale} />
-      <StackSection locale={locale} />
-      <ServicesSection locale={locale} />
-      <ProjectsSection locale={locale} />
-      <ActivitySection locale={locale} />
-      <CertificatesSection locale={locale} />
-      <ExperienceSection locale={locale} />
-      <ContactSection locale={locale} />
-    </>
-  );
+  return homeSections.map((section) => (
+    <Fragment key={section.id}>{sections[section.id](locale)}</Fragment>
+  ));
 }

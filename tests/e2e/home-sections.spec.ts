@@ -1,7 +1,15 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-const order = ["about", "services", "work", "experience", "contact"];
+const order = [
+  "services",
+  "experience",
+  "stack",
+  "about",
+  "work",
+  "activity",
+  "contact",
+];
 
 test("home sections follow the story order after the journey", async ({
   page,
