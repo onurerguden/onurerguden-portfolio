@@ -102,3 +102,24 @@ export function closeupScale(screen: number, width: number, height: number) {
   );
   return (s.width * pxPerUnit) / screenPixelWidths[screen];
 }
+
+/** The CSS size of a screen while the camera rests on its close-up. */
+export function closeupSize(screen: number, width: number, height: number) {
+  const scale = closeupScale(screen, width, height);
+  return {
+    width: screenPixelWidths[screen] * scale,
+    height: panelHeight(screen) * scale,
+  };
+}
+
+/** Below these sizes a projected screen takes over the view instead. */
+export const diveBelow = { height: 360, width: 260 };
+
+/**
+ * Whether a screen is too small to read on the desk at this viewport: a
+ * phone's MacBook, or both screens on a landscape phone or at high zoom.
+ */
+export function divesAt(screen: number, width: number, height: number) {
+  const size = closeupSize(screen, width, height);
+  return size.height < diveBelow.height || size.width < diveBelow.width;
+}

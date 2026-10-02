@@ -5,7 +5,15 @@ import { screenStops, type CameraStop } from "./camera";
  * stage heights (one scroll of the sticky stage), never elapsed time, so the
  * same distance always gives the same frame whichever way the visitor came.
  */
-export type SegmentKind = "hold" | "travel" | "read";
+export type SegmentKind =
+  | "hold"
+  | "travel"
+  | "read"
+  /** The MacBook's Explorer window rising over the XP desktop. */
+  | "rise"
+  /** A screen growing to fill the view, or shrinking back onto the desk. */
+  | "diveIn"
+  | "diveOut";
 export type Segment = {
   kind: SegmentKind;
   from: CameraStop;
@@ -19,12 +27,21 @@ export type Timeline = { length: number; segments: readonly Segment[] };
 export type StoryLayout = {
   /** Reading length of the portrait monitor, in stage heights. */
   portrait: number;
-  /** Reading length of the MacBook, in stage heights. */
+  /** Reading length of the MacBook's technology list, in stage heights. */
   macbook: number;
+  /** Screens too small to read on the desk take over the view instead. */
+  dive?: { portrait: boolean; macbook: boolean };
 };
 
-export const holds = { opening: 0.15, desktop: 0.1, read: 0.2, room: 0.35 };
-/** Before anything is measured: about one screen of portrait content. */
+export const holds = {
+  opening: 0.15,
+  desktop: 0.1,
+  read: 0.2,
+  desktopXp: 0.5,
+  room: 0.35,
+};
+export const lengths = { rise: 0.3, dive: 0.35 };
+/** Before anything is measured: about one screen of content each. */
 export const defaultLayout: StoryLayout = { portrait: 1.6, macbook: 1 };
 /** A read never collapses entirely, so its anchors stay distinct. */
 const minimumRead = 0.05;
@@ -36,31 +53,40 @@ export const ease = (n: number) => {
   return t * t * (3 - 2 * t);
 };
 
+type Step = [SegmentKind, CameraStop, CameraStop, number, number];
+
 export function buildTimeline(layout: StoryLayout = defaultLayout): Timeline {
   const portrait = screenStops.indexOf("portrait");
   const macbook = screenStops.indexOf("macbook");
-  const plan: [SegmentKind, CameraStop, CameraStop, number, number][] = [
+  const read = (length: number) => Math.max(minimumRead, length);
+  // A screen that dives grows into the view after the camera arrives and
+  // shrinks back before it leaves.
+  const dive = (screen: number, dives: boolean | undefined, steps: Step[]) => {
+    const stop = screenStops[screen];
+    return dives
+      ? ([
+          ["diveIn", stop, stop, lengths.dive, screen],
+          ...steps,
+          ["diveOut", stop, stop, lengths.dive, screen],
+        ] satisfies Step[])
+      : steps;
+  };
+  const plan: Step[] = [
     ["hold", "opening", "opening", holds.opening, -1],
     ["travel", "opening", "desktop", 1, -1],
     ["hold", "desktop", "desktop", holds.desktop, -1],
     ["travel", "desktop", "portrait", 0.75, -1],
-    ["hold", "portrait", "portrait", holds.read, portrait],
-    [
-      "read",
-      "portrait",
-      "portrait",
-      Math.max(minimumRead, layout.portrait),
-      portrait,
-    ],
-    ["hold", "portrait", "portrait", holds.read, portrait],
+    ...dive(portrait, layout.dive?.portrait, [
+      ["hold", "portrait", "portrait", holds.read, portrait],
+      ["read", "portrait", "portrait", read(layout.portrait), portrait],
+      ["hold", "portrait", "portrait", holds.read, portrait],
+    ]),
     ["travel", "portrait", "macbook", 1, -1],
-    [
-      "read",
-      "macbook",
-      "macbook",
-      Math.max(minimumRead, layout.macbook),
-      macbook,
-    ],
+    ...dive(macbook, layout.dive?.macbook, [
+      ["hold", "macbook", "macbook", holds.desktopXp, macbook],
+      ["rise", "macbook", "macbook", lengths.rise, macbook],
+      ["read", "macbook", "macbook", read(layout.macbook), macbook],
+    ]),
     ["travel", "macbook", "room", 1.5, -1],
     ["hold", "room", "room", holds.room, -1],
   ];
@@ -83,6 +109,12 @@ export type StoryState = {
   reading: number[];
   /** Per screen: how far the camera has arrived at its stop (0–1). */
   arrival: number[];
+  /** Per screen: how far the camera has left its stop again (0–1). */
+  departure: number[];
+  /** Per screen: how far its window has risen (the MacBook's Explorer). */
+  rise: number[];
+  /** Per screen: how far it fills the view instead of the desk (0–1). */
+  dive: number[];
   /** The screen the camera rests on, or -1 while travelling or elsewhere. */
   active: number;
 };
@@ -94,16 +126,26 @@ export function storyAt(timeline: Timeline, distance: number): StoryState {
   if (index < 0) index = segments.length - 1;
   const current = segments[index];
   const local = clamp((d - current.start) / (current.end - current.start || 1));
-  const reading: number[] = screenStops.map(() => 0);
+  const zero = () => screenStops.map(() => 0);
+  const reading = zero();
+  const departure = zero();
+  const rise = zero();
+  const dive = zero();
   const arrival: number[] = screenStops.map((stop) =>
     stop === "opening" ? 1 : 0,
   );
   segments.forEach((segment, i) => {
     const progress = i < index ? 1 : i === index ? local : 0;
-    if (segment.kind === "read") reading[segment.screen] = progress;
+    const { screen } = segment;
+    if (segment.kind === "read") reading[screen] = progress;
+    if (segment.kind === "rise") rise[screen] = progress;
+    if (segment.kind === "diveIn") dive[screen] += progress;
+    if (segment.kind === "diveOut") dive[screen] -= progress;
     if (segment.kind === "travel") {
-      const screen = screenStops.indexOf(segment.to);
-      if (screen >= 0) arrival[screen] = Math.max(arrival[screen], progress);
+      const to = screenStops.indexOf(segment.to);
+      const from = screenStops.indexOf(segment.from);
+      if (to >= 0) arrival[to] = Math.max(arrival[to], progress);
+      if (from >= 0) departure[from] = Math.max(departure[from], progress);
     }
   });
   const travel = current.kind === "travel" ? ease(local) : 0;
@@ -114,6 +156,9 @@ export function storyAt(timeline: Timeline, distance: number): StoryState {
     travel,
     reading,
     arrival,
+    departure,
+    rise: rise.map(ease),
+    dive: dive.map(ease),
     active: current.kind === "travel" ? -1 : current.screen,
   };
 }
@@ -126,15 +171,27 @@ const segmentOf = (timeline: Timeline, kind: SegmentKind, screen: number) => {
   return segment;
 };
 
+/** Start and end of a screen's Explorer rise. */
+export function riseRange(timeline: Timeline, screen: number) {
+  const { start, end } = segmentOf(timeline, "rise", screen);
+  return [start, end] as const;
+}
+
 /** Start and end of a screen's reading segment. */
 export function readRange(timeline: Timeline, screen: number) {
   const { start, end } = segmentOf(timeline, "read", screen);
   return [start, end] as const;
 }
 
-/** Where the camera has just arrived at a screen, before its reading starts. */
+/**
+ * Where a screen has just become readable: the camera has arrived and, if
+ * the screen dives, it already fills the view.
+ */
 export function arrivalDistance(timeline: Timeline, screen: number) {
-  return timeline.segments.find((s) => s.screen === screen)?.start ?? 0;
+  return (
+    timeline.segments.find((s) => s.screen === screen && s.kind !== "diveIn")
+      ?.start ?? 0
+  );
 }
 
 /** The distance at which a reading segment has advanced by `fraction`. */
@@ -154,13 +211,25 @@ export const roomDistance = (timeline: Timeline) =>
 /**
  * The same moment of the story in a re-measured timeline: the same segment
  * at the same fraction, so a reader stays on the line they were reading.
+ * Segments are matched by kind, screen and order, since a resize can add or
+ * remove a screen's dive.
  */
 export function remapDistance(from: Timeline, to: Timeline, distance: number) {
   if (distance <= 0) return 0;
   if (distance >= from.length) return to.length + (distance - from.length);
+  const key = (timeline: Timeline, index: number) => {
+    const segment = timeline.segments[index];
+    const same = timeline.segments
+      .slice(0, index)
+      .filter((s) => s.kind === segment.kind && s.screen === segment.screen);
+    return `${segment.kind}:${segment.screen}:${same.length}`;
+  };
   const index = from.segments.findIndex((segment) => distance < segment.end);
   const a = from.segments[index];
-  const b = to.segments[index];
+  const wanted = key(from, index);
+  const match = to.segments.findIndex((_, i) => key(to, i) === wanted);
+  if (match < 0) return (distance / from.length) * to.length;
+  const b = to.segments[match];
   return (
     b.start + ((distance - a.start) / (a.end - a.start)) * (b.end - b.start)
   );

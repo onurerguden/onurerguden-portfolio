@@ -2,17 +2,18 @@ import { describe, it, expect } from "vitest";
 import {
   cameraAnchors,
   closeupScale,
+  divesAt,
   screenStops,
 } from "../src/lib/desk-story/camera";
 import {
   arrivalDistance,
   buildTimeline,
+  lengths,
   holds,
-  pageFraction,
-  pageOffset,
   readDistance,
   readRange,
   remapDistance,
+  riseRange,
   roomDistance,
   storyAt,
 } from "../src/lib/desk-story/timeline";
@@ -74,14 +75,16 @@ describe("desk story timeline", () => {
     expect(readDistance(timeline, portrait, 0.5)).toBeCloseTo(
       (start + end) / 2,
     );
-    for (let page = 0; page < 2; page++) {
-      const state = storyAt(
-        timeline,
-        readDistance(timeline, macbook, pageFraction(page, 2)),
-      );
-      expect(state.active).toBe(macbook);
-      expect(pageOffset(state.reading[macbook], 2)).toBe(page);
-    }
+    // The MacBook rests on its desktop, then the Explorer rises before the
+    // list is read.
+    const [riseStart, riseEnd] = riseRange(timeline, macbook);
+    expect(riseStart - arrivalDistance(timeline, macbook)).toBeCloseTo(0.5);
+    expect(readRange(timeline, macbook)[0]).toBeCloseTo(riseEnd);
+    const rising = storyAt(timeline, (riseStart + riseEnd) / 2);
+    expect(rising.active).toBe(macbook);
+    expect(rising.rise[macbook]).toBeCloseTo(0.5);
+    expect(storyAt(timeline, riseStart - 0.01).rise[macbook]).toBe(0);
+    expect(storyAt(timeline, timeline.length).rise[macbook]).toBe(1);
   });
 
   it("keeps the reader's place when the read is re-measured", () => {
@@ -104,17 +107,47 @@ describe("desk story timeline", () => {
     expect(end).toBeGreaterThan(start);
   });
 
-  it("pages hold their first and final card and move monotonically", () => {
-    for (const count of [2, 3]) {
-      expect(pageOffset(0, count)).toBe(0);
-      expect(pageOffset(1, count)).toBe(count - 1);
-      let previous = 0;
-      for (let n = 0; n <= 100; n++) {
-        const value = pageOffset(n / 100, count);
-        expect(value).toBeGreaterThanOrEqual(previous);
-        previous = value;
-      }
-    }
+  it("parts Bliss as the camera arrives and leaves the MacBook", () => {
+    const arrive = arrivalDistance(timeline, macbook);
+    const [, end] = readRange(timeline, macbook);
+    expect(storyAt(timeline, arrive - 0.5).arrival[macbook]).toBeCloseTo(0.5);
+    expect(storyAt(timeline, arrive).departure[macbook]).toBe(0);
+    expect(storyAt(timeline, end + 0.75).departure[macbook]).toBeCloseTo(0.5);
+  });
+
+  it("dives a screen into the view and back out around its stop", () => {
+    const diving = buildTimeline({
+      portrait: 1.7,
+      macbook: 1,
+      dive: { portrait: false, macbook: true },
+    });
+    expect(diving.length - timeline.length).toBeCloseTo(2 * lengths.dive);
+    const arrive = arrivalDistance(diving, macbook);
+    const [, end] = readRange(diving, macbook);
+    // Readable only once the screen fills the view.
+    expect(storyAt(diving, arrive).dive[macbook]).toBe(1);
+    expect(
+      storyAt(diving, arrive - lengths.dive / 2).dive[macbook],
+    ).toBeCloseTo(0.5);
+    expect(storyAt(diving, arrive - lengths.dive / 2).active).toBe(macbook);
+    expect(storyAt(diving, end + lengths.dive).dive[macbook]).toBe(0);
+    expect(storyAt(diving, end + lengths.dive / 2).dive[macbook]).toBeCloseTo(
+      0.5,
+    );
+    expect(Math.max(...storyAt(timeline, arrive).dive)).toBe(0);
+    // A resize that adds a dive keeps the reader in the same place.
+    const [start, stop] = readRange(timeline, portrait);
+    const d = start + (stop - start) * 0.3;
+    expect(
+      storyAt(diving, remapDistance(timeline, diving, d)).reading[portrait],
+    ).toBeCloseTo(0.3);
+    const list = readRange(timeline, macbook);
+    const reading = list[0] + (list[1] - list[0]) * 0.6;
+    expect(
+      storyAt(diving, remapDistance(timeline, diving, reading)).reading[
+        macbook
+      ],
+    ).toBeCloseTo(0.6);
   });
 });
 
@@ -125,6 +158,18 @@ describe("desk story camera", () => {
     expect(desktop * 1000 * (0.531 / 0.299)).toBeCloseTo(900 / 1.3, 0);
     // Width-bound on a phone: it fills 1/1.16 of the width.
     expect(closeupScale(portrait, 390, 844) * 1000).toBeCloseTo(390 / 1.16, 0);
+  });
+
+  it("dives only screens too small to read on the desk", () => {
+    expect(divesAt(portrait, 1440, 900)).toBe(false);
+    expect(divesAt(macbook, 1440, 900)).toBe(false);
+    expect(divesAt(macbook, 768, 1024)).toBe(false);
+    // A portrait phone reads the monitor but not the MacBook.
+    expect(divesAt(portrait, 390, 844)).toBe(false);
+    expect(divesAt(macbook, 390, 844)).toBe(true);
+    // A landscape phone, like 200% zoom, dives both.
+    expect(divesAt(portrait, 844, 390)).toBe(true);
+    expect(divesAt(macbook, 844, 390)).toBe(true);
   });
 
   it("places close-up cameras on each screen's normal", () => {
