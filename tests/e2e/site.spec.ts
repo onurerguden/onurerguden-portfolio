@@ -72,7 +72,9 @@ test("language switching preserves the case study and research is reachable", as
   await expect(page.locator("html")).toHaveAttribute("lang", "tr");
   await page.getByRole("link", { name: "Araştırma", exact: true }).click();
   await expect(page).toHaveURL(/\/tr\/research$/);
-  await expect(page.getByText("Kabul edildi", { exact: false })).toBeVisible();
+  await expect(
+    page.getByText("Kabul edildi", { exact: false }).first(),
+  ).toBeVisible();
 });
 test("reduced motion keeps the HTML explanation without WebGL", async ({
   page,
@@ -194,4 +196,43 @@ test("API endpoints fail closed without credentials", async ({ request }) => {
   expect(activity.status()).toBe(503);
   expect(activity.headers()["cache-control"]).toBe("no-store");
   expect(await activity.json()).toEqual({ available: false });
+});
+
+for (const locale of ["en", "tr"])
+  test(`${locale}: content pages and the 404 pass axe on the dark system`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    for (const path of [...paths.slice(1), "/no-such-page"]) {
+      await page.goto(`/${locale}${path}`);
+      const audit = await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+        .analyze();
+      expect(audit.violations, path).toEqual([]);
+    }
+  });
+
+test("a case study section survives switching language", async ({ page }) => {
+  await page.goto("/en/projects/kuyumcum#my-contribution");
+  await expect(page.locator("#my-contribution")).toBeInViewport();
+  await page.getByRole("link", { name: "Türkçeye geç" }).click();
+  await expect(page).toHaveURL(/\/tr\/projects\/kuyumcum#my-contribution$/);
+  await expect(page.locator("#my-contribution")).toHaveText("Benim katkım");
+  await expect(page.locator("#my-contribution")).toBeInViewport();
+  const toc = page.getByRole("navigation", { name: "Bu sayfada" });
+  await expect(toc.getByRole("link")).toHaveCount(5);
+});
+
+test("projects and research each have a share card", async ({ request }) => {
+  for (const path of [
+    "/en/projects/kuyumcum",
+    "/tr/projects/water-safety",
+    "/en/projects/course-intelligence",
+    "/tr/research",
+  ]) {
+    const response = await request.get(`${path}/opengraph-image`);
+    expect(response.status(), path).toBe(200);
+    expect(response.headers()["content-type"]).toBe("image/png");
+    expect((await response.body()).byteLength).toBeGreaterThan(10_000);
+  }
 });
