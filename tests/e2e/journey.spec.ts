@@ -104,11 +104,15 @@ test("scroll separates reading from camera travel, reverses, focuses links and e
   // Five camera stops, an axe scan of the whole (now long) page and a
   // release and remount of the desk take about 50 s on a busy machine.
   test.slow();
-  // The optimizer answers 400 to a src outside images.localPatterns.
-  const rejectedImages: string[] = [];
+  // Every image in the flow, the remount poster included, must load: the
+  // optimizer answers 400 to a src outside images.localPatterns.
+  const failedImages: string[] = [];
   page.on("response", (response) => {
-    if (response.url().includes("/_next/image") && !response.ok()) {
-      rejectedImages.push(response.url());
+    if (
+      response.request().resourceType() === "image" &&
+      response.status() >= 400
+    ) {
+      failedImages.push(`${response.status()} ${response.url()}`);
     }
   });
   await page.goto("/tr/lab/desk/journey");
@@ -183,7 +187,7 @@ test("scroll separates reading from camera travel, reverses, focuses links and e
     timeout: 20000,
   });
   await expect(canvas).toHaveAttribute("data-active", "true");
-  expect(rejectedImages).toEqual([]);
+  expect(failedImages).toEqual([]);
 });
 test("failed model collapses the pinned journey and preserves content", async ({
   page,

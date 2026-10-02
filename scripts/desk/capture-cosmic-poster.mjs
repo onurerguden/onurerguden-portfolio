@@ -52,10 +52,16 @@ try {
   await browser.close();
 }
 
-const hash = createHash("sha256");
-for (const { posterPath } of posters) hash.update(await readFile(posterPath));
+// Each poster is versioned by its own content, so recapturing one language
+// leaves the other's URL and caches alone.
 const assetsPath = "src/lib/desk-assets.json";
 const assets = JSON.parse(await readFile(assetsPath, "utf8"));
-assets.posterRevision = hash.digest("hex").slice(0, 16);
+assets.posters = {};
+for (const { locale, posterPath } of posters) {
+  assets.posters[locale] = createHash("sha256")
+    .update(await readFile(posterPath))
+    .digest("hex")
+    .slice(0, 16);
+}
 await writeFile(assetsPath, JSON.stringify(assets, null, 2) + "\n");
 console.log(JSON.stringify(posters, null, 2));
