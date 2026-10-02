@@ -260,4 +260,10 @@ describe("case studies", () => {
     fs.appendFileSync(path.join(root, "tr/kuyumcum.mdx"), "\n## Ek bölüm\n");
     expect(() => validateContent(root)).toThrow("sections differ");
   });
+  it("make no accuracy claim for the RAG evaluation", () => {
+    for (const locale of ["en", "tr"] as const) {
+      const body = getProject(locale, "course-intelligence")?.body ?? "";
+      expect(body).not.toMatch(/100|%/);
+    }
+  });
 });

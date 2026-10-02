@@ -13,11 +13,11 @@ Llama 3.1 (8B), SBERT embedding'leri ve FAISS vektör aramasıyla modüler bir b
 
 Asenkron PyQt6 arayüzü, üretilen yanıtı akış halinde göstererek bilgi getirme hattını etkileşimli masaüstü deneyimine bağlıyor.
 
-## Değerlendirme ve sonuçlar
+## Değerlendirme
 
-Proje, kendi nicel değerlendirme kümesinde [[metric:ragAccuracy]] doğruluğa ulaştı. Tuzak soru testlerinde, bilgi getirme filtreleri ve sıkı sistem yönergeleriyle desteklenmeyen yanıtlar da kontrol edildi.
+Asistanı nicel bir soru kümesiyle ve desteklenmeyen yanıtları yakalamaya yönelik tuzak sorularla değerlendirdim; bilgi getirme filtreleri ve sıkı sistem yönergeleri bu kontrollerin parçasıydı.
 
-Bu sonuç yalnızca o değerlendirme kümesine aittir. Örneklem büyüklüğü, soru dağılımı ve bağımsız tekrar sonuçları burada raporlanmadığı için evrensel doğruluk veya halüsinasyonun mümkün olmadığı anlamına gelmez.
+Bu kontroller yalnızca projenin kendi değerlendirmesini anlatır. Örneklem büyüklüğü, soru dağılımı ve bağımsız tekrar sonuçları burada raporlanmadığı için evrensel doğruluğun ya da halüsinasyonun mümkün olmadığının kanıtı değildir.
 
 ## Tasarım kararları
 

@@ -79,7 +79,6 @@ const measurements = {
   waterRecall: { value: 0.963, percent: true },
   waterForecast: { value: 0.8, percent: true },
   waterScenarios: { value: 3000, percent: false },
-  ragAccuracy: { value: 1, percent: true },
 } as const;
 function resolveMeasurements(body: string, locale: Locale) {
   return body.replace(/\[\[metric:([a-zA-Z]+)\]\]/g, (_, key: string) => {
