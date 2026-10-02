@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+/** This site's public source; also the evidence for the tools it is built with. */
+export const siteRepository =
+  "https://github.com/onurerguden/onurerguden-portfolio";
 export function siteOrigin() {
   const configured = process.env.NEXT_PUBLIC_SITE_URL;
   if (configured) return new URL(configured).origin;

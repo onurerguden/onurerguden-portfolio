@@ -1,0 +1,398 @@
+/*
+ * One navigation bar for the whole site. The journey variant floats over the
+ * desk (hiding while the camera travels on fine pointers, docking after the
+ * journey); the page variant sticks to the top of content pages.
+ */
+.nav {
+  --nav-pointer-x: 50%;
+  position: absolute;
+  z-index: 20;
+  top: max(18px, env(safe-area-inset-top, 0px));
+  left: 50%;
+  width: min(1480px, calc(100% - 48px));
+  min-height: 72px;
+  box-sizing: border-box;
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: minmax(max-content, 1fr) auto auto auto;
+  align-items: center;
+  gap: 18px;
+  padding: 10px 12px 10px 22px;
+  color: var(--text);
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+  border-radius: 18px;
+  box-shadow: 0 14px 38px #02050d47;
+  font-family: var(--body);
+  transition:
+    width 420ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    min-height 420ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    padding 420ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    gap 420ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    border-radius 420ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    border-color 220ms ease,
+    box-shadow 420ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    opacity 220ms ease,
+    transform 420ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+.nav::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    280px circle at var(--nav-pointer-x) -35%,
+    #d8f23c1f,
+    transparent 72%
+  );
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+.nav > * {
+  position: relative;
+  z-index: 1;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 11px;
+  min-height: 44px;
+  padding: 10px 4px;
+  color: var(--text);
+  font: 650 15px/1.2 var(--body);
+  letter-spacing: -0.025em;
+  white-space: nowrap;
+  transition:
+    color 220ms ease,
+    letter-spacing 420ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    transform 420ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+.brand span {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px #d8f23c24;
+  transition:
+    width 420ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    border-radius 420ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    box-shadow 220ms ease;
+}
+.links {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+}
+.links a,
+.language {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 15px;
+  border-radius: 10px;
+  color: var(--text-muted);
+  font: 550 12px/1.3 var(--body);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    color 180ms ease,
+    background 220ms ease,
+    border-radius 420ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    transform 420ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    box-shadow 220ms ease;
+}
+.links a[aria-current="location"],
+.links a[aria-current="page"] {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.language {
+  min-width: 48px;
+  border: 1px solid var(--hairline);
+  color: var(--text);
+}
+.skip {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  padding: 12px 16px;
+  border-radius: 10px;
+  color: var(--accent-ink);
+  background: var(--accent);
+  font: 650 12px/1.3 var(--body);
+  transform: translateY(-200%);
+  opacity: 0;
+  pointer-events: none;
+}
+.skip:focus-visible {
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
+}
+.nav a:focus-visible,
+.menuButton:focus-visible,
+.menuPanel a:focus-visible,
+.motionToggle:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+.nav a,
+.nav button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: #d8f23c33;
+}
+.links a:hover,
+.language:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.links a[aria-current="location"]:hover,
+.links a[aria-current="page"]:hover {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* Sections menu: every home section plus the page-wide motion toggle. */
+.menu {
+  position: relative;
+}
+.menuButton {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 15px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  font: 550 12px/1.3 var(--body);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 220ms ease,
+    border-color 220ms ease,
+    color 220ms ease,
+    border-radius 420ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+.menuButton span {
+  width: 12px;
+  height: 8px;
+  border-block: 2px solid currentColor;
+  transition: transform 300ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+.menuButton[aria-expanded="true"] {
+  border-color: transparent;
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.menuButton[aria-expanded="true"] span {
+  transform: scaleY(0.5);
+}
+.menuPanel {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: max-content;
+  min-width: 232px;
+  padding: 10px;
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  background: var(--surface-1);
+  box-shadow: 0 18px 44px #00000066;
+}
+.menuPanel[hidden] {
+  display: none;
+}
+.menuPanel ul {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+.menuPanel a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: var(--text-body);
+  font: 600 14px/1.3 var(--body);
+}
+.menuPanel a:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.motionToggle {
+  width: 100%;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-muted);
+  font: 600 12px/1.3 var(--body);
+  cursor: pointer;
+}
+.motionToggle[aria-pressed="true"] {
+  border-color: transparent;
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* Content pages: the same bar, sticky at the top of the column. */
+.page {
+  position: sticky;
+  top: max(12px, env(safe-area-inset-top, 0px));
+  left: auto;
+  width: 100%;
+  margin: 18px 0 8px;
+  transform: none;
+  grid-template-columns: minmax(max-content, 1fr) auto auto;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav:not(.page) {
+    position: fixed;
+  }
+  .nav:not(.page):hover,
+  .nav[data-revealed="true"] {
+    width: min(1520px, calc(100% - 32px));
+    min-height: 92px;
+    gap: 22px;
+    padding: 18px 20px 18px 30px;
+    border-color: #ffffff47;
+    border-radius: 24px;
+    box-shadow: 0 18px 54px #02050d66;
+  }
+  .nav:hover::before,
+  .nav[data-revealed="true"]::before {
+    opacity: 1;
+  }
+  .nav[data-hidden="true"]:not([data-revealed="true"]):not(:hover):not(
+      :focus-within
+    ) {
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, calc(-100% - 30px));
+  }
+  .brand:hover {
+    color: var(--accent);
+    letter-spacing: -0.01em;
+    transform: translateX(3px);
+  }
+  .brand:hover span {
+    width: 18px;
+    border-radius: 8px;
+    box-shadow: 0 0 0 5px #d8f23c1f;
+  }
+  .links a:hover {
+    border-radius: 15px;
+    transform: translateY(-1px) scale(1.035);
+  }
+  .language:hover {
+    background: var(--accent);
+    border-color: transparent;
+    border-radius: 15px;
+    color: var(--accent-ink);
+    box-shadow: 0 7px 18px #d8f23c2e;
+    transform: scale(1.06);
+  }
+}
+
+/* After the journey the bar stays reachable on touch screens too. */
+.nav[data-docked="true"] {
+  position: fixed;
+}
+@media not ((hover: hover) and (pointer: fine)) {
+  .nav[data-docked="true"][data-scroll-hidden="true"]:not(:focus-within) {
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, calc(-100% - 30px));
+  }
+}
+
+@media (max-width: 700px) {
+  .nav {
+    top: max(10px, env(safe-area-inset-top, 0px));
+    width: calc(100% - 24px);
+    min-height: 0;
+    grid-template-columns: 1fr auto auto;
+    gap: 4px 8px;
+    padding: 8px;
+    border-radius: 14px;
+  }
+  .page {
+    width: 100%;
+  }
+  .brand {
+    padding: 8px 4px;
+    font-size: 13px;
+  }
+  .links {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+  }
+  .links::-webkit-scrollbar {
+    display: none;
+  }
+  .links a {
+    flex: 1 0 auto;
+    min-height: 40px;
+    padding: 10px 9px;
+    font-size: 10.5px;
+  }
+  .page .links {
+    grid-column: auto;
+    grid-row: 1;
+  }
+  .page .links a.secondary {
+    display: none;
+  }
+  .menu {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .language {
+    grid-column: 3;
+    grid-row: 1;
+    min-width: 44px;
+    min-height: 40px;
+    padding: 9px 11px;
+    font-size: 11px;
+  }
+  .menuButton {
+    min-height: 40px;
+    padding: 9px 11px;
+    font-size: 11px;
+  }
+  .menuPanel {
+    right: -52px;
+  }
+  /* Docked after the journey, the desk chapters give way to one compact row. */
+  .nav[data-docked="true"] .links {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav,
+  .nav::before,
+  .brand,
+  .brand span,
+  .links a,
+  .language,
+  .menuButton {
+    transition: none;
+  }
+}

@@ -1,7 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import Link from "next/link";
 import {
   useCallback,
   useEffect,
@@ -23,7 +22,7 @@ import assets from "@/lib/desk-assets.json";
 import { stageRegistry } from "@/lib/stage-registry";
 import type { SectionLink } from "@/lib/home-sections";
 import SceneBoundary from "@/components/three/scene-boundary";
-import MotionToggle from "@/components/motion-toggle";
+import { JourneyNav, plainClick } from "@/components/site/site-nav";
 import styles from "./journey.module.css";
 import PortraitIdentity from "./portrait-identity";
 const Scene = dynamic(() => import("./journey-scene"), { ssr: false });
@@ -40,7 +39,6 @@ export default function DeskJourney({
   sections?: SectionLink[];
 }) {
   const en = locale === "en";
-  const otherLocale = en ? "tr" : "en";
   const section = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const intro = useRef<HTMLDivElement>(null);
@@ -55,9 +53,6 @@ export default function DeskJourney({
   const [chapter, setChapter] = useState(-1);
   const [finalView, setFinalView] = useState(false);
   const [nearStage, setNearStage] = useState(true);
-  const [sectionsOpen, setSectionsOpen] = useState(false);
-  const sectionsButton = useRef<HTMLButtonElement>(null);
-  const sectionsMenu = useRef<HTMLDivElement>(null);
   // The section a hash link is heading for, until the visitor scrolls.
   const pendingHash = useRef<{ id: string; top: number } | null>(null);
   const [sceneShown, setSceneShown] = useState(false);
@@ -192,25 +187,6 @@ export default function DeskJourney({
       resized.disconnect();
     };
   }, []);
-  useEffect(() => {
-    if (!sectionsOpen) return;
-    const close = (event: Event) => {
-      if (
-        event instanceof KeyboardEvent
-          ? event.key === "Escape"
-          : !sectionsMenu.current?.contains(event.target as Node)
-      ) {
-        setSectionsOpen(false);
-        if (event instanceof KeyboardEvent) sectionsButton.current?.focus();
-      }
-    };
-    document.addEventListener("keydown", close);
-    document.addEventListener("pointerdown", close);
-    return () => {
-      document.removeEventListener("keydown", close);
-      document.removeEventListener("pointerdown", close);
-    };
-  }, [sectionsOpen]);
   useEffect(() => {
     const node = stage.current;
     if (!node) return;
@@ -467,108 +443,31 @@ export default function DeskJourney({
           ) : null}
         </div>
       </section>
-      <nav
-        ref={nav}
-        className={styles.nav}
-        data-hidden="false"
-        data-revealed="false"
-        aria-label={en ? "Journey sections" : "Yolculuk bölümleri"}
-      >
-        <a
-          className={styles.journeySkip}
-          href="#journey-content"
-          onClick={(event) => {
-            if (
-              event.metaKey ||
-              event.ctrlKey ||
-              event.shiftKey ||
-              event.altKey
-            )
-              return;
-            event.preventDefault();
-            history.pushState(null, "", "#journey-content");
-            const target = document.getElementById("journey-content");
-            target?.scrollIntoView({ behavior: "instant", block: "start" });
-            target?.focus({ preventScroll: true });
-          }}
-        >
-          {en ? "Skip to work" : "İçeriğe geç"}
-        </a>
-        <Link className={styles.brand} href={`/${locale}`}>
-          <span aria-hidden="true" />
-          Onur Ergüden
-        </Link>
-        <div className={styles.sections}>
-          {content.labels.map((label, i) => (
-            <a
-              href={`#desk-story-${i}`}
-              key={label}
-              aria-current={chapter === i ? "location" : undefined}
-              onClick={(e) => {
-                if (
-                  enhanced &&
-                  i !== 1 &&
-                  !e.metaKey &&
-                  !e.ctrlKey &&
-                  !e.shiftKey &&
-                  !e.altKey
-                ) {
-                  e.preventDefault();
-                  history.pushState(null, "", `#desk-story-${i}`);
-                  jump(i);
-                }
-              }}
-            >
-              {label}
-            </a>
-          ))}
-        </div>
-        {sections.length ? (
-          <div className={styles.menu} ref={sectionsMenu}>
-            <button
-              type="button"
-              ref={sectionsButton}
-              className={styles.menuButton}
-              aria-expanded={sectionsOpen}
-              aria-controls="journey-sections-menu"
-              onClick={() => setSectionsOpen((open) => !open)}
-            >
-              {en ? "Sections" : "Bölümler"}
-              <span aria-hidden="true" />
-            </button>
-            <div
-              id="journey-sections-menu"
-              className={styles.menuPanel}
-              hidden={!sectionsOpen}
-            >
-              <ul>
-                {sections.map((section) => (
-                  <li key={section.id}>
-                    <a
-                      href={`#${section.id}`}
-                      onClick={() => setSectionsOpen(false)}
-                    >
-                      {section.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-              <MotionToggle locale={locale} className={styles.motionToggle} />
-            </div>
-          </div>
-        ) : null}
-        <Link
-          className={styles.language}
-          href={`/${otherLocale}`}
-          hrefLang={otherLocale}
-          lang={otherLocale}
-          aria-label={
-            otherLocale === "tr" ? "Türkçeye geç" : "Switch to English"
-          }
-        >
-          {otherLocale.toUpperCase()}
-        </Link>
-      </nav>
+      <JourneyNav
+        locale={locale}
+        navRef={nav}
+        chapters={content.labels.map((label, i) => ({
+          id: `desk-story-${i}`,
+          href: `#desk-story-${i}`,
+          label,
+        }))}
+        current={chapter}
+        onChapter={(event, i) => {
+          if (!enhanced || i === 1 || !plainClick(event)) return;
+          event.preventDefault();
+          history.pushState(null, "", `#desk-story-${i}`);
+          jump(i);
+        }}
+        sections={sections}
+        onSkip={(event) => {
+          if (!plainClick(event)) return;
+          event.preventDefault();
+          history.pushState(null, "", "#journey-content");
+          const target = document.getElementById("journey-content");
+          target?.scrollIntoView({ behavior: "instant", block: "start" });
+          target?.focus({ preventScroll: true });
+        }}
+      />
       <div id="journey-content" tabIndex={-1}>
         {introduction}
       </div>
