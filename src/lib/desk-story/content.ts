@@ -1,36 +1,30 @@
-import { getProjects, sharedFacts, type Locale } from "./content";
-import type { JourneyContent } from "./desk-journey";
+import { sharedFacts, type Locale } from "../content";
+
+export type JourneyCard = {
+  title: string;
+  body: string;
+  href: string;
+  action: string;
+};
+export type JourneyChapter = { label: string; cards: JourneyCard[] };
+export type JourneyContent = {
+  name: string;
+  role: string;
+  /** Research cards shown before About until the home flow is reordered. */
+  research: JourneyChapter;
+  /** The MacBook's pages until it becomes the XP desktop. */
+  laptop: JourneyChapter;
+};
+
 export function getJourneyContent(locale: Locale): JourneyContent {
   const en = locale === "en";
   const cv = process.env.NEXT_PUBLIC_CV_URL;
   return {
     name: sharedFacts.name,
     role: en ? "AI engineer" : "AI mühendisi",
-    intro: en
-      ? "I build AI systems that connect models, data and real products."
-      : "Modelleri, veriyi ve gerçek ürünleri bir araya getiren AI sistemleri geliştiriyorum.",
-    cv: cv || `mailto:${sharedFacts.email}?subject=CV%20request`,
-    cvLabel: cv
-      ? en
-        ? "Download CV"
-        : "CV’yi indir"
-      : en
-        ? "Request my CV"
-        : "CV’mi iste",
-    labels: en
-      ? ["Selected work", "AI & research", "About & contact"]
-      : ["Seçili çalışmalar", "AI ve araştırma", "Hakkımda ve iletişim"],
-    screens: [
-      getProjects(locale)
-        .filter((p) => p.featured)
-        .map((p) => ({
-          title: p.title,
-          visual: p.slug,
-          body: p.summary.split(/(?<=[.!?])\s/)[0],
-          href: `/${locale}/projects/${p.slug}`,
-          action: en ? "Explore the project" : "Projeyi incele",
-        })),
-      [
+    research: {
+      label: en ? "AI & research" : "AI ve araştırma",
+      cards: [
         {
           title: en ? "Questions worth testing." : "Sınanmaya değer sorular.",
           body: en
@@ -56,7 +50,10 @@ export function getJourneyContent(locale: Locale): JourneyContent {
           action: en ? "Publication details" : "Yayın ayrıntıları",
         },
       ],
-      [
+    },
+    laptop: {
+      label: en ? "About & contact" : "Hakkımda ve iletişim",
+      cards: [
         {
           title: sharedFacts.name,
           body: en
@@ -80,6 +77,6 @@ export function getJourneyContent(locale: Locale): JourneyContent {
           action: en ? "Email me" : "Bana yaz",
         },
       ],
-    ],
+    },
   };
 }

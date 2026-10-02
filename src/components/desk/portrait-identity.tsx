@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef } from "react";
-import type { JourneyContent } from "@/lib/desk-journey";
+import type { JourneyContent } from "@/lib/desk-story/content";
 import styles from "./portrait.module.css";
 
 export default function PortraitIdentity({

@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import { isLocale, sharedFacts } from "@/lib/content";
 import { pageMetadata, siteOrigin } from "@/lib/site";
 import DeskJourney from "@/components/desk/journey";
-import { getJourneyContent } from "@/lib/desk-journey-content";
+import { getJourneyContent } from "@/lib/desk-story/content";
+import ServiceRows from "@/components/sections/service-rows";
+import ExperienceRail from "@/components/sections/experience-rail";
 import HomeContinuation from "@/components/home-continuation";
 import { homeSectionLinks } from "@/lib/home-sections";
 import { getCertificates } from "@/lib/home-content";
@@ -56,6 +58,10 @@ export default async function Home({
       <DeskJourney
         locale={locale}
         content={getJourneyContent(locale)}
+        monitor={{
+          services: <ServiceRows locale={locale} />,
+          experience: <ExperienceRail locale={locale} />,
+        }}
         introduction={<HomeIntroduction locale={locale} />}
         sections={homeSectionLinks(locale, {
           certificates: getCertificates(locale).length > 0,

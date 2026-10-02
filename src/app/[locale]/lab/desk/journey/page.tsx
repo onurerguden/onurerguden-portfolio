@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { isLocale } from "@/lib/content";
-import { getJourneyContent } from "@/lib/desk-journey-content";
+import { getJourneyContent } from "@/lib/desk-story/content";
+import ServiceRows from "@/components/sections/service-rows";
+import ExperienceRail from "@/components/sections/experience-rail";
 import DeskJourney from "@/components/desk/journey";
 import HomeIntroduction from "@/components/home-introduction";
 import HomeContinuation from "@/components/home-continuation";
@@ -30,6 +32,10 @@ export default async function JourneyPage({
       <DeskJourney
         locale={locale}
         content={getJourneyContent(locale)}
+        monitor={{
+          services: <ServiceRows locale={locale} />,
+          experience: <ExperienceRail locale={locale} />,
+        }}
         introduction={<HomeIntroduction locale={locale} />}
         sections={homeSectionLinks(locale, {
           certificates: getCertificates(locale).length > 0,
