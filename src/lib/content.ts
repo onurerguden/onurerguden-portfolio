@@ -13,6 +13,8 @@ const projectSchema = z.object({
   title: z.string().min(1),
   summary: z.string().min(1),
   category: z.string().min(1),
+  /** What I did on a case study, from its "my contribution" section. */
+  role: z.string().min(1).optional(),
   stack: z.array(z.string().min(1)).min(1),
   year: z.string(),
   featured: z.boolean(),
@@ -77,7 +79,6 @@ const measurements = {
   waterRecall: { value: 0.963, percent: true },
   waterForecast: { value: 0.8, percent: true },
   waterScenarios: { value: 3000, percent: false },
-  ragAccuracy: { value: 1, percent: true },
 } as const;
 function resolveMeasurements(body: string, locale: Locale) {
   return body.replace(/\[\[metric:([a-zA-Z]+)\]\]/g, (_, key: string) => {
@@ -172,6 +173,7 @@ const translationSchema = z
     title: z.string().min(1),
     summary: z.string().min(1),
     category: z.string().min(1),
+    role: z.string().min(1).optional(),
     metricLabel: z.string().min(1).optional(),
     mediaAlt: z.array(z.string().min(1)).max(3).optional(),
   })
@@ -216,11 +218,16 @@ export function getProjects(
     }
     if (metricValue && !copy.metricLabel)
       throw new Error(`Missing metric context: ${locale}/${shared.slug}`);
+    if (shared.featured !== Boolean(copy.role))
+      throw new Error(
+        `Role belongs to case studies only: ${locale}/${shared.slug}`,
+      );
     return projectSchema.parse({
       ...shared,
       title: copy.title,
       summary: copy.summary,
       category: copy.category,
+      role: copy.role,
       body,
       ...(metricValue
         ? { metric: { value: metricValue, label: copy.metricLabel } }
@@ -255,4 +262,20 @@ export function validateContent(contentRoot?: string): void {
     });
   if (localized[0].map(shared).join() !== localized[1].map(shared).join())
     throw new Error("Shared project facts differ across locales");
+  // Case studies keep the same sections in both languages, so a heading's
+  // anchor can be shared when the visitor switches language.
+  localized[0].forEach((project, index) => {
+    const other = localized[1][index];
+    if (
+      project.body &&
+      caseHeadings(project.body).length !==
+        caseHeadings(other.body ?? "").length
+    )
+      throw new Error(`Case study sections differ: ${project.slug}`);
+  });
+}
+
+/** The level-two headings of a case study, in order. */
+export function caseHeadings(body: string): string[] {
+  return [...body.matchAll(/^## (.+)$/gm)].map((match) => match[1].trim());
 }

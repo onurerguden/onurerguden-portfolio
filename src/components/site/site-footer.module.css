@@ -1,0 +1,81 @@
+.footer {
+  background: var(--bg);
+  color: var(--text-muted);
+  border-top: 1px solid var(--hairline);
+}
+.inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 28px;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 40px 6.25%;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.name {
+  color: var(--text);
+  font-weight: 700;
+}
+.colophon {
+  flex: 1 1 320px;
+  margin: 0;
+}
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.footer a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 10px;
+  border-radius: 10px;
+  color: var(--text-body);
+  transition:
+    color 200ms ease,
+    background 200ms ease;
+}
+.name,
+.colophon a {
+  padding-inline: 0;
+}
+.colophon a {
+  min-height: 0;
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--hairline);
+  text-underline-offset: 5px;
+}
+.footer a:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .links a:hover {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+  .colophon a:hover {
+    color: var(--accent);
+  }
+}
+@media (min-width: 1600px) {
+  .inner {
+    padding-inline: 100px;
+  }
+}
+@media (max-width: 700px) {
+  .inner {
+    padding: 28px 6%;
+  }
+  .colophon {
+    order: 3;
+    flex-basis: 100%;
+  }
+}

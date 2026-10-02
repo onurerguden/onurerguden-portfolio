@@ -68,6 +68,8 @@ test("language switching preserves the case study and research is reachable", as
   await page.goto("/en/projects/kuyumcum");
   await page.getByRole("link", { name: "Türkçeye geç" }).click();
   await expect(page).toHaveURL(/\/tr\/projects\/kuyumcum$/);
+  // A full navigation, so the document announces its new language.
+  await expect(page.locator("html")).toHaveAttribute("lang", "tr");
   await page.getByRole("link", { name: "Araştırma", exact: true }).click();
   await expect(page).toHaveURL(/\/tr\/research$/);
   await expect(page.getByText("Kabul edildi", { exact: false })).toBeVisible();

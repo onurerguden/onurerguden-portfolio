@@ -36,6 +36,23 @@
   --display: "Newsreader Variable", Georgia, serif;
   --display-heavy: "Portfolio Display", "Manrope Variable", sans-serif;
   --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  /*
+   * Dark system (October 2026). Semantic names over the cosmic palette; see
+   * docs/design.md. Volt fills mean "actionable", atmosphere fills only
+   * inform. Contrast: --text-muted is 10.7:1 on --bg and 9.0:1 on
+   * --surface-2; --accent-ink on --accent is 15.3:1.
+   */
+  --bg: var(--space);
+  --surface-1: #0c1426;
+  --surface-2: var(--space-2);
+  --text: #f5f6f8;
+  --text-body: #d9e1ee;
+  --text-muted: #b7c2d4;
+  --accent: var(--volt);
+  --accent-ink: var(--space);
+  --hairline: #ffffff2e;
+  --focus: var(--accent);
+  --dur-hover: 320ms;
 }
 * {
   box-sizing: border-box;
@@ -101,51 +118,8 @@ img {
   margin: 0 auto;
   padding: 0 6.25%;
 }
-.site-header {
-  height: 118px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-}
-.wordmark {
-  font-weight: 650;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  letter-spacing: -0.4px;
-}
-.monogram {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--blue);
-  color: white;
-  font: 23px var(--display);
-  letter-spacing: -2px;
-  padding-bottom: 5px;
-}
-.site-header nav {
-  display: flex;
-  align-items: center;
-  gap: 34px;
-  font-size: 14px;
-  font-weight: 550;
-}
-.site-header nav a {
-  padding: 12px 0;
-}
-.site-header nav a:hover,
 .text-link:hover {
   color: var(--blue);
-}
-.site-header .language-switch {
-  padding: 9px 11px;
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  font-size: 12px;
 }
 .skip-link {
   position: fixed;
@@ -476,36 +450,6 @@ h1 {
   margin-top: 42px;
   flex-wrap: wrap;
 }
-.site-footer {
-  display: flex;
-  align-items: center;
-  gap: 28px;
-  padding: 48px 0;
-  font-size: 12px;
-  color: var(--muted);
-  flex-wrap: wrap;
-}
-.footer-name {
-  color: var(--ink);
-  font-weight: 650;
-  font-size: 14px;
-}
-.site-footer p {
-  margin: 0 auto 0 0;
-}
-.site-footer a:hover {
-  color: var(--blue);
-}
-.not-found {
-  padding: 12vw;
-}
-.not-found h1 {
-  font-size: 50px;
-}
-.not-found a {
-  display: block;
-  margin: 20px 0;
-}
 .page-intro {
   padding: 65px 0 55px;
   max-width: 900px;
@@ -703,9 +647,6 @@ h1 {
   .site-shell {
     padding: 0 5%;
   }
-  .site-header {
-    height: 95px;
-  }
   .hero {
     min-height: 610px;
     padding-top: 30px;
@@ -742,31 +683,6 @@ h1 {
 @media (max-width: 700px) {
   .site-shell {
     padding: 0 6%;
-  }
-  .site-header {
-    height: 88px;
-    gap: 12px;
-  }
-  .wordmark {
-    font-size: 13px;
-    gap: 8px;
-  }
-  .monogram {
-    width: 29px;
-    height: 29px;
-    font-size: 21px;
-  }
-  .site-header nav {
-    gap: 17px;
-    font-size: 12px;
-  }
-  /* Phones keep the header to Work, Research and the language switch. */
-  .site-header nav .nav-secondary {
-    display: none;
-  }
-  .site-header .language-switch {
-    padding: 7px;
-    font-size: 12px;
   }
   .hero {
     display: flex;
@@ -847,19 +763,6 @@ h1 {
   .stack {
     margin-top: 15px;
   }
-  .site-footer {
-    gap: 20px;
-    padding: 32px 0;
-    font-size: 12px;
-  }
-  .site-footer p {
-    width: 100%;
-    order: 5;
-    margin: 0;
-  }
-  .footer-name {
-    margin-right: auto;
-  }
   .page-intro {
     padding: 40px 0 35px;
   }
@@ -918,10 +821,6 @@ h1 {
   .research-columns {
     margin-bottom: 45px;
   }
-  .not-found h1 {
-    font-size: 38px;
-    letter-spacing: -1px;
-  }
 }
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -939,14 +838,6 @@ h1 {
 .prose p,
 .prose li {
   font-size: 1rem;
-}
-.site-header nav {
-  font-size: 0.875rem;
-}
-@media (max-width: 700px) {
-  .site-header nav {
-    gap: 14px;
-  }
 }
 
 /* The room owns the homepage viewport and its compact journey navigation. */

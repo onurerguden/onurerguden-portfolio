@@ -3,6 +3,7 @@
     "title": "Kuyumcum",
     "summary": "Değerli metal varlıklarını, portföy analizini ve yerel kuyumcuları bir araya getiren mobil ekosistem. Ürünü birlikte geliştirdim ve yapay zekâ özellikleri üzerinde çalıştım.",
     "category": "Ürün geliştirme · uygulamalı yapay zekâ",
+    "role": "Ortak geliştirici · AI özellikleri",
     "mediaAlt": [
       "Kuyumcum kuyumcu keşif haritası",
       "Kuyumcum AI rapor listesi"
@@ -12,6 +13,7 @@
     "title": "HealthFactor-AI",
     "summary": "Su güvenliğini iki katmanda ele alan sistem: mevcut kirliliği tespit etmek ve güvenlik eğilimini öngörmek.",
     "category": "Makine öğrenmesi · araştırma",
+    "role": "İki katmanlı çerçeve, veri hattı ve modeller",
     "metricLabel": "Proje değerlendirmesinde toksik su duyarlılığı",
     "mediaAlt": [
       "İzmir su örneklerinde Ağustos 2025–Ağustos 2026 günlük ve aylık ortalama Sağlık Faktörü",
@@ -21,7 +23,8 @@
   "course-intelligence": {
     "title": "Course Intelligence RAG",
     "summary": "Yerel dil modellerini, anlamsal aramayı ve yanıt sınırlarını birleştiren, farklı bölümlerin bilgilerine erişim sağlayan asistan.",
-    "category": "Bilgi getirme · LLM sistemleri"
+    "category": "Bilgi getirme · LLM sistemleri",
+    "role": "Bilgi getirme ve LLM orkestrasyon mimarisi"
   },
   "taskfoo": {
     "title": "TaskFoo",
