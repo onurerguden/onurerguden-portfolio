@@ -579,3 +579,50 @@
   object-fit: cover;
   background: #080e1c;
 }
+
+/* Real elements for #services, #experience and #desk-story-2 while the desk
+   runs: placed at the scroll distance where each chapter is on screen. */
+.storyAnchor {
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+.steps {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+.steps + button {
+  margin-left: 0;
+}
+.foot .steps button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  margin-left: 0;
+  padding: 0;
+  font-size: 16px;
+}
+.foot .steps span {
+  padding: 0;
+  background: none;
+}
+.unavailable {
+  width: min(1320px, 88%);
+  margin: 24px auto;
+}
+
+/* The portrait monitor is a lit dark display. */
+.screen[data-screen="0"] {
+  color: var(--text);
+}
+.screen[data-screen="0"] .screenSurface {
+  background:
+    radial-gradient(120% 28% at 50% 0%, #1b2a4a 0%, transparent 70%),
+    var(--surface-1);
+}
+.screen[data-screen="0"] .track {
+  position: relative;
+}

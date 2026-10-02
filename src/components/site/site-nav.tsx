@@ -114,7 +114,7 @@ export function JourneyNav({
   chapters: JourneyChapter[];
   /** Index of the chapter on screen, or -1. */
   current: number;
-  onChapter: (event: MouseEvent<HTMLAnchorElement>, index: number) => void;
+  onChapter?: (event: MouseEvent<HTMLAnchorElement>, index: number) => void;
   sections: SectionLink[];
   onSkip: (event: MouseEvent<HTMLAnchorElement>) => void;
 }) {
@@ -137,7 +137,7 @@ export function JourneyNav({
             href={chapter.href}
             key={chapter.id}
             aria-current={current === index ? "location" : undefined}
-            onClick={(event) => onChapter(event, index)}
+            onClick={onChapter && ((event) => onChapter(event, index))}
           >
             {chapter.label}
           </a>

@@ -1,24 +1,38 @@
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { journeyLength } from "../../src/lib/desk-journey";
 import { journeyCanvas } from "./helpers";
+
+/** The measured story: lengths in stage heights, as the journey reports it. */
+type Story = {
+  length: number;
+  portrait: [number, number];
+  macbook: [number, number];
+  room: number;
+  chapters: Record<"services" | "experience" | "desk-story-2", number>;
+};
+async function story(page: Page): Promise<Story> {
+  const section = page.locator("[data-story]");
+  await expect(section).toHaveCount(1, { timeout: 20000 });
+  return JSON.parse((await section.getAttribute("data-story"))!);
+}
+const within = ([start, end]: [number, number], fraction: number) =>
+  start + (end - start) * fraction;
+/** Scroll to a story distance without waiting for the desk to draw it. */
+async function scrollToDistance(page: Page, d: number) {
+  await page.evaluate((distance) => {
+    const section = document.querySelector("[data-enhanced]") as HTMLElement;
+    const stage = document.querySelector("[data-journey-stage]") as HTMLElement;
+    window.scrollTo({
+      top:
+        scrollY +
+        section.getBoundingClientRect().top +
+        stage.offsetHeight * distance,
+      behavior: "instant",
+    });
+  }, d);
+}
 async function go(page: Page, d: number) {
-  await page.evaluate(
-    ({ distance, length }) => {
-      const section = document.querySelector("[data-enhanced]") as HTMLElement;
-      const stage = document.querySelector(
-        "[data-journey-stage]",
-      ) as HTMLElement;
-      window.scrollTo({
-        top:
-          scrollY +
-          section.getBoundingClientRect().top +
-          ((section.offsetHeight - stage.offsetHeight) * distance) / length,
-        behavior: "instant",
-      });
-    },
-    { distance: d, length: journeyLength },
-  );
+  await scrollToDistance(page, d);
   await expect
     .poll(
       async () =>
@@ -102,7 +116,8 @@ for (const locale of ["en", "tr"])
       "data-enhanced",
       "false",
     );
-    await expect(page.locator("#desk-story-0")).toBeVisible();
+    await expect(page.locator("#services")).toBeVisible();
+    await expect(page.locator("#experience")).toBeVisible();
     expect(models).toEqual([]);
     expect(
       (
@@ -135,21 +150,22 @@ test("scroll separates reading from camera travel, reverses, focuses links and e
     { timeout: 20000 },
   );
   const canvas = journeyCanvas(page);
-  await go(page, 2.1);
+  const s = await story(page);
+  await go(page, within(s.portrait, 0.05));
   const camera = await canvas.getAttribute("data-camera");
-  await go(page, 3.6);
+  await go(page, within(s.portrait, 0.8));
   expect(await canvas.getAttribute("data-camera")).toBe(camera);
   expect(
-    Number(await page.locator('[data-screen="0"]').getAttribute("data-page")),
-  ).toBeGreaterThan(1);
-  await go(page, 2.1);
+    Number(await page.locator('[data-screen="0"]').getAttribute("data-offset")),
+  ).toBeGreaterThan(100);
+  await go(page, within(s.portrait, 0.05));
   expect(await canvas.getAttribute("data-camera")).toBe(camera);
-  await go(page, 5.1);
+  await go(page, within(s.macbook, 0.1));
   expect(await canvas.getAttribute("data-camera")).not.toBe(camera);
   await page.locator('[data-screen="2"] a').last().focus();
   await expect
     .poll(async () => Number(await canvas.getAttribute("data-distance")))
-    .toBeGreaterThan(5.6);
+    .toBeGreaterThan(within(s.macbook, 0.5));
   await expect(page.locator('[data-screen="2"] a').last()).toBeInViewport();
   expect(
     Number(await canvas.getAttribute("data-draw-calls")),
@@ -182,7 +198,7 @@ test("scroll separates reading from camera travel, reverses, focuses links and e
   );
   await expect(canvas).toHaveCount(0);
   // Returning remounts it from the model cache behind the final-view poster.
-  await go(page, journeyLength);
+  await go(page, s.length);
   await expect(page.locator("[data-journey-released]")).toHaveAttribute(
     "data-journey-released",
     "false",
@@ -202,7 +218,7 @@ test("failed model collapses the pinned journey and preserves content", async ({
     "false",
     { timeout: 20000 },
   );
-  await expect(page.locator("#desk-story-0")).toBeVisible();
+  await expect(page.locator("#services")).toBeVisible();
   await expect(page.locator("#journey-content")).toBeAttached();
 });
 test("without JavaScript the complete story and continuation are present", async ({
@@ -211,7 +227,8 @@ test("without JavaScript the complete story and continuation are present", async
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   await page.goto("/en/lab/desk/journey");
-  await expect(page.locator("#desk-story-0")).toBeVisible();
+  await expect(page.locator("#services")).toBeVisible();
+  await expect(page.locator("#experience")).toBeVisible();
   await expect(page.locator("#journey-content")).toBeAttached();
   await expect(page.locator("canvas")).toHaveCount(0);
   await context.close();
@@ -240,20 +257,10 @@ test("late loading keeps the current scroll position; context loss restores norm
     "data-ready",
     "false",
   );
-  await page.evaluate(
-    ({ distance, length }) => {
-      const s = document.querySelector("[data-enhanced]") as HTMLElement,
-        v = document.querySelector("[data-journey-stage]") as HTMLElement;
-      scrollTo({
-        top:
-          scrollY +
-          s.getBoundingClientRect().top +
-          ((s.offsetHeight - v.offsetHeight) * distance) / length,
-        behavior: "instant",
-      });
-    },
-    { distance: 4.2, length: journeyLength },
-  );
+  // Between the monitor and the MacBook, measured before the model loads.
+  const s = await story(page);
+  const travel = s.portrait[1] + 0.4;
+  await scrollToDistance(page, travel);
   release();
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
@@ -266,7 +273,7 @@ test("late loading keeps the current scroll position; context loss restores norm
         Number(await journeyCanvas(page).getAttribute("data-distance")),
       { timeout: 20000 },
     )
-    .toBeCloseTo(4.2, 1);
+    .toBeCloseTo(travel, 1);
   await journeyCanvas(page).evaluate((canvas) =>
     canvas.dispatchEvent(new Event("webglcontextlost", { cancelable: true })),
   );
@@ -290,15 +297,19 @@ test("narrow and zoom-equivalent viewports preserve screen links and readable ty
     "true",
     { timeout: 20000 },
   );
+  const s = await story(page);
   for (const [screen, d] of [
-    [0, 2.1],
-    [2, 5.1],
+    [0, within(s.portrait, 0.02)],
+    [2, within(s.macbook, 0.1)],
   ]) {
     await go(page, d);
     const text = page
-      .locator(`[data-screen="${screen}"] article`)
+      .locator(
+        `[data-screen="${screen}"] ${screen ? "article" : "[data-reveal-row]"}`,
+      )
       .first()
-      .locator("p");
+      .locator("p")
+      .first();
     const font = await text.evaluate((p) => {
       const actual = p.getBoundingClientRect().height;
       return (
@@ -312,7 +323,7 @@ test("narrow and zoom-equivalent viewports preserve screen links and readable ty
     ).toBeInViewport();
   }
   await page.setViewportSize({ width: 640, height: 400 });
-  await go(page, 4.1);
+  await go(page, (await story(page)).portrait[1]);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth + 1,
@@ -337,7 +348,8 @@ test("portrait screen uses scene depth instead of a CSS cutout", async ({
     "true",
     { timeout: 20000 },
   );
-  await go(page, 4.85);
+  const s = await story(page);
+  await go(page, s.portrait[1] + 0.7);
   const panel = page.locator('[data-screen="0"]');
   const surface = panel.locator(":scope > div").first();
   await expect(surface).toBeVisible();
@@ -350,7 +362,7 @@ test("portrait screen uses scene depth instead of a CSS cutout", async ({
   await expect
     .poll(() => panel.evaluate((p) => getComputedStyle(p).backgroundColor))
     .toBe("rgba(0, 0, 0, 0)");
-  await go(page, 2.1);
+  await go(page, within(s.portrait, 0.1));
   await expect(panel).not.toHaveAttribute("inert", "");
 });
 
@@ -370,7 +382,8 @@ test("home keeps desk interactions available and exits promptly after the full v
   );
   await expect(page.locator('[data-screen="1"] article')).toHaveCount(0);
   await expect(page.getByText("Scroll down", { exact: true })).toBeVisible();
-  await go(page, 2.1);
+  const s = await story(page);
+  await go(page, within(s.portrait, 0.05));
   await expect(page.getByText("Desk objects", { exact: true })).toBeVisible();
   await page.getByText("Desk objects", { exact: true }).click();
   await page
@@ -385,14 +398,14 @@ test("home keeps desk interactions available and exits promptly after the full v
     "idle",
     { timeout: 5000 },
   );
-  await go(page, 7.6);
+  await go(page, s.room + 0.1);
   const camera = await journeyCanvas(page).getAttribute("data-camera");
   await expect(page.locator("[data-continue-cue]")).toContainText(
     "Scroll to continue",
   );
-  await go(page, journeyLength);
+  await go(page, s.length);
   expect(await journeyCanvas(page).getAttribute("data-camera")).toBe(camera);
-  await go(page, 2.1);
+  await go(page, within(s.portrait, 0.05));
   await expect(page.getByText("Desk objects", { exact: true })).toBeVisible();
 });
 
@@ -412,12 +425,17 @@ test("cosmic grid remains active through close-ups and returns to demand-rendere
     { timeout: 20000 },
   );
   const canvas = journeyCanvas(page);
-
-  for (const distance of [0, 2.1, 5.5, 7.6]) {
+  const s = await story(page);
+  for (const distance of [
+    0,
+    within(s.portrait, 0.05),
+    within(s.macbook, 0.5),
+    s.room + 0.1,
+  ]) {
     await go(page, distance);
     await expect(canvas).toHaveAttribute("data-cosmic-reveal", "1.000");
   }
-  await go(page, 5.5);
+  await go(page, within(s.macbook, 0.5));
   const backgroundPoint = await page.evaluate(() => {
     const candidates = [
       [20, innerHeight * 0.35],
@@ -504,7 +522,7 @@ test("journey bar hides after travel and returns at the top edge", async ({
     )
     .toBeGreaterThan(compactHeight + 12);
   await page.mouse.move(720, 400);
-  await go(page, 2.1);
+  await go(page, within((await story(page)).portrait, 0.05));
   await expect(navigation).toHaveAttribute("data-hidden", "true");
   await page.mouse.move(720, 20);
   await expect(navigation).toHaveAttribute("data-hidden", "false");
@@ -543,5 +561,150 @@ test("changing the motion preference restores the journey without reloading", as
   );
   await page.emulateMedia({ reducedMotion: "reduce" });
   await expect(page.locator("canvas")).toHaveCount(0);
-  await expect(page.locator("#desk-story-0")).toBeVisible();
+  await expect(page.locator("#services")).toBeVisible();
+});
+
+test("the monitor reads What I do and Experience the same both ways", async ({
+  page,
+  browserName,
+}) => {
+  test.skip(browserName === "webkit", "Headless WebKit lacks reliable WebGL2.");
+  await page.goto("/en/lab/desk/journey");
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+    { timeout: 20000 },
+  );
+  const s = await story(page);
+  const panel = page.locator('[data-screen="0"]');
+  await expect(panel.getByRole("heading", { level: 3 })).toHaveCount(9);
+  const frame = () =>
+    page.evaluate(() => {
+      const panel = document.querySelector('[data-screen="0"]') as HTMLElement;
+      return {
+        offset: panel.dataset.offset,
+        reveal: [...panel.querySelectorAll<HTMLElement>("[data-reveal-row]")]
+          .map((row) => row.style.getPropertyValue("--reveal"))
+          .join(),
+        camera: document
+          .querySelector("[data-journey-stage] canvas")
+          ?.getAttribute("data-camera"),
+      };
+    });
+  const middle = within(s.portrait, 0.45);
+  await go(page, middle);
+  const forward = await frame();
+  // Rows below the window have not lit up yet.
+  expect(forward.reveal).toMatch(/0\.000/);
+  await go(page, s.macbook[0]);
+  await go(page, middle);
+  expect(await frame()).toEqual(forward);
+  await go(page, within(s.portrait, 0.1));
+  await go(page, middle);
+  expect(await frame()).toEqual(forward);
+});
+
+test("monitor rows fill from the side the pointer enters", async ({
+  page,
+  browserName,
+  isMobile,
+}) => {
+  test.skip(
+    browserName === "webkit" || isMobile,
+    "Hover needs a fine pointer and WebGL2.",
+  );
+  await page.goto("/en/lab/desk/journey");
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+    { timeout: 20000 },
+  );
+  await go(page, (await story(page)).chapters.services);
+  const row = page.locator('[data-screen="0"] [data-row]').first();
+  const box = (await row.boundingBox())!;
+  const x = box.x + box.width / 2;
+  await page.mouse.move(x, box.y - 30);
+  await page.mouse.move(x, box.y + 12, { steps: 4 });
+  await expect(row).toHaveAttribute("data-enter", "top");
+  await page.mouse.move(x, box.y + box.height + 30, { steps: 4 });
+  await expect(row).toHaveAttribute("data-exit", "bottom");
+  await page.mouse.move(x, box.y + box.height - 12, { steps: 4 });
+  await expect(row).toHaveAttribute("data-enter", "bottom");
+  await expect
+    .poll(() =>
+      row.evaluate(
+        (node) => getComputedStyle(node, "::before").transformOrigin,
+      ),
+    )
+    .toMatch(/ \d+(\.\d+)?px$/);
+});
+
+for (const id of ["services", "experience"])
+  test(`#${id} opens the desk on that chapter`, async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(
+      browserName === "webkit",
+      "Headless WebKit lacks reliable WebGL2.",
+    );
+    await page.goto(`/en/lab/desk/journey#${id}`);
+    await expect(page.locator("[data-ready]")).toHaveAttribute(
+      "data-ready",
+      "true",
+      { timeout: 20000 },
+    );
+    const s = await story(page);
+    await expect
+      .poll(
+        async () =>
+          Number(await journeyCanvas(page).getAttribute("data-distance")),
+        { timeout: 20000 },
+      )
+      .toBeCloseTo(s.chapters[id as "services"], 1);
+    await expect(page.locator(`#${id}-title`)).toBeInViewport();
+    await expect(
+      page
+        .getByRole("navigation", { name: "Journey sections" })
+        .getByRole("link", {
+          name: id === "services" ? "What I do" : "Experience",
+        }),
+    ).toHaveAttribute("aria-current", "location");
+  });
+
+test("keyboard focus and the step buttons bring monitor content into view", async ({
+  page,
+  browserName,
+}) => {
+  test.skip(browserName === "webkit", "Headless WebKit lacks reliable WebGL2.");
+  await page.goto("/en/lab/desk/journey");
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+    { timeout: 20000 },
+  );
+  const s = await story(page);
+  // The VBT row's link sits deep in Experience.
+  const link = page
+    .locator('[data-screen="0"]')
+    .getByRole("link", { name: /TaskFoo/ });
+  await link.focus();
+  await expect
+    .poll(async () =>
+      Number(await journeyCanvas(page).getAttribute("data-distance")),
+    )
+    .toBeGreaterThan(s.chapters.experience);
+  await expect(link).toBeInViewport();
+  await page.getByRole("button", { name: "Next: About & contact" }).click();
+  await expect
+    .poll(async () =>
+      Number(await journeyCanvas(page).getAttribute("data-distance")),
+    )
+    .toBeCloseTo(s.chapters["desk-story-2"], 1);
+  await page.getByRole("button", { name: "Previous: Experience" }).click();
+  await expect
+    .poll(async () =>
+      Number(await journeyCanvas(page).getAttribute("data-distance")),
+    )
+    .toBeCloseTo(s.chapters.experience, 1);
 });

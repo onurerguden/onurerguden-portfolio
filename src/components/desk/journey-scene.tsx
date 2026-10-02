@@ -5,43 +5,42 @@ import {
   useEffect,
   useMemo,
   useRef,
-  useState,
   type RefObject,
 } from "react";
 import DeskPlatform from "./platform";
 import CosmicEnvironment, { type CosmicPointer } from "./cosmic-environment";
 import DeskLighting from "./lighting";
 import { DeskObjectControls, useDeskInteractions } from "./interactions";
-import ProjectArt from "@/components/project-art";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Matrix4, Quaternion, Vector3, PerspectiveCamera } from "three";
 import type { MotionValue } from "motion/react";
 import { Model } from "./scene";
-import contract from "@/lib/desk-scene.json";
 import { createScreenProjection, projectScreen } from "@/lib/desk-projection";
 import {
-  journeyAt,
-  pageOffset,
+  cameraAnchors,
+  panelHeight,
   screenIds,
+  screenPixelWidths,
   screenStops,
+  screens,
   type CameraStop,
-  type JourneyContent,
-} from "@/lib/desk-journey";
-import styles from "./journey.module.css";
-import PortraitIdentity from "./portrait-identity";
+} from "@/lib/desk-story/camera";
+import { clamp, pageOffset, storyAt } from "@/lib/desk-story/timeline";
+import type { PanelRefs } from "./screen-panels";
+import type { StoryMeasure } from "./use-story-layout";
 export type JourneySceneProps = {
   poster?: boolean;
   distance: MotionValue<number>;
   active: boolean;
-  content: JourneyContent;
   locale: "en" | "tr";
   onReady: () => void;
   onFailure: () => void;
-  onFocusCard: (screen: number, card: number) => void;
+  /** The element the canvas fills and takes pointer events from. */
+  wrapper: RefObject<HTMLDivElement | null>;
+  /** The screen panels, owned by the journey so they exist before the 3D. */
+  panels: PanelRefs;
+  layout: RefObject<StoryMeasure>;
 };
-const screens = screenIds.map((id) => contract.screens[id]);
-const screenPixelWidths = [1000, 2000, 1000] as const;
-type ScreenPanelRefs = RefObject<(HTMLDivElement | null)[]>;
 
 const screenTransforms = screens.map((screen) => {
   const normal = new Vector3(...screen.normal).normalize();
@@ -93,83 +92,14 @@ function ScreenDepthPlanes() {
   });
 }
 
-function ScreenPanels({
-  panels,
-  content,
-  locale,
-  poster,
-  onFocusCard,
-}: Pick<JourneySceneProps, "content" | "locale" | "poster" | "onFocusCard"> & {
-  panels: ScreenPanelRefs;
-}) {
-  return (
-    <div className={styles.screenLayer}>
-      {screens.map((screen, i) => {
-        const width = screenPixelWidths[i];
-        const height = (width * screen.height) / screen.width;
-        return (
-          <div
-            key={screenIds[i]}
-            ref={(node) => {
-              panels.current[i] = node;
-            }}
-            className={styles.screen}
-            data-screen={i}
-            style={{ width, height }}
-            aria-label={content.labels[i]}
-          >
-            <div className={styles.screenSurface}>
-              <div className={styles.track}>
-                {screenIds[i] === "UltrawideScreen" ? (
-                  <PortraitIdentity content={content} interactive={!poster} />
-                ) : null}
-                {(screenIds[i] === "UltrawideScreen" || poster
-                  ? []
-                  : content.screens[i]
-                ).map((card, j) => (
-                  <article
-                    key={card.title}
-                    style={{ height }}
-                    className={styles.card}
-                  >
-                    <span className={styles.label}>{content.labels[i]}</span>
-                    {card.visual ? (
-                      <div className={styles.screenVisual}>
-                        <ProjectArt slug={card.visual} locale={locale} eager />
-                      </div>
-                    ) : null}
-                    <h2>{card.title}</h2>
-                    <p>{card.body}</p>
-                    <a href={card.href} onFocus={() => onFocusCard(i, j)}>
-                      {card.action}
-                      <span aria-hidden="true"> ↗</span>
-                    </a>
-                    <span className={styles.page}>
-                      {String(j + 1).padStart(2, "0")} /{" "}
-                      {String(content.screens[i].length).padStart(2, "0")}
-                    </span>
-                  </article>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 function Driver({
   distance,
   active,
   onFailure,
   panels,
-  content,
-  surface,
-}: JourneySceneProps & {
-  panels: ScreenPanelRefs;
-  surface: RefObject<HTMLDivElement | null>;
-}) {
+  layout,
+  wrapper: surface,
+}: JourneySceneProps) {
   const { camera, gl, size, invalidate, setFrameloop } = useThree();
   const projections = useMemo(
     () =>
@@ -199,60 +129,10 @@ function Driver({
     }),
     [],
   );
-  const anchors = useMemo(() => {
-    const aspect = size.width / size.height;
-    const mobile = size.width < 700;
-    const tangent = Math.tan((43 * Math.PI) / 360);
-    const closeup = (s: (typeof screens)[number]) => {
-      const target = new Vector3(...s.position);
-      const distance =
-        Math.max((s.width * 1.16) / aspect, s.height * 1.3) / (2 * tangent);
-      return {
-        target,
-        fov: 43,
-        position: target
-          .clone()
-          .addScaledVector(new Vector3(...s.normal), distance),
-      };
-    };
-    const opening = contract.screens.UltrawideScreen;
-    const openingTarget = new Vector3(...opening.position);
-    const openingDistance =
-      (Math.min(opening.width / aspect, opening.height) * 0.92) / (2 * tangent);
-    const roomFrameSpan = contract.desk.width + 0.12;
-    const roomDistance = Math.max(
-      2.15,
-      roomFrameSpan / aspect / (2 * tangent),
-      1.45 / (2 * tangent),
-    );
-    const roomHeight = Math.min(2.8, Math.max(1.25, roomDistance * 0.58));
-    return {
-      opening: {
-        target: openingTarget,
-        position: openingTarget.clone().add(new Vector3(0, 0, openingDistance)),
-        fov: 43,
-      },
-      desktop: {
-        target: new Vector3(-0.04, mobile ? 0.26 : 0.34, -0.1),
-        position: new Vector3(
-          mobile ? 0.02 : 0.18,
-          mobile ? 0.48 : 0.56,
-          mobile ? 1.05 : 1.25,
-        ),
-        fov: 43,
-      },
-      portrait: closeup(contract.screens.PortraitScreen),
-      macbook: closeup(contract.screens.MacBookScreen),
-      room: {
-        target: new Vector3(0, -0.02, -0.08),
-        position: new Vector3(0.08, roomHeight, roomDistance),
-        fov: 43,
-      },
-    } satisfies Record<
-      CameraStop,
-      { target: Vector3; position: Vector3; fov: number }
-    >;
-  }, [size.width, size.height]);
+  const anchors = useMemo(
+    () => cameraAnchors(size.width, size.height),
+    [size.width, size.height],
+  );
   useEffect(() => {
     setFrameloop(active ? "demand" : "never");
     gl.domElement.setAttribute("data-active", String(active));
@@ -342,7 +222,8 @@ function Driver({
   }, [active, invalidate, surface]);
   useFrame((_state, delta) => {
     if (!active) return;
-    const step = journeyAt(distance.get());
+    const story = layout.current;
+    const step = storyAt(story.timeline, distance.get());
     const a = anchors[step.from],
       b = anchors[step.to],
       t = step.travel;
@@ -370,11 +251,6 @@ function Driver({
         .addScaledVector(temp.d, t * t * t);
       temp.target.copy(a.target).lerp(b.target, t);
     }
-    if (step.exit)
-      temp.position.addScaledVector(
-        temp.a.copy(temp.position).sub(temp.target),
-        step.exit * 0.18,
-      );
     if (camera instanceof PerspectiveCamera) {
       const fov =
         a.fov +
@@ -421,21 +297,38 @@ function Driver({
       const panel = panels.current[index];
       if (!panel) return;
       const matrix = projectScreen(projection, camera, size.width, size.height);
-      panel.style.visibility = matrix ? "visible" : "hidden";
+      // Hidden by opacity, not visibility, so a panel behind the camera
+      // stays in the accessibility tree.
+      panel.style.visibility = "visible";
+      panel.style.opacity = matrix ? "" : "0";
       if (matrix) panel.style.transform = `matrix3d(${matrix.join(",")})`;
       const surface = panel.firstElementChild as HTMLElement;
       const track = surface.firstElementChild as HTMLElement;
-      const height =
-        (screenPixelWidths[index] * screens[index].height) /
-        screens[index].width;
-      const offset = pageOffset(
-        step.reading[index],
-        content.screens[index].length,
-      );
-      track.style.transform = `translateY(${-offset * height - step.preview}px)`;
-      panel.dataset.page = String(offset);
-      panel.inert = step.active !== index;
-      panel.style.pointerEvents = step.active === index ? "auto" : "none";
+      if (screenIds[index] === "PortraitScreen") {
+        const { overflow, height, rows } = story.portrait;
+        const offset = step.reading[index] * overflow;
+        track.style.transform = `translateY(${-offset}px)`;
+        panel.dataset.offset = offset.toFixed(1);
+        // Rows light up as the monitor's window reaches them: the window
+        // opens while the camera arrives, then slides with the content.
+        const windowBottom = offset + height * step.arrival[index];
+        for (const row of rows) {
+          const value = clamp(
+            (windowBottom - row.top) / Math.max(1, row.height * 0.75),
+          );
+          if (row.value !== undefined && Math.abs(row.value - value) < 0.002)
+            continue;
+          row.value = value;
+          row.node.style.setProperty("--reveal", value.toFixed(3));
+        }
+      } else if (screenIds[index] === "MacBookScreen") {
+        const page = pageOffset(step.reading[index], track.childElementCount);
+        track.style.transform = `translateY(${-page * panelHeight(index)}px)`;
+        panel.dataset.page = String(page);
+      }
+      const current = step.active === index;
+      panel.dataset.active = String(current);
+      panel.style.pointerEvents = current ? "auto" : "none";
       const fromEmphasis =
         step.from === "room" || step.from === screenStops[index] ? 1 : 0;
       const toEmphasis =
@@ -478,23 +371,13 @@ function RenderFrame() {
   return null;
 }
 export default function JourneyScene(props: JourneySceneProps) {
-  const panels = useRef<(HTMLDivElement | null)[]>([]);
-  const wrapper = useRef<HTMLDivElement>(null);
-  const [sceneReady, setSceneReady] = useState(false);
   const controls = useDeskInteractions(props.active, false);
   const readyCallback = props.onReady;
-  const onReady = useCallback(() => {
-    setSceneReady(true);
-    readyCallback();
-  }, [readyCallback]);
+  const onReady = useCallback(() => readyCallback(), [readyCallback]);
   return (
-    <div
-      className={styles.scene}
-      ref={wrapper}
-      style={{ opacity: sceneReady ? 1 : 0 }}
-    >
+    <>
       <Canvas
-        eventSource={wrapper as RefObject<HTMLElement>}
+        eventSource={props.wrapper as RefObject<HTMLElement>}
         style={{
           position: "absolute",
           inset: 0,
@@ -540,23 +423,11 @@ export default function JourneyScene(props: JourneySceneProps) {
           <ScreenDepthPlanes />
         </Suspense>
         <RenderFrame />
-        <Driver
-          {...props}
-          active={controls.active}
-          panels={panels}
-          surface={wrapper}
-        />
+        <Driver {...props} active={controls.active} />
       </Canvas>
       {!props.poster ? (
         <DeskObjectControls controls={controls} locale={props.locale} journey />
       ) : null}
-      <ScreenPanels
-        panels={panels}
-        content={props.content}
-        locale={props.locale}
-        poster={props.poster}
-        onFocusCard={props.onFocusCard}
-      />
-    </div>
+    </>
   );
 }
