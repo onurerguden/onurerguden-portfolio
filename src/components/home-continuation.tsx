@@ -3,16 +3,33 @@ import type { Locale } from "@/lib/content";
 import { homeSections, type HomeSectionId } from "@/lib/home-sections";
 import AboutSection from "@/components/home/about-section";
 import StackSection from "@/components/home/stack-section";
-import ServicesSection from "@/components/home/services-section";
 import ProjectsSection from "@/components/home/projects-section";
 import ActivitySection from "@/components/home/activity-section";
 import CertificatesSection from "@/components/home/certificates-section";
-import ExperienceSection from "@/components/home/experience-section";
+import ServiceRows from "@/components/sections/service-rows";
+import ExperienceRail from "@/components/sections/experience-rail";
+import monitor from "@/components/sections/monitor.module.css";
 import ContactSection from "@/components/home/contact-section";
 
 const sections: Record<HomeSectionId, (locale: Locale) => ReactNode> = {
-  services: (locale) => <ServicesSection locale={locale} />,
-  experience: (locale) => <ExperienceSection locale={locale} />,
+  services: (locale) => (
+    <section
+      id="services"
+      className={`${monitor.page} bleed`}
+      aria-labelledby="services-title"
+    >
+      <ServiceRows locale={locale} />
+    </section>
+  ),
+  experience: (locale) => (
+    <section
+      id="experience"
+      className={`${monitor.page} bleed`}
+      aria-labelledby="experience-title"
+    >
+      <ExperienceRail locale={locale} />
+    </section>
+  ),
   stack: (locale) => <StackSection locale={locale} />,
   about: (locale) => <AboutSection locale={locale} />,
   work: (locale) => <ProjectsSection locale={locale} />,

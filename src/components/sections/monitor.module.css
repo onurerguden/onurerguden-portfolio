@@ -1,0 +1,405 @@
+/*
+ * What I do and Experience, in two presentations of the same markup:
+ * `.page` in the document flow (static view, reduced motion, no JavaScript)
+ * and `.screen` on the projected portrait monitor. Sizes are tokens, so each
+ * presentation only sets its scale; on the monitor `--u` is one visible CSS
+ * px, whatever the projection.
+ */
+@property --lit {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 1;
+}
+
+.page {
+  --u: 1px;
+  --row-pad-block: clamp(28px, 4vw, 52px);
+  --row-pad-inline: clamp(12px, 2vw, 28px);
+  --row-gap: clamp(18px, 3vw, 48px);
+  --number-size: clamp(44px, 6.4vw, 96px);
+  --heading-size: clamp(21px, 2.1vw, 28px);
+  --body-size: clamp(16px, 1.35vw, 19px);
+  --chip-size: 12px;
+  --period-size: clamp(17px, 1.6vw, 22px);
+  --rail-inset: clamp(40px, 4.5vw, 64px);
+  padding-block: clamp(96px, 12vw, 168px) clamp(72px, 9vw, 136px);
+  background: var(--bg);
+  color: var(--text);
+}
+.page + .page {
+  padding-top: clamp(24px, 4vw, 64px);
+}
+.page > .block {
+  width: min(1320px, 88%);
+  margin-inline: auto;
+}
+.screen {
+  --u: calc(1px / var(--screen-scale, 0.4));
+  --row-pad-block: calc(22 * var(--u));
+  --row-pad-inline: calc(14 * var(--u));
+  --row-gap: calc(14 * var(--u));
+  --number-size: calc(40 * var(--u));
+  --heading-size: calc(21 * var(--u));
+  --body-size: calc(17 * var(--u));
+  --chip-size: calc(13 * var(--u));
+  --period-size: calc(17 * var(--u));
+  --rail-inset: calc(34 * var(--u));
+  padding: calc(34 * var(--u)) calc(20 * var(--u)) calc(64 * var(--u));
+  color: var(--text);
+}
+.screen > section + section {
+  margin-top: calc(72 * var(--u));
+}
+.block {
+  container-type: inline-size;
+}
+.title {
+  margin-bottom: clamp(40px, 7vw, 104px);
+}
+/* On the monitor the title fills the panel, past the page's px ceiling. */
+.screen .title {
+  margin-bottom: calc(28 * var(--u));
+  font-size: calc(var(--giant-fill) * 1cqi / var(--title-em));
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--u) solid var(--hairline);
+}
+.row {
+  --row-fg: var(--text);
+  --row-muted: var(--text-muted);
+  --row-accent: var(--accent);
+  --row-fill: var(--surface-2);
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(84px, 0.55fr) minmax(0, 3fr) minmax(
+      max-content,
+      1fr
+    );
+  gap: var(--row-gap);
+  align-items: start;
+  padding: var(--row-pad-block) var(--row-pad-inline);
+  color: var(--row-fg);
+}
+.row[data-linked] {
+  --row-fill: var(--accent);
+}
+/*
+ * The fill flows in from the edge the pointer entered through and retreats
+ * through the edge it left by; keyboard focus fills from the top.
+ */
+.row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--row-fill);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform var(--dur-hover) var(--ease-out);
+}
+.row[data-exit="top"]::before {
+  transform-origin: top;
+}
+.row:hover::before,
+.row:has(.link:focus-visible)::before {
+  transform: scaleY(1);
+  transform-origin: top;
+}
+.row[data-enter="bottom"]:hover::before {
+  transform-origin: bottom;
+}
+.row[data-linked]:hover,
+.row[data-linked]:has(.link:focus-visible) {
+  --row-fg: var(--accent-ink);
+  --row-muted: color-mix(in oklab, var(--accent-ink) 78%, var(--accent));
+  --row-accent: var(--accent-ink);
+}
+.row::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: var(--u);
+  background: var(--hairline);
+  transform: scaleX(var(--reveal, 1));
+  transform-origin: left;
+}
+.row:has(.link:focus-visible) {
+  outline: calc(3 * var(--u)) solid var(--focus);
+  outline-offset: calc(4 * var(--u));
+}
+@media (hover: none) {
+  .row:hover::before {
+    transform: scaleY(0);
+  }
+  .row[data-linked]:hover {
+    --row-fg: var(--text);
+    --row-muted: var(--text-muted);
+    --row-accent: var(--accent);
+  }
+}
+
+.number {
+  display: block;
+  overflow: clip;
+  font-family: var(--display-heavy);
+  font-size: var(--number-size);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+}
+.number > span {
+  display: block;
+  transform: translateY(calc((1 - var(--reveal, 1)) * 105%));
+}
+.copy h3 {
+  margin: 0 0 calc(12 * var(--u));
+  font: 750 var(--heading-size) / 1.2 var(--body);
+  letter-spacing: -0.02em;
+}
+/* The title link covers the whole row. */
+.link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.link:focus-visible {
+  outline: none;
+}
+.description {
+  max-width: 60ch;
+  margin: 0;
+  font-size: var(--body-size);
+  line-height: 1.65;
+}
+.word {
+  color: color-mix(
+    in oklab,
+    var(--row-fg) calc(var(--lit) * 100%),
+    var(--row-muted)
+  );
+}
+/* On the monitor, words light up in order as their row comes into view. */
+.screen .word {
+  --lit: clamp(0, (var(--reveal, 1) * (var(--words) + 4) - var(--i)) / 4, 1);
+}
+.tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(8 * var(--u));
+  margin: calc(16 * var(--u)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.tech li {
+  padding: calc(6 * var(--u)) calc(11 * var(--u));
+  border: var(--u) solid color-mix(in oklab, var(--row-fg) 26%, transparent);
+  border-radius: 999px;
+  color: var(--row-muted);
+  font-size: var(--chip-size);
+  font-weight: 650;
+  line-height: 1.3;
+}
+.proof {
+  align-self: center;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  min-height: calc(44 * var(--u));
+  color: var(--row-accent);
+  font-size: calc(14 * var(--u));
+  font-weight: 700;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.proof span {
+  display: inline-block;
+  transition: transform var(--dur-hover) var(--ease-out);
+}
+.row:hover .proof span,
+.row:has(.link:focus-visible) .proof span {
+  transform: translateX(calc(6 * var(--u)));
+}
+
+/* Experience: the career rail. */
+.rail {
+  position: relative;
+  padding-left: var(--rail-inset);
+  border-top: 0;
+}
+.rail::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--rail-inset) / 2 - var(--u));
+  width: calc(2 * var(--u));
+  background: color-mix(in oklab, var(--accent) 34%, transparent);
+}
+.role {
+  --node-top: calc(var(--row-pad-block) + var(--period-size) * 0.65);
+  grid-template-columns: minmax(150px, 1fr) minmax(0, 3fr) minmax(
+      max-content,
+      1fr
+    );
+  border-top: var(--u) solid var(--hairline);
+}
+.role::after {
+  display: none;
+}
+.node {
+  position: absolute;
+  top: var(--node-top);
+  left: calc(var(--rail-inset) / -2);
+  width: calc(14 * var(--u));
+  height: calc(14 * var(--u));
+  border: calc(2 * var(--u)) solid var(--accent);
+  border-radius: 50%;
+  background: var(--bg);
+  translate: -50% -50%;
+  scale: var(--reveal, 1);
+  transition: box-shadow var(--dur-hover) var(--ease-out);
+}
+.role[data-branch] .node {
+  background: var(--accent);
+}
+.role:hover .node,
+.role:has(.link:focus-visible) .node {
+  box-shadow: 0 0 0 calc(6 * var(--u))
+    color-mix(in oklab, var(--accent) 28%, transparent);
+}
+/* Two roles at one company: a dashed branch from this node to the next. */
+.branch {
+  position: absolute;
+  top: var(--node-top);
+  bottom: calc(-1 * var(--node-top));
+  left: calc(var(--rail-inset) / -2 - var(--u));
+  border-left: calc(2 * var(--u)) dashed var(--accent);
+  transform: scaleY(var(--reveal, 1));
+  transform-origin: top;
+}
+.period {
+  margin: 0;
+  color: var(--row-fg);
+  font: 800 var(--period-size) / 1.3 var(--body);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.roleName {
+  margin: 0 0 calc(14 * var(--u));
+  color: var(--row-muted);
+  font-size: calc(15 * var(--u));
+}
+.page .roleName {
+  font-size: 15px;
+}
+.highlights {
+  max-width: 62ch;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: color-mix(in oklab, var(--row-fg) 86%, var(--row-muted));
+  font-size: var(--body-size);
+  line-height: 1.6;
+}
+.highlights li {
+  position: relative;
+  padding-left: 1.1em;
+}
+.highlights li + li {
+  margin-top: calc(6 * var(--u));
+}
+.highlights li::before {
+  content: "–";
+  position: absolute;
+  left: 0;
+  color: var(--row-accent);
+}
+.screen .role > :not(.node, .branch) {
+  opacity: calc(0.2 + 0.8 * var(--reveal, 1));
+  translate: 0 calc((1 - var(--reveal, 1)) * 18 * var(--u));
+}
+
+/* The monitor is a narrow column, whatever its panel's CSS width. */
+.screen .row {
+  grid-template-columns: calc(64 * var(--u)) minmax(0, 1fr);
+}
+.screen .proof {
+  grid-column: 2;
+  justify-self: start;
+}
+.screen .role {
+  grid-template-columns: minmax(0, 1fr);
+  gap: calc(10 * var(--u));
+}
+.screen .role .proof {
+  grid-column: 1;
+}
+@media (max-width: 760px) {
+  .page .row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .page .proof {
+    justify-self: start;
+  }
+}
+
+/* Scroll-linked reveal in the page; Firefox and reduced motion stay lit. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .page .row {
+      view-timeline: --story-row block;
+    }
+    .page .word {
+      animation: light-word linear both;
+      animation-timeline: --story-row;
+      animation-range: cover calc(8% + var(--i) * 1.5%) cover
+        calc(16% + var(--i) * 1.5%);
+    }
+    .page .number > span {
+      animation: rise-number linear both;
+      animation-timeline: --story-row;
+      animation-range: entry 15% cover 30%;
+    }
+    .page .row::after {
+      animation: draw-line linear both;
+      animation-timeline: --story-row;
+      animation-range: entry 0% cover 40%;
+    }
+  }
+}
+@keyframes light-word {
+  from {
+    --lit: 0;
+  }
+  to {
+    --lit: 1;
+  }
+}
+@keyframes rise-number {
+  from {
+    transform: translateY(105%);
+  }
+}
+@keyframes draw-line {
+  from {
+    transform: scaleX(0);
+  }
+}
+@media (forced-colors: active) {
+  .row::before {
+    display: none;
+  }
+  .row:hover,
+  .row:has(.link:focus-visible) {
+    outline: 2px solid CanvasText;
+  }
+}
