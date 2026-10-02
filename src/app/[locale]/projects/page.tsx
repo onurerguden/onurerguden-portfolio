@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getProjects, isLocale } from "@/lib/content";
+import GiantTitle from "@/components/giant-title";
+import { getProjects, isLocale, sharedFacts } from "@/lib/content";
 import { getPublicProjects } from "@/lib/github";
 import { pageMetadata } from "@/lib/site";
+import styles from "./archive.module.css";
 export async function generateMetadata({
   params,
 }: {
@@ -29,80 +31,111 @@ export default async function ProjectsPage({
   const en = locale === "en";
   const projects = getProjects(locale);
   const github = await getPublicProjects();
+  const date = (value: string) =>
+    new Intl.DateTimeFormat(en ? "en-GB" : "tr-TR", {
+      dateStyle: "medium",
+      timeZone: "Europe/Istanbul",
+    }).format(new Date(value));
   return (
-    <main id="main" tabIndex={-1}>
-      <div className="page-intro">
-        <p className="section-kicker">
+    <main id="main" tabIndex={-1} className={styles.page}>
+      <header className={styles.hero}>
+        <p className={styles.kicker}>
           {en ? "The project archive" : "Proje arşivi"}
         </p>
-        <h1>
-          {en ? "Built. Tested. Learned." : "Geliştirdim. Denedim. Öğrendim."}
-        </h1>
-        <p>
+        <GiantTitle
+          as="h1"
+          text={en ? "All projects" : "Tüm projeler"}
+          locale={locale}
+          fill={94}
+        />
+        <p className={styles.lede}>
           {en
             ? "A collection of product work, research and engineering explorations. Each project starts with a different question."
             : "Ürünler, araştırmalar ve mühendislik çalışmaları. Her proje farklı bir soruyla başlıyor."}
         </p>
-      </div>
-      <div className="archive-grid">
-        {projects.map((p) => (
-          <article className="archive-entry" id={p.slug} key={p.slug}>
-            <p className="project-category">{p.category}</p>
+      </header>
+      <ol className={styles.grid}>
+        {projects.map((p, i) => (
+          <li
+            className={styles.entry}
+            id={p.slug}
+            key={p.slug}
+            data-linked={p.featured ? "" : undefined}
+          >
+            <span className={styles.number} aria-hidden="true">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <p className={styles.category}>{p.category}</p>
             <h2>
               {p.featured ? (
-                <Link href={`/${locale}/projects/${p.slug}`}>{p.title} ↗</Link>
+                <Link
+                  className={styles.cover}
+                  href={`/${locale}/projects/${p.slug}`}
+                >
+                  {p.title}
+                </Link>
               ) : (
                 p.title
               )}
             </h2>
-            <p>{p.summary}</p>
+            <p className={styles.summary}>{p.summary}</p>
             {p.metric ? (
-              <p>
-                <strong>{p.metric.value}</strong> — {p.metric.label}
+              <p className={styles.metric}>
+                <strong>{p.metric.value}</strong> {p.metric.label}
               </p>
             ) : null}
-            <ul className="stack">
+            <ul
+              className={styles.chips}
+              aria-label={en ? "Built with" : "Kullandıklarım"}
+            >
               {p.stack.map((s) => (
                 <li key={s}>{s}</li>
               ))}
             </ul>
-            {!p.featured && p.repoUrl ? (
-              <p>
-                <a className="text-link" href={p.repoUrl}>
-                  {en ? "Source on GitHub" : "GitHub’da kaynak kod"} ↗
+            <p className={styles.action}>
+              {p.featured ? (
+                <span aria-hidden="true">
+                  {en ? "Read the case study" : "Vaka çalışmasını oku"} →
+                </span>
+              ) : p.repoUrl ? (
+                <a href={p.repoUrl}>
+                  {en ? "Source on GitHub" : "GitHub’da kaynak kod"}
+                  <span aria-hidden="true"> ↗</span>
                 </a>
-              </p>
-            ) : null}
-          </article>
+              ) : null}
+            </p>
+          </li>
         ))}
-      </div>
-      <section className="github-section">
-        <div className="section-heading">
-          <h2>{en ? "On GitHub" : "GitHub’da"}</h2>
-          <a className="text-link" href="https://github.com/onurerguden">
-            {en ? "Visit profile" : "Profili ziyaret et"} ↗
+      </ol>
+      <section className={styles.github} aria-labelledby="github-title">
+        <div className={styles.githubHead}>
+          <h2 id="github-title">{en ? "On GitHub" : "GitHub’da"}</h2>
+          <a href={sharedFacts.github}>
+            {en ? "Visit profile" : "Profili ziyaret et"}
+            <span aria-hidden="true"> ↗</span>
           </a>
         </div>
         {github.repos.length ? (
           <>
-            <p className="section-kicker">
+            <p className={styles.synced}>
               {en
                 ? "Repository metadata from GitHub"
                 : "GitHub’dan depo bilgileri"}
-              {github.syncedAt
-                ? ` / ${new Intl.DateTimeFormat(en ? "en-GB" : "tr-TR", { dateStyle: "medium", timeZone: "Europe/Istanbul" }).format(new Date(github.syncedAt))}`
-                : ""}
+              {github.syncedAt ? ` · ${date(github.syncedAt)}` : ""}
             </p>
-            <div className="repo-list">
+            <ul className={styles.repos}>
               {github.repos.map((repo) => (
-                <article className="repo-row" key={repo.id}>
+                <li key={repo.id}>
                   <div>
                     <h3>
-                      <a href={repo.url}>{repo.name} ↗</a>
+                      <a href={repo.url}>
+                        {repo.name}
+                        <span aria-hidden="true"> ↗</span>
+                      </a>
                     </h3>
                     {repo.description ? <p>{repo.description}</p> : null}
                   </div>
-                  <div className="repo-meta">
+                  <p className={styles.repoMeta}>
                     {repo.language ? <span>{repo.language}</span> : null}
                     {repo.fork ? <span>Fork</span> : null}
                     {repo.archived ? (
@@ -111,19 +144,16 @@ export default async function ProjectsPage({
                     {repo.pushedAt ? (
                       <span>
                         {en ? "Last push: " : "Son push: "}
-                        {new Intl.DateTimeFormat(en ? "en-GB" : "tr-TR", {
-                          dateStyle: "medium",
-                          timeZone: "Europe/Istanbul",
-                        }).format(new Date(repo.pushedAt))}
+                        {date(repo.pushedAt)}
                       </span>
                     ) : null}
-                  </div>
-                </article>
+                  </p>
+                </li>
               ))}
-            </div>
+            </ul>
           </>
         ) : (
-          <p className="empty-note">
+          <p className={styles.synced}>
             {en
               ? "More experiments and source code live on my GitHub profile."
               : "Diğer deneyler ve kaynak kodlar GitHub profilimde."}

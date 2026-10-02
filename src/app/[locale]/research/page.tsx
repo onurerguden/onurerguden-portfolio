@@ -2,6 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isLocale, sharedFacts } from "@/lib/content";
 import { pageMetadata } from "@/lib/site";
+import GiantTitle from "@/components/giant-title";
+import EducationFacts from "@/components/home/education-facts";
+import styles from "./research.module.css";
 import { getResearch } from "@/lib/research";
 export async function generateMetadata({
   params,
@@ -30,71 +33,61 @@ export default async function ResearchPage({
   const publication = sharedFacts.publication;
   const research = getResearch(locale);
   return (
-    <main id="main" tabIndex={-1}>
-      <div className="page-intro">
-        <p className="section-kicker">
+    <main id="main" tabIndex={-1} className={styles.page}>
+      <header className={styles.hero}>
+        <p className={styles.kicker}>
           {en ? "Research & academic work" : "Araştırma ve akademik çalışmalar"}
         </p>
-        <h1>
-          {en
-            ? "Better questions. Grounded answers."
-            : "Daha iyi sorular. Sağlam yanıtlar."}
-        </h1>
-        <p>{research.approach}</p>
-      </div>
-      <section
-        className="research-publication"
-        aria-label={en ? "Publication" : "Yayın"}
-      >
-        <p className="publication-status">{publication.statusLabel[locale]}</p>
-        <h2>{publication.title}</h2>
-        <p>{publication.authors.join(", ")}</p>
-        <p>
-          <strong>{publication.journal}</strong>
+        <GiantTitle
+          as="h1"
+          text={en ? "Research" : "Araştırma"}
+          locale={locale}
+          fill={94}
+        />
+        <p className={styles.lede}>{research.approach}</p>
+      </header>
+      <section className={styles.paper} aria-labelledby="publication-title">
+        <p className={styles.status}>{publication.statusLabel[locale]}</p>
+        <h2 id="publication-title">{publication.title}</h2>
+        <p className={styles.journal}>{publication.journal}</p>
+        <p className={styles.authors}>
+          {publication.authors.map((author, i) => (
+            <span key={author}>
+              {i ? ", " : null}
+              {author === "O. Ergüden" ? <strong>{author}</strong> : author}
+            </span>
+          ))}
         </p>
-        <p>{research.publicationSummary}</p>
-        <Link className="text-link" href={`/${locale}/projects/water-safety`}>
-          {en ? "Read the research project" : "Araştırma projesini oku"} ↗
+        <p className={styles.summary}>{research.publicationSummary}</p>
+        <Link className={styles.link} href={`/${locale}/projects/water-safety`}>
+          {en ? "Read the research project" : "Araştırma projesini oku"}
+          <span aria-hidden="true"> →</span>
         </Link>
       </section>
-      <div className="research-columns">
-        <section>
-          <h2>
-            {en ? "Questions I’m exploring" : "Üzerinde düşündüğüm sorular"}
-          </h2>
-          <ul>
-            {research.questions.map((question) => (
-              <li key={question}>{question}</li>
-            ))}
-          </ul>
-        </section>
-        <section>
-          <h2>{en ? "Academic foundation" : "Akademik temel"}</h2>
-          <p>
-            <strong>
-              {en
-                ? "İzmir University of Economics"
-                : "İzmir Ekonomi Üniversitesi"}
-            </strong>
-            <br />
-            {en
-              ? "BSc in Software Engineering, June 2026"
-              : "Yazılım Mühendisliği Lisans, Haziran 2026"}
-            <br />
-            {en ? "GPA" : "Not ortalaması"}: {sharedFacts.education.gpa}
-          </p>
-          <p>
-            {en
-              ? "Google AI & Technology Academy graduate. Completed Deep Learning training in 2026."
-              : "Google Yapay Zekâ ve Teknoloji Akademisi mezunu. Derin öğrenme eğitimini 2026’da tamamladım."}
-          </p>
-          <p>
-            {en
-              ? "Academic interests: AI, machine learning, data science and software architecture."
-              : "Akademik ilgi alanları: AI, makine öğrenmesi, veri bilimi ve yazılım mimarisi."}
-          </p>
-        </section>
-      </div>
+      <section className={styles.questions} aria-labelledby="questions-title">
+        <h2 id="questions-title">
+          {en ? "Questions I’m exploring" : "Üzerinde düşündüğüm sorular"}
+        </h2>
+        <ol>
+          {research.questions.map((question, i) => (
+            <li key={question}>
+              <span aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+              {question}
+            </li>
+          ))}
+        </ol>
+      </section>
+      <section className={styles.foundation} aria-labelledby="foundation-title">
+        <h2 id="foundation-title">
+          {en ? "Academic foundation" : "Akademik temel"}
+        </h2>
+        <EducationFacts locale={locale} publicationHref="#publication-title" />
+        <p>
+          {en
+            ? "Academic interests: AI, machine learning, data science and software architecture."
+            : "Akademik ilgi alanları: AI, makine öğrenmesi, veri bilimi ve yazılım mimarisi."}
+        </p>
+      </section>
     </main>
   );
 }
