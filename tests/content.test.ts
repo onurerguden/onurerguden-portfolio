@@ -4,6 +4,8 @@ import os from "node:os";
 import path from "node:path";
 import {
   caseHeadings,
+  caseSections,
+  slugify,
   getProject,
   getProjects,
   isLocale,
@@ -265,5 +267,19 @@ describe("case studies", () => {
       const body = getProject(locale, "course-intelligence")?.body ?? "";
       expect(body).not.toMatch(/100|%/);
     }
+  });
+});
+
+describe("case study sections", () => {
+  it("share English ids in both languages", () => {
+    expect(slugify("What I can demonstrate")).toBe("what-i-can-demonstrate");
+    for (const slug of ["kuyumcum", "water-safety", "course-intelligence"]) {
+      const en = caseSections("en", slug);
+      const tr = caseSections("tr", slug);
+      expect(tr.map((s) => s.id)).toEqual(en.map((s) => s.id));
+      expect(tr.map((s) => s.label)).not.toEqual(en.map((s) => s.label));
+      expect(new Set(en.map((s) => s.id)).size).toBe(en.length);
+    }
+    expect(caseSections("en", "pam")).toEqual([]);
   });
 });

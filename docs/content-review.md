@@ -59,3 +59,12 @@ Optional, only with Onur's approval: the repository's own rating of the quantita
 - About actions: "Contact me" / "Bana ulaş", the existing CV link, "My research" / "Araştırmalarım" (now to `#research`).
 - Research teaser: the approach paragraph, publication summary and three questions are the Research page's own text, now shared from `src/lib/research.ts`. Links: "HealthFactor-AI case study" / "HealthFactor-AI vaka çalışması", "Research details" / "Araştırma ayrıntıları". Authors are listed as published; "O. Ergüden" is emphasised, with no "first author" wording.
 - Course Intelligence diagram: steps named in the case study (course documents, hierarchical chunks, SBERT embeddings, FAISS search, filters + context, Llama 3.1 (8B), grounded answer), captioned "Conceptual diagram" / "Kavramsal diyagram".
+
+## Pages (PR 5)
+
+Interface labels only; no new claims.
+
+- Archive: "All projects" / "Tüm projeler"; card action "Read the case study" / "Vaka çalışmasını oku". The intro and GitHub copy are unchanged.
+- Case studies: "Projects" / "Projeler" (back), "My role" / "Rolüm", "Built with" / "Kullandıklarım", "Source" / "Kaynak", "On this page" / "Bu sayfada", "Other projects" / "Diğer projeler", "More in the archive" / "Arşivde daha fazlası". Figure captions are the existing alt texts.
+- Research: "Research" / "Araştırma" title. The approach, publication, questions and "Academic interests" sentence are the page's existing text; the academic foundation reuses the About facts.
+- Share cards: the home card shows the opening's name, head illustration and role; project cards show the title, category, real media (Course Intelligence: its pipeline steps) and my name; the Research card shows the paper title and its status.

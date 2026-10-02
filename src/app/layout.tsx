@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import "@fontsource-variable/manrope";
-import "@fontsource-variable/newsreader";
 import { siteOrigin } from "@/lib/site";
 import "./globals.css";
 

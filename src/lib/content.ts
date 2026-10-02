@@ -279,3 +279,26 @@ export function validateContent(contentRoot?: string): void {
 export function caseHeadings(body: string): string[] {
   return [...body.matchAll(/^## (.+)$/gm)].map((match) => match[1].trim());
 }
+
+/** A URL-safe id from English heading text. */
+export function slugify(text: string) {
+  return text
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+/**
+ * A case study's sections in this language, with ids taken from the English
+ * headings at the same position, so a heading's anchor survives switching
+ * language (validateContent keeps the counts equal).
+ */
+export function caseSections(locale: Locale, slug: string) {
+  const local = getProject(locale, slug)?.body;
+  const english = getProject("en", slug)?.body;
+  if (!local || !english) return [];
+  const ids = caseHeadings(english).map(slugify);
+  return caseHeadings(local).map((label, i) => ({ id: ids[i], label }));
+}

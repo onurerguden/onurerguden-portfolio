@@ -9,7 +9,14 @@ const monthYear = (value: string, locale: Locale) =>
   }).format(new Date(`${value}-01T00:00:00Z`));
 
 /** Degree, academy and publication: the facts a committee looks for first. */
-export default function EducationFacts({ locale }: { locale: Locale }) {
+export default function EducationFacts({
+  locale,
+  publicationHref = "#research",
+}: {
+  locale: Locale;
+  /** Where the paper is on this page. */
+  publicationHref?: string;
+}) {
   const en = locale === "en";
   const { education, academy, publication } = sharedFacts;
   return (
@@ -36,7 +43,7 @@ export default function EducationFacts({ locale }: { locale: Locale }) {
       <div>
         <dt>{en ? "Publication" : "Yayın"}</dt>
         <dd>
-          <a href="#research">IJEA</a>
+          <a href={publicationHref}>IJEA</a>
           <span>{publication.statusLabel[locale]}</span>
         </dd>
       </div>
