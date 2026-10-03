@@ -229,7 +229,11 @@ export default function ActivityLive({
       value: number.format(snapshot.streaks.longest),
       label: en ? "day longest streak" : "günlük en uzun seri",
     },
-    { value: weekdayName, label: en ? "busiest weekday" : "en yoğun gün" },
+    {
+      value: weekdayName,
+      label: en ? "busiest weekday" : "en yoğun gün",
+      text: true,
+    },
   ];
   const tabs = [
     { id: "rolling", label: en ? "Last 12 months" : "Son 12 ay" },
@@ -275,7 +279,9 @@ export default function ActivityLive({
         {stats.map((stat) => (
           <div key={stat.label}>
             <dt>{stat.label}</dt>
-            <dd>{stat.value}</dd>
+            <dd className={stat.text ? styles.statWeekday : undefined}>
+              {stat.value}
+            </dd>
           </div>
         ))}
       </dl>

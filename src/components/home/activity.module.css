@@ -154,6 +154,14 @@
   line-height: 1;
   text-transform: uppercase;
 }
+.stats .statWeekday {
+  font-family: inherit;
+  font-size: clamp(18px, 1.6vw, 22px);
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: none;
+  overflow-wrap: anywhere;
+}
 .tabs {
   display: flex;
   flex-wrap: wrap;

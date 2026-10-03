@@ -1,11 +1,12 @@
 import "server-only";
-import { after } from "next/server";
+import { after, connection } from "next/server";
 import {
   isStale,
   refreshActivity,
   type ActivitySnapshot,
 } from "./activity-core";
 import { createActivityStore } from "./activity-store";
+import { localPreviewEnabled, readPreviewActivity } from "./local-preview-core";
 
 export type ActivityResult =
   | { status: "live"; activity: ActivitySnapshot; revision: number }
@@ -17,6 +18,13 @@ export type ActivityResult =
  * the page says the data is unavailable instead of showing numbers.
  */
 export async function getActivity(): Promise<ActivityResult> {
+  if (localPreviewEnabled()) {
+    await connection();
+    const activity = await readPreviewActivity(process.cwd());
+    return activity
+      ? { status: "live", activity, revision: Date.parse(activity.syncedAt) }
+      : { status: "unavailable" };
+  }
   const store = createActivityStore(1200);
   const token = process.env.GITHUB_TOKEN;
   if (!store) return { status: "unavailable" };
