@@ -61,5 +61,17 @@
     },
     "personalDataReviewed": true,
     "order": 4
+  },
+  {
+    "id": "academy-basic-entrepreneurship",
+    "issuer": "Yapay Zeka ve Teknoloji Akademisi",
+    "issued": "2026-02",
+    "image": {
+      "src": "/images/certificates/academy-basic-entrepreneurship.webp",
+      "width": 1600,
+      "height": 1131
+    },
+    "personalDataReviewed": true,
+    "order": 5
   }
 ]

@@ -23,5 +23,10 @@
     "title": "PyTorch ile uygulamalı bilgisayarlı görü",
     "description": "Katılım belgesi. PyTorch ile CNN’ler, vision transformer’lar, segmentasyon ve nesne tespiti.",
     "alt": "openHPI’nin Onur Ergüden’e Practical Computer Vision with PyTorch eğitimi için verdiği, 21 Mayıs 2025 tarihli katılım belgesi."
+  },
+  "academy-basic-entrepreneurship": {
+    "title": "Temel girişimcilik",
+    "description": "Yapay Zeka ve Teknoloji Akademisi’nden eğitim tamamlama belgesi.",
+    "alt": "Yapay Zeka ve Teknoloji Akademisi’nin Onur Ergüden’e 21 Şubat 2026’da verdiği temel girişimcilik eğitimi tamamlama belgesi."
   }
 }
