@@ -58,3 +58,7 @@ Approved by Onur on 2 October 2026 (the desk-story plan, six PRs). It replaces t
 - **Balls.** No pushing. They drop scattered onto the hill; hovering or tapping a settled ball names it, its category and where it was used in an XP balloon. The Explorer's rise throws them out of the screen; they rain again on the way back.
 - **Evidence.** Every technology, role and service links to where it can be checked (a project, a role or this site's source). A tool without a public example shows nothing; nothing is invented to fill it.
 - **One h1.** The opening's name, labelled "Onur Ergüden, AI engineer".
+
+## October 3: paper About section
+
+Onur requested the About section use the same light background as the desk. About now uses the desk displays' paper `#f5f6f8`, ink text, cobalt links and keyboard focus, and the existing volt primary action. Its floating objects, layout and EN/TR copy stay the same. This is a local exception to the October 2 dark system; the other sections and the Research page's shared education facts retain their dark palette.
