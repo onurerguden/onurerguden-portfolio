@@ -19,7 +19,7 @@
 
 - [ ] Onur reviews the About paragraph and the five What I do rows (EN/TR), including the basketball and tennis line.
 - [ ] Onur confirms the technology list in `src/content/tech-stack.json`.
-- [ ] Onur supplies the certificates folder; each image goes through `npm run certificate` and a personal-data review before `personalDataReviewed: true`.
+- [x] Onur supplied the certificates (4 October 2026). Five selected education credentials passed `npm run certificate` and personal-data review; openHPI emails are omitted from the public raster images. See `docs/qa/selected-certificates/README.md` for the selection and source review.
 - [x] Course Intelligence: the unconfirmed "100% on the quantitative set" sentence was removed (2 October 2026); the case study now describes the evaluation approach. The repository's own 5 / 4 / 1 rating can be added later with Onur's approval.
 - [ ] Optional: TaskFoo and ScoreStack screenshots for the archive card.
 - [ ] Vercel: `GITHUB_TOKEN` (fine-grained, public read-only) and Upstash credentials; call `/api/cron/github` once, then check the activity totals against the GitHub profile.

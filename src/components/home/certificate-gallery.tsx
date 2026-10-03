@@ -69,6 +69,11 @@ export default function CertificateGallery({
               onPointerLeave={rest}
               onClick={(event) => show(index, event.currentTarget)}
               aria-haspopup="dialog"
+              aria-describedby={
+                item.description
+                  ? `certificate-${item.id}-description`
+                  : undefined
+              }
             >
               <span className={styles.media}>
                 {/* The title names the button; the lightbox carries the alt text. */}
@@ -90,6 +95,14 @@ export default function CertificateGallery({
                 </span>
               </span>
             </button>
+            {item.description ? (
+              <p
+                id={`certificate-${item.id}-description`}
+                className={styles.description}
+              >
+                {item.description}
+              </p>
+            ) : null}
           </li>
         ))}
       </ul>
@@ -124,6 +137,19 @@ export default function CertificateGallery({
               </p>
               {current.description ? <p>{current.description}</p> : null}
               <div className={styles.dialogActions}>
+                <a
+                  href={current.image.src}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={
+                    en
+                      ? "Open full-size image (opens in a new tab)"
+                      : "Tam boy görseli aç (yeni sekmede açılır)"
+                  }
+                >
+                  {en ? "Open full-size image" : "Tam boy görseli aç"}
+                  <span aria-hidden="true"> ↗</span>
+                </a>
                 {current.credentialUrl ? (
                   <a href={current.credentialUrl}>
                     {en ? "Verify credential" : "Belgeyi doğrula"}

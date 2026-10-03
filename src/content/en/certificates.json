@@ -1,1 +1,27 @@
-{}
+{
+  "academy-deep-learning": {
+    "title": "Deep learning",
+    "description": "Training completion certificate from the AI and Technology Academy.",
+    "alt": "Deep learning training completion certificate awarded to Onur Ergüden by Yapay Zeka ve Teknoloji Akademisi on May 22, 2026."
+  },
+  "google-project-management": {
+    "title": "Google project management",
+    "description": "Professional certificate · six courses covering traditional and agile project management.",
+    "alt": "Google Project Management Professional Certificate awarded to Onur Ergüden through Coursera on May 25, 2026, listing six completed courses."
+  },
+  "hpi-efficient-ai": {
+    "title": "Efficient AI techniques in the LLM era",
+    "description": "Record of achievement · 80%. Model compression and low-bit quantization for efficient AI.",
+    "alt": "openHPI record of achievement for Onur Ergüden in Sustainability in the Digital Age: Efficient AI Techniques in the LLM Era, June 2025, with 36 out of 45 points (80%)."
+  },
+  "hpi-energy-efficient-software": {
+    "title": "Energy-efficient software development",
+    "description": "Record of achievement · 78.3%. Software energy consumption and LLM performance measurement.",
+    "alt": "openHPI record of achievement for Onur Ergüden in Sustainability in the Digital Age: Energy-Efficient Software Development, April 2025, with 31.3 out of 40 points (78.3%)."
+  },
+  "hpi-computer-vision": {
+    "title": "Practical computer vision with PyTorch",
+    "description": "Participation certificate. CNNs, vision transformers, segmentation and detection with PyTorch.",
+    "alt": "openHPI confirmation of participation for Onur Ergüden in Practical Computer Vision with PyTorch, dated May 21, 2025."
+  }
+}
