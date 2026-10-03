@@ -62,3 +62,7 @@ Approved by Onur on 2 October 2026 (the desk-story plan, six PRs). It replaces t
 ## October 3: paper About section
 
 Onur requested the About section use the same light background as the desk. About now uses the desk displays' paper `#f5f6f8`, ink text, cobalt links and keyboard focus, and the existing volt primary action. Its floating objects, layout and EN/TR copy stay the same. This is a local exception to the October 2 dark system; the other sections and the Research page's shared education facts retain their dark palette.
+
+## October 3: grabbing the technology balls
+
+Onur requested primary-button dragging on the MacBook's technology balls, with gentle movement of neighbouring balls. This supersedes October 2's "No pushing" rule for explicit grabs only; hovering still identifies a tool. A damped spring follows the original grab offset, collisions shift the pile, and a bounded release settles back to idle rendering. Pointer capture ends on release, cancellation, Escape, blur, resize, phase changes or motion pause. Touch keeps native page scrolling and tap-to-pin; the XP dialog's ball selector and left/right buttons offer touch, keyboard and single-click movement. Reduced motion retains the existing static Explorer list.

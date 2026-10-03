@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 import {
   forceSectionScenes,
   go,
@@ -24,9 +25,10 @@ async function hoverABall(page: Page) {
   for (const fy of [0.42, 0.48, 0.54, 0.6, 0.36])
     for (let fx = 0.06; fx < 0.95; fx += 0.035) {
       await page.mouse.move(box.x + box.width * fx, box.y + box.height * fy);
-      if (Number(await canvas.getAttribute("data-selected")) >= 0) return true;
+      if (Number(await canvas.getAttribute("data-selected")) >= 0)
+        return { x: box.x + box.width * fx, y: box.y + box.height * fy };
     }
-  return false;
+  return null;
 }
 
 test.describe("the MacBook's balls", () => {
@@ -96,7 +98,7 @@ test.describe("the MacBook's balls", () => {
     await expect(canvas).toHaveAttribute("data-physics-settled", "true", {
       timeout: 60000,
     });
-    expect(await hoverABall(page)).toBe(true);
+    expect(await hoverABall(page)).toBeTruthy();
     const balloon = page.locator("[data-balloon]");
     await expect(balloon).toBeVisible();
     await expect(balloon.locator("strong")).not.toBeEmpty();
@@ -130,5 +132,119 @@ test.describe("the MacBook's balls", () => {
     await go(page, s.chapters.stack - 0.6);
     await expect(panel).toHaveAttribute("data-takeover", "false");
     await expect(journeyCanvas(page)).toHaveAttribute("data-active", "true");
+  });
+
+  test("left-button dragging moves a ball, releases it and returns to idle rendering", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(
+      isMobile,
+      "Touch uses the native move buttons and keeps page scrolling.",
+    );
+    await page.goto("/en/lab/desk/journey");
+    await ready(page);
+    await go(page, (await story(page)).chapters.stack + 0.2);
+    const canvas = stageCanvas(page, "desk-stack");
+    await expect(canvas).toHaveAttribute("data-physics-settled", "true", {
+      timeout: 60000,
+    });
+    const point = (await hoverABall(page))!;
+    expect(point).toBeTruthy();
+    const index = await canvas.getAttribute("data-selected");
+    const before = Number(await canvas.getAttribute("data-selected-x"));
+    const box = (await page.locator('[data-screen="2"]').boundingBox())!;
+    const direction = point.x > box.x + box.width / 2 ? -1 : 1;
+    await page.mouse.down({ button: "left" });
+    await page.mouse.move(point.x + direction * 80, point.y - 25, {
+      steps: 12,
+    });
+    await expect(canvas).toHaveAttribute("data-dragged", index!);
+    await expect
+      .poll(async () =>
+        Math.abs(Number(await canvas.getAttribute("data-selected-x")) - before),
+      )
+      .toBeGreaterThan(12);
+    await expect(page.locator("[data-balloon]")).toHaveCount(0);
+    await page.mouse.up();
+    await expect(canvas).toHaveAttribute("data-dragged", "-1");
+    await expect(canvas).toHaveAttribute("data-physics-settled", "true", {
+      timeout: 60000,
+    });
+    const frames = await canvas.getAttribute("data-stage-frames");
+    await page.waitForTimeout(800);
+    expect(await canvas.getAttribute("data-stage-frames")).toBe(frames);
+  });
+
+  test("Escape cancels a captured drag and secondary clicks never grab", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(
+      isMobile,
+      "Primary-button mouse gestures are desktop interactions.",
+    );
+    await page.goto("/en/lab/desk/journey");
+    await ready(page);
+    await go(page, (await story(page)).chapters.stack + 0.2);
+    const canvas = stageCanvas(page, "desk-stack");
+    await expect(canvas).toHaveAttribute("data-physics-settled", "true", {
+      timeout: 60000,
+    });
+    const point = (await hoverABall(page))!;
+    expect(point).toBeTruthy();
+    await page.mouse.down({ button: "right" });
+    await page.mouse.move(point.x + 12, point.y - 12);
+    await expect(canvas).toHaveAttribute("data-dragged", "-1");
+    await page.mouse.up({ button: "right" });
+    await page.mouse.move(point.x, point.y);
+    await page.mouse.down();
+    await page.mouse.move(point.x + 20, point.y - 20, { steps: 4 });
+    await expect(canvas).not.toHaveAttribute("data-dragged", "-1");
+    await page.keyboard.press("Escape");
+    await expect(canvas).toHaveAttribute("data-dragged", "-1");
+    await expect(page.locator("[data-xp][data-ball-dragging]")).toHaveCount(0);
+    await page.mouse.up();
+    await expect(page.locator("[data-balloon]")).toHaveCount(0);
+  });
+
+  test("native controls move a chosen ball and pause disables movement", async ({
+    page,
+  }) => {
+    await page.goto("/tr/lab/desk/journey");
+    await ready(page);
+    await go(page, (await story(page)).chapters.stack + 0.2);
+    const canvas = stageCanvas(page, "desk-stack");
+    await expect(canvas).toHaveAttribute("data-physics-settled", "true", {
+      timeout: 60000,
+    });
+    const selector = page.getByRole("combobox", {
+      name: "Hareket ettirilecek topu seç",
+    });
+    await selector.selectOption("1");
+    const right = page.getByRole("button", {
+      name: /topunu sağa hareket ettir/,
+    });
+    await right.focus();
+    await right.press("Enter");
+    await expect(canvas).toHaveAttribute("data-physics-settled", "false");
+    const audit = await new AxeBuilder({ page })
+      .include("[data-ball-controls]")
+      .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+      .analyze();
+    expect(audit.violations).toEqual([]);
+    await page.getByRole("button", { name: "start", exact: true }).click();
+    const pause = page.getByRole("menuitemcheckbox", {
+      name: "Hareketi duraklat",
+    });
+    await pause.focus();
+    await pause.press("Space");
+    await expect(right).toBeDisabled();
+    await expect(canvas).toHaveAttribute("data-stage-active", "false");
+    const frames = await canvas.getAttribute("data-stage-frames");
+    await page.waitForTimeout(800);
+    expect(await canvas.getAttribute("data-stage-frames")).toBe(frames);
+    await pause.press("Space");
+    await expect(right).toBeEnabled();
   });
 });

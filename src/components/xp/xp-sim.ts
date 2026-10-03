@@ -7,7 +7,7 @@ const SEED = 0x7ec5;
 
 /**
  * - idle: parked above the screen, waiting for the desktop to appear.
- * - dropping: falling, scattered, onto the hill.
+ * - dropping: falling onto the hill or moving after a grab / nudge.
  * - resting: settled; nothing renders until something changes.
  * - launched: thrown up and out by the rising Explorer window.
  */
@@ -61,6 +61,7 @@ export function resetWorld(radii: number[], width: number, height: number) {
 export function applyPhase(phase: LaptopPhase) {
   const world = sim.world;
   if (!world) return;
+  if (phase !== "desk") world.endDrag(true);
   if (phase === "away" || phase === "near") {
     if (sim.mode !== "idle") resetWorld(sim.radii, sim.width, sim.height);
   } else if (phase === "desk") {
@@ -105,4 +106,39 @@ export function ballAt(x: number, y: number) {
     }
   }
   return best;
+}
+
+/** Pointer movement stays outside React; the demand-rendered scene wakes up. */
+export function grabBall(index: number, x: number, y: number) {
+  if (
+    sim.mode === "idle" ||
+    sim.mode === "launched" ||
+    !sim.world?.beginDrag(index, x, y)
+  )
+    return false;
+  sim.mode = "dropping";
+  sim.invalidate();
+  return true;
+}
+
+export function moveBall(x: number, y: number) {
+  sim.world?.moveDrag(x, y);
+  sim.invalidate();
+}
+
+export function releaseBall(cancel = false) {
+  sim.world?.endDrag(cancel);
+  sim.invalidate();
+}
+
+export function nudgeBall(index: number, direction: -1 | 1) {
+  if (
+    sim.mode === "idle" ||
+    sim.mode === "launched" ||
+    !sim.world?.nudge(index, direction)
+  )
+    return false;
+  sim.mode = "dropping";
+  sim.invalidate();
+  return true;
 }

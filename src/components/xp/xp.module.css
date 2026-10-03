@@ -25,6 +25,48 @@
   isolation: isolate;
   font-family: Tahoma, "Segoe UI", system-ui, sans-serif;
 }
+.desktop[data-ball-grabbable="true"] {
+  cursor: grab;
+}
+.desktop[data-ball-dragging="true"] {
+  cursor: grabbing;
+  user-select: none;
+}
+.ballMoves {
+  display: flex;
+  gap: calc(6 * var(--u));
+  padding: 0 calc(12 * var(--u)) calc(12 * var(--u));
+}
+.ballMoves select,
+.ballMoves button {
+  min-height: calc(44 * var(--u));
+  border: var(--u) solid #7f9db9;
+  border-radius: calc(3 * var(--u));
+  background: #fff;
+  color: #17212b;
+  font: inherit;
+}
+.ballMoves select {
+  flex: 1;
+  min-width: 0;
+  padding-inline: calc(6 * var(--u));
+}
+.ballMoves button {
+  min-width: calc(44 * var(--u));
+  cursor: pointer;
+}
+.ballMoves button:hover:not(:disabled) {
+  background: #d9e9ff;
+}
+.ballMoves button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.ballMoves select:focus-visible,
+.ballMoves button:focus-visible {
+  outline: calc(3 * var(--u)) solid #1947e5;
+  outline-offset: calc(2 * var(--u));
+}
 /* In the page the photo takes one screen; the open list follows it. */
 .page .desktop {
   height: auto;

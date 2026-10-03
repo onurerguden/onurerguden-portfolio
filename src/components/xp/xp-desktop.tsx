@@ -105,9 +105,10 @@ export default function XpDesktop({ locale }: { locale: Locale }) {
           </div>
           <p className={styles.withBalls}>
             {en
-              ? "Every ball is a tool from my own projects. Hover over one to see which."
-              : "Her top kendi projelerimde kullandığım bir araç. Üzerine gel, hangisi olduğunu gör."}
+              ? "Every ball is a tool from my own projects. Hover to identify it; drag to move it, or use the arrows below."
+              : "Her top kendi projelerimde kullandığım bir araç. Üzerine gel, hangisi olduğunu gör; sürükle ya da aşağıdaki oklarla hareket ettir."}
           </p>
+          <div data-ball-controls />
           <p className={styles.withoutBalls}>
             {en
               ? "Every tool here comes from my own projects; the list says where."

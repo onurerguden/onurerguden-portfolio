@@ -65,6 +65,9 @@ const SOLVER_ITERATIONS = 6;
 /** After this long, a pile where every ball is slow is put to sleep. */
 const SETTLE_AFTER = 6;
 const SETTLE_SPEED = 40;
+const DRAG_STIFFNESS = 180;
+const DRAG_DAMPING = 26;
+const DRAG_SPEED = 700;
 
 export type BallWorld = ReturnType<typeof createBallWorld>;
 
@@ -104,6 +107,13 @@ export function createBallWorld(options: BallWorldOptions) {
   let floor: Floor | null = null;
   let walls: Walls = { left: true, right: true, top: false, bottom: true };
   let pointer: PointerBody | null = null;
+  let drag: {
+    index: number;
+    x: number;
+    y: number;
+    offsetX: number;
+    offsetY: number;
+  } | null = null;
   let accumulator = 0;
   let sinceWake = 0;
 
@@ -214,15 +224,15 @@ export function createBallWorld(options: BallWorldOptions) {
         const reach = radii[i] + radii[j];
         const distanceSq = dx * dx + dy * dy;
         if (distanceSq >= reach * reach) continue;
-        const distance = Math.sqrt(distanceSq) || 1e-6;
-        const nx = dx / distance;
-        const ny = dy / distance;
+        const distance = Math.sqrt(distanceSq);
+        const nx = distance > 1e-6 ? dx / distance : 1;
+        const ny = distance > 1e-6 ? dy / distance : 0;
         const vn = (vx[j] - vx[i]) * nx + (vy[j] - vy[i]) * ny;
         // A sleeping ball supports an awake one like a static surface unless
         // the impact is hard enough to wake it.
         if (!awake[i] || !awake[j]) {
           const sleeper = awake[i] ? j : i;
-          if (-vn > WAKE_SPEED) wake(sleeper);
+          if (drag || -vn > WAKE_SPEED) wake(sleeper);
           else {
             const mover = sleeper === i ? j : i;
             const sign = mover === j ? 1 : -1;
@@ -288,7 +298,20 @@ export function createBallWorld(options: BallWorldOptions) {
     const angular = Math.max(0, 1 - angularDamping * dt);
     for (let i = 0; i < count; i++) {
       if (!awake[i]) continue;
-      vy[i] += gravity * dt;
+      if (drag?.index === i) {
+        // A damped spring follows the grab point without teleporting through
+        // neighbours. Gravity is suspended only for the held ball.
+        vx[i] +=
+          (DRAG_STIFFNESS * (drag.x - px[i]) - DRAG_DAMPING * vx[i]) * dt;
+        vy[i] +=
+          (DRAG_STIFFNESS * (drag.y - py[i]) - DRAG_DAMPING * vy[i]) * dt;
+        const speed = Math.hypot(vx[i], vy[i]);
+        if (speed > DRAG_SPEED) {
+          vx[i] *= DRAG_SPEED / speed;
+          vy[i] *= DRAG_SPEED / speed;
+        }
+        wz[i] = vx[i] / radii[i];
+      } else vy[i] += gravity * dt;
       vx[i] *= linear;
       vy[i] *= linear;
       px[i] += vx[i] * dt;
@@ -327,7 +350,12 @@ export function createBallWorld(options: BallWorldOptions) {
       }
       rotate(i, dt);
       const spin = Math.hypot(wx[i], wy[i], wz[i]);
-      if (touching[i] && speed < SLEEP_SPEED && spin < SLEEP_SPIN) {
+      if (
+        drag?.index !== i &&
+        touching[i] &&
+        speed < SLEEP_SPEED &&
+        spin < SLEEP_SPIN
+      ) {
         restTime[i] += dt;
         if (restTime[i] > SLEEP_TIME) {
           awake[i] = 0;
@@ -398,12 +426,14 @@ export function createBallWorld(options: BallWorldOptions) {
   }
 
   function settled() {
+    if (drag) return false;
     for (let i = 0; i < count; i++) if (awake[i]) return false;
     return true;
   }
 
   /** A pile that has been slow for a while stops for good (no endless jitter). */
   function settleSlowPile(dt: number) {
+    if (drag) return;
     sinceWake += dt;
     if (sinceWake < SETTLE_AFTER) return;
     for (let i = 0; i < count; i++)
@@ -423,6 +453,9 @@ export function createBallWorld(options: BallWorldOptions) {
     vy,
     q,
     awake,
+    get draggedIndex() {
+      return drag?.index ?? -1;
+    },
     get width() {
       return width;
     },
@@ -445,6 +478,7 @@ export function createBallWorld(options: BallWorldOptions) {
     /** Rescales positions proportionally so a resize keeps the composition. */
     resize(nextWidth: number, nextHeight: number) {
       if (nextWidth <= 0 || nextHeight <= 0) return;
+      drag = null;
       const sx = nextWidth / width;
       const sy = nextHeight / height;
       for (let i = 0; i < count; i++) {
@@ -457,6 +491,7 @@ export function createBallWorld(options: BallWorldOptions) {
     },
     /** Places every ball above the stage in a loose, seeded column stack. */
     spawnAbove(spread = 1) {
+      drag = null;
       const columns = Math.max(1, Math.floor(width / (radii[0] * 2.6)));
       for (let i = 0; i < count; i++) {
         const column = i % columns;
@@ -509,6 +544,52 @@ export function createBallWorld(options: BallWorldOptions) {
     },
     setPointer(next: PointerBody | null) {
       pointer = next;
+    },
+    /** Keeps the original grab offset, including a grab near a ball's edge. */
+    beginDrag(index: number, x: number, y: number) {
+      if (
+        !Number.isInteger(index) ||
+        index < 0 ||
+        index >= count ||
+        !Number.isFinite(x) ||
+        !Number.isFinite(y)
+      )
+        return false;
+      drag = {
+        index,
+        x: px[index],
+        y: py[index],
+        offsetX: px[index] - x,
+        offsetY: py[index] - y,
+      };
+      wakeAll();
+      return true;
+    },
+    moveDrag(x: number, y: number) {
+      if (!drag || !Number.isFinite(x) || !Number.isFinite(y)) return;
+      const r = radii[drag.index];
+      drag.x = Math.max(r, Math.min(width - r, x + drag.offsetX));
+      drag.y = Math.max(r, Math.min(height - r, y + drag.offsetY));
+    },
+    /** A short, bounded coast on release; cancellation adds no throw. */
+    endDrag(cancel = false) {
+      if (!drag) return;
+      const i = drag.index;
+      const speed = Math.hypot(vx[i], vy[i]);
+      const scale = cancel ? 0 : Math.min(0.25, 180 / (speed || 1));
+      vx[i] = cancel ? 0 : vx[i] * scale;
+      vy[i] = cancel ? 0 : vy[i] * scale;
+      drag = null;
+      sinceWake = 0;
+      wake(i);
+    },
+    /** A single-click / keyboard alternative to moving a ball by dragging. */
+    nudge(index: number, direction: -1 | 1) {
+      if (!Number.isInteger(index) || index < 0 || index >= count) return false;
+      drag = null;
+      vx[index] = direction * 180;
+      wakeAll();
+      return true;
     },
     /** Advances by real time with a fixed step; returns steps taken. */
     advance(dt: number) {
