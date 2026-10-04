@@ -41,7 +41,13 @@ test("reduced motion shows only the original photograph", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/en");
   await hydrated(page);
-  await page.locator("#stack").scrollIntoViewIfNeeded();
+  // The wallpaper sits at the top of the section, which the full technology
+  // list makes taller than the view.
+  await page.evaluate(() =>
+    document
+      .getElementById("stack")
+      ?.scrollIntoView({ block: "start", behavior: "instant" }),
+  );
   await expect
     .poll(() => requested.filter((url) => url.includes("/original-")).length)
     .toBeGreaterThan(0);
