@@ -4,10 +4,7 @@
     "summary": "Değerli metal varlıklarını, portföy analizini ve yerel kuyumcuları bir araya getiren mobil ekosistem. Ürünü birlikte geliştirdim ve yapay zekâ özellikleri üzerinde çalıştım.",
     "category": "Ürün geliştirme · uygulamalı yapay zekâ",
     "role": "Ortak geliştirici · AI özellikleri",
-    "mediaAlt": [
-      "Kuyumcum kuyumcu keşif haritası",
-      "Kuyumcum AI rapor listesi"
-    ]
+    "mediaAlt": ["Kuyumcum kuyumcu keşif haritası", "Kuyumcum AI rapor listesi"]
   },
   "water-safety": {
     "title": "HealthFactor-AI",
