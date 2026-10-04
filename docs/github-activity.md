@@ -1,11 +1,12 @@
 # GitHub activity
 
-The home page's activity section shows my contribution calendar for every year since the account was created, the last twelve months' totals (commits, pull requests, reviews and private contributions counted without detail), current and longest streaks, the busiest weekday, the language mix of my public repositories and recent public events. It updates itself when I commit.
+The home page's activity section shows my contribution calendar for every year since the account was created, three last-twelve-month totals (contributions, commits and pull requests), the three largest language shares of my public repositories and the three newest public pushes, pull requests or releases. Private contributions are counted without detail. It updates itself when I commit.
 
 ## Data and privacy
 
 - **Source.** One or two GraphQL queries (`contributionsCollection` per year plus the rolling window, and repository languages) and the public events feed `GET /users/onurerguden/events/public`. Both use the existing server-only `GITHUB_TOKEN`; a fine-grained, read-only token for public data is enough.
 - **Private work** appears only as GitHub's own anonymous counts. Per-repository detail, commit messages and pull request titles are never requested or stored. Events keep only kind, repository name, time and numbers; links are built at render time as `https://github.com/{repo}`.
+- **Compact view.** Creation events are excluded before storing the latest twelve public events; the browser also filters legacy snapshots and displays the latest three. Equal timestamps preserve provider order. Language percentages retain their share of all public repository language bytes, rather than being normalized to the three visible languages. Hidden events never advance the visitor's seen timestamp. The v1 snapshot schema still accepts older creation events, and retains the full calendar/statistic data.
 - **Completeness.** A year is committed only if its days add up to GitHub's own total for that year, and a GraphQL error inside an HTTP 200 counts as a failure. Nothing partial replaces a complete snapshot.
 
 ## Storage

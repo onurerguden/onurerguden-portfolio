@@ -6,7 +6,10 @@ import {
   isFairBaseline,
   newContributions,
   parseSnapshot,
+  recentEvents,
+  shortEventAction,
   timeAgo,
+  topLanguages,
 } from "@/lib/activity-view";
 import { useMinute } from "@/lib/use-minute";
 import ActivityUnavailable from "./activity-unavailable";
@@ -29,10 +32,6 @@ function formatsFor(tag: string) {
     percent: new Intl.NumberFormat(tag, {
       style: "percent",
       maximumFractionDigits: 1,
-    }),
-    weekday: new Intl.DateTimeFormat(tag, {
-      weekday: "long",
-      timeZone: "UTC",
     }),
     synced: new Intl.DateTimeFormat(tag, {
       dateStyle: "medium",
@@ -172,9 +171,8 @@ export default function ActivityLive({
 
   // Events only count as seen once the list has actually been on screen.
   const list = useRef<HTMLOListElement>(null);
-  const newest = snapshot
-    ? Math.max(0, ...snapshot.events.map((event) => Date.parse(event.at)))
-    : 0;
+  const events = snapshot ? recentEvents(snapshot.events) : [];
+  const newest = events.length ? Date.parse(events[0].at) : 0;
   useEffect(() => {
     const node = list.current;
     if (!node || !newest) return;
@@ -202,16 +200,12 @@ export default function ActivityLive({
     tab === "rolling"
       ? snapshot.rolling
       : (years.find((year) => String(year.year) === tab) ?? snapshot.rolling);
-  const weekday = snapshot.busiestWeekday;
-  const weekdayName =
-    weekday === null
-      ? "—"
-      : format.weekday.format(Date.UTC(2026, 0, 4 + weekday));
+  const languages = topLanguages(snapshot.languages);
   const synced = Date.parse(snapshot.syncedAt);
   const stats = [
     {
       value: number.format(snapshot.rolling.total),
-      label: en ? "contributions in the last 12 months" : "son 12 aydaki katkı",
+      label: en ? "contributions" : "katkı",
     },
     {
       value: number.format(snapshot.rolling.commits),
@@ -220,19 +214,6 @@ export default function ActivityLive({
     {
       value: number.format(snapshot.rolling.pullRequests),
       label: en ? "pull requests" : "pull request",
-    },
-    {
-      value: number.format(snapshot.streaks.current),
-      label: en ? "day current streak" : "günlük güncel seri",
-    },
-    {
-      value: number.format(snapshot.streaks.longest),
-      label: en ? "day longest streak" : "günlük en uzun seri",
-    },
-    {
-      value: weekdayName,
-      label: en ? "busiest weekday" : "en yoğun gün",
-      text: true,
     },
   ];
   const tabs = [
@@ -275,13 +256,14 @@ export default function ActivityLive({
             : `Geldiğinden beri ${fresh} yeni katkı`
           : ""}
       </p>
-      <dl className={styles.stats}>
+      <p id="activity-stats-period" className={styles.statPeriod}>
+        {en ? "Last 12 months" : "Son 12 ay"}
+      </p>
+      <dl className={styles.stats} aria-labelledby="activity-stats-period">
         {stats.map((stat) => (
           <div key={stat.label}>
             <dt>{stat.label}</dt>
-            <dd className={stat.text ? styles.statWeekday : undefined}>
-              {stat.value}
-            </dd>
+            <dd>{stat.value}</dd>
           </div>
         ))}
       </dl>
@@ -334,67 +316,56 @@ export default function ActivityLive({
         </div>
       </div>
       <div className={styles.lower}>
-        <div>
+        <div className={styles.panel}>
           <h3 className={styles.subhead}>
-            {en
-              ? "Languages in public repositories"
-              : "Herkese açık depolardaki diller"}
+            {en ? "Public repo languages" : "Açık depo dilleri"}
           </h3>
-          {snapshot.languages.length ? (
-            <>
-              <div className={styles.bar} aria-hidden="true">
-                {snapshot.languages.map((language, i) => (
+          {languages.length ? (
+            <ul className={styles.languages}>
+              {languages.map((language, i) => (
+                <li key={language.name}>
                   <span
-                    key={language.name}
-                    style={{ flexGrow: language.share }}
+                    className={styles.swatch}
                     data-slot={i}
+                    aria-hidden="true"
                   />
-                ))}
-              </div>
-              <ul className={styles.languages}>
-                {snapshot.languages.map((language, i) => (
-                  <li key={language.name}>
-                    <span
-                      className={styles.swatch}
-                      data-slot={i}
-                      aria-hidden="true"
-                    />
-                    {language.name}
-                    <span>{format.percent.format(language.share / 100)}</span>
-                  </li>
-                ))}
-              </ul>
-            </>
+                  <span className={styles.languageName}>{language.name}</span>
+                  <span>{format.percent.format(language.share / 100)}</span>
+                </li>
+              ))}
+            </ul>
           ) : (
             <p className={styles.empty}>
               {en ? "No language data yet." : "Henüz dil verisi yok."}
             </p>
           )}
         </div>
-        <div>
+        <div className={styles.panel}>
           <h3 className={styles.subhead}>
-            {en ? "Recent public activity" : "Son herkese açık hareketler"}
+            {en ? "Latest updates" : "Son güncellemeler"}
           </h3>
-          {snapshot.events.length ? (
+          {events.length ? (
             <ol ref={list} className={styles.events}>
-              {snapshot.events.map((event) => {
+              {events.map((event) => {
                 const at = Date.parse(event.at);
+                const repoName = event.repo.split("/")[1];
+                const action = shortEventAction(event, locale);
                 return (
                   <li key={event.id}>
-                    <a href={`https://github.com/${event.repo}`}>
-                      {describeEvent(event, locale)}
+                    <a
+                      href={`https://github.com/${event.repo}`}
+                      aria-label={`${repoName} ${action}. ${describeEvent(event, locale)}`}
+                    >
+                      <span className={styles.repo}>{repoName}</span>
+                      <span className={styles.action}>{action}</span>
                     </a>
                     <span className={styles.when}>
+                      <time dateTime={event.at}>{format.day.format(at)}</time>
                       {seen !== null && at > seen ? (
                         <span className={styles.newBadge}>
                           {en ? "New" : "Yeni"}
                         </span>
                       ) : null}
-                      <time dateTime={event.at}>
-                        {now === null
-                          ? format.day.format(at)
-                          : timeAgo(at, now, locale)}
-                      </time>
                     </span>
                   </li>
                 );
@@ -405,14 +376,16 @@ export default function ActivityLive({
               {en
                 ? "No public pushes, pull requests or releases lately. "
                 : "Son zamanlarda herkese açık bir push, pull request ya da sürüm yok. "}
-              <a href={profile}>
-                {en ? "See my profile on GitHub" : "GitHub profilime bak"}
-                <span aria-hidden="true"> ↗</span>
-              </a>
             </p>
           )}
         </div>
       </div>
+      <p className={styles.profile}>
+        <a href={profile}>
+          {en ? "See my profile on GitHub" : "GitHub profilime bak"}
+          <span aria-hidden="true"> ↗</span>
+        </a>
+      </p>
     </div>
   );
 }

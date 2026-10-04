@@ -10,7 +10,7 @@ for (const locale of ["en", "tr"]) {
   test(`${locale}: real GitHub activity and public repositories are connected`, async ({
     page,
     request,
-  }) => {
+  }, testInfo) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     const response = await request.get("/api/github/activity");
     expect(response.status()).toBe(200);
@@ -43,7 +43,7 @@ for (const locale of ["en", "tr"]) {
 
     await page.goto(`/${locale}#activity`);
     const section = page.locator("#activity");
-    await expect(section.locator("dd")).toHaveCount(6);
+    await expect(section.locator("dd")).toHaveCount(3);
     expect(
       await section
         .locator("dd")
@@ -78,6 +78,10 @@ for (const locale of ["en", "tr"]) {
           .analyze()
       ).violations,
     ).toEqual([]);
+    await testInfo.attach("github-compact", {
+      body: await section.screenshot({ type: "jpeg", quality: 85 }),
+      contentType: "image/jpeg",
+    });
 
     await page.goto(`/${locale}/projects#github-title`);
     const repos = page.locator("section[aria-labelledby='github-title']");

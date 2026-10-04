@@ -24,6 +24,7 @@
 - [ ] Optional: TaskFoo and ScoreStack screenshots for the archive card.
 - [ ] Vercel: `GITHUB_TOKEN` (fine-grained, public read-only) and Upstash credentials; call `/api/cron/github` once, then check the activity totals against the GitHub profile.
 - [x] Local GitHub connection verified with Onur's authenticated CLI (4 October 2026): real contribution calendars, public events and public repository metadata, refreshed by `npm run preview:github`. Credentials are kept in the sync process's memory; hosted configuration above remains pending. See `docs/qa/github-connected/README.md`.
+- [x] Compact GitHub panels and certificate paper stacks verified (4 October 2026): three metrics/languages/updates, equal panel bounds, genuine percentages and six complete document images. EN/TR desktop/mobile Chromium and mobile WebKit, keyboard, motion preferences and axe checks passed. See `docs/qa/github-certificates-polish/README.md`.
 - [ ] Physical iPhone Safari pass: About objects, balls, desk release and restore, memory and context loss.
 
 ## Desk story (October 2026)

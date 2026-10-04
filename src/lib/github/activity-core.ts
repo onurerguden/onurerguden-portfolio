@@ -277,7 +277,7 @@ const eventSchema = z.object({
   payload: z.record(z.string(), z.unknown()),
 });
 
-/** Keeps pushes, pull requests, new repositories/branches/tags and releases. */
+/** Keeps the latest public pushes, pull requests and releases. */
 export function mapEvents(raw: unknown): ActivityEvent[] {
   const events: ActivityEvent[] = [];
   for (const item of z.array(z.unknown()).parse(raw)) {
@@ -310,16 +310,14 @@ export function mapEvents(raw: unknown): ActivityEvent[] {
           action,
           number: typeof payload.number === "number" ? payload.number : 0,
         });
-    } else if (type === "CreateEvent") {
-      const ref = payload.ref_type;
-      if (ref === "repository" || ref === "branch" || ref === "tag")
-        events.push({ ...base, kind: "create", ref, name: text(payload.ref) });
     } else if (type === "ReleaseEvent") {
       const release = (payload.release ?? {}) as { tag_name?: unknown };
       events.push({ ...base, kind: "release", tag: text(release.tag_name) });
     }
   }
-  return events.slice(0, 12);
+  return events
+    .sort((a, b) => Date.parse(b.at) - Date.parse(a.at))
+    .slice(0, 12);
 }
 
 async function fetchEvents(
