@@ -69,11 +69,7 @@ for (const locale of ["en", "tr"] as const) {
       if (!journey)
         await expect
           .poll(async () =>
-            Math.max(
-              ...(await canvas.getAttribute("data-drawer-offsets"))!
-                .split(",")
-                .map(Number),
-            ),
+            Number(await canvas.getAttribute("data-drawer-peak")),
           )
           .toBeGreaterThan(0);
       await page.waitForTimeout(400);
