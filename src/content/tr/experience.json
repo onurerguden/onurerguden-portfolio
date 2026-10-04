@@ -2,8 +2,8 @@
   "fin-ai-engineer": {
     "role": "AI mühendisi",
     "highlights": [
-      "Full-stack, müşteriye yönelik AI uygulamaları.",
-      "LangChain ve LangGraph ile agentic iş akışları.",
+      "FastAPI ile sunulan full-stack, müşteriye yönelik AI uygulamaları.",
+      "OpenAI, Anthropic ve Gemini API’leri üzerinde LangChain ve LangGraph ile agentic iş akışları.",
       "RAG pipeline’ları için Qdrant tabanlı bilgi getirme mimarileri."
     ]
   },

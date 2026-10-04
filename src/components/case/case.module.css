@@ -105,6 +105,38 @@
   font-size: 14px;
   line-height: 1.5;
 }
+/* Emails and other flat screens: three pages side by side, captioned. */
+.screens {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(12px, 2vw, 24px);
+  margin-top: clamp(16px, 2.4vw, 28px);
+  padding: clamp(16px, 3vw, 36px);
+  border: 1px solid var(--hairline);
+  border-radius: 24px;
+  background: var(--surface-1);
+}
+.screen {
+  margin: 0;
+}
+.screen img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 18px 40px #02050d80;
+}
+.screen figcaption {
+  margin-top: 10px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+@media (max-width: 700px) {
+  .screens {
+    grid-template-columns: 1fr;
+  }
+}
 .diagram {
   padding: clamp(14px, 2.4vw, 28px);
   border: 1px solid var(--hairline);

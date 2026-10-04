@@ -2,8 +2,8 @@
   "fin-ai-engineer": {
     "role": "AI engineer",
     "highlights": [
-      "Full-stack, client-facing AI applications.",
-      "Agentic workflows with LangChain and LangGraph.",
+      "Full-stack, client-facing AI applications served with FastAPI.",
+      "Agentic workflows with LangChain and LangGraph over the OpenAI, Anthropic and Gemini APIs.",
       "Qdrant-based retrieval architectures for RAG pipelines."
     ]
   },

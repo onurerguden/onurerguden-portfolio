@@ -5,9 +5,9 @@
     "proofLabel": "Course Intelligence’a bak"
   },
   "agents": {
-    "title": "Agentic iş akışları",
-    "description": "Plan yapan, araç çağıran ve gerektiğinde bir insana devreden LangChain ve LangGraph iş akışları.",
-    "proofLabel": "Future Is Now’daki işime bak"
+    "title": "Araç çağıran ajanlar",
+    "description": "LangGraph ve MCP üzerinden gerçek araçları çağıran ajanlar: korumalı döngüler, her yazmada şema doğrulaması ve gereken yerde insan onayı.",
+    "proofLabel": "GymRap AI Coach’a bak"
   },
   "ml": {
     "title": "ML modelleri ve değerlendirme",

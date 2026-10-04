@@ -40,5 +40,26 @@
     "title": "Modüler kimlik doğrulama",
     "summary": "Dört kişilik bir ders projesi: Local, LDAP ve Kerberos sağlayıcılarını ortak bir Java arayüzünde buluşturan, Adapter ve Factory Method örüntüleriyle genişletilebilir tutulan kimlik doğrulama sistemi.",
     "category": "Yazılım mimarisi"
+  },
+  "gymrap-ai-coach": {
+    "title": "GymRap AI Coach",
+    "summary": "Health Connect, Cloudflare ve OAuth korumalı bir MCP sunucusu üzerinde çalışan kişisel kuvvet koçu. Test edilmiş, deterministik analiz sunucuda yapılıyor; ChatGPT bunu MCP üzerinden okuyup koçluk yorumunu yazıyor.",
+    "category": "MCP · ajan araçları",
+    "role": "Uçtan uca tasarım ve geliştirme",
+    "mediaAlt": [
+      "Günlük koç raporu e-postası, sentetik veriyle",
+      "Antrenman sonrası rapor e-postası, sentetik veriyle",
+      "Nabız bölgeleri ve kas grubu başına haftalık setler, sentetik veriyle"
+    ]
+  },
+  "carbonpilot": {
+    "title": "CarbonPilot AI",
+    "summary": "Beş kişilik Google AI & Technology Academy bitirme projesi: CBAM kapsamındaki ihracatçılar için deterministik emisyon hesaplaması ve korumalı bir LangGraph ajanıyla karbon muhasebesi. Benim payım: döngü, zaman aşımı ve yedek korumalarıyla ajan grafiği, Gemini ile veri çıkarımı, LangSmith izleme ve PDF/JSON raporlar.",
+    "category": "Agentic iş akışları · ekip projesi"
+  },
+  "voiceops": {
+    "title": "VoiceOps",
+    "summary": "Google hackathon projesi: depo çalışanları için konuşmayı stok verisi üzerinde Gemini function calling çağrılarına dönüştüren Türkçe sesli asistan. Benim payım uygulama iskeletiydi.",
+    "category": "Sesli ajanlar · hackathon"
   }
 }

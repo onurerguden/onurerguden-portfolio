@@ -5,9 +5,9 @@
     "proofLabel": "See Course Intelligence"
   },
   "agents": {
-    "title": "Agentic workflows",
-    "description": "LangChain and LangGraph workflows that plan, call tools and hand off to a person when they should.",
-    "proofLabel": "See my work at Future Is Now"
+    "title": "Tool-calling agents",
+    "description": "Agents that call real tools through LangGraph and MCP: guarded loops, schemas on every write and a person in the loop where it matters.",
+    "proofLabel": "See GymRap AI Coach"
   },
   "ml": {
     "title": "ML models & evaluation",

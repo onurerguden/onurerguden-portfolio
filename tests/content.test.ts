@@ -35,12 +35,12 @@ afterEach(() =>
 );
 
 describe("bilingual portfolio content", () => {
-  it("provides three complete case studies and three summaries in each language", () => {
+  it("provides four complete case studies and five archive entries in each language", () => {
     expect(() => validateContent()).not.toThrow();
     for (const locale of ["en", "tr"] as const) {
       const projects = getProjects(locale);
-      expect(projects).toHaveLength(6);
-      expect(projects.filter((project) => project.body)).toHaveLength(3);
+      expect(projects).toHaveLength(9);
+      expect(projects.filter((project) => project.body)).toHaveLength(4);
       expect(
         projects
           .filter((project) => !project.featured)
@@ -123,7 +123,7 @@ describe("home section content", () => {
     );
     expect(getServices("en").map((s) => s.href)).toEqual([
       "/en/projects/course-intelligence",
-      "#experience",
+      "/en/projects/gymrap-ai-coach",
       "/en/projects/water-safety",
       "/en/projects#taskfoo",
       "/en/projects/kuyumcum",
@@ -235,7 +235,7 @@ describe("home section content", () => {
 describe("technology evidence", () => {
   it("links technologies to projects, roles or this site", () => {
     const items = getTechStack("en").flatMap((category) => category.items);
-    expect(items).toHaveLength(32);
+    expect(items).toHaveLength(41);
     const evidence = (id: string) =>
       items.find((item) => item.id === id)?.evidence ?? [];
     expect(evidence("python").map((proof) => proof.href)).toEqual([
@@ -245,6 +245,15 @@ describe("technology evidence", () => {
     ]);
     expect(evidence("langgraph")).toEqual([
       expect.objectContaining({ kind: "experience", label: "Future Is Now" }),
+      expect.objectContaining({ href: "/en/projects#carbonpilot" }),
+    ]);
+    expect(evidence("mcp").map((proof) => proof.href)).toEqual([
+      "/en/projects/gymrap-ai-coach",
+    ]);
+    // Docker is shown only where it was used: the VBT internship and CarbonPilot.
+    expect(evidence("docker").map((proof) => proof.href)).toEqual([
+      "#experience",
+      "/en/projects#carbonpilot",
     ]);
     expect(evidence("threejs")).toEqual([
       expect.objectContaining({ kind: "site", external: true }),

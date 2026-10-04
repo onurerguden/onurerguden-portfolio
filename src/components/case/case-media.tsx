@@ -1,12 +1,13 @@
 import Image from "next/image";
 import type { Project } from "@/lib/content";
-import RagDiagram from "./rag-diagram";
+import RagDiagram, { GymrapDiagram } from "./flow-diagrams";
 import styles from "./case.module.css";
 
 /**
- * A case study's real media: Kuyumcum's two approved screens in device
- * frames, HealthFactor-AI's figures with captions, and Course Intelligence's
- * conceptual diagram. Nothing is drawn in place of a missing screenshot.
+ * A case study's real media: app screens in device frames, other screens
+ * (emails) flat, figures with captions, and a conceptual diagram where the
+ * case study names its pipeline. Nothing is drawn in place of a missing
+ * screenshot.
  */
 export default function CaseMedia({
   project,
@@ -15,21 +16,34 @@ export default function CaseMedia({
   project: Project;
   locale: "en" | "tr";
 }) {
-  if (project.slug === "course-intelligence")
-    return (
-      <div className={styles.diagram}>
-        <RagDiagram locale={locale} />
-      </div>
-    );
+  const diagram =
+    project.slug === "course-intelligence" ? (
+      <RagDiagram locale={locale} />
+    ) : project.slug === "gymrap-ai-coach" ? (
+      <GymrapDiagram locale={locale} />
+    ) : null;
   const media = project.media ?? [];
-  if (!media.length) return null;
-  const phones = media.every((item) => item.height > item.width);
-  return (
-    <div className={phones ? styles.phones : styles.figures}>
+  const kind = media[0]?.kind;
+  const gallery = !media.length ? null : (
+    <div
+      className={
+        kind === "phone"
+          ? styles.phones
+          : kind === "screen"
+            ? styles.screens
+            : styles.figures
+      }
+    >
       {media.map((item, i) => (
         <figure
           key={item.src}
-          className={phones ? styles.phone : styles.figure}
+          className={
+            kind === "phone"
+              ? styles.phone
+              : kind === "screen"
+                ? styles.screen
+                : styles.figure
+          }
         >
           <Image
             src={item.src}
@@ -37,15 +51,22 @@ export default function CaseMedia({
             width={item.width}
             height={item.height}
             sizes={
-              phones
-                ? "(max-width: 700px) 44vw, 300px"
-                : "(max-width: 900px) 92vw, 1100px"
+              kind === "figure"
+                ? "(max-width: 900px) 92vw, 1100px"
+                : "(max-width: 700px) 44vw, 300px"
             }
-            priority={i === 0}
+            priority={i === 0 && !diagram}
           />
-          {phones ? null : <figcaption>{item.alt}</figcaption>}
+          {kind === "phone" ? null : <figcaption>{item.alt}</figcaption>}
         </figure>
       ))}
     </div>
+  );
+  if (!diagram) return gallery;
+  return (
+    <>
+      <div className={styles.diagram}>{diagram}</div>
+      {gallery}
+    </>
   );
 }

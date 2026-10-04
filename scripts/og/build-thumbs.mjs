@@ -23,11 +23,20 @@ const thumbs = [
     "assets/og/water-safety.png",
     { width: 520 },
   ],
+  // The top of GymRap's daily report email (synthetic data).
+  [
+    "public/images/projects/gymrap/daily-email.webp",
+    "assets/og/gymrap-ai-coach.png",
+    { height: 470 },
+    { left: 0, top: 0, width: 640, height: 900 },
+  ],
 ];
 
 await mkdir("assets/og", { recursive: true });
-for (const [source, target, resize] of thumbs) {
-  const info = await sharp(source)
+for (const [source, target, resize, crop] of thumbs) {
+  const image = sharp(source);
+  if (crop) image.extract(crop);
+  const info = await image
     .resize(resize)
     .png({ compressionLevel: 9, palette: true, quality: 90 })
     .toFile(target);

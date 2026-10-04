@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useId } from "react";
-import RagDiagram from "@/components/case/rag-diagram";
+import RagDiagram, { GymrapDiagram } from "@/components/case/flow-diagrams";
 export default function ProjectArt({
   slug,
   locale = "en",
@@ -93,9 +93,18 @@ export default function ProjectArt({
         </span>
       </div>
     );
-  return (
-    <div className="project-art rag-art">
-      <RagDiagram locale={locale} />
-    </div>
-  );
+  if (slug === "course-intelligence")
+    return (
+      <div className="project-art rag-art">
+        <RagDiagram locale={locale} />
+      </div>
+    );
+  if (slug === "gymrap-ai-coach")
+    return (
+      <div className="project-art rag-art">
+        <GymrapDiagram locale={locale} />
+      </div>
+    );
+  // No art is drawn for a project that has none of its own.
+  return null;
 }

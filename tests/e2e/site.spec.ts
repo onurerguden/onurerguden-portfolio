@@ -8,6 +8,7 @@ const paths = [
   "/projects/kuyumcum",
   "/projects/water-safety",
   "/projects/course-intelligence",
+  "/projects/gymrap-ai-coach",
 ];
 for (const locale of ["en", "tr"]) {
   test(`${locale}: every editorial route is readable and localized`, async ({
@@ -220,7 +221,7 @@ test("a case study section survives switching language", async ({ page }) => {
   await expect(page.locator("#my-contribution")).toHaveText("Benim katkım");
   await expect(page.locator("#my-contribution")).toBeInViewport();
   const toc = page.getByRole("navigation", { name: "Bu sayfada" });
-  await expect(toc.getByRole("link")).toHaveCount(5);
+  await expect(toc.getByRole("link")).toHaveCount(7);
 });
 
 test("projects and research each have a share card", async ({ request }) => {
@@ -228,6 +229,7 @@ test("projects and research each have a share card", async ({ request }) => {
     "/en/projects/kuyumcum",
     "/tr/projects/water-safety",
     "/en/projects/course-intelligence",
+    "/tr/projects/gymrap-ai-coach",
     "/tr/research",
   ]) {
     const response = await request.get(`${path}/opengraph-image`);

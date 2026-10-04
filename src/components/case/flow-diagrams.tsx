@@ -1,9 +1,9 @@
 /**
- * Course Intelligence's retrieval pipeline as a conceptual diagram, drawn
- * for the dark system. Every step is named in the case study; the diagram
- * shows the order, not measured performance.
+ * Conceptual pipeline diagrams for the case studies, drawn for the dark
+ * system. Every step is named in its case study; a diagram shows the order,
+ * not measured performance.
  */
-const steps = {
+const ragSteps = {
   en: [
     "Course documents",
     "Hierarchical chunks",
@@ -36,10 +36,22 @@ const boxes = [
 ] as const;
 const width = 152;
 const height = 72;
-const emphasis = new Set([3, 5]);
 
-export default function RagDiagram({ locale }: { locale: "en" | "tr" }) {
-  const labels = steps[locale];
+/** A seven-step flow in two rows: out along the top, back along the bottom. */
+function FlowDiagram({
+  id,
+  labels,
+  emphasis,
+  lanes,
+  locale,
+}: {
+  id: string;
+  labels: string[];
+  emphasis: Set<number>;
+  /** Captions for the top row's direction and the bottom row's. */
+  lanes: [string, string];
+  locale: "en" | "tr";
+}) {
   const en = locale === "en";
   return (
     <figure className="rag-diagram">
@@ -54,7 +66,7 @@ export default function RagDiagram({ locale }: { locale: "en" | "tr" }) {
       >
         <defs>
           <marker
-            id="rag-arrow"
+            id={`${id}-arrow`}
             viewBox="0 0 10 10"
             refX="8"
             refY="5"
@@ -84,7 +96,7 @@ export default function RagDiagram({ locale }: { locale: "en" | "tr" }) {
                 y1={y1 + (sameRow ? 0 : 4)}
                 x2={x2 + (sameRow ? (next.x > box.x ? -6 : 6) : 0)}
                 y2={y2 - (sameRow ? 0 : 6)}
-                markerEnd="url(#rag-arrow)"
+                markerEnd={`url(#${id}-arrow)`}
               />
             );
           })}
@@ -120,7 +132,7 @@ export default function RagDiagram({ locale }: { locale: "en" | "tr" }) {
           fontFamily="Manrope Variable, sans-serif"
           fill="#b7c2d4"
         >
-          {en ? "Retrieval" : "Bilgi getirme"} →
+          {lanes[0]} →
         </text>
         <text
           x="700"
@@ -130,12 +142,61 @@ export default function RagDiagram({ locale }: { locale: "en" | "tr" }) {
           fontFamily="Manrope Variable, sans-serif"
           fill="#b7c2d4"
         >
-          ← {en ? "Generation" : "Üretim"}
+          ← {lanes[1]}
         </text>
       </svg>
       <figcaption>
         {en ? "Conceptual diagram" : "Kavramsal diyagram"}
       </figcaption>
     </figure>
+  );
+}
+
+/** Course Intelligence: retrieval runs out, generation comes back. */
+export default function RagDiagram({ locale }: { locale: "en" | "tr" }) {
+  const en = locale === "en";
+  return (
+    <FlowDiagram
+      id="rag"
+      labels={ragSteps[locale]}
+      emphasis={new Set([3, 5])}
+      lanes={en ? ["Retrieval", "Generation"] : ["Bilgi getirme", "Üretim"]}
+      locale={locale}
+    />
+  );
+}
+
+const gymrapSteps = {
+  en: [
+    "Health Connect",
+    "Kotlin bridge",
+    "Worker + D1",
+    "Analysis engine",
+    "MCP server · OAuth",
+    "ChatGPT writes",
+    "Gmail report",
+  ],
+  tr: [
+    "Health Connect",
+    "Kotlin köprüsü",
+    "Worker + D1",
+    "Analiz motoru",
+    "MCP sunucusu · OAuth",
+    "ChatGPT yazıyor",
+    "Gmail raporu",
+  ],
+};
+
+/** GymRap: data flows in and is analysed; the coach text and report come back. */
+export function GymrapDiagram({ locale }: { locale: "en" | "tr" }) {
+  const en = locale === "en";
+  return (
+    <FlowDiagram
+      id="gymrap"
+      labels={gymrapSteps[locale]}
+      emphasis={new Set([3, 4])}
+      lanes={en ? ["Data", "Coaching"] : ["Veri", "Koçluk"]}
+      locale={locale}
+    />
   );
 }

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import GiantTitle from "@/components/giant-title";
 import ProjectArt from "@/components/project-art";
@@ -6,9 +7,10 @@ import { getProjects, type Locale, type Project } from "@/lib/content";
 import ProjectsStack, { StackCard } from "./projects-stack";
 import styles from "./projects.module.css";
 
+type Media = NonNullable<Project["media"]>[number];
 type Tile =
-  | { kind: "image"; src: string; width: number; height: number; alt: string }
-  | { kind: "phones"; project: Project }
+  | { kind: "image"; image: Media }
+  | { kind: "shots"; variant: "phone" | "screen"; images: Media[] }
   | { kind: "art"; slug: string }
   | { kind: "facts"; label: string; items: string[] }
   | { kind: "metric"; value: string; label: string }
@@ -29,12 +31,20 @@ function tilesFor(project: Project, locale: Locale): Tile[] {
     label: en ? "Read the case study" : "Proje incelemesini oku",
     href: `/${locale}/projects/${project.slug}`,
   };
-  const images: Tile[] = (project.media ?? []).map((item) => ({
-    kind: "image",
-    ...item,
-  }));
-  if (project.slug === "kuyumcum")
-    return [{ kind: "phones", project }, stack, caseStudy];
+  const media = project.media ?? [];
+  // App and email screens sit side by side in one tile; figures get a tile each.
+  const shots = media.filter((item) => item.kind !== "figure");
+  if (shots.length)
+    return [
+      {
+        kind: "shots",
+        variant: shots[0].kind as "phone" | "screen",
+        images: shots,
+      },
+      metric ?? stack,
+      caseStudy,
+    ];
+  const images: Tile[] = media.map((image) => ({ kind: "image", image }));
   if (images.length)
     return [...images, metric ?? stack, stack, caseStudy].slice(0, 3);
   return [{ kind: "art", slug: project.slug }, metric ?? stack, caseStudy];
@@ -46,19 +56,27 @@ function TileView({ tile, locale }: { tile: Tile; locale: Locale }) {
       return (
         <figure className={`${styles.tile} ${styles.figure}`}>
           <Image
-            src={tile.src}
-            alt={tile.alt}
-            width={tile.width}
-            height={tile.height}
+            src={tile.image.src}
+            alt={tile.image.alt}
+            width={tile.image.width}
+            height={tile.image.height}
             sizes="(max-width: 760px) 90vw, 50vw"
           />
         </figure>
       );
-    case "phones":
+    case "shots":
       return (
-        <div className={`${styles.tile} ${styles.phones}`}>
-          <div className="phone-pair">
-            {(tile.project.media ?? []).map((item) => (
+        <div
+          className={`${styles.tile} ${
+            tile.variant === "phone" ? styles.phones : styles.screens
+          }`}
+        >
+          <div
+            className={
+              tile.variant === "phone" ? "phone-pair" : styles.screenRow
+            }
+          >
+            {tile.images.map((item) => (
               <Image
                 key={item.src}
                 src={item.src}
@@ -105,14 +123,18 @@ function TileView({ tile, locale }: { tile: Tile; locale: Locale }) {
   }
 }
 
-/** Projects as sticky stacked cards: three case studies, then the archive. */
+/** Projects as sticky stacked cards: the case studies, then the archive. */
 export default function ProjectsSection({ locale }: { locale: Locale }) {
   const en = locale === "en";
   const projects = getProjects(locale);
   const featured = projects.filter((project) => project.featured);
   const archive = projects.filter((project) => !project.featured);
   const count = featured.length + 1;
-  const archiveImage = archive.flatMap((project) => project.media ?? [])[0];
+  // The card lists the first four archive entries; /projects lists them all.
+  const archiveEntries = archive.slice(0, 4);
+  const archiveImage = archive
+    .flatMap((project) => project.media ?? [])
+    .find((item) => item.kind === "figure");
   return (
     <section
       id="work"
@@ -211,14 +233,18 @@ export default function ProjectsSection({ locale }: { locale: Locale }) {
                   </p>
                 </div>
               </header>
-              <div className={`${styles.media} ${styles.archive}`}>
+              <div
+                className={`${styles.media} ${styles.archive}`}
+                style={{ "--rows": archiveEntries.length } as CSSProperties}
+                data-rows={archiveEntries.length}
+              >
                 {archiveImage ? (
                   <TileView
-                    tile={{ kind: "image", ...archiveImage }}
+                    tile={{ kind: "image", image: archiveImage }}
                     locale={locale}
                   />
                 ) : null}
-                {archive.map((project) => (
+                {archiveEntries.map((project) => (
                   <Link
                     key={project.slug}
                     className={`${styles.tile} ${styles.entry}`}

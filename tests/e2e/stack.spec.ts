@@ -77,10 +77,10 @@ test("every technology is listed in text with where it was used", async ({
 }) => {
   await page.goto("/en");
   const explorer = page.locator("[data-explorer]");
-  await expect(explorer.locator("h4 + ul li")).toHaveCount(32);
+  await expect(explorer.locator("h4 + ul li")).toHaveCount(41);
   await expect(
     explorer.getByRole("heading", {
-      name: "All technologies (32)",
+      name: "All technologies (41)",
       includeHidden: true,
     }),
   ).toBeAttached();

@@ -49,7 +49,9 @@ test("cards show real media with text alternatives in both languages", async ({
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto(`/${locale}`);
     const images = page.locator("#work img");
-    await expect(images).toHaveCount(5);
+    // Kuyumcum's two phones, two water-safety figures, GymRap's three
+    // emails and the archive's figure.
+    await expect(images).toHaveCount(8);
     for (const image of await images.all()) {
       await image.scrollIntoViewIfNeeded();
       await expect(image).toHaveAttribute("alt", /\S{3,}/);
