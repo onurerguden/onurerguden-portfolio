@@ -393,6 +393,25 @@ body:has([data-journey-stage]) {
   }
 }
 /*
+ * The paper curtain (journey.module.css): About's wrapper starts where the
+ * desk's final hold does, under the journey, and its section is already in
+ * place there; links to #about land where the desk has been drawn aside.
+ * The lengths come from the timeline (`curtain` in timeline.ts) as inline
+ * custom properties on the wrapper.
+ */
+@media screen and (min-width: 761px) and (min-height: 621px) and (prefers-reduced-motion: no-preference) {
+  main:has([data-journey-curtain="on"]) #about {
+    --curtain: on;
+    margin-top: calc(-1 * var(--curtain-lead) * 100svh);
+    scroll-margin-top: calc(
+      -1 * (var(--curtain-landing) * 100svh + var(--scroll-pad))
+    );
+  }
+  main:has([data-journey-curtain="on"]) #about::before {
+    height: calc(var(--curtain-landing) * 100svh + var(--sheet-dwell) + 100svh);
+  }
+}
+/*
  * While Projects slides over it, the held sheet shrinks a little toward its
  * top and dims: the last view of its pin, on its wrapper's own timeline.
  */

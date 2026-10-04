@@ -288,3 +288,67 @@
 .scene[data-diving="true"] .screen:not([data-diving="true"]) {
   opacity: 0 !important;
 }
+
+/*
+ * The paper curtain (wide screens with motion). About waits beneath the
+ * journey, so the journey paints no background of its own and lets clicks
+ * through everywhere but its stage; the stage is clipped from both sides as
+ * the page is drawn over it (see paintCurtain in journey.tsx).
+ */
+.journey[data-journey-curtain="on"] {
+  position: relative;
+  z-index: 2;
+  background: none;
+  pointer-events: none;
+}
+.journey[data-journey-curtain="on"] .stage {
+  pointer-events: auto;
+}
+/* The desk dims as it is drawn aside. */
+.journey[data-journey-curtain="on"] .stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: #050912;
+  opacity: var(--curtain-dim, 0);
+  pointer-events: none;
+}
+/*
+ * The paper's edges where it meets the desk: a soft shadow cast onto the
+ * desk, and a lighter sheet a little ahead of it.
+ */
+.curtainEdge {
+  display: none;
+  position: absolute;
+  z-index: 4;
+  top: 0;
+  bottom: 0;
+  width: 28px;
+  pointer-events: none;
+}
+.curtainEdge[data-side="left"] {
+  background: linear-gradient(90deg, #02050d8c, transparent);
+}
+.curtainEdge[data-side="right"] {
+  background: linear-gradient(270deg, #02050d8c, transparent);
+}
+.curtainEdge::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #f4f5f6e6;
+}
+.curtainEdge[data-side="left"]::before {
+  left: 0;
+}
+.curtainEdge[data-side="right"]::before {
+  right: 0;
+}
+@media print {
+  .journey[data-journey-curtain="on"] .stage {
+    clip-path: none !important;
+  }
+}

@@ -14,6 +14,7 @@ import DeskLighting from "@/components/desk/lighting";
 import { seededRandom } from "@/lib/random";
 import techIcons from "@/lib/tech-icons.generated.json";
 import { kick, restPose, swayAmplitude, turn } from "./about-motion";
+import { curtainProgress } from "@/lib/desk-story/curtain";
 import {
   basketball,
   braces,
@@ -160,8 +161,11 @@ function Objects({
   pointerRef: RefObject<{ x: number; y: number; active: boolean }>;
   kickRef: RefObject<{ x: number; y: number } | null>;
   sectionRef: RefObject<HTMLElement | null>;
-  /** 0 to 1 as the page arrives; objects come in from beyond the sides. */
-  arrival: number;
+  /**
+   * 0 to 1 as the page arrives; objects come in from beyond the sides. By
+   * default it follows the desk's paper curtain.
+   */
+  arrival?: number;
   onReady: () => void;
 }) {
   const viewport = useThree((state) => state.viewport);
@@ -237,7 +241,7 @@ function Objects({
       : (((innerHeight - top) / (innerHeight + height)) * 2 - 1) *
         (narrow ? 0.25 : 1);
     const motion = still ? 0 : 1;
-    const spread = 1 + 0.7 * (1 - arrival);
+    const spread = 1 + 0.7 * (1 - (arrival ?? curtainProgress.get()));
     const hit = kickRef.current;
     let shadow = 0;
     for (const [id, body] of bodies) {
@@ -419,7 +423,7 @@ export default function AboutScene({
   paused,
   logos,
   sectionRef,
-  arrival = 1,
+  arrival,
   onReady,
   onFailure,
 }: {
@@ -427,7 +431,7 @@ export default function AboutScene({
   paused: boolean;
   logos: string[];
   sectionRef: RefObject<HTMLElement | null>;
-  /** How far the page has arrived (the desk's paper curtain); 1 at rest. */
+  /** How far the page has arrived; follows the desk's paper curtain. */
   arrival?: number;
   onReady: () => void;
   onFailure: () => void;
