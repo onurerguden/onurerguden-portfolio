@@ -459,8 +459,13 @@ test("cosmic grid remains active through close-ups and returns to demand-rendere
     )
     .toBe(true);
 
-  // A screen is excluded from the grid's pointer, like every control.
-  await page.locator('[data-screen="2"]').hover();
+  // A screen is excluded from the grid's pointer, like every control. A
+  // plain move: hover() would scroll the projected panel's layout box.
+  const screen = await page.locator('[data-screen="2"]').boundingBox();
+  await page.mouse.move(
+    screen!.x + screen!.width / 2,
+    screen!.y + screen!.height / 2,
+  );
   await expect
     .poll(() =>
       canvas.getAttribute("data-grid-influence").then((value) => Number(value)),
@@ -693,13 +698,17 @@ test("keyboard focus and the step buttons bring monitor content into view", asyn
     )
     .toBeGreaterThan(s.chapters.experience);
   await expect(link).toBeInViewport();
-  await page.getByRole("button", { name: "Next: Tech stack" }).click();
+  // The step buttons appear for keyboard focus only.
+  await page.getByRole("button", { name: "Next: Tech stack" }).focus();
+  await page.keyboard.press("Enter");
   await expect
     .poll(async () =>
       Number(await journeyCanvas(page).getAttribute("data-distance")),
     )
     .toBeCloseTo(s.chapters.stack, 1);
-  await page.getByRole("button", { name: "Previous: Experience" }).click();
+  // The step buttons appear for keyboard focus only.
+  await page.getByRole("button", { name: "Previous: Experience" }).focus();
+  await page.keyboard.press("Enter");
   await expect
     .poll(async () =>
       Number(await journeyCanvas(page).getAttribute("data-distance")),
