@@ -1,1 +1,32 @@
-{}
+{
+  "academy-deep-learning": {
+    "title": "Derin öğrenme",
+    "description": "Yapay Zeka ve Teknoloji Akademisi’nden eğitim tamamlama belgesi.",
+    "alt": "Yapay Zeka ve Teknoloji Akademisi’nin Onur Ergüden’e 22 Mayıs 2026’da verdiği derin öğrenme eğitimi tamamlama belgesi."
+  },
+  "google-project-management": {
+    "title": "Google proje yönetimi",
+    "description": "Mesleki sertifika · geleneksel ve çevik proje yönetimini kapsayan altı kurs.",
+    "alt": "Google’ın Onur Ergüden’e Coursera üzerinden 25 Mayıs 2026’da verdiği, tamamlanan altı kursu listeleyen Google Proje Yönetimi mesleki sertifikası."
+  },
+  "hpi-efficient-ai": {
+    "title": "LLM çağında verimli AI teknikleri",
+    "description": "Sınavlı başarı belgesi · %80. Verimli AI için model sıkıştırma ve düşük bitli kuantizasyon.",
+    "alt": "openHPI’nin Onur Ergüden’e verdiği Sustainability in the Digital Age: Efficient AI Techniques in the LLM Era başarı belgesi, Haziran 2025, 45 üzerinden 36 puan (%80)."
+  },
+  "hpi-energy-efficient-software": {
+    "title": "Enerji verimli yazılım geliştirme",
+    "description": "Sınavlı başarı belgesi · %78,3. Yazılımın enerji tüketimi ve LLM performansının ölçümü.",
+    "alt": "openHPI’nin Onur Ergüden’e verdiği Sustainability in the Digital Age: Energy-Efficient Software Development başarı belgesi, Nisan 2025, 40 üzerinden 31,3 puan (%78,3)."
+  },
+  "hpi-computer-vision": {
+    "title": "PyTorch ile uygulamalı bilgisayarlı görü",
+    "description": "Katılım belgesi. PyTorch ile CNN’ler, vision transformer’lar, segmentasyon ve nesne tespiti.",
+    "alt": "openHPI’nin Onur Ergüden’e Practical Computer Vision with PyTorch eğitimi için verdiği, 21 Mayıs 2025 tarihli katılım belgesi."
+  },
+  "academy-basic-entrepreneurship": {
+    "title": "Temel girişimcilik",
+    "description": "Yapay Zeka ve Teknoloji Akademisi’nden eğitim tamamlama belgesi.",
+    "alt": "Yapay Zeka ve Teknoloji Akademisi’nin Onur Ergüden’e 21 Şubat 2026’da verdiği temel girişimcilik eğitimi tamamlama belgesi."
+  }
+}

@@ -68,3 +68,9 @@ Interface labels only; no new claims.
 - Case studies: "Projects" / "Projeler" (back), "My role" / "Rolüm", "Built with" / "Kullandıklarım", "Source" / "Kaynak", "On this page" / "Bu sayfada", "Other projects" / "Diğer projeler", "More in the archive" / "Arşivde daha fazlası". Figure captions are the existing alt texts.
 - Research: "Research" / "Araştırma" title. The approach, publication, questions and "Academic interests" sentence are the page's existing text; the academic foundation reuses the About facts.
 - Share cards: the home card shows the opening's name, head illustration and role; project cards show the title, category, real media (Course Intelligence: its pipeline steps) and my name; the Research card shows the paper title and its status.
+
+## Selected certificates (October 4)
+
+Onur supplied the documents and requested a focused selection. Six entries now have matching EN/TR titles, descriptions and alt text: academy deep learning completion, Google project management professional certificate, openHPI efficient AI achievement (80%), openHPI energy-efficient software achievement (78.3%), openHPI practical computer vision participation and academy basic entrepreneurship completion (21 February 2026), which Onur explicitly requested. The participation status is visible on the card; it is not described as an assessed achievement. No unverified training hours, professional accreditation or degree credit is claimed.
+
+Dates, issuers, results and topics come from the supplied documents. The three supplied public verification links were checked against Onur's name. Source filenames, date differences between openHPI PDFs and verification pages, selection rationale and public-data review are recorded in `docs/qa/selected-certificates/README.md`.

@@ -1,1 +1,77 @@
-[]
+[
+  {
+    "id": "academy-deep-learning",
+    "issuer": "Yapay Zeka ve Teknoloji Akademisi",
+    "issued": "2026-05",
+    "image": {
+      "src": "/images/certificates/academy-deep-learning.webp",
+      "width": 1600,
+      "height": 1131
+    },
+    "personalDataReviewed": true,
+    "order": 0
+  },
+  {
+    "id": "google-project-management",
+    "issuer": "Google · Coursera",
+    "issued": "2026-05",
+    "credentialUrl": "https://coursera.org/verify/professional-cert/5OHBAJWS4BKB",
+    "image": {
+      "src": "/images/certificates/google-project-management.webp",
+      "width": 1600,
+      "height": 1236
+    },
+    "personalDataReviewed": true,
+    "order": 1
+  },
+  {
+    "id": "hpi-efficient-ai",
+    "issuer": "Hasso Plattner Institute · openHPI",
+    "issued": "2025-06",
+    "credentialUrl": "https://open.hpi.de/verify/xofek-nacut-ripan-manum-hinaf",
+    "image": {
+      "src": "/images/certificates/hpi-efficient-ai.webp",
+      "width": 1600,
+      "height": 2263
+    },
+    "personalDataReviewed": true,
+    "order": 2
+  },
+  {
+    "id": "hpi-energy-efficient-software",
+    "issuer": "Hasso Plattner Institute · openHPI",
+    "issued": "2025-04",
+    "credentialUrl": "https://open.hpi.de/verify/xerev-kytug-hygud-ladig-mekug",
+    "image": {
+      "src": "/images/certificates/hpi-energy-efficient-software.webp",
+      "width": 1600,
+      "height": 2263
+    },
+    "personalDataReviewed": true,
+    "order": 3
+  },
+  {
+    "id": "hpi-computer-vision",
+    "issuer": "Hasso Plattner Institute · openHPI",
+    "issued": "2025-05",
+    "image": {
+      "src": "/images/certificates/hpi-computer-vision.webp",
+      "width": 1600,
+      "height": 2263
+    },
+    "personalDataReviewed": true,
+    "order": 4
+  },
+  {
+    "id": "academy-basic-entrepreneurship",
+    "issuer": "Yapay Zeka ve Teknoloji Akademisi",
+    "issued": "2026-02",
+    "image": {
+      "src": "/images/certificates/academy-basic-entrepreneurship.webp",
+      "width": 1600,
+      "height": 1131
+    },
+    "personalDataReviewed": true,
+    "order": 5
+  }
+]
