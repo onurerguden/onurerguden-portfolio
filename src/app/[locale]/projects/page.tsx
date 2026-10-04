@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import GiantTitle from "@/components/giant-title";
 import { getProjects, isLocale, sharedFacts } from "@/lib/content";
 import { getPublicProjects } from "@/lib/github";
+import { publicDescription } from "@/lib/github/core";
 import { pageMetadata } from "@/lib/site";
 import styles from "./archive.module.css";
 export async function generateMetadata({
@@ -124,32 +125,39 @@ export default async function ProjectsPage({
               {github.syncedAt ? ` · ${date(github.syncedAt)}` : ""}
             </p>
             <ul className={styles.repos}>
-              {github.repos.map((repo) => (
-                <li key={repo.id}>
-                  <div>
-                    <h3>
-                      <a href={repo.url}>
-                        {repo.name}
-                        <span aria-hidden="true"> ↗</span>
-                      </a>
-                    </h3>
-                    {repo.description ? <p>{repo.description}</p> : null}
-                  </div>
-                  <p className={styles.repoMeta}>
-                    {repo.language ? <span>{repo.language}</span> : null}
-                    {repo.fork ? <span>Fork</span> : null}
-                    {repo.archived ? (
-                      <span>{en ? "Archived" : "Arşivlendi"}</span>
-                    ) : null}
-                    {repo.pushedAt ? (
-                      <span>
-                        {en ? "Last push: " : "Son push: "}
-                        {date(repo.pushedAt)}
-                      </span>
-                    ) : null}
-                  </p>
-                </li>
-              ))}
+              {github.repos.map((repo) => {
+                // Snapshots stored before the filter existed are filtered here too.
+                const description = publicDescription(
+                  repo.name,
+                  repo.description,
+                );
+                return (
+                  <li key={repo.id}>
+                    <div>
+                      <h3>
+                        <a href={repo.url}>
+                          {repo.name}
+                          <span aria-hidden="true"> ↗</span>
+                        </a>
+                      </h3>
+                      {description ? <p>{description}</p> : null}
+                    </div>
+                    <p className={styles.repoMeta}>
+                      {repo.language ? <span>{repo.language}</span> : null}
+                      {repo.fork ? <span>Fork</span> : null}
+                      {repo.archived ? (
+                        <span>{en ? "Archived" : "Arşivlendi"}</span>
+                      ) : null}
+                      {repo.pushedAt ? (
+                        <span>
+                          {en ? "Last push: " : "Son push: "}
+                          {date(repo.pushedAt)}
+                        </span>
+                      ) : null}
+                    </p>
+                  </li>
+                );
+              })}
             </ul>
           </>
         ) : (

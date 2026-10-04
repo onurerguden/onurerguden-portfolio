@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   fetchPublicRepos,
   parseEvent,
+  publicDescription,
   synchronize,
   verifySignature,
   type Snapshot,
@@ -90,6 +91,25 @@ describe("GitHub webhook trust boundary", () => {
     );
   });
 });
+describe("repository descriptions", () => {
+  it("hides listed repositories and identification numbers", () => {
+    expect(
+      publicDescription(
+        "PistiTheGame",
+        "My Project for SE115 Lecure Pisti The Game Onur Ergüden 20220601030",
+      ),
+    ).toBeNull();
+    expect(publicDescription("Other", "Course project 20220601030")).toBeNull();
+    expect(publicDescription("TaskFoo", "  Task manager ")).toBe(
+      "Task manager",
+    );
+    expect(publicDescription("SE115", "SE115 lecture, 2022")).toBe(
+      "SE115 lecture, 2022",
+    );
+    expect(publicDescription("Empty", "   ")).toBeNull();
+  });
+});
+
 describe("durable synchronization", () => {
   it("filters private, foreign, and profile repositories without losing forks", async () => {
     const store = memoryStore();
