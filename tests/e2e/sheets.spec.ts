@@ -72,11 +72,16 @@ test.describe("section sheets", () => {
     await page.evaluate(() =>
       scrollTo({ top: document.body.scrollHeight, behavior: "instant" }),
     );
-    const bottom = await page.evaluate(() => {
-      const contact = document.querySelector("#contact > section")!;
-      return contact.getBoundingClientRect().bottom - innerHeight;
+    // At the end Contact fills everything above the footer.
+    const end = await page.evaluate(() => {
+      const contact = document
+        .querySelector("#contact > section")!
+        .getBoundingClientRect();
+      const footer = document.querySelector("footer")!.getBoundingClientRect();
+      return { top: contact.top, gap: footer.top - contact.bottom };
     });
-    expect(Math.abs(bottom)).toBeLessThan(2);
+    expect(end.top).toBeLessThanOrEqual(0);
+    expect(Math.abs(end.gap)).toBeLessThan(2);
   });
 
   test("keyboard focus is never left under a later sheet", async ({ page }) => {

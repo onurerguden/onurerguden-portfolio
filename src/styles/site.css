@@ -60,7 +60,8 @@
   box-sizing: border-box;
 }
 html {
-  --scroll-pad: 30px;
+  /* Clears the docked nav, so a focused or linked element lands below it. */
+  --scroll-pad: 88px;
   background: var(--bg);
   scroll-behavior: smooth;
   scroll-padding-top: var(--scroll-pad);
