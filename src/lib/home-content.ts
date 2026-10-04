@@ -388,6 +388,8 @@ const certificateSchema = z
 const certificateCopySchema = z
   .object({
     title: z.string().min(1),
+    /** The issuer's own name in this language, when it differs. */
+    issuer: z.string().min(1).optional(),
     description: z.string().min(1).optional(),
     alt: z.string().min(1),
   })
@@ -412,8 +414,9 @@ export function getCertificates(
     entries.map((entry) => entry.id),
     copy,
   );
+  // Newest first; `order` only breaks ties within a month.
   return entries
-    .toSorted((a, b) => a.order - b.order)
+    .toSorted((a, b) => b.issued.localeCompare(a.issued) || a.order - b.order)
     .map((entry) => ({
       ...entry,
       ...copy[entry.id],
