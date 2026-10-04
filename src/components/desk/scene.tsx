@@ -2,21 +2,15 @@
 
 import { Suspense, useEffect, useMemo, useRef, type RefObject } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useGLTF } from "@react-three/drei";
-import { Mesh, Vector3 } from "three";
+import { Vector3 } from "three";
 import { createScreenProjection, projectScreen } from "@/lib/desk-projection";
 import contract from "@/lib/desk-scene.json";
 import occluders from "@/lib/desk-occluders.json";
 import { createScreenOcclusion, screenMaskImage } from "@/lib/desk-occlusion";
-import { deskModelSrc } from "@/lib/desk-asset-urls";
 import styles from "./review.module.css";
 import DeskLighting from "./lighting";
-import InteractionScene from "./interaction-scene";
-import {
-  DeskObjectControls,
-  useDeskInteractions,
-  type DeskInteractions,
-} from "./interactions";
+import { Model } from "./model";
+import { DeskObjectControls, useDeskInteractions } from "./interactions";
 
 type Props = {
   revealed: boolean;
@@ -59,47 +53,6 @@ function Screens({
       ))}
     </div>
   );
-}
-
-export function Model({
-  onReady,
-  controls,
-}: Pick<Props, "onReady"> & { controls: DeskInteractions }) {
-  const invalidate = useThree((state) => state.invalidate);
-  const { scene } = useGLTF(deskModelSrc, "/decoders/draco/");
-  // useGLTF caches the source. Each mounted view owns transforms and materials.
-  const model = useMemo(() => {
-    const clone = scene.clone(true);
-    clone.traverse((object) => {
-      if (object instanceof Mesh) {
-        object.material = Array.isArray(object.material)
-          ? object.material.map((m) => m.clone())
-          : object.material.clone();
-        object.castShadow = object.userData.interaction !== "lamp";
-        object.receiveShadow = true;
-        if (object.userData.interaction === "backdrop") object.visible = false;
-      }
-    });
-    return clone;
-  }, [scene]);
-  useEffect(() => {
-    onReady();
-    invalidate();
-  }, [onReady, invalidate]);
-  useEffect(
-    () => () => {
-      model.traverse((object) => {
-        if (object instanceof Mesh) {
-          const materials = Array.isArray(object.material)
-            ? object.material
-            : [object.material];
-          materials.forEach((material) => material.dispose());
-        }
-      });
-    },
-    [model],
-  );
-  return <InteractionScene model={model} controls={controls} />;
 }
 
 function CameraJourney({
