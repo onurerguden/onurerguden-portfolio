@@ -89,7 +89,6 @@
       "icon": { "simpleIcons": "scikitlearn" },
       "ball": "white",
       "priority": 1,
-      "aboutLogo": true,
       "evidence": [
         { "kind": "project", "slug": "water-safety" },
         { "kind": "project", "slug": "urban-mobility" }
