@@ -23,7 +23,8 @@
     "desk:portrait": "node scripts/desk/portrait-avif.mjs",
     "tech:icons": "node scripts/tech/build-icons.mjs",
     "bliss:build": "node scripts/bliss/build.mjs",
-    "certificate": "node scripts/certificates/optimize.mjs"
+    "certificate": "node scripts/certificates/optimize.mjs",
+    "about:poster": "node scripts/about/capture-poster.mjs"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "5.3.0",
