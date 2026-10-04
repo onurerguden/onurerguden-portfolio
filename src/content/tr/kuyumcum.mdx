@@ -9,13 +9,21 @@ Değerli metaller ve döviz varlıkları çoğu zaman birbirinden kopuk araçlar
 
 ## Benim katkım
 
-Flutter, Dart ve Firebase/Firestore kullanan full-stack uygulamayı birlikte geliştirdim. Yapay zekâ tarafında Python, TensorFlow ve Gemini ile kamera üzerinden varlık tanıma ve getirilen kaynaklara dayalı portföy raporları üzerinde çalıştım.
+Flutter, Dart ve Firebase/Firestore kullanan full-stack uygulamayı birlikte geliştirdim. Yapay zekâ tarafındaki çalışmam iki katmanı kapsıyor: madeni para ve altını telefonun kendisinde kameradan tanımak ve getirilen verilere dayanan çok ajanlı portföy raporları.
 
 ## Mimari ve kısıtlar
 
 Mobil uygulama, portföy ve kuyumcu akışlarını Firebase/Firestore ve Google Maps ile bağlıyor. Yapay zekâ destekli raporlar piyasa verilerini, güncel haberleri, tarihsel bağlamı ve makroekonomik sinyalleri bir araya getirerek portföy riskine yönelik içgörüler oluşturuyor.
 
 Mühendislik açısından zorluk, farklı kaynakları tutarlı bir ürün akışında kullanılabilir kılmak. Raporun hem kullanıcının varlıklarını hem de getirilen bilgilerin bağlamını dikkate alması gerekiyor.
+
+## Cihaz üzerinde tanıma
+
+Kamera, madeni paraları ve altın ürünlerini sunucuya gitmeden tanıyor: Python'da on sınıf üzerinde eğitilen bir YOLO11n modeli TensorFlow Lite'a aktarılıyor ve Flutter uygulamasında flutter_vision ile çalışıyor.
+
+## Çok ajanlı raporlar
+
+Portföy raporlarını Gemini ile Firebase Cloud Functions yazıyor. Dört analist ajan varlıklara yükseliş, düşüş, makroekonomi ve risk açısından bakıyor; bir sentezleyici bulguları tek bir raporda birleştiriyor. Bağlam, hibrit bilgi getirmeden (BM25 ve yoğun arama, ardından yeniden sıralama) ve makroekonomik kaynaklar için ayrı bir bilgi getirme katmanından geliyor.
 
 ## Gösterebildiğim kapsam
 
