@@ -60,9 +60,10 @@
   box-sizing: border-box;
 }
 html {
+  --scroll-pad: 30px;
   background: var(--bg);
   scroll-behavior: smooth;
-  scroll-padding-top: 30px;
+  scroll-padding-top: var(--scroll-pad);
 }
 body {
   margin: 0;
@@ -338,4 +339,96 @@ body:has([data-journey-stage]) {
 .anchor-alias {
   display: block;
   height: 0;
+}
+
+/*
+ * Section sheets (home page, after the desk). Each section lives in a
+ * wrapper: a spacer of one view plus a dwell, then the section pinned with
+ * `sticky; bottom: 0`. A section that fits settles at the top, holds for the
+ * dwell (a few wheel steps) and is then covered by the next wrapper, pulled
+ * up one view, sliding over it like a sheet of paper. A taller section reads
+ * normally and holds once its end is in view. Wide screens with motion only;
+ * phones, reduced motion and print read in plain flow. The id sits on the
+ * wrapper, so links land where the section starts.
+ */
+.sheet {
+  position: relative;
+  scroll-margin-top: calc(-1 * var(--scroll-pad));
+}
+.sheet > .anchor-alias {
+  position: absolute;
+  top: 0;
+}
+.sheet:focus {
+  outline: none;
+}
+@media screen and (min-width: 761px) and (min-height: 621px) and (prefers-reduced-motion: no-preference) {
+  .sheet {
+    --sheets: on;
+    --sheet-dwell: 40svh;
+    display: flex;
+    flex-direction: column;
+    view-timeline: var(--sheet-name) block;
+  }
+  .sheet::before {
+    content: "";
+    flex: none;
+    height: calc(var(--sheet-dwell) + 100svh);
+  }
+  .sheet > section {
+    position: sticky;
+    bottom: 0;
+    min-height: 100svh;
+  }
+  /* Each sheet after the first slides over the one before it. */
+  .sheet + .sheet {
+    margin-top: -100svh;
+  }
+  .sheet + .sheet > section {
+    border-radius: 28px 28px 0 0;
+    box-shadow:
+      0 -1px 0 #ffffff1f,
+      0 -28px 60px #02050d59;
+  }
+  /* The last sheet has nothing to hold for. */
+  .sheet[data-sheet="last"]::before {
+    content: none;
+  }
+}
+/*
+ * While the next sheet slides over it, a sheet shrinks a little toward its
+ * top and dims: the last view of its pin, on its wrapper's own timeline.
+ */
+@supports (animation-timeline: view()) {
+  @media screen and (min-width: 761px) and (min-height: 621px) and (prefers-reduced-motion: no-preference) {
+    .sheet:not([data-sheet="last"]) > section {
+      transform-origin: 50% 0;
+      animation: sheet-recede linear both;
+      animation-timeline: var(--sheet-name);
+      animation-range: contain calc(100% - 100svh) contain 100%;
+    }
+    .sheet:not([data-sheet="last"]) > section::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      border-radius: inherit;
+      background: #050912;
+      opacity: 0;
+      pointer-events: none;
+      animation: sheet-dim linear both;
+      animation-timeline: var(--sheet-name);
+      animation-range: contain calc(100% - 100svh) contain 100%;
+    }
+  }
+}
+@keyframes sheet-recede {
+  to {
+    transform: scale(0.94);
+  }
+}
+@keyframes sheet-dim {
+  to {
+    opacity: 0.45;
+  }
 }

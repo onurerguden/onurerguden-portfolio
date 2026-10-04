@@ -6,7 +6,6 @@ export default function ContactSection({ locale }: { locale: Locale }) {
   const en = locale === "en";
   return (
     <section
-      id="contact"
       className={`${styles.section} bleed`}
       aria-labelledby="contact-title"
     >

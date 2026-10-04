@@ -11,7 +11,6 @@ export default function CertificatesSection({ locale }: { locale: Locale }) {
   const en = locale === "en";
   return (
     <section
-      id="certificates"
       className={`${styles.section} bleed`}
       aria-labelledby="certificates-title"
     >

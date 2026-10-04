@@ -136,11 +136,7 @@ export default function ProjectsSection({ locale }: { locale: Locale }) {
     .flatMap((project) => project.media ?? [])
     .find((item) => item.kind === "figure");
   return (
-    <section
-      id="work"
-      className={`${styles.section} bleed`}
-      aria-labelledby="work-title"
-    >
+    <section className={`${styles.section} bleed`} aria-labelledby="work-title">
       <div className={styles.inner}>
         <div className={styles.head}>
           <GiantTitle

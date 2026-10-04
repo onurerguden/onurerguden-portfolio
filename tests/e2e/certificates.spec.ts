@@ -111,7 +111,7 @@ for (const locale of ["en", "tr"] as const) {
     test.skip(items.length === 0, "No certificates have been added yet.");
     await page.emulateMedia({ reducedMotion: "no-preference" });
     await page.goto(`/${locale}#certificates`);
-    const grid = page.locator("#certificates > div > ul");
+    const grid = page.locator("#certificates section > div > ul");
     await expect(grid).toHaveAttribute("data-motion-still", "false");
     const card = grid.getByRole("button", { name: items[0].title });
     const front = card.locator('[data-certificate-sheet="front"]');
@@ -360,7 +360,7 @@ test("without JavaScript the six certificate stacks keep their closed layout", a
   try {
     const page = await context.newPage();
     await page.goto(`${baseURL}/en#certificates`);
-    const grid = page.locator("#certificates > div > ul");
+    const grid = page.locator("#certificates section > div > ul");
     await expect(grid).toHaveAttribute("data-motion-still", "true");
     await expect(grid.locator("li")).toHaveCount(items.length);
     const card = grid.getByRole("button", { name: items[0].title });
