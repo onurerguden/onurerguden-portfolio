@@ -182,12 +182,14 @@ function Balls({
       "aSelected",
     ) as InstancedBufferAttribute;
     const step = 1 - Math.exp(-14 * Math.min(delta, 0.1));
+    const selected =
+      world.draggedIndex >= 0 ? world.draggedIndex : sim.selected;
     for (let i = 0; i < world.count; i++) {
-      const target = sim.selected === i ? SELECTED_SCALE : 1;
+      const target = selected === i ? SELECTED_SCALE : 1;
       grow[i] += (target - grow[i]) * step;
       if (Math.abs(target - grow[i]) < 0.002) grow[i] = target;
       else moving = true;
-      selection.setX(i, sim.selected === i ? 1 : 0);
+      selection.setX(i, selected === i ? 1 : 0);
       position.set(
         world.px[i] - size.width / 2,
         size.height / 2 - world.py[i],
@@ -203,7 +205,15 @@ function Balls({
     if (moving) invalidate();
     gl.domElement.setAttribute("data-physics-mode", sim.mode);
     gl.domElement.setAttribute("data-physics-settled", String(world.settled()));
-    gl.domElement.setAttribute("data-selected", String(sim.selected));
+    gl.domElement.setAttribute("data-selected", String(selected));
+    gl.domElement.setAttribute("data-dragged", String(world.draggedIndex));
+    if (selected >= 0) {
+      gl.domElement.setAttribute("data-selected-x", String(world.px[selected]));
+      gl.domElement.setAttribute("data-selected-y", String(world.py[selected]));
+    } else {
+      gl.domElement.removeAttribute("data-selected-x");
+      gl.domElement.removeAttribute("data-selected-y");
+    }
   });
 
   return (

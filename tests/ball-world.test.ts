@@ -151,4 +151,107 @@ describe("tech-stack ball physics", () => {
       expect(w.px[i]).toBeLessThanOrEqual(390);
     }
   });
+
+  it("follows the original grab offset smoothly and stays awake while held", () => {
+    const w = createBallWorld({
+      width: 800,
+      height: 600,
+      radii: [30],
+      gravity: 0,
+    });
+    w.px[0] = 200;
+    w.py[0] = 300;
+    w.awake[0] = 0;
+    expect(w.beginDrag(0, 210, 300)).toBe(true);
+    w.moveDrag(400, 300);
+    w.advance(1 / 60);
+    expect(w.px[0]).toBeGreaterThan(200);
+    expect(w.px[0]).toBeLessThan(210);
+    run(w, 8);
+    expect(w.px[0]).toBeCloseTo(390, 0);
+    expect(w.py[0]).toBeCloseTo(300, 0);
+    expect(w.settled()).toBe(false);
+    expect(w.draggedIndex).toBe(0);
+  });
+
+  it("gently displaces sleeping neighbours instead of passing through them", () => {
+    const w = createBallWorld({
+      width: 800,
+      height: 600,
+      radii: [30, 30],
+      gravity: 0,
+    });
+    w.setFloor({ x0: 0, dx: 800, ys: [300, 300] });
+    w.px.set([200, 264]);
+    w.py.fill(270);
+    w.awake.fill(0);
+    w.beginDrag(0, 200, 270);
+    w.awake[1] = 0;
+    w.moveDrag(280, 270);
+    run(w, 1);
+    expect(w.px[1]).toBeGreaterThan(290);
+    expect(Math.hypot(w.px[1] - w.px[0], w.py[1] - w.py[0])).toBeGreaterThan(
+      59,
+    );
+    w.endDrag();
+    expect(w.draggedIndex).toBe(-1);
+    expect(Math.hypot(w.vx[0], w.vy[0])).toBeLessThanOrEqual(180);
+  });
+
+  it("bounds an off-screen grab, rejects invalid input and cancels without a throw", () => {
+    const w = createBallWorld({
+      width: 800,
+      height: 600,
+      radii: [30],
+      gravity: 0,
+    });
+    w.setWalls({ top: true });
+    w.px[0] = 400;
+    w.py[0] = 300;
+    expect(w.beginDrag(-1, 0, 0)).toBe(false);
+    expect(w.beginDrag(1, 0, 0)).toBe(false);
+    expect(w.beginDrag(0, NaN, 0)).toBe(false);
+    w.beginDrag(0, 400, 300);
+    w.moveDrag(10000, -10000);
+    run(w, 2);
+    expect(w.px[0]).toBeLessThanOrEqual(770);
+    expect(w.py[0]).toBeGreaterThanOrEqual(30);
+    w.moveDrag(NaN, Infinity);
+    w.advance(1 / 60);
+    expect(Number.isFinite(w.px[0]) && Number.isFinite(w.py[0])).toBe(true);
+    w.endDrag(true);
+    expect(w.vx[0]).toBe(0);
+    expect(w.vy[0]).toBe(0);
+    expect(w.draggedIndex).toBe(-1);
+  });
+
+  it("settles again after a drag and clears grabs on reset or resize", () => {
+    const w = world();
+    run(w, 8);
+    w.beginDrag(0, w.px[0], w.py[0]);
+    w.moveDrag(w.px[0] + 120, w.py[0] - 60);
+    run(w, 1);
+    w.endDrag();
+    expect(run(w, 10)).toBeLessThan(8);
+    expect(w.settled()).toBe(true);
+    w.beginDrag(0, w.px[0], w.py[0]);
+    w.resize(800, 600);
+    expect(w.draggedIndex).toBe(-1);
+    w.beginDrag(0, w.px[0], w.py[0]);
+    w.spawnAbove();
+    expect(w.draggedIndex).toBe(-1);
+  });
+
+  it("moves a chosen ball with a gentle directional nudge and stops rendering", () => {
+    const w = createBallWorld({ width: W, height: H, radii: [40] });
+    w.setFloor({ x0: 0, dx: W, ys: [800, 800] });
+    w.px[0] = 720;
+    run(w, 3);
+    const before = w.px[0];
+    expect(w.nudge(0, -1)).toBe(true);
+    run(w, 8);
+    expect(w.px[0]).toBeLessThan(before - 10);
+    expect(w.settled()).toBe(true);
+    expect(w.nudge(1, 1)).toBe(false);
+  });
 });
