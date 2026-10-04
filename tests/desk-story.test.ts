@@ -153,9 +153,12 @@ describe("desk story timeline", () => {
 
 describe("desk story camera", () => {
   it("frames each close-up so its screen scale follows from the viewport", () => {
-    // Height-bound on a desktop: the monitor fills 1/1.3 of the height.
+    // Height-bound on a desktop: the monitor fills 1/1.15 of the height,
+    // the MacBook 1/1.3.
     const desktop = closeupScale(portrait, 1440, 900);
-    expect(desktop * 1000 * (0.531 / 0.299)).toBeCloseTo(900 / 1.3, 0);
+    expect(desktop * 1000 * (0.531 / 0.299)).toBeCloseTo(900 / 1.15, 0);
+    const laptop = closeupScale(macbook, 1440, 900);
+    expect(laptop * 1280 * (0.194 / 0.298)).toBeCloseTo(900 / 1.3, 0);
     // Width-bound on a phone: it fills 1/1.16 of the width.
     expect(closeupScale(portrait, 390, 844) * 1000).toBeCloseTo(390 / 1.16, 0);
   });
