@@ -119,3 +119,12 @@ New and changed copy for the AI work Onur asked to bring forward (MCP, Kuyumcum'
 | Technology list | Added with evidence: MCP (GymRap), FastAPI (CarbonPilot, VoiceOps), Cloudflare Workers (GymRap) as balls; OpenAI API and Anthropic API (Future Is Now role), LangSmith (CarbonPilot), Ollama (Course Intelligence), Ultralytics YOLO (Kuyumcum), Kotlin (GymRap) in the Explorer only. LangGraph, LangChain, Gemini, PostgreSQL and Docker gain CarbonPilot (and Gemini VoiceOps) as public evidence. 41 technologies, 30 balls. | As listed. |
 
 Turkish counterparts are in the same files (`src/content/tr/*`, `src/lib/research.ts`) and say the same things; Turkish terms follow the existing copy (agentic iş akışları, bilgi getirme).
+
+## Final polish: release (PR 10, October 4)
+
+Interface labels and structured data; no new claims.
+
+- Contact: the address opens mail (no external-link arrow); "Copy address" / "Adresi kopyala" copies it and says "Copied" / "Kopyalandı" ("Email address copied" / "E-posta adresi kopyalandı" for screen readers); "Request my CV" / "CV’mi iste" joins GitHub and LinkedIn.
+- GitHub activity without live data: "Featured repositories" / "Öne çıkan depolar" — GymRap-AI-Coach ("MCP server and AI coach on Cloudflare"), CarbonPilot AI ("Guarded LangGraph agent (team project)"), IEU-Chat-Bot ("Course Intelligence RAG"), izsu_ai_project ("HealthFactor-AI water safety"), with Turkish counterparts.
+- Latest updates show one item per repository before repeating one; this site's repository fills in only when fewer than three others are active.
+- Structured data (Person) adds `knowsAbout`: large language models, retrieval-augmented generation, AI agents, Model Context Protocol, LangGraph, machine learning, computer vision — each shown in a case study.

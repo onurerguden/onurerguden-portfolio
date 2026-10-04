@@ -7,7 +7,9 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      ...(indexable ? { allow: "/", disallow: "/api/" } : { disallow: "/" }),
+      ...(indexable
+        ? { allow: "/", disallow: ["/api/", "/en/lab/", "/tr/lab/"] }
+        : { disallow: "/" }),
     },
     ...(indexable ? { sitemap: `${siteOrigin()}/sitemap.xml` } : {}),
   };

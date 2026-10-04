@@ -48,6 +48,16 @@ export default async function Home({
     },
     url: `${siteOrigin()}/${locale}`,
     sameAs: [sharedFacts.github, sharedFacts.linkedin],
+    // What the case studies show, in the field's own terms.
+    knowsAbout: [
+      "Large language models",
+      "Retrieval-augmented generation",
+      "AI agents",
+      "Model Context Protocol",
+      "LangGraph",
+      "Machine learning",
+      "Computer vision",
+    ],
   };
   return (
     <main id="main" tabIndex={-1} data-home>

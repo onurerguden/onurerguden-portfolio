@@ -35,6 +35,42 @@
     border-color 300ms ease,
     transform 350ms var(--ease-out);
 }
+/* The address opens mail; the button beside it copies it. */
+.mailRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: clamp(30px, 4vw, 52px);
+}
+.mailRow .mail {
+  margin-top: 0;
+}
+.copy {
+  min-height: 56px;
+  padding: 0 22px;
+  border: 1px solid #ffffff3d;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-body);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+  transition:
+    border-color 250ms ease,
+    color 250ms ease;
+}
+.copy:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 5px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .copy:hover {
+    border-color: #fff;
+    color: #fff;
+  }
+}
 .links {
   display: flex;
   justify-content: center;

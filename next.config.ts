@@ -6,6 +6,24 @@ const immutable = [
   { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
 ];
 const versioned = [{ type: "query" as const, key: "v" }];
+// Sent with every response; the Content Security Policy, which needs a nonce
+// per request, comes from src/proxy.ts.
+const security = [
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+  {
+    key: "Permissions-Policy",
+    value:
+      "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+  },
+  // Two years, subdomains included; not submitted for preload.
+  {
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains",
+  },
+];
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
@@ -19,6 +37,7 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      { source: "/:path*", headers: security },
       // The desk model and its rendered views carry a ?v= content revision.
       { source: "/models/:path*", has: versioned, headers: immutable },
       { source: "/images/desk/:path*", has: versioned, headers: immutable },
