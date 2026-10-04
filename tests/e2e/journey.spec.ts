@@ -495,6 +495,14 @@ test("journey bar hides after travel and returns at the top edge", async ({
     "true",
     { timeout: ci(20000) },
   );
+  // Headless Linux Chromium (CI) reports no fine pointer, so the bar's
+  // pointer reveal does not exist there.
+  test.skip(
+    !(await page.evaluate(
+      () => matchMedia("(hover: hover) and (pointer: fine)").matches,
+    )),
+    "The browser reports no fine pointer.",
+  );
   const navigation = page.getByRole("navigation", {
     name: "Journey sections",
   });

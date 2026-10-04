@@ -65,13 +65,11 @@ for (const locale of ["en", "tr"] as const) {
       const drawers = page.locator('[data-desk-action="drawers"]');
       await drawers.click();
       await expect(canvas).toHaveAttribute("data-last-desk-action", "drawers");
-      await expect(canvas).toHaveAttribute("data-drawers-motion", "running");
-      if (!journey)
-        await expect
-          .poll(async () =>
-            Number(await canvas.getAttribute("data-drawer-peak")),
-          )
-          .toBeGreaterThan(0);
+      // The wave is short; on a slow renderer its "running" frames can fall
+      // between samples, so its recorded peak is what proves it moved.
+      await expect
+        .poll(async () => Number(await canvas.getAttribute("data-drawer-peak")))
+        .toBeGreaterThan(0);
       await page.waitForTimeout(400);
       await drawers.click();
       await page.waitForTimeout(1200);
