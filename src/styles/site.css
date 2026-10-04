@@ -318,7 +318,7 @@ body:has([data-journey-stage]) {
   height: 12px;
   border-inline: 3px solid currentColor;
 }
-[aria-pressed="true"] > .motion-toggle-icon {
+[data-paused="true"] > .motion-toggle-icon {
   width: 0;
   height: 0;
   border-block: 6px solid transparent;
