@@ -16,26 +16,6 @@ export type CertificateCard = {
   image: { src: string; width: number; height: number };
 };
 
-/** Tilt and foil follow a fine pointer; nothing animates at rest. */
-function tilt(event: React.PointerEvent<HTMLElement>) {
-  if (event.pointerType !== "mouse") return;
-  const node = event.currentTarget;
-  const rect = node.getBoundingClientRect();
-  const x = (event.clientX - rect.left) / rect.width;
-  const y = (event.clientY - rect.top) / rect.height;
-  node.style.setProperty("--px", x.toFixed(3));
-  node.style.setProperty("--py", y.toFixed(3));
-  node.style.setProperty("--ry", `${((x - 0.5) * 16).toFixed(2)}deg`);
-  node.style.setProperty("--rx", `${((0.5 - y) * 12).toFixed(2)}deg`);
-  node.dataset.tilting = "true";
-}
-function rest(event: React.PointerEvent<HTMLElement>) {
-  const node = event.currentTarget;
-  node.dataset.tilting = "false";
-  node.style.setProperty("--rx", "0deg");
-  node.style.setProperty("--ry", "0deg");
-}
-
 export default function CertificateGallery({
   items,
   locale,
@@ -44,8 +24,8 @@ export default function CertificateGallery({
   locale: "en" | "tr";
 }) {
   const en = locale === "en";
-  const { paused, reduced } = useMotionPreference();
-  const still = paused || reduced;
+  const { paused, reduced, hydrated } = useMotionPreference();
+  const still = !hydrated || paused || reduced;
   const dialog = useRef<HTMLDialogElement>(null);
   const opener = useRef<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(0);
@@ -59,14 +39,12 @@ export default function CertificateGallery({
     setOpen((index) => (index + delta + items.length) % items.length);
   return (
     <>
-      <ul className={styles.grid}>
+      <ul className={styles.grid} data-motion-still={still}>
         {items.map((item, index) => (
-          <li key={item.id}>
+          <li key={item.id} className={styles.item}>
             <button
               type="button"
               className={styles.card}
-              onPointerMove={still ? undefined : tilt}
-              onPointerLeave={rest}
               onClick={(event) => show(index, event.currentTarget)}
               aria-haspopup="dialog"
               aria-describedby={
@@ -75,19 +53,35 @@ export default function CertificateGallery({
                   : undefined
               }
             >
-              <span className={styles.media}>
-                {/* The title names the button; the lightbox carries the alt text. */}
-                <Image
-                  src={item.image.src}
-                  alt=""
-                  width={item.image.width}
-                  height={item.image.height}
-                  sizes="(max-width: 700px) 90vw, 360px"
-                />
-                <span className={styles.foil} aria-hidden="true" />
-                <span className={styles.glare} aria-hidden="true" />
+              <span className={styles.stack} data-certificate-stack>
+                <span className={styles.layers}>
+                  {/* Blank backing sheets add depth, without implying more credentials. */}
+                  <span
+                    className={`${styles.sheet} ${styles.rear}`}
+                    data-certificate-sheet="rear"
+                    aria-hidden="true"
+                  />
+                  <span
+                    className={`${styles.sheet} ${styles.middle}`}
+                    data-certificate-sheet="middle"
+                    aria-hidden="true"
+                  />
+                  <span
+                    className={`${styles.sheet} ${styles.front}`}
+                    data-certificate-sheet="front"
+                  >
+                    {/* The title names the button; the lightbox carries the alt text. */}
+                    <Image
+                      src={item.image.src}
+                      alt=""
+                      width={item.image.width}
+                      height={item.image.height}
+                      sizes="(min-width: 1467px) 371px, (min-width: 1100px) calc(30vw - 70px), (min-width: 700px) calc(45vw - 62px), (min-width: 534px) 432px, calc(90vw - 48px)"
+                    />
+                  </span>
+                </span>
               </span>
-              <span className={styles.meta}>
+              <span className={styles.meta} data-certificate-meta>
                 <strong>{item.title}</strong>
                 <span>
                   {item.issuer} ·{" "}
