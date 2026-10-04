@@ -1,7 +1,16 @@
-import { test, expect, type Locator } from "@playwright/test";
+import { test, expect, type Locator, type Page } from "@playwright/test";
 import { getCertificates } from "../../src/lib/home-content";
-import { motionStorageKey } from "../../src/lib/motion-preference";
 import AxeBuilder from "@axe-core/playwright";
+
+/** Presses the nav's pause toggle without moving focus. */
+const toggleMotion = (page: Page) =>
+  page.evaluate(() =>
+    document
+      .querySelector<HTMLButtonElement>(
+        "#journey-sections-menu button[data-paused]",
+      )!
+      .click(),
+  );
 
 const metadataPosition = (card: Locator) =>
   card.evaluate((button) => {
@@ -162,13 +171,8 @@ for (const locale of ["en", "tr"] as const) {
       .analyze();
     expect(focusedAudit.violations).toEqual([]);
 
-    // A saved preference can change in another tab while this card is active.
-    await page.evaluate((key) => {
-      localStorage.setItem(key, "true");
-      window.dispatchEvent(
-        new StorageEvent("storage", { key, newValue: "true" }),
-      );
-    }, motionStorageKey);
+    // Motion can be paused from the nav while this card keeps focus.
+    await toggleMotion(page);
     await expect(grid).toHaveAttribute("data-motion-still", "true");
     await expect(card).toBeFocused();
     await expect(front).toHaveCSS("transform", "none");
@@ -181,12 +185,7 @@ for (const locale of ["en", "tr"] as const) {
       .analyze();
     expect(pausedAudit.violations).toEqual([]);
 
-    await page.evaluate((key) => {
-      localStorage.setItem(key, "false");
-      window.dispatchEvent(
-        new StorageEvent("storage", { key, newValue: "false" }),
-      );
-    }, motionStorageKey);
+    await toggleMotion(page);
     await expect(grid).toHaveAttribute("data-motion-still", "false");
     await expect(front).not.toHaveCSS("transform", "none");
     await page.emulateMedia({ reducedMotion: "reduce" });
