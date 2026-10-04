@@ -9,7 +9,10 @@ import {
   newContributions,
   nextCell,
   parseSnapshot,
+  recentEvents,
+  shortEventAction,
   timeAgo,
+  topLanguages,
   weekColumns,
 } from "../src/lib/activity-view";
 import type {
@@ -55,6 +58,140 @@ describe("activity wording", () => {
     expect(timeAgo(now - 5 * 60_000, now, "en")).toBe("5 minutes ago");
     expect(timeAgo(now - 3 * 3_600_000, now, "tr")).toBe("3 saat önce");
     expect(timeAgo(now - 3 * 86_400_000, now, "en")).toBe("3 days ago");
+  });
+});
+
+describe("compact public activity", () => {
+  const base = { repo: "onurerguden/portfolio", at: "2026-01-03T09:00:00Z" };
+
+  it("selects the newest three useful events from mixed, unordered snapshots", () => {
+    const events: ActivityEvent[] = [
+      {
+        ...base,
+        id: "old",
+        at: "2026-01-01T09:00:00Z",
+        kind: "push",
+        commits: 1,
+        branch: null,
+      },
+      {
+        ...base,
+        id: "branch",
+        at: "2026-01-04T09:00:00Z",
+        kind: "create",
+        ref: "branch",
+        name: "feature",
+      },
+      { ...base, id: "pr", kind: "pull_request", action: "merged", number: 7 },
+      {
+        ...base,
+        id: "release",
+        at: "2026-01-02T09:00:00Z",
+        kind: "release",
+        tag: "v1.0",
+      },
+      {
+        ...base,
+        id: "push",
+        at: "2026-01-03T10:00:00Z",
+        kind: "push",
+        commits: 3,
+        branch: "main",
+      },
+    ];
+    const order = events.map((event) => event.id);
+    const selected = recentEvents(events);
+    expect(selected.map((event) => event.id)).toEqual([
+      "push",
+      "pr",
+      "release",
+    ]);
+    expect(events.map((event) => event.id)).toEqual(order);
+    // The seen watermark comes from the rendered list, not a hidden branch.
+    expect(selected[0].at).toBe("2026-01-03T10:00:00Z");
+  });
+
+  it("preserves source order for tied times and handles fewer than three updates", () => {
+    const events: ActivityEvent[] = [
+      { ...base, id: "first", kind: "push", commits: null, branch: null },
+      { ...base, id: "second", kind: "release", tag: null },
+    ];
+    expect(recentEvents(events).map((event) => event.id)).toEqual([
+      "first",
+      "second",
+    ]);
+    expect(recentEvents([])).toEqual([]);
+    expect(
+      recentEvents([
+        { ...base, id: "tag", kind: "create", ref: "tag", name: "v2" },
+      ]),
+    ).toEqual([]);
+  });
+
+  it("keeps the actual top language shares without renormalizing or mutating them", () => {
+    const languages = [
+      { name: "Java", share: 12.5 },
+      { name: "Python", share: 48.5 },
+      { name: "TypeScript", share: 30 },
+      { name: "Shell", share: 4 },
+    ];
+    expect(topLanguages(languages)).toEqual([
+      { name: "Python", share: 48.5 },
+      { name: "TypeScript", share: 30 },
+      { name: "Java", share: 12.5 },
+    ]);
+    expect(languages[0].name).toBe("Java");
+    expect(topLanguages([])).toEqual([]);
+  });
+
+  it("preserves language order for tied shares", () => {
+    const languages = [
+      { name: "Python", share: 40 },
+      { name: "TypeScript", share: 40 },
+    ];
+    expect(topLanguages(languages)).toEqual(languages);
+  });
+
+  it("uses compact bilingual actions without inventing unknown details", () => {
+    const push = {
+      ...base,
+      id: "push",
+      kind: "push" as const,
+      commits: null,
+      branch: null,
+    };
+    expect(shortEventAction(push, "en")).toBe("Pushed");
+    expect(shortEventAction(push, "tr")).toBe("Gönderim yaptım");
+    expect(shortEventAction({ ...push, commits: 1 }, "en")).toBe(
+      "Pushed 1 commit",
+    );
+    expect(shortEventAction({ ...push, commits: 3 }, "tr")).toBe(
+      "3 commit gönderdim",
+    );
+    expect(
+      shortEventAction(
+        {
+          ...base,
+          id: "pr",
+          kind: "pull_request",
+          action: "merged",
+          number: 7,
+        },
+        "en",
+      ),
+    ).toBe("Merged a PR");
+    expect(
+      shortEventAction(
+        { ...base, id: "release", kind: "release", tag: null },
+        "tr",
+      ),
+    ).toBe("Bir sürüm yayımladım");
+    expect(
+      shortEventAction(
+        { ...base, id: "release", kind: "release", tag: "v1.0" },
+        "en",
+      ),
+    ).toBe("Released v1.0");
   });
 });
 

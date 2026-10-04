@@ -172,6 +172,47 @@ export function describeEvent(event: ActivityEvent, locale: "en" | "tr") {
   }
 }
 
+export type RecentActivityEvent = Exclude<ActivityEvent, { kind: "create" }>;
+
+/** The newest three meaningful updates, including older cached snapshots. */
+export function recentEvents(events: readonly ActivityEvent[]) {
+  return events
+    .filter((event): event is RecentActivityEvent => event.kind !== "create")
+    .sort((a, b) => Date.parse(b.at) - Date.parse(a.at))
+    .slice(0, 3);
+}
+
+/** Keep GitHub's actual shares; the three selected languages need not sum to 100. */
+export function topLanguages(languages: ActivitySnapshot["languages"]) {
+  return [...languages].sort((a, b) => b.share - a.share).slice(0, 3);
+}
+
+/** Compact visual wording; the link retains describeEvent's full name. */
+export function shortEventAction(
+  event: RecentActivityEvent,
+  locale: "en" | "tr",
+) {
+  const en = locale === "en";
+  switch (event.kind) {
+    case "push":
+      if (!event.commits) return en ? "Pushed" : "Gönderim yaptım";
+      return en
+        ? `Pushed ${event.commits} commit${event.commits === 1 ? "" : "s"}`
+        : `${event.commits} commit gönderdim`;
+    case "pull_request":
+      return {
+        opened: en ? "Opened a PR" : "PR açtım",
+        merged: en ? "Merged a PR" : "PR birleştirdim",
+        closed: en ? "Closed a PR" : "PR kapattım",
+        reopened: en ? "Reopened a PR" : "PR'ı yeniden açtım",
+      }[event.action];
+    case "release":
+      return en
+        ? `Released ${event.tag ?? "a version"}`
+        : `${event.tag ?? "Bir sürüm"} yayımladım`;
+  }
+}
+
 /** Contributions a calendar counts from `date` (YYYY-MM-DD) on. */
 export function countFrom(year: ActivityYear, date: string) {
   const skip = Math.round((Date.parse(date) - Date.parse(year.start)) / DAY);

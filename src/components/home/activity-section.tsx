@@ -30,7 +30,7 @@ const bones = (count: number, className: string) =>
 
 /**
  * Stands in while the data streams, laid out with the live panel's own
- * classes (stats, year tabs, heatmap, languages, a full feed), so content
+ * classes (stats, year tabs, heatmap, two three-row panels), so content
  * below barely moves when the numbers arrive.
  */
 function ActivitySkeleton({ locale }: { locale: Locale }) {
@@ -45,8 +45,11 @@ function ActivitySkeleton({ locale }: { locale: Locale }) {
       </p>
       <div aria-hidden="true">
         <p className={styles.fresh} />
+        <p className={styles.statPeriod}>
+          {en ? "Last 12 months" : "Son 12 ay"}
+        </p>
         <div className={styles.stats}>
-          {Array.from({ length: 6 }, (_, i) => (
+          {Array.from({ length: 3 }, (_, i) => (
             <div key={i}>
               <span className={styles.boneLabel} />
               <span className={styles.boneValue} />
@@ -58,18 +61,17 @@ function ActivitySkeleton({ locale }: { locale: Locale }) {
           <span className={styles.boneText} />
         </p>
         <div className={styles.grid}>
-          <div className={styles.boneHeatmap} />
+          <div className={styles.gridScroller}>
+            <div className={styles.boneHeatmap} />
+          </div>
           <p className={styles.readout}> </p>
           <div className={styles.legend}>{bones(5, styles.cell)}</div>
         </div>
         <div className={styles.lower}>
-          <div>
+          <div className={styles.panel}>
             <span className={styles.boneHead} />
-            <div className={styles.bar}>
-              <span className={styles.boneFill} />
-            </div>
             <ul className={styles.languages}>
-              {Array.from({ length: 6 }, (_, i) => (
+              {Array.from({ length: 3 }, (_, i) => (
                 <li key={i}>
                   <span className={styles.boneName} />
                   <span className={styles.boneWhen} />
@@ -77,18 +79,24 @@ function ActivitySkeleton({ locale }: { locale: Locale }) {
               ))}
             </ul>
           </div>
-          <div>
+          <div className={styles.panel}>
             <span className={styles.boneHead} />
             <ol className={styles.events}>
-              {Array.from({ length: 12 }, (_, i) => (
+              {Array.from({ length: 3 }, (_, i) => (
                 <li key={i}>
-                  <span className={styles.boneText} />
+                  <div className={styles.boneEvent}>
+                    <span className={styles.boneName} />
+                    <span className={styles.boneText} />
+                  </div>
                   <span className={styles.boneWhen} />
                 </li>
               ))}
             </ol>
           </div>
         </div>
+        <p className={styles.profile}>
+          <span className={styles.boneText} />
+        </p>
       </div>
     </div>
   );

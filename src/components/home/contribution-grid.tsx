@@ -1,5 +1,12 @@
 "use client";
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import {
+  memo,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import type { ActivityYear } from "@/lib/github/activity-core";
 import {
   GRID_KEYS,
@@ -174,6 +181,7 @@ function ContributionGrid({
           aria-label={label}
           aria-readonly="true"
           className={styles.heatmap}
+          style={{ "--week-count": weeks.length } as CSSProperties}
           onKeyDown={onKeyDown}
           onFocus={(event) => {
             const date = dateOf(event.target);
@@ -187,6 +195,10 @@ function ContributionGrid({
           }}
           onPointerLeave={() => setShown(null)}
         >
+          <colgroup>
+            <col className={styles.weekdayColumn} />
+            <col span={weeks.length} className={styles.weekColumn} />
+          </colgroup>
           {head}
           {body}
         </table>
