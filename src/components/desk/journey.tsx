@@ -35,6 +35,7 @@ import {
 import { stageRegistry } from "@/lib/stage-registry";
 import { homeSections, type SectionLink } from "@/lib/home-sections";
 import { currentSection } from "@/lib/current-section";
+import { deskMode, useStaticDesk } from "@/lib/desk-mode";
 import { laptopPhase, type LaptopPhase } from "@/lib/desk-story/store";
 import { signal } from "@/lib/desk-story/signal";
 import SceneBoundary from "@/components/three/scene-boundary";
@@ -42,6 +43,7 @@ import { JourneyNav, plainClick } from "@/components/site/site-nav";
 import monitorStyles from "@/components/sections/monitor.module.css";
 import xpStyles from "@/components/xp/xp.module.css";
 import styles from "./journey.module.css";
+import hintStyles from "./scroll-hint.module.css";
 import PortraitIdentity from "./portrait-identity";
 import ScreenPanels from "./screen-panels";
 import { paintScreens } from "./paint-screens";
@@ -112,7 +114,6 @@ export default function DeskJourney({
   const stage = useRef<HTMLDivElement>(null);
   const wrapper = useRef<HTMLDivElement>(null);
   const panels = useRef<(HTMLDivElement | null)[]>([]);
-  const intro = useRef<HTMLDivElement>(null);
   const nav = useRef<HTMLElement>(null);
   const hideNavOnScroll = useRef(false);
   // The static section to land on when the desk gives way to the page.
@@ -139,7 +140,10 @@ export default function DeskJourney({
   const finalViewRef = useRef(false);
   const coverRef = useRef({ covered: false, diving: false });
   const [distance] = useState(() => signal(0));
-  const enhanced = enabled && !staticMode && !failed;
+  // The visitor's own "turn 3D off", kept for this visit.
+  const chosenStatic = useStaticDesk();
+  const still = staticMode || failed || chosenStatic;
+  const enhanced = enabled && !still;
   if (enhanced) {
     // Fetch the model and its decoder alongside the scene's code instead of
     // one after the other; the loaders then read them from the cache.
@@ -170,7 +174,13 @@ export default function DeskJourney({
       1 - openingProgress * openingProgress * (3 - 2 * openingProgress);
     node.style.setProperty("--opening-opacity", String(openingOpacity));
     node.dataset.travelled = String(d > 0.15);
-    if (nav.current && hideNavOnScroll.current) {
+    // Over the desk the bar gets out of the way; below it, the scroll
+    // direction decides (see the docking listener).
+    if (
+      nav.current &&
+      hideNavOnScroll.current &&
+      nav.current.dataset.docked !== "true"
+    ) {
       nav.current.dataset.hidden = String(d > 0.15);
       if (d > 0.15) nav.current.dataset.revealed = "false";
     }
@@ -207,10 +217,6 @@ export default function DeskJourney({
       aroundRef.current = [previous, next];
       setAround([previous, next]);
     }
-    if (intro.current) {
-      intro.current.style.opacity = String(1 - Math.min(1, d / 0.5));
-      intro.current.style.visibility = d >= 0.5 ? "hidden" : "visible";
-    }
   }, [distance, layout]);
   useEffect(() => {
     // Scroll events arrive at most once per frame, so the story follows the
@@ -241,8 +247,10 @@ export default function DeskJourney({
     };
   }, []);
   useEffect(() => {
-    // After the journey the nav docks to the top on every pointer type; on
-    // touch it hides while scrolling down and returns when scrolling up.
+    // After the journey the nav docks to the top on every pointer type and
+    // hides while scrolling down, returning when scrolling up. The section in
+    // view is reported so a language switch lands on it.
+    const flow = homeSections.filter((s) => s.place === "flow");
     let lastY = window.scrollY;
     const sync = () => {
       const node = nav.current;
@@ -252,9 +260,23 @@ export default function DeskJourney({
       node.dataset.docked = String(docked);
       const y = window.scrollY;
       if (Math.abs(y - lastY) > 8) {
-        node.dataset.scrollHidden = String(docked && y > lastY);
+        const down = docked && y > lastY;
+        node.dataset.scrollHidden = String(down);
+        if (docked && hideNavOnScroll.current)
+          node.dataset.hidden = String(
+            down && node.dataset.revealed !== "true",
+          );
         lastY = y;
       }
+      if (!docked) return;
+      // The last section whose top has passed 40% of the view.
+      let reading: string | null = null;
+      for (const { id } of flow) {
+        const target = document.getElementById(id);
+        if (target && target.getBoundingClientRect().top < innerHeight * 0.4)
+          reading = id;
+      }
+      currentSection.set(reading);
     };
     sync();
     window.addEventListener("scroll", sync, { passive: true });
@@ -355,7 +377,9 @@ export default function DeskJourney({
       const revealed = event.clientY <= 116;
       node.dataset.revealed = String(revealed);
       node.dataset.hidden = String(
-        section.current?.dataset.travelled === "true" && !revealed,
+        (node.dataset.docked === "true"
+          ? node.dataset.scrollHidden === "true"
+          : section.current?.dataset.travelled === "true") && !revealed,
       );
     };
     syncPointerMode();
@@ -451,10 +475,12 @@ export default function DeskJourney({
   useEffect(() => {
     if (enhanced && ready) update();
   }, [enhanced, ready, update]);
+  // Turning 3D off (here or in the nav) lands on the chapter being read.
   useEffect(() => {
-    if (!enhanced && intro.current) {
-      intro.current.style.opacity = "1";
-      intro.current.style.visibility = "visible";
+    if (chosenStatic) remember();
+  }, [chosenStatic, remember]);
+  useEffect(() => {
+    if (!enhanced) {
       if (fallbackTarget.current) {
         const target = document.getElementById(fallbackTarget.current);
         target?.scrollIntoView({ behavior: "instant", block: "start" });
@@ -600,7 +626,7 @@ export default function DeskJourney({
         className={styles.journey}
         data-enhanced={enhanced}
         data-ready={ready}
-        data-static={staticMode || failed}
+        data-static={still}
         data-journey-released={released}
         data-story={
           measuredReady
@@ -623,11 +649,7 @@ export default function DeskJourney({
         aria-label={en ? "From my desk to my work" : "Masamdan çalışmalarıma"}
       >
         <div className={styles.stage} ref={stage} data-journey-stage>
-          <PortraitIdentity
-            content={content}
-            opening
-            interactive={!staticMode && !failed}
-          />
+          <PortraitIdentity content={content} opening interactive={!still} />
           {posterVisible ? (
             <Image
               {...roomPoster(locale)}
@@ -649,7 +671,7 @@ export default function DeskJourney({
               <ScreenPanels
                 panels={panels}
                 content={content}
-                interactive={!staticMode && !failed}
+                interactive={!still}
                 monitor={
                   <div className={monitorStyles.screen}>
                     {screenSection("services", false)}
@@ -674,20 +696,15 @@ export default function DeskJourney({
               ) : null}
             </div>
           ) : null}
-          <div className={styles.scrollCue} ref={intro}>
-            <span>{en ? "Scroll down" : "Aşağı kaydır"}</span>
-            <span className={styles.scrollLine} aria-hidden="true" />
-          </div>
           {enhanced && ready && finalView ? (
+            // Remounted on every return to the final view, so its few
+            // strokes play again and then stop (WCAG 2.2.2).
             <div
               className={styles.continueCue}
               data-continue-cue
               aria-hidden="true"
             >
-              <span>
-                {en ? "Scroll to continue" : "Devam etmek için kaydır"}
-              </span>
-              <span aria-hidden="true">↓</span>
+              <span className={hintStyles.hint} />
             </div>
           ) : null}
           {enhanced ? (
@@ -733,15 +750,8 @@ export default function DeskJourney({
                   )}
                 </div>
               ) : null}
-              <button
-                type="button"
-                onClick={() => {
-                  remember();
-                  setStaticMode(true);
-                  setEnabled(false);
-                }}
-              >
-                {en ? "Static view" : "Sabit görünüm"}
+              <button type="button" onClick={() => deskMode.set(true)}>
+                {en ? "Turn 3D off" : "3D’yi kapat"}
               </button>
             </div>
           ) : null}

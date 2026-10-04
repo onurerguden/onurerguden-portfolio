@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import type { JourneyContent } from "@/lib/desk-story/content";
 import styles from "./portrait.module.css";
+import hintStyles from "./scroll-hint.module.css";
 
 export default function PortraitIdentity({
   content,
@@ -125,6 +126,12 @@ export default function PortraitIdentity({
             fetchPriority={opening ? "high" : "auto"}
           />
         </picture>
+        {opening ? (
+          // Just under the chin, so it never covers the face at any size.
+          <span className={styles.hint} data-scroll-hint aria-hidden="true">
+            <span className={hintStyles.hint} />
+          </span>
+        ) : null}
       </div>
     </div>
   );

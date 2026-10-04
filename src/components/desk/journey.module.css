@@ -155,71 +155,14 @@
   pointer-events: none;
 }
 
-.scrollCue {
-  position: absolute;
-  z-index: 4;
-  bottom: 5%;
-  left: 50%;
-  transform: translateX(-50%);
-  display: grid;
-  justify-items: center;
-  gap: 14px;
-  color: #34494a;
-  font: 500 12px/1.4 var(--font-sans);
-  pointer-events: none;
-}
-.scrollLine {
-  width: 1px;
-  height: 24px;
-  background: #768582;
-  position: relative;
-}
-.scrollLine::before {
-  content: "";
-  position: absolute;
-  left: -2px;
-  top: 0;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #34494a;
-  animation: scroll-dot 1.8s ease-in-out infinite;
-}
+/* The final view's scroll hint, white over the desk. */
 .continueCue {
   position: absolute;
   z-index: 4;
+  bottom: 24px;
   left: 50%;
-  bottom: 22px;
   transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  color: #f5f3ec;
-  background: #191919df;
-  border: 1px solid #636364;
-  border-radius: 24px;
-  font: 500 12px/1.4 var(--font-sans);
-  white-space: nowrap;
-  pointer-events: none;
-}
-.continueCue span[aria-hidden="true"] {
-  font-size: 16px;
-  line-height: 1;
-}
-@keyframes scroll-dot {
-  0%,
-  100% {
-    transform: translateY(0);
-    opacity: 0.4;
-  }
-  60% {
-    transform: translateY(35px);
-    opacity: 1;
-  }
-}
-.journey[data-static="true"] .scrollCue {
-  display: none;
+  --hint: #ffffff80;
 }
 
 .foot {
@@ -227,8 +170,27 @@
   pointer-events: none;
 }
 .foot button {
-  pointer-events: auto;
   margin-left: auto;
+}
+/*
+ * The step and 3D buttons stay out of sight for every pointer; scrolling and
+ * the nav's menu cover them. Keyboard focus brings them in (as a skip link
+ * does), so they remain reachable without a pointer.
+ */
+.steps,
+.foot > button {
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease;
+}
+.foot:focus-within .steps,
+.foot:focus-within > button {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
 }
 .foot > span {
   position: absolute;
@@ -246,26 +208,9 @@
   position: absolute;
   inset: 0;
 }
-@media (prefers-reduced-motion: reduce) {
-  .scrollLine::before {
-    animation: none;
-  }
-}
 .journey {
   width: 100cqw;
   margin-left: calc(50% - 50cqw);
-}
-.scrollLine::before {
-  animation-iteration-count: 2;
-}
-
-@media (max-width: 700px) {
-  .scrollCue {
-    bottom: 2%;
-  }
-  .continueCue {
-    bottom: 138px;
-  }
 }
 
 /* Shown only while the released desk scene remounts after scrolling back. */
