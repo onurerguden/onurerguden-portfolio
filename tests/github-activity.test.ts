@@ -258,6 +258,83 @@ describe("GitHub activity mapping", () => {
     expect(events[0]).toMatchObject({ commits: 3, branch: "main" });
     expect(events[1]).toMatchObject({ action: "merged", number: 7 });
   });
+
+  it("keeps pushes, pull requests and releases from a mixed public feed", () => {
+    const events = mapEvents([
+      ...eventsBody,
+      ...["repository", "branch", "tag"].map((ref_type, index) => ({
+        id: String(5 + index),
+        type: "CreateEvent",
+        created_at: "2026-09-29T11:00:00Z",
+        repo: { name: "onurerguden/TaskFoo" },
+        payload: { ref_type, ref: "feature" },
+      })),
+      {
+        id: "8",
+        type: "ReleaseEvent",
+        created_at: "2026-09-28T11:00:00Z",
+        repo: { name: "onurerguden/TaskFoo" },
+        payload: { release: { tag_name: "v1.0.0" } },
+      },
+    ]);
+    expect(events.map((event) => event.kind)).toEqual([
+      "push",
+      "release",
+      "pull_request",
+    ]);
+    expect(events[1]).toMatchObject({ id: "8", tag: "v1.0.0" });
+  });
+
+  it("filters creation events before applying the twelve-event limit", () => {
+    const events = mapEvents([
+      ...Array.from({ length: 18 }, (_, index) => ({
+        id: String(index + 10),
+        type: "CreateEvent",
+        created_at: "2026-09-29T11:00:00Z",
+        repo: { name: "onurerguden/TaskFoo" },
+        payload: { ref_type: "branch", ref: `feature-${index}` },
+      })),
+      ...Array.from({ length: 13 }, (_, index) => ({
+        id: String(index + 30),
+        type: "PushEvent",
+        created_at: "2026-09-29T10:00:00Z",
+        repo: { name: "onurerguden/TaskFoo" },
+        payload: { size: 1, ref: "refs/heads/main" },
+      })),
+    ]);
+    expect(events).toHaveLength(12);
+    expect(events.every((event) => event.kind === "push")).toBe(true);
+    expect(events.map((event) => event.id)).toEqual(
+      Array.from({ length: 12 }, (_, index) => String(index + 30)),
+    );
+  });
+
+  it("selects the latest twelve events from an unordered feed and preserves ties", () => {
+    const raw = Array.from({ length: 14 }, (_, index) => ({
+      id: String(index + 1),
+      type: "PushEvent",
+      created_at: new Date(Date.UTC(2026, 8, index + 1)).toISOString(),
+      repo: { name: "onurerguden/TaskFoo" },
+      payload: { size: 1, ref: "refs/heads/main" },
+    }));
+    raw.splice(2, 0, { ...raw[13], id: "15" });
+    const events = mapEvents(raw);
+    expect(events).toHaveLength(12);
+    expect(events.map((event) => event.id)).toEqual([
+      "15",
+      "14",
+      "13",
+      "12",
+      "11",
+      "10",
+      "9",
+      "8",
+      "7",
+      "6",
+      "5",
+      "4",
+    ]);
+  });
 });
 
 describe("GitHub activity refresh", () => {
