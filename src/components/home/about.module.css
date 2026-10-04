@@ -1,5 +1,12 @@
-/* Navy "About me" band. The static composition doubles as the 3D poster. */
+/* The desk's paper palette. The static composition doubles as the 3D poster. */
 .section {
+  --bg: var(--paper);
+  --text: var(--ink);
+  --text-body: var(--ink);
+  --text-muted: var(--muted);
+  --hairline: var(--line);
+  --focus: var(--blue);
+  color-scheme: light;
   position: relative;
   isolation: isolate;
   overflow: clip;
@@ -7,13 +14,7 @@
   display: grid;
   align-items: center;
   padding-block: clamp(96px, 12vw, 176px);
-  background:
-    radial-gradient(
-      ellipse 70% 60% at 50% 42%,
-      color-mix(in oklab, var(--space-2) 85%, transparent),
-      transparent 70%
-    ),
-    var(--bg);
+  background: var(--bg);
   color: var(--text);
 }
 .inner {
@@ -33,7 +34,7 @@
 }
 .copy p {
   margin-bottom: 18px;
-  color: #d9e1ee;
+  color: var(--text-body);
   font-size: clamp(17px, 1.45vw, 20px);
   line-height: 1.7;
 }
@@ -69,7 +70,7 @@
   min-height: 44px;
   display: inline-flex;
   align-items: center;
-  color: #cbd9ff;
+  color: var(--blue);
   font-weight: 650;
   text-decoration: underline;
   text-underline-offset: 6px;
@@ -79,7 +80,7 @@
   align-items: center;
   min-height: 48px;
   padding: 0 22px;
-  border: 1px solid #ffffff5c;
+  border: 1px solid var(--hairline);
   border-radius: 999px;
   color: var(--text);
   font-weight: 700;
@@ -100,13 +101,13 @@
   }
   .outline:hover {
     border-color: var(--text);
-    background: #ffffff14;
+    background: color-mix(in oklab, var(--ink) 5%, transparent);
   }
   .cta:hover span {
     transform: translateX(4px);
   }
   .secondary:hover {
-    color: #fff;
+    color: var(--ink);
   }
 }
 /* Static clay shapes in the corners; hidden once the 3D scene is live. */
@@ -134,10 +135,10 @@
   min-height: 44px;
   margin-top: 18px;
   padding: 0 16px;
-  border: 1px solid #ffffff38;
+  border: 1px solid var(--hairline);
   border-radius: 999px;
   background: transparent;
-  color: #b7c2d4;
+  color: var(--text-muted);
   font-size: 13px;
   font-weight: 650;
   cursor: pointer;
@@ -243,6 +244,9 @@
 .facts a {
   color: var(--accent);
   text-underline-offset: 4px;
+}
+.section .facts a {
+  color: var(--blue);
 }
 .facts a:focus-visible {
   outline: 3px solid var(--focus);

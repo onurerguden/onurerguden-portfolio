@@ -7,7 +7,7 @@ import AboutStage from "./about-stage";
 import EducationFacts from "./education-facts";
 import styles from "./about.module.css";
 
-/** Navy "About me" band with floating procedural objects around the copy. */
+/** Paper "About me" band with floating procedural objects around the copy. */
 export default function AboutSection({ locale }: { locale: Locale }) {
   const en = locale === "en";
   const about = getAbout(locale);
