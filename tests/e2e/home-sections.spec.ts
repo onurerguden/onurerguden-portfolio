@@ -21,7 +21,7 @@ test("home sections follow the story order after the journey", async ({
   const ids = await page.evaluate(() =>
     [
       ...document.querySelectorAll(
-        "#journey-content ~ * section[id], main > section[id]",
+        "#journey-content ~ * section[id], main > section[id], main > [data-sheet][id]",
       ),
     ].map((section) => section.id),
   );
