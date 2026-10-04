@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useRef } from "react";
-import { useMotionValue } from "motion/react";
+import { useEffect, useRef, useState } from "react";
+import { signal } from "@/lib/desk-story/signal";
 import type { JourneyContent } from "@/lib/desk-story/content";
 import { storyAt } from "@/lib/desk-story/timeline";
 import monitorStyles from "@/components/sections/monitor.module.css";
@@ -26,7 +26,7 @@ export default function RoomPosterPreview({
   const wrapper = useRef<HTMLDivElement>(null);
   const panels = useRef<(HTMLDivElement | null)[]>([]);
   const { layout, measured } = useStoryLayout(true, wrapper, panels);
-  const distance = useMotionValue(0);
+  const [distance] = useState(() => signal(0));
   useEffect(() => {
     const end = measured.timeline.length;
     distance.set(end);
