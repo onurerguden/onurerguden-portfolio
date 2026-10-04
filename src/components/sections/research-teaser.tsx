@@ -5,8 +5,9 @@ import { getResearch } from "@/lib/research";
 import styles from "./research-teaser.module.css";
 
 /**
- * Research on the home page: the approach, the accepted paper and the
- * questions I am working on, with the details a page away.
+ * Research on the home page: the approach, the accepted paper beside an
+ * independent study, and the questions I am working on, with the details a
+ * page away.
  */
 export default function ResearchTeaser({ locale }: { locale: Locale }) {
   const en = locale === "en";
@@ -41,6 +42,16 @@ export default function ResearchTeaser({ locale }: { locale: Locale }) {
               ))}
             </p>
             <p className={styles.summary}>{research.publicationSummary}</p>
+          </article>
+          <article className={`${styles.paper} ${styles.study}`}>
+            <p className={`${styles.status} ${styles.quietStatus}`}>
+              {research.study.status}
+            </p>
+            <h3>{research.study.title}</h3>
+            <p className={styles.journal}>{research.study.team}</p>
+            <p className={styles.summary}>
+              {research.study.data} {research.study.method}
+            </p>
           </article>
         </div>
         <h3 className={styles.questionsTitle}>

@@ -117,3 +117,22 @@
   margin: 18px 0 0;
   color: var(--text-body);
 }
+
+/* The independent study sits under the paper, with a neutral status. */
+.study {
+  margin-top: clamp(16px, 2vw, 24px);
+}
+.quietStatus {
+  border: 1px solid var(--hairline);
+  background: transparent;
+  color: var(--text-body);
+}
+.studyLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin: 18px 0 0;
+}
+.studyLinks .link {
+  margin-top: 0;
+}
