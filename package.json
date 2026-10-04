@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "npm run validate:content && next build",
     "start": "next start",
+    "preview:github": "tsx scripts/github/preview.ts",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",

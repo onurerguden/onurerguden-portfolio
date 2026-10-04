@@ -78,7 +78,7 @@ export function parseEvent(body: string): { id: number; remove: boolean } {
 }
 export async function fetchPublicRepos(
   token: string,
-  store: SyncStore,
+  store: Pick<SyncStore, "backoff">,
   fetcher: typeof fetch = fetch,
 ): Promise<RepoSummary[]> {
   if (!token) throw new Error("GitHub configuration unavailable");

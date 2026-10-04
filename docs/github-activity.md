@@ -23,6 +23,8 @@ Worst case this is about one GraphQL request and one conditional REST request ev
 
 ## Failure
 
+The explicit local connected preview reads atomically replaced public files instead of Redis. See the `preview:github` command in [GitHub sync](github-sync.md). This mode is disabled on Vercel, and local snapshots are excluded from deployment traces. All failure rules below still apply to the hosted integration.
+
 Without Redis or a token, or when a read fails, the API answers `503 {"available": false}` with `no-store`, and the section says the live data is unavailable. It never shows placeholder numbers. No error text, token or provider payload reaches the browser.
 
 ## Validation

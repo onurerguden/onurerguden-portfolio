@@ -4,6 +4,23 @@ The public archive reads a durable Redis snapshot on every server request. Edito
 
 ## Configuration
 
+### Local connected preview
+
+Onur's authenticated GitHub CLI can power a local preview without Redis:
+
+```sh
+npm run build
+npm run preview:github -- --port 3103
+```
+
+The command verifies the CLI is signed in as `onurerguden`, reads its credential into the sync process's memory, fetches the real contribution calendar and complete public repository list, then starts Next.js bound to loopback (`localhost`). It refreshes both snapshots every two minutes; historical calendars and language shares are reconciled every 24 hours. The activity UI's existing three-minute poll picks up new snapshots, and the archive reads the latest repository snapshot on each visit.
+
+No credential is written to `.env` or forwarded to the web server. Only filtered public summaries and anonymous contribution counts are atomically written under ignored `work/github/`. They are excluded from deployment traces. Failed refreshes retain the last complete snapshot; GitHub's rate-limit backoff is respected. Stopping the command stops the local server and refresh timer.
+
+`PORTFOLIO_GITHUB_LOCAL_PREVIEW` is a server-only, explicit loopback-origin opt-in set by this command. Missing/invalid opt-in or any Vercel environment uses the existing Redis integration. This is local preview tooling; hosted deployments still need their own read-only token and Redis credentials below. The local CLI credential is never uploaded to a host.
+
+### Hosted integration
+
 Set these server-only environment variables in the hosting dashboard (never `NEXT_PUBLIC_`):
 
 - `GITHUB_TOKEN`: a fine-grained token scoped to public repository metadata, read-only. Avoid access to private repositories.
