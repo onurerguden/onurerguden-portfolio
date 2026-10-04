@@ -36,6 +36,6 @@ Work proceeds through reviewable PRs under Onur's Git identity, merged on Onur's
 
 ## Review artifacts
 
-The six stacked PRs preserve each implementation layer. `docs/qa/README.md` records tests and limitations; screenshots are in the same directory. The ready-to-activate GitHub Actions workflow is in `docs/ci/validate-portfolio.yml` because the current CLI token lacks workflow-upload permission. After `gh auth refresh -h github.com -s workflow`, copy it to `.github/workflows/ci.yml` and commit in the release PR.
+`docs/qa/README.md` records tests and limitations; screenshots are in the same directory. GitHub Actions (`.github/workflows/ci.yml`) runs on every pull request and on `main`: one job for formatting, types, lint, unit tests and the production build, then one browser job per Playwright project. CI retries a failed browser test once and uploads the report when a job fails.
 
 Remote preview requires renewing the expired Vercel login. `vercel login`, then `vercel` from this repository creates a preview; configure the server-only environment in Vercel before testing synchronization. Keep production and preview Redis separate. Do not use `--prod` until the release checklist is complete.

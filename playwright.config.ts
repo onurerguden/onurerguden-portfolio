@@ -7,7 +7,13 @@ export default defineConfig({
   // short demand-rendered animations observable under headless Chromium.
   workers: Number(process.env.PLAYWRIGHT_WORKERS || 1),
   timeout: 45000,
-  reporter: [["list"], ["html", { open: "never" }]],
+  // CI retries once so a slow software-WebGL frame does not fail the run, and
+  // a stray test.only cannot pass silently.
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 1 : 0,
+  reporter: process.env.CI
+    ? [["github"], ["html", { open: "never" }]]
+    : [["list"], ["html", { open: "never" }]],
   use: { baseURL: `http://localhost:${port}`, trace: "retain-on-failure" },
   webServer: {
     command: `npm run start -- --port ${port}`,

@@ -2,7 +2,7 @@
 
 ## External inputs
 
-- [ ] Refresh GitHub CLI with workflow scope and activate docs/ci/validate-portfolio.yml under .github/workflows/ci.yml. The current token cannot upload workflow files.
+- [x] CI is active (4 October 2026): `.github/workflows/ci.yml` checks formatting, types, lint, unit tests, the production build and each Playwright project on every pull request and on `main`.
 - [ ] Refresh the expired Vercel CLI login before creating the remote preview.
 - [x] Onur supplied Kuyumcum screenshots. Merchant map and AI report list are included; balance/holdings screens are excluded.
 - [ ] Onur supplies updated publication-ready CV (July file has outdated publication status and personal phone).
