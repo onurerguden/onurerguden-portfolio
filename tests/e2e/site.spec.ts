@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { forceSectionScenes, journeyCanvas } from "./helpers";
+import { forceSectionScenes, journeyCanvas, ci } from "./helpers";
 import AxeBuilder from "@axe-core/playwright";
 const paths = [
   "",
@@ -123,7 +123,7 @@ test("the home page never holds more than two WebGL contexts", async ({
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
     "true",
-    { timeout: 20000 },
+    { timeout: ci(20000) },
   );
   await scrollThroughHome(page, async () => {
     expect(await page.locator("canvas").count()).toBeLessThanOrEqual(2);
@@ -139,11 +139,11 @@ test("3D canvas is decorative, within budget and safely loses context", async ({
   );
   await page.goto("/en");
   const canvas = journeyCanvas(page);
-  await expect(canvas).toBeVisible({ timeout: 15000 });
+  await expect(canvas).toBeVisible({ timeout: ci(15000) });
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
     "true",
-    { timeout: 20000 },
+    { timeout: ci(20000) },
   );
   await page.evaluate(() =>
     window.scrollTo({ top: innerHeight * 1.2, behavior: "instant" }),

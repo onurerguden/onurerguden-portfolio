@@ -6,7 +6,9 @@ export default defineConfig({
   // The suite renders WebGL through one shared GPU process. Serial workers keep
   // short demand-rendered animations observable under headless Chromium.
   workers: Number(process.env.PLAYWRIGHT_WORKERS || 1),
-  timeout: 45000,
+  // Software WebGL on CI runners is several times slower than a laptop GPU.
+  timeout: process.env.CI ? 135000 : 45000,
+  expect: { timeout: process.env.CI ? 15000 : 5000 },
   // CI retries once so a slow software-WebGL frame does not fail the run, and
   // a stray test.only cannot pass silently.
   forbidOnly: !!process.env.CI,

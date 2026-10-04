@@ -7,13 +7,14 @@ import {
   stageCanvas,
   story,
   within,
+  ci,
 } from "./helpers";
 
 async function ready(page: Page) {
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
     "true",
-    { timeout: 20000 },
+    { timeout: ci(20000) },
   );
 }
 
@@ -45,9 +46,9 @@ test.describe("the MacBook's balls", () => {
     const s = await story(page);
     await go(page, s.chapters.stack + 0.2);
     const canvas = stageCanvas(page, "desk-stack");
-    await expect(canvas).toHaveCount(1, { timeout: 20000 });
+    await expect(canvas).toHaveCount(1, { timeout: ci(20000) });
     await expect(canvas).toHaveAttribute("data-physics-settled", "true", {
-      timeout: 60000,
+      timeout: ci(60000),
     });
     const frames = await canvas.getAttribute("data-stage-frames");
     await page.waitForTimeout(800);
@@ -73,16 +74,16 @@ test.describe("the MacBook's balls", () => {
     await expect(canvas).toHaveAttribute(
       "data-physics-mode",
       /dropping|resting/,
-      { timeout: 30000 },
+      { timeout: ci(30000) },
     );
     await go(page, within(s.macbook, 0.1));
     // Once the list is open the balls are gone and the context released.
-    await expect(canvas).toHaveCount(0, { timeout: 20000 });
+    await expect(canvas).toHaveCount(0, { timeout: ci(20000) });
     await go(page, s.chapters.stack + 0.2);
     await expect(stageCanvas(page, "desk-stack")).toHaveAttribute(
       "data-physics-mode",
       /dropping|resting/,
-      { timeout: 30000 },
+      { timeout: ci(30000) },
     );
   });
 
@@ -96,7 +97,7 @@ test.describe("the MacBook's balls", () => {
     await go(page, (await story(page)).chapters.stack + 0.2);
     const canvas = stageCanvas(page, "desk-stack");
     await expect(canvas).toHaveAttribute("data-physics-settled", "true", {
-      timeout: 60000,
+      timeout: ci(60000),
     });
     expect(await hoverABall(page)).toBeTruthy();
     const balloon = page.locator("[data-balloon]");
@@ -147,7 +148,7 @@ test.describe("the MacBook's balls", () => {
     await go(page, (await story(page)).chapters.stack + 0.2);
     const canvas = stageCanvas(page, "desk-stack");
     await expect(canvas).toHaveAttribute("data-physics-settled", "true", {
-      timeout: 60000,
+      timeout: ci(60000),
     });
     const point = (await hoverABall(page))!;
     expect(point).toBeTruthy();
@@ -169,7 +170,7 @@ test.describe("the MacBook's balls", () => {
     await page.mouse.up();
     await expect(canvas).toHaveAttribute("data-dragged", "-1");
     await expect(canvas).toHaveAttribute("data-physics-settled", "true", {
-      timeout: 60000,
+      timeout: ci(60000),
     });
     const frames = await canvas.getAttribute("data-stage-frames");
     await page.waitForTimeout(800);
@@ -189,7 +190,7 @@ test.describe("the MacBook's balls", () => {
     await go(page, (await story(page)).chapters.stack + 0.2);
     const canvas = stageCanvas(page, "desk-stack");
     await expect(canvas).toHaveAttribute("data-physics-settled", "true", {
-      timeout: 60000,
+      timeout: ci(60000),
     });
     const point = (await hoverABall(page))!;
     expect(point).toBeTruthy();
@@ -216,7 +217,7 @@ test.describe("the MacBook's balls", () => {
     await go(page, (await story(page)).chapters.stack + 0.2);
     const canvas = stageCanvas(page, "desk-stack");
     await expect(canvas).toHaveAttribute("data-physics-settled", "true", {
-      timeout: 60000,
+      timeout: ci(60000),
     });
     const selector = page.getByRole("combobox", {
       name: "Hareket ettirilecek topu seç",

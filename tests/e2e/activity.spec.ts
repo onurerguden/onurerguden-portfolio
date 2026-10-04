@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { ci } from "./helpers";
 import AxeBuilder from "@axe-core/playwright";
 
 const DAY = 86_400_000;
@@ -523,7 +524,7 @@ test("new badges last for the visit and clear once seen", async ({
   await serve(page, [body]);
   // The desk renders in software WebGL above the section, so hydration and
   // the first poll can take several seconds on a busy machine.
-  const slow = { timeout: 15_000 };
+  const slow = { timeout: ci(15_000) };
   // No hash: a deep link would hold the page on the section's top.
   await page.goto("/en");
   const events = page.locator("#activity ol");

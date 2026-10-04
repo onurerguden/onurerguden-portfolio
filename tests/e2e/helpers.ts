@@ -1,6 +1,12 @@
 import { expect, type Page } from "@playwright/test";
 
 /**
+ * A wait scaled for CI, where WebGL runs in software on shared runners and
+ * the desk takes several times longer to load and draw than on a laptop.
+ */
+export const ci = (ms: number) => (process.env.CI ? ms * 3 : ms);
+
+/**
  * Canvas locators scoped to one stage. The home page can hold the desk journey
  * plus section scenes, so a bare `canvas` locator would be ambiguous. Keep bare
  * `canvas` only for "no WebGL anywhere" count assertions.
@@ -32,7 +38,7 @@ type Story = {
 };
 export async function story(page: Page): Promise<Story> {
   const section = page.locator("[data-story]");
-  await expect(section).toHaveCount(1, { timeout: 20000 });
+  await expect(section).toHaveCount(1, { timeout: ci(20000) });
   return JSON.parse((await section.getAttribute("data-story"))!);
 }
 export const within = ([start, end]: [number, number], fraction: number) =>
@@ -75,7 +81,7 @@ export async function go(page: Page, d: number) {
               close(canvas.dataset.distance))
           );
         }, d),
-      { timeout: 20000 },
+      { timeout: ci(20000) },
     )
     .toBe(true);
 }
