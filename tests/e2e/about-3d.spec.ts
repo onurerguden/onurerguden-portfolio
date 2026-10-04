@@ -60,7 +60,7 @@ test.describe("About objects", () => {
     expect(await canvas.getAttribute("data-stage-frames")).toBe(frames);
     await page
       .locator("#about")
-      .getByRole("button", { name: "Pause motion" })
+      .getByRole("button", { name: "Resume motion" })
       .click();
     await expect
       .poll(async () => Number(await canvas.getAttribute("data-stage-frames")))
