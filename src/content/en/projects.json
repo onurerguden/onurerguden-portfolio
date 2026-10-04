@@ -4,14 +4,17 @@
     "summary": "A mobile ecosystem connecting precious-metal holdings, portfolio insight and local merchants. I co-developed the product and engineered its AI features.",
     "category": "Product engineering · applied AI",
     "role": "Co-developer · AI features",
-    "mediaAlt": ["Kuyumcum jeweler discovery map", "Kuyumcum AI report list"]
+    "mediaAlt": [
+      "Kuyumcum jeweler discovery map",
+      "Kuyumcum AI report list"
+    ]
   },
   "water-safety": {
     "title": "HealthFactor-AI",
     "summary": "Two layers of water-safety intelligence: detecting contamination now and forecasting how safety may change next.",
     "category": "Machine learning · research",
     "role": "Two-layer framework, data pipeline and models",
-    "metricLabel": "Toxic-water recall in the project evaluation",
+    "metricLabel": "water-quality measurements from 76 sampling points, August 2025 – July 2026",
     "mediaAlt": [
       "Daily and monthly mean Health Factor of İzmir water samples, August 2025 to August 2026",
       "Correlation matrix of water-quality parameters and the Health Factor"
@@ -25,21 +28,20 @@
   },
   "taskfoo": {
     "title": "TaskFoo",
-    "summary": "I built project, epic and task workflows with role-based controls, PostgreSQL persistence and Docker packaging during my VBT Software internship.",
+    "summary": "I built project, epic and task workflows with role-based controls and PostgreSQL persistence during my VBT Software internship.",
     "category": "Full-stack engineering"
   },
   "urban-mobility": {
     "title": "İzmir urban mobility",
-    "summary": "I explored 27,000+ smart-card records from 2021–2025 with clustering, seasonal features and demand forecasting. Reported forecast error is specific to the project's evaluation.",
+    "summary": "A three-person course project (CE 477): we explored 25,775 daily İzmirim Kart ridership rows, by operator and fare type, from January 2021 to April 2025 with clustering, seasonal features and demand forecasting.",
     "category": "Data science · forecasting",
-    "metricLabel": "MAPE in the project forecast evaluation",
     "mediaAlt": [
-      "Four DBSCAN clusters and noise in the smart-card data, shown on its first two principal components"
+      "Four DBSCAN clusters and noise in the ridership data, shown on its first two principal components"
     ]
   },
   "pam": {
     "title": "Pluggable authentication",
-    "summary": "I built a Java authentication interface for Local, LDAP and Kerberos providers, using adapter and factory patterns to keep credential validation extensible.",
+    "summary": "A four-person course project: a Java authentication interface for Local, LDAP and Kerberos providers, kept extensible with adapter and factory patterns.",
     "category": "Software architecture"
   }
 }
