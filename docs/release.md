@@ -38,8 +38,8 @@
 - [x] Open PRs #39–#43 merged into `main` (4 October 2026); tree identical to their stack.
 - [x] CI active on every pull request and `main` (PR 01).
 - [x] Onur approved the corrected facts (PR 02) and the AI work copy (PR 07) in `docs/content-review.md` (5 October 2026).
-- [ ] Onur approves the technologies added from his organizations' repositories (PR 11, `docs/content-review.md`).
-- [ ] Onur approves the visual gates: desk controls (PR 04), portrait framing (PR 05), studio About (PR 06), section sheets (PR 08), paper curtain (PR 09). Captures: `docs/qa/final-polish/`. Reviewed on the site on 5 October: the curtain, certificates and contact approved; the sheets reduced to About → Projects and the tech stack windows made smaller (PR 11).
+- [x] Onur approved the technologies added from his organizations' repositories (PR 11, `docs/content-review.md`; 5 October 2026).
+- [x] Onur approved the visual gates on 5 October 2026: desk controls (PR 04), portrait framing (PR 05), studio About (PR 06), section sheets (PR 08, reduced to About → Projects after his review), paper curtain (PR 09) and the smaller tech stack windows (PR 11). Captures: `docs/qa/final-polish/`.
 - [ ] Kuyumcum team approves publishing `kuyumcum_ai_workflow_chart.png`; then add it to the case study as a `figure` with a long description.
 - [ ] Physical iPhone Safari pass: hint, sheets (off on phones), About objects, curtain (off on phones), two WebGL contexts.
 
