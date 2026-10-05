@@ -14,8 +14,7 @@ import DeskLighting from "./lighting";
 import { DeskObjectControls, useDeskInteractions } from "./interactions";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Matrix4, Quaternion, Vector3, PerspectiveCamera } from "three";
-import type { MotionValue } from "motion/react";
-import { Model } from "./scene";
+import { Model } from "./model";
 import { createScreenProjection, projectScreen } from "@/lib/desk-projection";
 import { cameraAnchors } from "@/lib/desk-story/anchors";
 import {
@@ -24,12 +23,13 @@ import {
   screens,
   type CameraStop,
 } from "@/lib/desk-story/camera";
-import { storyAt } from "@/lib/desk-story/timeline";
+import { storyAt, type StoryState } from "@/lib/desk-story/timeline";
+import type { Signal } from "@/lib/desk-story/signal";
 import type { PanelRefs } from "./screen-panels";
 import type { StoryMeasure } from "./use-story-layout";
 export type JourneySceneProps = {
   poster?: boolean;
-  distance: MotionValue<number>;
+  distance: Signal<number>;
   active: boolean;
   locale: "en" | "tr";
   onReady: () => void;
@@ -91,6 +91,17 @@ function ScreenDepthPlanes() {
   });
 }
 
+/** Everything the desk's frame depends on; equal keys draw equal frames. */
+function cameraKey(step: StoryState) {
+  return [
+    step.from,
+    step.to,
+    step.travel,
+    step.active,
+    ...step.dive.map((dive) => (dive >= 1 ? 2 : dive > 0 ? 1 : 0)),
+  ].join();
+}
+
 function Driver({
   distance,
   active,
@@ -135,13 +146,23 @@ function Driver({
     gl.domElement.setAttribute("data-active", String(active));
     if (active) invalidate();
   }, [active, invalidate, setFrameloop, gl]);
-  useEffect(
-    () =>
-      distance.on("change", () => {
-        if (active) invalidate();
-      }),
-    [distance, active, invalidate],
-  );
+  useEffect(() => {
+    // Scrolling through a reading stop leaves the camera where it is; the
+    // frame would be identical, so only a moving camera redraws the desk.
+    let key = "";
+    return distance.on((d) => {
+      if (!active) return;
+      const step = storyAt(layout.current.timeline, d);
+      const next = cameraKey(step);
+      if (next !== key) {
+        key = next;
+        invalidate();
+      } else {
+        // The desk already shows this distance; record it for QA.
+        gl.domElement.setAttribute("data-distance", String(step.distance));
+      }
+    });
+  }, [distance, active, invalidate, layout, gl]);
   useEffect(() => {
     invalidate();
   }, [anchors, invalidate]);
@@ -377,6 +398,8 @@ function RenderFrame() {
   }, 1);
   return null;
 }
+const coarsePointer = () =>
+  typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches;
 function JourneyScene(props: JourneySceneProps) {
   const controls = useDeskInteractions(props.active, false);
   const readyCallback = props.onReady;
@@ -394,7 +417,9 @@ function JourneyScene(props: JourneySceneProps) {
         // PCF, which three now renders for PCFSoft anyway; naming it keeps
         // R3F from marking the cached shadow maps dirty on every render.
         shadows="percentage"
-        dpr={[1, 1.5]}
+        // Phones and tablets already have dense screens; the extra pixels
+        // cost battery for no visible gain.
+        dpr={coarsePointer() ? [1, 1.25] : [1, 1.5]}
         frameloop="demand"
         camera={{ fov: 43, near: 0.01, far: 30 }}
         gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}

@@ -1,7 +1,7 @@
 {
-  "about": "Compressed bytes for /en under reduced motion, before any scrolling. Measured 30 Sep 2026: main 195,465 script / 98,040 font / 10,101 CSS / 1,085,266 image; that release 208,623 / 106,048 / 16,832 / 1,085,266. Desk story (2 Oct 2026): 218,310 / 47,964 / 18,802 / 1,076,728; the script ceiling takes the plan's 10 KB allowance for the story timeline, measurement and XP desktop controls (three.js stays in the lazily loaded scene), and the font ceiling follows the opening no longer loading Newsreader. With the AVIF opening portrait (2 Oct 2026): 218,328 / 47,964 / 17,619 / 151,986; the image ceiling drops from 1,150,000 to 250,000.",
+  "about": "Compressed bytes for /en under reduced motion, before any scrolling. Measured 30 Sep 2026: main 195,465 script / 98,040 font / 10,101 CSS / 1,085,266 image; that release 208,623 / 106,048 / 16,832 / 1,085,266. Desk story (2 Oct 2026): 218,310 / 47,964 / 18,802 / 1,076,728; the script ceiling takes the plan's 10 KB allowance for the story timeline, measurement and XP desktop controls (three.js stays in the lazily loaded scene), and the font ceiling follows the opening no longer loading Newsreader. With the AVIF opening portrait (2 Oct 2026): 218,328 / 47,964 / 17,619 / 151,986; the image ceiling drops from 1,150,000 to 250,000. Final polish (4 Oct 2026): 175,628 / 47,964 / 19,655 / 151,986 after removing motion (the journey reads scroll directly; the project stack is a CSS scroll-driven animation); the script ceiling drops to the measurement plus 8 KB.",
   "firstLoad": {
-    "script": 220000,
+    "script": 184000,
     "font": 56000,
     "image": 250000,
     "stylesheet": 20000

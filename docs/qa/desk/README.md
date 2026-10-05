@@ -30,7 +30,7 @@ Realism follow-up: authored surface normals, hardware details and a one-time loc
 
 ## Loading poster correction
 
-The journey now loads `wide-loading.webp`, captured from the production WebGL opening camera at 1280 × 960. The former Cycles poster had a diagonal lightbar highlight and different reflections. This capture uses the same local reflection environment as the live scene; HTML text and controls are excluded. `loading-in-browser.png` verifies the result while the model request is held.
+The journey loaded `wide-loading.webp`, captured from the production WebGL opening camera at 1280 × 960, until the opening portrait replaced it; the unused file was removed on 4 October 2026. The former Cycles poster had a diagonal lightbar highlight and different reflections. This capture uses the same local reflection environment as the live scene; HTML text and controls are excluded. `loading-in-browser.png` verifies the result while the model request is held.
 
 Regeneration: after a model or lighting change, package/build/start the local review, run `node scripts/desk/capture-loading-poster.mjs`, then run `npm run desk:package`, `npm run check` and restart the production server. The capture records the source model hash in `loading-poster.json`; the unit test rejects a poster from an older model. Asset revisioning also covers the new poster.
 

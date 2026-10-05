@@ -3,7 +3,11 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import nextConfig from "../next.config";
 import { locales } from "../src/lib/content";
-import { deskImage, roomPoster } from "../src/lib/desk-asset-urls";
+import {
+  deskDecoderPath,
+  deskImage,
+  roomPoster,
+} from "../src/lib/desk-asset-urls";
 
 const contentHash = (path: string) =>
   createHash("sha256").update(readFileSync(path)).digest("hex").slice(0, 16);
@@ -29,5 +33,26 @@ describe("desk asset URLs", () => {
         `/images/desk/${file}?v=${contentHash(`public/images/desk/${file}`)}`,
       );
     }
+  });
+  it("keep the decoder in a folder named after the installed three", () => {
+    const { version } = JSON.parse(
+      readFileSync("node_modules/three/package.json", "utf8"),
+    );
+    expect(deskDecoderPath).toBe(`/decoders/draco/three-${version}/`);
+    for (const file of ["draco_decoder.wasm", "draco_wasm_wrapper.js"])
+      expect(readFileSync(`public${deskDecoderPath}${file}`)).toEqual(
+        readFileSync(`node_modules/three/examples/jsm/libs/draco/gltf/${file}`),
+      );
+  });
+  it("cache only versioned files as immutable", async () => {
+    const rules = (await nextConfig.headers?.()) ?? [];
+    expect(rules.map((rule) => rule.source)).toEqual([
+      "/models/:path*",
+      "/images/desk/:path*",
+      "/decoders/draco/:release(three-[^/]+)/:file*",
+    ]);
+    for (const rule of rules.slice(0, 2))
+      expect(rule.has).toEqual([{ type: "query", key: "v" }]);
+    expect(nextConfig.poweredByHeader).toBe(false);
   });
 });

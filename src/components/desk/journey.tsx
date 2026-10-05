@@ -1,5 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
+import { preload } from "react-dom";
 import Image from "next/image";
 import {
   useCallback,
@@ -13,7 +14,6 @@ import {
   type FocusEvent,
   type ReactNode,
 } from "react";
-import { useScroll, useMotionValueEvent, useMotionValue } from "motion/react";
 import {
   arrivalDistance,
   clamp,
@@ -27,11 +27,16 @@ import {
   type Timeline,
 } from "@/lib/desk-story/timeline";
 import type { JourneyContent } from "@/lib/desk-story/content";
-import { roomPoster } from "@/lib/desk-asset-urls";
+import {
+  deskDecoderPath,
+  deskModelSrc,
+  roomPoster,
+} from "@/lib/desk-asset-urls";
 import { stageRegistry } from "@/lib/stage-registry";
 import { homeSections, type SectionLink } from "@/lib/home-sections";
 import { currentSection } from "@/lib/current-section";
 import { laptopPhase, type LaptopPhase } from "@/lib/desk-story/store";
+import { signal } from "@/lib/desk-story/signal";
 import SceneBoundary from "@/components/three/scene-boundary";
 import { JourneyNav, plainClick } from "@/components/site/site-nav";
 import monitorStyles from "@/components/sections/monitor.module.css";
@@ -133,14 +138,18 @@ export default function DeskJourney({
   const aroundRef = useRef<[number, number]>([-1, 0]);
   const finalViewRef = useRef(false);
   const coverRef = useRef({ covered: false, diving: false });
-  const distance = useMotionValue(0);
+  const [distance] = useState(() => signal(0));
   const enhanced = enabled && !staticMode && !failed;
+  if (enhanced) {
+    // Fetch the model and its decoder alongside the scene's code instead of
+    // one after the other; the loaders then read them from the cache.
+    const fetched = { as: "fetch", crossOrigin: "anonymous" } as const;
+    preload(deskModelSrc, fetched);
+    preload(`${deskDecoderPath}draco_wasm_wrapper.js`, fetched);
+    preload(`${deskDecoderPath}draco_decoder.wasm`, fetched);
+  }
   const { layout, measured } = useStoryLayout(enhanced, stage, panels);
   const targets = useMemo(() => chapterDistances(measured), [measured]);
-  const { scrollYProgress } = useScroll({
-    target: section,
-    offset: ["start start", "end end"],
-  });
   const update = useCallback(() => {
     const node = section.current;
     if (node?.dataset.enhanced !== "true") return;
@@ -203,7 +212,16 @@ export default function DeskJourney({
       intro.current.style.visibility = d >= 0.5 ? "hidden" : "visible";
     }
   }, [distance, layout]);
-  useMotionValueEvent(scrollYProgress, "change", update);
+  useEffect(() => {
+    // Scroll events arrive at most once per frame, so the story follows the
+    // page without its own animation loop.
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [update]);
   useEffect(() => {
     const motion = matchMedia("(prefers-reduced-motion: reduce)");
     const refresh = () => {

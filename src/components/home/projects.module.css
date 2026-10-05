@@ -52,7 +52,44 @@
   inset: 0;
   border-radius: 28px;
   background: #050912;
+  opacity: 0;
   pointer-events: none;
+}
+/*
+ * Covered cards recede: card i animates over the list's scroll from its own
+ * arrival (i / n of the way) to the end, shrinking 4.5% and dimming 45% per
+ * card still to come. The list's contain range runs from its top meeting the
+ * viewport's top to its bottom meeting the viewport's bottom. Browsers without
+ * scroll-driven animations keep flat, undimmed cards.
+ */
+@supports (animation-timeline: view()) {
+  @media (min-width: 761px) and (min-height: 621px) and (prefers-reduced-motion: no-preference) {
+    .stack {
+      view-timeline: --projects-stack block;
+    }
+    .scaler,
+    .shade {
+      animation: linear both;
+      animation-timeline: --projects-stack;
+      animation-range: contain calc(var(--i) / var(--n) * 100%) contain 100%;
+    }
+    .scaler {
+      animation-name: stack-recede;
+    }
+    .shade {
+      animation-name: stack-dim;
+    }
+  }
+}
+@keyframes stack-recede {
+  to {
+    transform: scale(calc(1 - 0.045 * (var(--n) - 1 - var(--i))));
+  }
+}
+@keyframes stack-dim {
+  to {
+    opacity: calc(0.45 * min(1, var(--n) - 1 - var(--i)));
+  }
 }
 .card {
   display: grid;
@@ -293,9 +330,6 @@
     position: static;
   }
   /* Without stacking there is nothing to shrink or dim. */
-  .scaler {
-    transform: none !important;
-  }
   .shade {
     display: none;
   }

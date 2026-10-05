@@ -74,7 +74,7 @@ describe("desk delivery model", () => {
       5,
     );
   });
-  it("ships a loading poster from the current model", () => {
+  it("records the loading capture against the current model", () => {
     const poster = JSON.parse(
       readFileSync("docs/qa/desk/loading-poster.json", "utf8"),
     );
@@ -82,7 +82,6 @@ describe("desk delivery model", () => {
       createHash("sha256").update(bytes).digest("hex"),
     );
     expect([poster.width, poster.height]).toEqual([1280, 960]);
-    expect(existsSync("public/images/desk/wide-loading.webp")).toBe(true);
   });
   it("ships all four static fallbacks and the revised desk footprint", () => {
     expect(contract.desk).toEqual({ width: 1.5, depth: 0.87 });

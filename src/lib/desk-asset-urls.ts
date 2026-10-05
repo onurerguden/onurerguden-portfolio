@@ -10,6 +10,13 @@ import assets from "./desk-assets.json";
 /** The desk model, versioned with its rendered views. */
 export const deskModelSrc = `/models/desk/onur-desk.glb?v=${assets.revision}`;
 
+/**
+ * Draco's decoder, copied unchanged from the installed three (see its
+ * NOTICE.txt). The folder carries three's version, so a new copy gets a new
+ * URL and the files can be cached as immutable.
+ */
+export const deskDecoderPath = "/decoders/draco/three-0.185.1/";
+
 /** A rendered desk view or detail. */
 export const deskImage = (name: string) =>
   ({
