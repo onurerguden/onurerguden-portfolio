@@ -128,3 +128,14 @@ Interface labels and structured data; no new claims.
 - GitHub activity without live data: "Featured repositories" / "Öne çıkan depolar" — GymRap-AI-Coach ("MCP server and AI coach on Cloudflare"), CarbonPilot AI ("Guarded LangGraph agent (team project)"), IEU-Chat-Bot ("Course Intelligence RAG"), izsu_ai_project ("HealthFactor-AI water safety"), with Turkish counterparts.
 - Latest updates show one item per repository before repeating one; this site's repository fills in only when fewer than three others are active.
 - Structured data (Person) adds `knowsAbout`: large language models, retrieval-augmented generation, AI agents, Model Context Protocol, LangGraph, machine learning, computer vision — each shown in a case study.
+
+## Review fixes (PR 11, October 5)
+
+Onur approved the copy above on 5 October 2026. He then asked to look at his organizations' repositories for technologies the list is missing, without revealing their know-how. Only the names of technologies are added; their evidence is the Future Is Now role or the Kuyumcum case study, never a private repository's name, code or design. Sources: dependency manifests (`requirements.lock`, `pyproject.toml`, `package.json`, `pubspec.yaml`, `docker-compose.yml`) of the repositories he has commits in: Kuyumcum-App/Kuyumcum (83 of 154 commits), Kuyumcum-App/GoldAugmentation_Gold_Image_Detection (all), and three private Future Is Now repositories (615 of 616, 31 of 54 and 14 of 28 commits; their names stay out of this public repository). Two Future Is Now repositories without his commits are left out.
+
+| Block | EN / TR | Source |
+| --- | --- | --- |
+| New technologies (Explorer only; the balls stay at 30) | Pydantic, pytest, MinIO (data and tools) and Vite, Tailwind CSS (web and mobile), evidence: Future Is Now. SQLite (data and tools) and Riverpod (web and mobile), evidence: Kuyumcum. 48 technologies. | FiN manifests (FastAPI services with Pydantic settings, pytest suites, MinIO object storage, React + Vite and Next.js + Tailwind front ends); Kuyumcum `pubspec.yaml` (`sqflite`, `flutter_riverpod`). |
+| Evidence added to existing technologies | Future Is Now now also backs FastAPI, PostgreSQL, Docker, Gemini, LangSmith, React, Next.js and TypeScript; Kuyumcum backs JavaScript (its Cloud Functions). | Same manifests; Kuyumcum `functions/` is JavaScript. |
+| Tech stack dialog | EN "Every ball is a tool from my own projects. Hover to name it, drag to move it." TR "Her top kendi projelerimde kullandığım bir araç. Üzerine gel, adını gör; sürükleyip taşı." (The arrows are no longer mentioned; they appear for keyboard focus only.) | Interface copy. |
+

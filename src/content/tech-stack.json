@@ -48,7 +48,8 @@
       "evidence": [
         { "kind": "project", "slug": "taskfoo" },
         { "kind": "site" },
-        { "kind": "project", "slug": "gymrap-ai-coach" }
+        { "kind": "project", "slug": "gymrap-ai-coach" },
+        { "kind": "experience", "id": "fin-ai-engineer" }
       ]
     },
     {
@@ -66,7 +67,8 @@
       "category": "languages",
       "icon": { "simpleIcons": "javascript" },
       "ball": "yellow",
-      "priority": 2
+      "priority": 2,
+      "evidence": [{ "kind": "project", "slug": "kuyumcum" }]
     },
     {
       "id": "dart",
@@ -208,7 +210,8 @@
       "evidence": [
         { "kind": "project", "slug": "kuyumcum" },
         { "kind": "project", "slug": "carbonpilot" },
-        { "kind": "project", "slug": "voiceops" }
+        { "kind": "project", "slug": "voiceops" },
+        { "kind": "experience", "id": "fin-ai-engineer" }
       ]
     },
     {
@@ -245,7 +248,10 @@
       "icon": { "monogram": "LSmith" },
       "ball": "white",
       "priority": 3,
-      "evidence": [{ "kind": "project", "slug": "carbonpilot" }]
+      "evidence": [
+        { "kind": "project", "slug": "carbonpilot" },
+        { "kind": "experience", "id": "fin-ai-engineer" }
+      ]
     },
     {
       "id": "ollama",
@@ -289,7 +295,11 @@
       "icon": { "simpleIcons": "react" },
       "ball": "white",
       "priority": 1,
-      "evidence": [{ "kind": "project", "slug": "taskfoo" }, { "kind": "site" }]
+      "evidence": [
+        { "kind": "project", "slug": "taskfoo" },
+        { "kind": "site" },
+        { "kind": "experience", "id": "fin-ai-engineer" }
+      ]
     },
     {
       "id": "nextjs",
@@ -298,7 +308,10 @@
       "icon": { "simpleIcons": "nextdotjs" },
       "ball": "white",
       "priority": 2,
-      "evidence": [{ "kind": "site" }]
+      "evidence": [
+        { "kind": "site" },
+        { "kind": "experience", "id": "fin-ai-engineer" }
+      ]
     },
     {
       "id": "spring-boot",
@@ -318,7 +331,8 @@
       "priority": 1,
       "evidence": [
         { "kind": "project", "slug": "carbonpilot" },
-        { "kind": "project", "slug": "voiceops" }
+        { "kind": "project", "slug": "voiceops" },
+        { "kind": "experience", "id": "fin-ai-engineer" }
       ]
     },
     {
@@ -358,6 +372,33 @@
       "evidence": [{ "kind": "site" }]
     },
     {
+      "id": "vite",
+      "name": "Vite",
+      "category": "web-mobile",
+      "icon": { "simpleIcons": "vite" },
+      "ball": "white",
+      "priority": 3,
+      "evidence": [{ "kind": "experience", "id": "fin-ai-engineer" }]
+    },
+    {
+      "id": "tailwindcss",
+      "name": "Tailwind CSS",
+      "category": "web-mobile",
+      "icon": { "simpleIcons": "tailwindcss" },
+      "ball": "white",
+      "priority": 3,
+      "evidence": [{ "kind": "experience", "id": "fin-ai-engineer" }]
+    },
+    {
+      "id": "riverpod",
+      "name": "Riverpod",
+      "category": "web-mobile",
+      "icon": { "monogram": "RP" },
+      "ball": "white",
+      "priority": 3,
+      "evidence": [{ "kind": "project", "slug": "kuyumcum" }]
+    },
+    {
       "id": "postgresql",
       "name": "PostgreSQL",
       "category": "data-tools",
@@ -366,7 +407,8 @@
       "priority": 1,
       "evidence": [
         { "kind": "project", "slug": "taskfoo" },
-        { "kind": "project", "slug": "carbonpilot" }
+        { "kind": "project", "slug": "carbonpilot" },
+        { "kind": "experience", "id": "fin-ai-engineer" }
       ]
     },
     {
@@ -378,7 +420,8 @@
       "priority": 1,
       "evidence": [
         { "kind": "experience", "id": "vbt-intern" },
-        { "kind": "project", "slug": "carbonpilot" }
+        { "kind": "project", "slug": "carbonpilot" },
+        { "kind": "experience", "id": "fin-ai-engineer" }
       ]
     },
     {
@@ -415,6 +458,42 @@
       "icon": { "simpleIcons": "figma" },
       "ball": "white",
       "priority": 3
+    },
+    {
+      "id": "pydantic",
+      "name": "Pydantic",
+      "category": "data-tools",
+      "icon": { "simpleIcons": "pydantic" },
+      "ball": "white",
+      "priority": 3,
+      "evidence": [{ "kind": "experience", "id": "fin-ai-engineer" }]
+    },
+    {
+      "id": "pytest",
+      "name": "pytest",
+      "category": "data-tools",
+      "icon": { "simpleIcons": "pytest" },
+      "ball": "white",
+      "priority": 3,
+      "evidence": [{ "kind": "experience", "id": "fin-ai-engineer" }]
+    },
+    {
+      "id": "minio",
+      "name": "MinIO",
+      "category": "data-tools",
+      "icon": { "simpleIcons": "minio" },
+      "ball": "white",
+      "priority": 3,
+      "evidence": [{ "kind": "experience", "id": "fin-ai-engineer" }]
+    },
+    {
+      "id": "sqlite",
+      "name": "SQLite",
+      "category": "data-tools",
+      "icon": { "simpleIcons": "sqlite" },
+      "ball": "white",
+      "priority": 3,
+      "evidence": [{ "kind": "project", "slug": "kuyumcum" }]
     }
   ]
 }
