@@ -52,21 +52,36 @@ test("the Sections menu opens, navigates and closes from the keyboard", async ({
   });
 });
 
-test("pausing motion is remembered across visits", async ({ page }) => {
+test("pausing motion says what it did and lasts for this visit only", async ({
+  page,
+  context,
+}) => {
   await page.goto("/tr");
   await page.getByRole("button", { name: "Bölümler" }).click();
-  const toggle = page.getByRole("button", { name: "Hareketi duraklat" });
-  await expect(toggle).toHaveAttribute("aria-pressed", "false");
-  await toggle.click();
-  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  const menu = page.locator("#journey-sections-menu");
+  await menu.getByRole("button", { name: "Hareketi duraklat" }).click();
+  await expect(
+    menu.getByRole("button", { name: "Hareketi sürdür" }),
+  ).toBeVisible();
+  await expect(menu.getByRole("status").first()).toHaveText(
+    "Hareket duraklatıldı",
+  );
   await expect(page.locator("html")).toHaveAttribute(
     "data-motion-paused",
     "true",
   );
+  // A reload is the same visit.
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute(
     "data-motion-paused",
     "true",
+  );
+  // A new visit starts moving again.
+  const later = await context.newPage();
+  await later.goto("/tr");
+  await expect(later.locator("html")).toHaveAttribute(
+    "data-motion-paused",
+    "false",
   );
 });
 

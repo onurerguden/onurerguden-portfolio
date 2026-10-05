@@ -12,6 +12,18 @@
 .controls[data-journey="true"] {
   bottom: 78px;
 }
+/* Over the journey the objects answer clicks and taps directly; the list of
+   their actions appears for keyboard focus only. */
+.controls[data-journey="true"]:not(:focus-within) {
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+}
+.controls[data-journey="true"] {
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease;
+}
 .controls summary {
   cursor: pointer;
   min-height: 44px;

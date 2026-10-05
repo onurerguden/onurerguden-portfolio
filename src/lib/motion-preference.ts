@@ -62,9 +62,15 @@ function emit(event: MotionEvent) {
   for (const listener of listeners) listener();
 }
 
+/**
+ * The pause lasts for this visit only (sessionStorage): a choice made once
+ * should not silently freeze the page on a later visit. Earlier versions kept
+ * it in localStorage; that copy is dropped.
+ */
 function readPaused() {
   try {
-    return localStorage.getItem(motionStorageKey) === "true";
+    localStorage.removeItem(motionStorageKey);
+    return sessionStorage.getItem(motionStorageKey) === "true";
   } catch {
     return false;
   }
@@ -78,10 +84,6 @@ function start() {
   media.addEventListener("change", (event) =>
     emit({ type: "reduced", value: event.matches }),
   );
-  window.addEventListener("storage", (event) => {
-    if (event.key === motionStorageKey)
-      emit({ type: "paused", value: event.newValue === "true" });
-  });
 }
 
 function subscribe(listener: () => void) {
@@ -94,7 +96,7 @@ function subscribe(listener: () => void) {
 
 export function setMotionPaused(value: boolean) {
   try {
-    localStorage.setItem(motionStorageKey, String(value));
+    sessionStorage.setItem(motionStorageKey, String(value));
   } catch {
     // Private windows may refuse storage; the toggle still applies to this visit.
   }

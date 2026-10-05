@@ -60,6 +60,18 @@
 .head img {
   object-fit: contain;
 }
+/* The opening's scroll hint hangs from the chin (93.4% of the portrait
+   image's height), shortened on short screens to stay in view. */
+.hint {
+  position: absolute;
+  top: calc(93.4% + clamp(8px, 1.6svh, 16px));
+  left: 50%;
+  --hint-length: clamp(26px, 4.4svh, 44px);
+  transform: translateX(-50%);
+}
+:global([data-static="true"]) .hint {
+  display: none;
+}
 .opening {
   position: absolute;
   z-index: 2;

@@ -367,11 +367,15 @@ test("home keeps desk interactions available and exits promptly after the full v
     { timeout: ci(20000) },
   );
   await expect(page.locator('[data-screen="1"] article')).toHaveCount(0);
-  await expect(page.getByText("Scroll down", { exact: true })).toBeVisible();
+  await expect(page.locator("[data-scroll-hint]")).toBeVisible();
   const s = await story(page);
   await go(page, within(s.portrait, 0.05));
-  await expect(page.getByText("Desk objects", { exact: true })).toBeVisible();
-  await page.getByText("Desk objects", { exact: true }).click();
+  // The object list stays out of sight until keyboard focus reaches it.
+  const objects = page.locator("details[data-journey]");
+  await expect(objects).toHaveCSS("opacity", "0");
+  await page.getByText("Desk objects", { exact: true }).focus();
+  await expect(objects).toHaveCSS("opacity", "1");
+  await page.keyboard.press("Enter");
   await page
     .getByRole("button", { name: "Wave the drawers", exact: true })
     .click();
@@ -386,13 +390,12 @@ test("home keeps desk interactions available and exits promptly after the full v
   );
   await go(page, s.room + 0.1);
   const camera = await journeyCanvas(page).getAttribute("data-camera");
-  await expect(page.locator("[data-continue-cue]")).toContainText(
-    "Scroll to continue",
-  );
+  await expect(page.locator("[data-continue-cue]")).toBeVisible();
+  await expect(page.locator("[data-continue-cue]")).toHaveText("");
   await go(page, s.length);
   expect(await journeyCanvas(page).getAttribute("data-camera")).toBe(camera);
   await go(page, within(s.portrait, 0.05));
-  await expect(page.getByText("Desk objects", { exact: true })).toBeVisible();
+  await expect(page.getByText("Desk objects", { exact: true })).toBeAttached();
 });
 
 test("cosmic grid remains active through close-ups and returns to demand-rendered idle", async ({
@@ -456,7 +459,13 @@ test("cosmic grid remains active through close-ups and returns to demand-rendere
     )
     .toBe(true);
 
-  await page.getByText("Desk objects", { exact: true }).hover();
+  // A screen is excluded from the grid's pointer, like every control. A
+  // plain move: hover() would scroll the projected panel's layout box.
+  const screen = await page.locator('[data-screen="2"]').boundingBox();
+  await page.mouse.move(
+    screen!.x + screen!.width / 2,
+    screen!.y + screen!.height / 2,
+  );
   await expect
     .poll(() =>
       canvas.getAttribute("data-grid-influence").then((value) => Number(value)),
@@ -689,13 +698,17 @@ test("keyboard focus and the step buttons bring monitor content into view", asyn
     )
     .toBeGreaterThan(s.chapters.experience);
   await expect(link).toBeInViewport();
-  await page.getByRole("button", { name: "Next: Tech stack" }).click();
+  // The step buttons appear for keyboard focus only.
+  await page.getByRole("button", { name: "Next: Tech stack" }).focus();
+  await page.keyboard.press("Enter");
   await expect
     .poll(async () =>
       Number(await journeyCanvas(page).getAttribute("data-distance")),
     )
     .toBeCloseTo(s.chapters.stack, 1);
-  await page.getByRole("button", { name: "Previous: Experience" }).click();
+  // The step buttons appear for keyboard focus only.
+  await page.getByRole("button", { name: "Previous: Experience" }).focus();
+  await page.keyboard.press("Enter");
   await expect
     .poll(async () =>
       Number(await journeyCanvas(page).getAttribute("data-distance")),

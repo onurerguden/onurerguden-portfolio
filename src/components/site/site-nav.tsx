@@ -10,6 +10,9 @@ import {
 } from "react";
 import type { SectionLink } from "@/lib/home-sections";
 import MotionToggle from "@/components/motion-toggle";
+import { deskMode, useStaticDesk } from "@/lib/desk-mode";
+import { useMotionPreference } from "@/lib/motion-preference";
+import { currentSection } from "@/lib/current-section";
 import LanguageLink from "./language-link";
 import styles from "./site-nav.module.css";
 
@@ -30,7 +33,59 @@ function Brand({ locale }: { locale: "en" | "tr" }) {
   );
 }
 
-/** Every home section plus the page-wide motion toggle. */
+/**
+ * Turns the desk's 3D off (static view) or back on for this visit. Turning it
+ * on below the desk keeps the reader on their section while the journey grows
+ * back above it.
+ */
+function DeskToggle({ locale }: { locale: "en" | "tr" }) {
+  const en = locale === "en";
+  const staticView = useStaticDesk();
+  const { reduced } = useMotionPreference();
+  const [announced, setAnnounced] = useState(false);
+  // Reduced motion never runs the 3D, so there is nothing to switch.
+  if (reduced) return null;
+  return (
+    <>
+      <button
+        type="button"
+        className={styles.motionToggle}
+        data-desk-toggle
+        onClick={() => {
+          setAnnounced(true);
+          const section = currentSection.get();
+          deskMode.set(!staticView);
+          if (staticView && section) {
+            // The journey holds a hash target in place while it re-measures.
+            history.replaceState(null, "", `#${section}`);
+            window.dispatchEvent(new HashChangeEvent("hashchange"));
+          }
+        }}
+      >
+        {staticView
+          ? en
+            ? "Turn 3D on"
+            : "3D’yi aç"
+          : en
+            ? "Turn 3D off"
+            : "3D’yi kapat"}
+      </button>
+      <span className="visually-hidden" role="status">
+        {announced
+          ? staticView
+            ? en
+              ? "3D is off; the page is static"
+              : "3D kapalı; sayfa sabit"
+            : en
+              ? "3D is on"
+              : "3D açık"
+          : ""}
+      </span>
+    </>
+  );
+}
+
+/** Every home section plus the page-wide motion and 3D toggles. */
 function SectionsMenu({
   locale,
   sections,
@@ -88,7 +143,15 @@ function SectionsMenu({
             </li>
           ))}
         </ul>
-        <MotionToggle locale={locale} className={styles.motionToggle} />
+        <div
+          className={styles.menuGroup}
+          role="group"
+          aria-labelledby="journey-motion-label"
+        >
+          <p id="journey-motion-label">{en ? "Motion" : "Hareket"}</p>
+          <MotionToggle locale={locale} className={styles.motionToggle} />
+          <DeskToggle locale={locale} />
+        </div>
       </div>
     </div>
   );
