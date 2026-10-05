@@ -48,6 +48,8 @@ for (const locale of ["en", "tr"]) {
     await page.keyboard.press("Enter");
     await page.locator("#work").scrollIntoViewIfNeeded();
     for (const image of await page.locator(".phone-pair img").all()) {
+      // WebKit loads lazy images only near the view.
+      await image.scrollIntoViewIfNeeded();
       await expect(image).toBeVisible();
       await expect
         .poll(() =>
