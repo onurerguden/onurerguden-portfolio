@@ -14,6 +14,10 @@
   color: var(--text);
   container-type: inline-size;
 }
+/* Inside a language's layout, below its nav. */
+.inline {
+  min-height: 70svh;
+}
 .title {
   color: var(--accent);
 }
@@ -29,6 +33,12 @@
   font-size: clamp(17px, 1.5vw, 20px);
   line-height: 1.6;
 }
+/* The error digest, to match a server log entry. */
+.copy .reference {
+  color: var(--text-muted);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
 .links {
   display: flex;
   flex-wrap: wrap;
@@ -37,7 +47,8 @@
   padding: 0;
   list-style: none;
 }
-.links a {
+.links a,
+.links button {
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -45,19 +56,24 @@
   padding: 0 22px;
   border: 1px solid var(--hairline);
   border-radius: 999px;
+  background: none;
   color: var(--text);
+  font: inherit;
   font-weight: 700;
+  cursor: pointer;
   transition:
     background var(--dur-hover) var(--ease-out),
     color var(--dur-hover) var(--ease-out),
     border-color var(--dur-hover) var(--ease-out);
 }
-.links a:focus-visible {
+.links a:focus-visible,
+.links button:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 4px;
 }
 @media (hover: hover) and (pointer: fine) {
-  .links a:hover {
+  .links a:hover,
+  .links button:hover {
     border-color: transparent;
     background: var(--accent);
     color: var(--accent-ink);
