@@ -44,15 +44,17 @@ const gridVertexShader = `
 
 const gridFragmentShader = `
   uniform float uReveal;
+  uniform vec2 uCells;
+  uniform float uFade;
   varying vec2 vUv;
   varying float vDeformation;
 
   void main() {
-    vec2 cells = vUv * vec2(30.0, 38.0);
+    vec2 cells = vUv * uCells;
     vec2 lines = abs(fract(cells - 0.5) - 0.5) / fwidth(cells);
     float grid = 1.0 - min(min(lines.x, lines.y), 1.0);
     vec2 edgeDistance = min(vUv, 1.0 - vUv);
-    float edgeFade = smoothstep(0.0, 0.16, edgeDistance.x);
+    float edgeFade = smoothstep(0.0, uFade, edgeDistance.x);
     float alpha = grid * edgeFade * uReveal
       * (0.13 + 0.07 * vDeformation);
 
@@ -81,6 +83,11 @@ export default function CosmicEnvironment({
   pointer: CosmicPointerRef;
 }) {
   const mobile = useThree((state) => state.size.width < 700);
+  const aspect = useThree((state) => state.size.width / state.size.height);
+  // The curtain reaches past the room view's sides at any aspect up to 32:9,
+  // so its end never shows. Cells and the side fade keep their size in scene
+  // units (30 cells and a 1.28 fade across the original 8 units).
+  const gridWidth = Math.max(8, 4.2 * Math.min(aspect, 32 / 9) + 0.6);
   const gridMaterial = useRef<ShaderMaterial | null>(null);
   const starMaterial = useRef<PointsMaterial | null>(null);
   const stars = useMemo(() => createStars(mobile ? 130 : 240), [mobile]);
@@ -89,6 +96,8 @@ export default function CosmicEnvironment({
       uPointer: { value: new Vector2(0.5, 0.5) },
       uInfluence: { value: 0 },
       uReveal: { value: 0 },
+      uCells: { value: new Vector2(30, 38) },
+      uFade: { value: 0.16 },
     }),
     [],
   );
@@ -107,6 +116,8 @@ export default function CosmicEnvironment({
       0.5 - state.currentY * 0.34,
     );
     material.uniforms.uInfluence.value = influence;
+    material.uniforms.uCells.value.set((30 * gridWidth) / 8, 38);
+    material.uniforms.uFade.value = 1.28 / gridWidth;
     material.uniforms.uReveal.value = 1;
     points.opacity = 0.54;
     gl.domElement.dataset.gridInfluence = influence.toFixed(3);
@@ -132,7 +143,14 @@ export default function CosmicEnvironment({
         position={[0, 0, -3]}
         rotation={[0.025, -0.035, -0.012]}
       >
-        <planeGeometry args={[8, 10, mobile ? 36 : 48, mobile ? 32 : 40]} />
+        <planeGeometry
+          args={[
+            gridWidth,
+            10,
+            Math.ceil(((mobile ? 36 : 48) * gridWidth) / 8),
+            mobile ? 32 : 40,
+          ]}
+        />
         <shaderMaterial
           ref={gridMaterial}
           uniforms={uniforms}

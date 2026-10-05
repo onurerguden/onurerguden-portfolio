@@ -20,19 +20,29 @@ export const screenStops: readonly CameraStop[] = [
 export const panelHeight = (screen: number) =>
   (screenPixelWidths[screen] * screens[screen].height) / screens[screen].width;
 
-/** How much wider and taller than a screen its close-up frames. */
-export const closeupMargin = { width: 1.16, height: 1.3 };
+/**
+ * How much wider and taller than a screen its close-up frames, for a canvas
+ * `width` CSS px wide. The portrait monitor reads text, so from tablets up it
+ * fills more of the height (1/1.15); phones keep room for their toolbars, and
+ * the MacBook keeps its framing.
+ */
+export function closeupMargin(screen: number, width: number) {
+  return screen === 0 && width >= 700
+    ? { width: 1.16, height: 1.15 }
+    : { width: 1.16, height: 1.3 };
+}
 
 /**
  * CSS px per panel px while the camera rests on a screen's close-up. The
  * camera faces the screen along its normal, so the scale follows from the
- * framing alone: the screen fills 1/1.16 of the width or 1/1.3 of the height.
+ * framing alone: the screen fills 1/margin of the width or of the height.
  */
 export function closeupScale(screen: number, width: number, height: number) {
   const s = screens[screen];
+  const margin = closeupMargin(screen, width);
   const pxPerUnit = Math.min(
-    width / (closeupMargin.width * s.width),
-    height / (closeupMargin.height * s.height),
+    width / (margin.width * s.width),
+    height / (margin.height * s.height),
   );
   return (s.width * pxPerUnit) / screenPixelWidths[screen];
 }

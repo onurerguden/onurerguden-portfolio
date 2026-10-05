@@ -1,6 +1,6 @@
 import { Vector3 } from "three";
 import contract from "../desk-scene.json";
-import { closeupMargin, screens, type CameraStop } from "./camera";
+import { closeupMargin, screenIds, screens, type CameraStop } from "./camera";
 
 export type CameraAnchor = { target: Vector3; position: Vector3; fov: number };
 
@@ -16,13 +16,12 @@ export function cameraAnchors(
 ): Record<CameraStop, CameraAnchor> {
   const aspect = width / height;
   const mobile = width < 700;
-  const closeup = (s: (typeof screens)[number]) => {
+  const closeup = (screen: number) => {
+    const s = screens[screen];
+    const margin = closeupMargin(screen, width);
     const target = new Vector3(...s.position);
     const distance =
-      Math.max(
-        (s.width * closeupMargin.width) / aspect,
-        s.height * closeupMargin.height,
-      ) /
+      Math.max((s.width * margin.width) / aspect, s.height * margin.height) /
       (2 * tangent);
     return {
       target,
@@ -58,8 +57,8 @@ export function cameraAnchors(
       ),
       fov,
     },
-    portrait: closeup(contract.screens.PortraitScreen),
-    macbook: closeup(contract.screens.MacBookScreen),
+    portrait: closeup(screenIds.indexOf("PortraitScreen")),
+    macbook: closeup(screenIds.indexOf("MacBookScreen")),
     room: {
       target: new Vector3(0, -0.02, -0.08),
       position: new Vector3(0.08, roomHeight, roomDistance),
