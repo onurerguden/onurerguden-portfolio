@@ -14,6 +14,7 @@ import {
 } from "../src/lib/content";
 import {
   formatPeriod,
+  getCertificates,
   getExperience,
   getServices,
   getTechStack,
@@ -75,12 +76,26 @@ describe("bilingual portfolio content", () => {
     expect(sharedFacts.publication).not.toHaveProperty("date");
   });
   it("resolves shared measurements in both locales and rejects unknown facts", () => {
-    expect(getProject("en", "water-safety")?.body).toContain("96.3%");
-    expect(getProject("tr", "water-safety")?.body).toContain("%96,3");
+    expect(getProject("en", "water-safety")?.body).toContain("26,469");
+    expect(getProject("tr", "water-safety")?.body).toContain("26.469");
+    expect(getProject("tr", "water-safety")?.metric?.value).toBe("26.469");
     const root = fixture();
     const file = path.join(root, "tr/water-safety.mdx");
     fs.appendFileSync(file, "\n[[metric:inventedScore]]");
     expect(() => validateContent(root)).toThrow("Unknown measurement");
+  });
+  it("shows no model score that the revision audit withdrew", () => {
+    for (const locale of ["en", "tr"] as const)
+      for (const project of getProjects(locale)) {
+        const text = [project.summary, project.body, project.metric?.value]
+          .filter(Boolean)
+          .join(" ");
+        expect(text).not.toMatch(
+          /(%\s?(96[.,]3|5[.,]77|80)\b)|\b(96[.,]3|5[.,]77|80)\s?%/,
+        );
+        expect(text).not.toMatch(/30[.,]000|3[.,]000\b|27[.,]000/);
+      }
+    expect(getProject("en", "taskfoo")?.stack).not.toContain("Docker");
   });
   it("handles unsupported routes explicitly", () => {
     expect(isLocale("fr")).toBe(false);
@@ -132,6 +147,18 @@ describe("home section content", () => {
       value.items[0].icon = { simpleIcons: "not-an-icon" };
     });
     expect(() => validateHomeContent(root)).toThrow("Missing generated icon");
+  });
+  it("lists certificates newest first with the issuer's name in each language", () => {
+    for (const locale of ["en", "tr"] as const) {
+      const issued = getCertificates(locale).map((item) => item.issued);
+      expect(issued).toEqual(issued.toSorted().reverse());
+    }
+    const issuer = (locale: "en" | "tr") =>
+      getCertificates(locale).find(
+        (item) => item.id === "academy-deep-learning",
+      )?.issuer;
+    expect(issuer("en")).toBe("Google AI & Technology Academy");
+    expect(issuer("tr")).toBe("Yapay Zeka ve Teknoloji Akademisi");
   });
   it("only accepts certificates whose images were reviewed for personal data", () => {
     const root = fixture();

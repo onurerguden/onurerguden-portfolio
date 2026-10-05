@@ -20,7 +20,9 @@ export async function generateMetadata({
   return pageMetadata(
     locale,
     "",
-    "AI engineering & research",
+    locale === "en"
+      ? "AI engineering & research"
+      : "AI mühendisliği ve araştırma",
     locale === "en"
       ? "Onur Ergüden builds AI products, retrieval systems and applied machine learning research."
       : "Onur Ergüden: AI ürünleri, bilgi erişim sistemleri ve uygulamalı makine öğrenmesi araştırmaları.",

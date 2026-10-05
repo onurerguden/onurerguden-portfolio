@@ -1,8 +1,9 @@
 {
   "academy-deep-learning": {
     "title": "Deep learning",
-    "description": "Training completion certificate from the AI and Technology Academy.",
-    "alt": "Deep learning training completion certificate awarded to Onur Ergüden by Yapay Zeka ve Teknoloji Akademisi on May 22, 2026."
+    "issuer": "Google AI & Technology Academy",
+    "description": "Training completion certificate from the Google AI & Technology Academy.",
+    "alt": "Deep learning training completion certificate awarded to Onur Ergüden by the Google AI & Technology Academy (Yapay Zeka ve Teknoloji Akademisi) on May 22, 2026."
   },
   "google-project-management": {
     "title": "Google project management",
@@ -26,7 +27,8 @@
   },
   "academy-basic-entrepreneurship": {
     "title": "Basic entrepreneurship",
-    "description": "Training completion certificate from the AI and Technology Academy.",
-    "alt": "Basic entrepreneurship training completion certificate awarded to Onur Ergüden by Yapay Zeka ve Teknoloji Akademisi on February 21, 2026."
+    "issuer": "Google AI & Technology Academy",
+    "description": "Training completion certificate from the Google AI & Technology Academy.",
+    "alt": "Basic entrepreneurship training completion certificate awarded to Onur Ergüden by the Google AI & Technology Academy (Yapay Zeka ve Teknoloji Akademisi) on February 21, 2026."
   }
 }

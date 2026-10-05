@@ -74,20 +74,28 @@ export const sharedFacts = {
   },
 } as const;
 
+/**
+ * Counts from the IJEA revision package (izsu_ai_project,
+ * paper_revision_deliverables, 6 August 2026). Model scores are deliberately
+ * absent: every Risk example in the reactive test set is synthetic, so a
+ * headline percentage would overstate what the project shows.
+ */
 const measurements = {
-  waterRecords: { value: 30000, percent: false },
-  waterRecall: { value: 0.963, percent: true },
-  waterForecast: { value: 0.8, percent: true },
-  waterScenarios: { value: 3000, percent: false },
+  waterRecords: 26469,
+  waterObservations: 1557,
+  waterSites: 76,
+  waterDistricts: 11,
 } as const;
+type Measurement = keyof typeof measurements;
+function formatMeasurement(key: Measurement, locale: Locale) {
+  return new Intl.NumberFormat(locale === "tr" ? "tr-TR" : "en-US").format(
+    measurements[key],
+  );
+}
 function resolveMeasurements(body: string, locale: Locale) {
   return body.replace(/\[\[metric:([a-zA-Z]+)\]\]/g, (_, key: string) => {
     if (!(key in measurements)) throw new Error(`Unknown measurement: ${key}`);
-    const metric = measurements[key as keyof typeof measurements];
-    return new Intl.NumberFormat(locale === "tr" ? "tr-TR" : "en-US", {
-      style: metric.percent ? "percent" : "decimal",
-      maximumFractionDigits: 1,
-    }).format(metric.value);
+    return formatMeasurement(key as Measurement, locale);
   });
 }
 
@@ -95,14 +103,23 @@ type SharedProject = Pick<
   Project,
   "slug" | "stack" | "year" | "featured" | "repoUrl"
 > & {
-  metricValue?: string;
+  /** A shared count shown with its localized label; never a model score. */
+  metric?: Measurement;
   /** Real screenshots or repository artefacts only; alt text is localized. */
   media?: { src: string; width: number; height: number }[];
 };
 const projects: SharedProject[] = [
   {
     slug: "kuyumcum",
-    stack: ["Flutter", "Dart", "Firebase", "Python", "TensorFlow", "Gemini"],
+    stack: [
+      "Flutter",
+      "Dart",
+      "Firebase",
+      "Python",
+      "YOLO11n",
+      "TensorFlow Lite",
+      "Gemini",
+    ],
     year: "",
     featured: true,
     media: [
@@ -112,11 +129,17 @@ const projects: SharedProject[] = [
   },
   {
     slug: "water-safety",
-    stack: ["Python", "SVM", "Extra Trees", "Feature engineering"],
+    stack: [
+      "Python",
+      "scikit-learn",
+      "SVM",
+      "Random Forest",
+      "Feature engineering",
+    ],
     year: "",
     featured: true,
     repoUrl: "https://github.com/onurerguden/izsu_ai_project",
-    metricValue: "96.3%",
+    metric: "waterRecords",
     // Rendered from the repository's own data graphs.
     media: [
       {
@@ -140,7 +163,7 @@ const projects: SharedProject[] = [
   },
   {
     slug: "taskfoo",
-    stack: ["Spring Boot", "React", "TypeScript", "PostgreSQL", "Docker"],
+    stack: ["Spring Boot", "React", "TypeScript", "PostgreSQL"],
     year: "2025",
     featured: false,
     repoUrl: "https://github.com/onurerguden/TaskFoo",
@@ -151,7 +174,6 @@ const projects: SharedProject[] = [
     year: "",
     featured: false,
     repoUrl: "https://github.com/onurerguden/IZMIR-PUBLIC-TRANSPORTATION-ML",
-    metricValue: "5.77%",
     media: [
       {
         src: "/images/projects/urban-mobility/dbscan-clusters.webp",
@@ -194,7 +216,7 @@ export function getProjects(
       .join()
   )
     throw new Error(`Project parity failed: ${locale}`);
-  return projects.map(({ metricValue, media, ...shared }) => {
+  return projects.map(({ metric, media, ...shared }) => {
     const copy = translationSchema.parse(summaries[shared.slug]);
     if ((media?.length ?? 0) !== (copy.mediaAlt?.length ?? 0))
       throw new Error(`Media alt text mismatch: ${locale}/${shared.slug}`);
@@ -216,7 +238,7 @@ export function getProjects(
         );
       body = resolveMeasurements(parsed.content, locale);
     }
-    if (metricValue && !copy.metricLabel)
+    if (metric && !copy.metricLabel)
       throw new Error(`Missing metric context: ${locale}/${shared.slug}`);
     if (shared.featured !== Boolean(copy.role))
       throw new Error(
@@ -229,8 +251,13 @@ export function getProjects(
       category: copy.category,
       role: copy.role,
       body,
-      ...(metricValue
-        ? { metric: { value: metricValue, label: copy.metricLabel } }
+      ...(metric
+        ? {
+            metric: {
+              value: formatMeasurement(metric, locale),
+              label: copy.metricLabel,
+            },
+          }
         : {}),
       ...(media
         ? {
@@ -257,7 +284,8 @@ export function validateContent(contentRoot?: string): void {
       year: project.year,
       featured: project.featured,
       repoUrl: project.repoUrl,
-      metric: project.metric?.value,
+      // The value is one shared number, formatted per locale.
+      metric: Boolean(project.metric),
       media: project.media?.map((item) => item.src),
     });
   if (localized[0].map(shared).join() !== localized[1].map(shared).join())

@@ -9,13 +9,13 @@ Assessing water safety means understanding both current contamination and how co
 
 ## My contribution
 
-I architected a two-layer framework over more than [[metric:waterRecords]] water-quality records and an automated data-refresh pipeline. I worked on feature engineering, controlled class balancing, an SVM classifier and an Extra Trees forecasting model.
+I architected the two-layer framework and its automated data-refresh pipeline over İzmir's public water-quality data: [[metric:waterRecords]] single-parameter measurements from [[metric:waterSites]] sampling points in [[metric:waterDistricts]] districts, combined into [[metric:waterObservations]] date-and-location observations between August 2025 and July 2026. I worked on the Health Factor features, controlled synthetic augmentation of the rare unsafe classes, the reactive classifiers (SVM, Random Forest, Decision Tree and KNN) and the proactive trend models. For the journal revision I wrote the synthetic-data, paper-versus-code and figure audits.
 
 ## Evaluation and results
 
-The project evaluation reported [[metric:waterRecall]] recall for toxic-water detection and [[metric:waterForecast]] accuracy for the forecasting model within this project's evaluation. The work also used more than [[metric:waterScenarios]] simulated contamination scenarios.
+The splits are chronological: training data runs to April 2026, validation to early June, and the test set covers June and July 2026. Every run writes a leakage audit.
 
-Recall and forecasting accuracy describe different tasks; they are not interchangeable measures of system quality. The complete split strategy, baseline comparisons and uncertainty estimates are not reproduced here, so these figures should not be read as a general guarantee for unseen water sources.
+The real measurements contain almost no unsafe samples. The real test split holds only the “Good” class, so every Risk example the reactive layer is tested on is synthetic. Its scores show how well the classifiers separate the generated contamination patterns, not how they would catch real contamination. The proactive layer, which predicts whether the Health Factor will drop, stay stable or rise, is the harder task; Random Forest was selected on the validation split. I do not quote a single headline score for either layer here: the numbers belong with their caveats in the paper.
 
 ## Research output
 
@@ -23,4 +23,4 @@ This work connects to the manuscript “Two-layered Artificial Intelligence Syst
 
 ## Limitations and next questions
 
-Simulated scenarios do not establish performance under every real contamination event. Generalization across sources, temporal drift and the consequences of missed contamination need explicit evaluation before operational use. The repository provides the implementation context for the reported project results.
+Synthetic contamination patterns do not establish performance on real contamination events. Generalization to other sources, temporal drift and the cost of a missed contamination need evaluation on real unsafe samples before any operational use. The repository includes the revision package: the data, code, model outputs and audits behind every number in the manuscript.

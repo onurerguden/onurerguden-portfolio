@@ -30,6 +30,21 @@ export interface SyncStore {
   complete(delivery: string): Promise<void>;
   backoff(until?: number): Promise<number>;
 }
+/** Repositories whose GitHub description is never shown on this site. */
+const hiddenDescriptions = new Set(["pistithegame"]);
+/**
+ * A repository description that is safe to publish. Listed repositories show
+ * none, and a long digit run (a student or ID number) hides the description,
+ * because descriptions are written on GitHub without this site in mind.
+ */
+export function publicDescription(
+  name: string,
+  description: string | null,
+): string | null {
+  const text = description?.trim();
+  if (!text || hiddenDescriptions.has(name.toLowerCase())) return null;
+  return /\d{8,}/.test(text) ? null : text;
+}
 export const repoSchema = z.object({
   id: z.number().int().positive(),
   name: z.string().min(1),
@@ -130,7 +145,7 @@ export async function fetchPublicRepos(
         id: repo.id,
         name: repo.name,
         url: `https://github.com/${OWNER}/${encodeURIComponent(repo.name)}`,
-        description: repo.description,
+        description: publicDescription(repo.name, repo.description),
         language: repo.language,
         pushedAt: repo.pushed_at,
         fork: repo.fork,

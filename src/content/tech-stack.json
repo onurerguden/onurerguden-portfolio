@@ -74,7 +74,7 @@
     },
     {
       "id": "tensorflow",
-      "name": "TensorFlow",
+      "name": "TensorFlow Lite",
       "category": "ai-ml",
       "icon": { "simpleIcons": "tensorflow" },
       "ball": "white",
@@ -276,7 +276,7 @@
       "icon": { "simpleIcons": "docker" },
       "ball": "white",
       "priority": 1,
-      "evidence": [{ "kind": "project", "slug": "taskfoo" }]
+      "evidence": [{ "kind": "experience", "id": "vbt-intern" }]
     },
     {
       "id": "git",

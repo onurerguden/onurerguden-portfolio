@@ -11,7 +11,7 @@ A departmental knowledge assistant needs to find relevant material and recognize
 
 I developed a modular retrieval and LLM orchestration architecture using Llama 3.1 (8B), SBERT embeddings and FAISS vector search. Hierarchical semantic chunking prepares the source material for retrieval; filtering and structured context control shape what the language model receives.
 
-An asynchronous PyQt6 interface streams the generated response, connecting the retrieval pipeline to an interactive desktop experience.
+A PyQt6 desktop interface runs retrieval and generation on a background thread, so the window stays responsive while the local model, served through Ollama, writes its answer.
 
 ## Evaluation
 

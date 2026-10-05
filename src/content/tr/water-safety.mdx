@@ -9,13 +9,13 @@ Su güvenliğini değerlendirmek, hem mevcut kirliliği hem de koşulların nas�
 
 ## Benim katkım
 
-[[metric:waterRecords]]'i aşkın su kalitesi kaydı ve otomatik veri yenileme hattı üzerinde iki katmanlı çerçeveyi tasarladım. Özellik mühendisliği, kontrollü sınıf dengeleme, SVM sınıflandırıcısı ve Extra Trees tahmin modeli üzerinde çalıştım.
+İzmir'in açık su kalitesi verisi üzerinde iki katmanlı çerçeveyi ve otomatik veri yenileme hattını tasarladım: [[metric:waterDistricts]] ilçedeki [[metric:waterSites]] örnekleme noktasından gelen [[metric:waterRecords]] tekil parametre ölçümü, Ağustos 2025 ile Temmuz 2026 arasında [[metric:waterObservations]] tarih ve konum gözleminde birleşiyor. Sağlık Faktörü özellikleri, nadir görülen güvensiz sınıfların kontrollü sentetik çoğaltılması, anlık sınıflandırıcılar (SVM, Random Forest, Decision Tree ve KNN) ve ileriye dönük eğilim modelleri üzerinde çalıştım. Dergi revizyonu için sentetik veri, makale-kod karşılaştırması ve şekil denetimlerini yazdım.
 
 ## Değerlendirme ve sonuçlar
 
-Projenin değerlendirmesinde toksik su tespiti için [[metric:waterRecall]] duyarlılık ve tahmin modeli için [[metric:waterForecast]] doğruluk raporlanıyor. Çalışmada [[metric:waterScenarios]]'i aşkın simüle edilmiş kirlenme senaryosu da kullanıldı.
+Veri ayrımı kronolojik: eğitim verisi Nisan 2026'ya, doğrulama Haziran başına kadar uzanıyor; test kümesi Haziran ve Temmuz 2026'yı kapsıyor. Her çalıştırma bir veri sızıntısı denetimi yazıyor.
 
-Duyarlılık ve tahmin doğruluğu farklı görevleri ölçüyor; birbirinin yerine kullanılamaz. Veri ayırma stratejisi, temel model karşılaştırmaları ve belirsizlik tahminlerinin tamamı burada yeniden sunulmuyor. Bu nedenle sonuçlar, görülmemiş su kaynakları için genel bir başarı garantisi olarak yorumlanmamalı.
+Gerçek ölçümlerde güvensiz örnek neredeyse yok. Gerçek test kümesinde yalnızca “İyi” sınıfı bulunduğundan anlık katmanın test edildiği bütün Risk örnekleri sentetik. Bu nedenle skorlar, sınıflandırıcıların üretilmiş kirlilik örüntülerini ne kadar iyi ayırdığını gösteriyor; gerçek bir kirliliği ne kadar yakalayacaklarını değil. Sağlık Faktörünün düşeceğini, sabit kalacağını ya da yükseleceğini öngören ileriye dönük katman daha zor bir görev; doğrulama kümesinde Random Forest seçildi. Burada iki katman için de tek bir başlık skoru vermiyorum: sayılar, uyarılarıyla birlikte makalede yer alıyor.
 
 ## Araştırma çıktısı
 
@@ -23,4 +23,4 @@ Duyarlılık ve tahmin doğruluğu farklı görevleri ölçüyor; birbirinin yer
 
 ## Sınırlamalar ve sonraki sorular
 
-Simüle edilmiş senaryolar her gerçek kirlenme olayındaki performansı kanıtlamaz. Kaynaklar arasında genelleme, zaman içindeki veri değişimi ve tespit edilemeyen kirliliğin sonuçları operasyonel kullanımdan önce ayrıca değerlendirilmelidir. Depo, raporlanan proje sonuçlarının uygulama bağlamını sunuyor.
+Sentetik kirlilik örüntüleri, gerçek kirlilik olaylarındaki performansı kanıtlamaz. Diğer kaynaklara genelleme, zaman içindeki veri değişimi ve kaçırılan bir kirliliğin bedeli, operasyonel kullanımdan önce gerçek güvensiz örneklerle ayrıca değerlendirilmelidir. Depo, revizyon paketini içeriyor: makaledeki her sayının arkasındaki veri, kod, model çıktıları ve denetimler.
