@@ -24,6 +24,7 @@
     "tech:icons": "node scripts/tech/build-icons.mjs",
     "bliss:build": "node scripts/bliss/build.mjs",
     "certificate": "node scripts/certificates/optimize.mjs",
+    "icons:build": "node scripts/icons/build.mjs",
     "about:poster": "node scripts/about/capture-poster.mjs"
   },
   "dependencies": {

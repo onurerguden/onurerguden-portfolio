@@ -6,6 +6,7 @@ import GiantTitle from "@/components/giant-title";
 import CaseMedia from "@/components/case/case-media";
 import CaseToc from "@/components/case/case-toc";
 import OtherProjects from "@/components/case/other-projects";
+import ReportWorkflow from "@/components/case/report-workflow";
 import styles from "@/components/case/case.module.css";
 import { caseSections, getProject, isLocale } from "@/lib/content";
 import { pageMetadata } from "@/lib/site";
@@ -102,6 +103,7 @@ export default async function ProjectPage({
               h2: ({ children }: { children?: ReactNode }) => (
                 <h2 id={idFor(text(children))}>{children}</h2>
               ),
+              ReportWorkflow: () => <ReportWorkflow locale={locale} />,
             }}
           />
         </article>

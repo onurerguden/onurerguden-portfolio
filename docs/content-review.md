@@ -139,3 +139,17 @@ Onur approved the copy above on 5 October 2026. He then asked to look at his org
 | Evidence added to existing technologies | Future Is Now now also backs FastAPI, PostgreSQL, Docker, Gemini, LangSmith, React, Next.js and TypeScript; Kuyumcum backs JavaScript (its Cloud Functions). | Same manifests; Kuyumcum `functions/` is JavaScript. |
 | Tech stack dialog | EN "Every ball is a tool from my own projects. Hover to name it, drag to move it." TR "Her top kendi projelerimde kullandığım bir araç. Üzerine gel, adını gör; sürükleyip taşı." (The arrows are no longer mentioned; they appear for keyboard focus only.) | Interface copy. |
 
+
+## Icons, error pages and the Kuyumcum chart (PR 12, October 5)
+
+The Kuyumcum team approved publishing their AI report workflow chart (Onur, 5 October 2026). The chart itself is published as supplied (English labels, converted losslessly). New copy, EN and TR; Onur approved all of it on 5 October 2026:
+
+| Block | English | Turkish |
+| --- | --- | --- |
+| Chart alt text | "Flowchart of Kuyumcum's AI portfolio report: from the Flutter app through portfolio computation, evidence retrieval and four Gemini agents to the saved report. A step-by-step description follows." | "Kuyumcum'un AI portföy raporunun akış şeması (İngilizce): …" (says the chart is in English) |
+| Chart caption | "The AI portfolio report workflow, simplified by the Kuyumcum team. It shows the order of the steps, not measured performance." + "Open the full-size chart" | "Kuyumcum ekibinin sadeleştirdiği AI portföy raporu akışı. Adımların sırasını gösteriyor; ölçülmüş bir performans sunmuyor." + "Şemayı tam boyutta aç" |
+| Chart, step by step (disclosure) | Eight steps read off the chart: inventory with prices and five years of history; a callable Cloud Function checking authentication, quota and timeout; portfolio computation (return, volatility, drawdown; P10/P50/P90 bands for 30–90 days; allocation tables); evidence retrieval (recent news, historical news, macroeconomic sources); a context bundle; four Gemini Flash Lite agents in parallel (bull, bear, macro, risk manager); a synthesizer producing JSON, markdown and chart specifications; Firestore storage and the Flutter report screen. Internal function and collection names on the chart are not repeated in the text. | Same eight steps. |
+| Error page | Title "Error"; "Something went wrong while loading this page. Try again, or go back to the homepage."; "Try again"; "Homepage"; "Reference: <digest>" | "Hata"; "Bu sayfa yüklenirken bir şeyler ters gitti. Tekrar dene ya da ana sayfaya dön."; "Tekrar dene"; "Ana sayfa"; "Hata kodu: <digest>" |
+| Manifest | Name "Onur Ergüden — AI Engineer", short name "Onur Ergüden", the site's description. | (One manifest for both languages, as the root metadata.) |
+
+Source for the chart text: the chart (`kuyumcum_ai_workflow_chart.png`, 1800 × 2800). No metric is added.
