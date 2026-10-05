@@ -240,3 +240,37 @@ test("projects and research each have a share card", async ({ request }) => {
     expect((await response.body()).byteLength).toBeGreaterThan(10_000);
   }
 });
+
+test("browsers, crawlers and home screens find the icons and the manifest", async ({
+  page,
+  request,
+}) => {
+  await page.goto("/en");
+  const head = await page.evaluate(() =>
+    Object.fromEntries(
+      ["icon", "apple-touch-icon", "manifest"].map((rel) => [
+        rel,
+        [...document.querySelectorAll(`link[rel="${rel}"]`)].map((link) =>
+          link.getAttribute("href"),
+        ),
+      ]),
+    ),
+  );
+  expect(head.icon).toEqual(
+    expect.arrayContaining(["/favicon.ico", "/icon.svg"]),
+  );
+  expect(head["apple-touch-icon"]).toEqual(["/apple-touch-icon.png"]);
+  expect(head.manifest).toHaveLength(1);
+  const manifest = await (await request.get(head.manifest[0]!)).json();
+  expect(manifest.name).toBe("Onur Ergüden — AI Engineer");
+  const icons: { src: string; type: string }[] = manifest.icons;
+  for (const src of [
+    "/favicon.ico",
+    "/apple-touch-icon.png",
+    ...icons.map((icon) => icon.src),
+  ]) {
+    const response = await request.get(src);
+    expect(response.status(), src).toBe(200);
+    expect(response.headers()["content-type"], src).toMatch(/^image\//);
+  }
+});

@@ -20,6 +20,7 @@ The desk's screens tell the first part of the story: the ultrawide shows my name
 | `npm run tech:icons`                          | Regenerates `src/lib/tech-icons.generated.json` after editing `src/content/tech-stack.json`.                     |
 | `npm run bliss:build`                         | Rebuilds the Bliss parallax layers from the verified source photo (see `docs/bliss.md`).                         |
 | `npm run certificate -- <file> <id>`          | Strips metadata from a certificate image or PDF and writes WebP; then add it to `src/content/certificates.json`. |
+| `npm run icons:build`                         | Renders `favicon.ico`, the Apple touch icon and the manifest icons from `public/icon.svg`.                       |
 | `python3 scripts/fonts/subset-display.py`     | Rebuilds the Portfolio Display title font and its metrics (needs `scripts/fonts/requirements.txt`).              |
 | `npm run check:trace`                         | After a build, confirms every content file is traced into the routes that read it.                               |
 | `npm run check:assets`                        | Lists files under `public/` that nothing references (part of `npm run check`).                                   |

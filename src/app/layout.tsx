@@ -11,7 +11,15 @@ export const metadata: Metadata = {
     default: "Onur Ergüden — AI Engineer",
     template: "%s | Onur Ergüden",
   },
-  icons: { icon: "/icon.svg" },
+  // The SVG for current browsers, the ICO for the rest and for crawlers that
+  // ask for /favicon.ico, and an opaque PNG for iOS home screens.
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "32x32" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
   description:
     "AI engineering, applied machine learning and research by Onur Ergüden.",
   robots: {
