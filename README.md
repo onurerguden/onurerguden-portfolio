@@ -14,22 +14,23 @@ The desk's screens tell the first part of the story: the ultrawide shows my name
 
 ## Content and assets
 
-| Command                                       | What it does                                                                                                     |
-| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `npm run validate:content`                    | Checks EN/TR parity, references, image sizes and generated icons (runs before every build).                      |
-| `npm run tech:icons`                          | Regenerates `src/lib/tech-icons.generated.json` after editing `src/content/tech-stack.json`.                     |
-| `npm run bliss:build`                         | Rebuilds the Bliss parallax layers from the verified source photo (see `docs/bliss.md`).                         |
-| `npm run certificate -- <file> <id>`          | Strips metadata from a certificate image or PDF and writes WebP; then add it to `src/content/certificates.json`. |
-| `npm run icons:build`                         | Renders `favicon.ico`, the Apple touch icon and the manifest icons from `public/icon.svg`.                       |
-| `python3 scripts/fonts/subset-display.py`     | Rebuilds the Portfolio Display title font and its metrics (needs `scripts/fonts/requirements.txt`).              |
-| `npm run check:trace`                         | After a build, confirms every content file is traced into the routes that read it.                               |
-| `npm run check:assets`                        | Lists files under `public/` that nothing references (part of `npm run check`).                                   |
-| `npm run og:thumbs`                           | Re-renders the share cards' PNG images in `assets/og/` after a source image changes.                             |
-| `npm run desk:portrait`                       | Re-encodes the opening portrait as AVIF and checks it against the WebP (PSNR ≥ 42 dB).                           |
-| `node scripts/desk/capture-cosmic-poster.mjs` | Captures the final-view posters per language from a running production server.                                   |
-| `node scripts/desk/capture-story.mjs`         | Captures the QA screenshots in `docs/qa/desk-story/captures/`.                                                   |
-| `npm run about:poster`                        | Captures the About scene at rest as its wide and narrow poster (`ABOUT_URL` = a running production server).      |
-| `node scripts/qa/*.mjs`                       | QA captures: a page or element (`shot`, `element`), section sheets (`scroll-shot`) and the paper curtain.        |
+| Command                                          | What it does                                                                                                     |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| `npm run validate:content`                       | Checks EN/TR parity, references, image sizes and generated icons (runs before every build).                      |
+| `npm run tech:icons`                             | Regenerates `src/lib/tech-icons.generated.json` after editing `src/content/tech-stack.json`.                     |
+| `npm run bliss:build`                            | Rebuilds the Bliss parallax layers from the verified source photo (see `docs/bliss.md`).                         |
+| `npm run certificate -- <file> <id>`             | Strips metadata from a certificate image or PDF and writes WebP; then add it to `src/content/certificates.json`. |
+| `npm run icons:build`                            | Renders `favicon.ico`, the Apple touch icon and the manifest icons from `public/icon.svg`.                       |
+| `node scripts/kuyumcum/workflow-chart.mjs <png>` | Converts the Kuyumcum report workflow chart to lossless WebP (`public/images/kuyumcum/`).                        |
+| `python3 scripts/fonts/subset-display.py`        | Rebuilds the Portfolio Display title font and its metrics (needs `scripts/fonts/requirements.txt`).              |
+| `npm run check:trace`                            | After a build, confirms every content file is traced into the routes that read it.                               |
+| `npm run check:assets`                           | Lists files under `public/` that nothing references (part of `npm run check`).                                   |
+| `npm run og:thumbs`                              | Re-renders the share cards' PNG images in `assets/og/` after a source image changes.                             |
+| `npm run desk:portrait`                          | Re-encodes the opening portrait as AVIF and checks it against the WebP (PSNR ≥ 42 dB).                           |
+| `node scripts/desk/capture-cosmic-poster.mjs`    | Captures the final-view posters per language from a running production server.                                   |
+| `node scripts/desk/capture-story.mjs`            | Captures the QA screenshots in `docs/qa/desk-story/captures/`.                                                   |
+| `npm run about:poster`                           | Captures the About scene at rest as its wide and narrow poster (`ABOUT_URL` = a running production server).      |
+| `node scripts/qa/*.mjs`                          | QA captures: a page or element (`shot`, `element`), section sheets (`scroll-shot`) and the paper curtain.        |
 
 Section scenes stay static on software WebGL renderers; set `localStorage["portfolio:force-3d"] = "1"` to review them in headless or GPU-less browsers.
 

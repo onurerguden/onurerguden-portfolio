@@ -274,3 +274,32 @@ test("browsers, crawlers and home screens find the icons and the manifest", asyn
     expect(response.headers()["content-type"], src).toMatch(/^image\//);
   }
 });
+
+for (const locale of ["en", "tr"])
+  test(`${locale}: the Kuyumcum report workflow chart has a text equivalent`, async ({
+    page,
+    request,
+  }) => {
+    await page.goto(`/${locale}/projects/kuyumcum`);
+    const figure = page.locator("article figure");
+    const image = figure.locator("img");
+    await image.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() =>
+        image.evaluate(
+          (img: HTMLImageElement) => img.complete && img.naturalWidth > 0,
+        ),
+      )
+      .toBe(true);
+    expect(await image.getAttribute("alt")).toMatch(
+      locale === "en" ? /^Flowchart/ : /^Kuyumcum'un/,
+    );
+    // The steps are folded until asked for, then read in order.
+    const steps = figure.locator("details li");
+    await expect(steps.first()).toBeHidden();
+    await figure.locator("summary").click();
+    await expect(steps).toHaveCount(8);
+    await expect(steps.first()).toBeVisible();
+    const full = await figure.locator("figcaption a").getAttribute("href");
+    expect((await request.get(full!)).status()).toBe(200);
+  });

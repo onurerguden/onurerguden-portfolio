@@ -366,3 +366,42 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* A chart inside the prose (Kuyumcum's report workflow), with its text
+   equivalent folded below it. */
+.workflow {
+  margin: 28px 0 32px;
+  padding: clamp(12px, 2vw, 20px);
+  border: 1px solid var(--hairline);
+  border-radius: 22px;
+  background: var(--surface-1);
+}
+.workflow img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+.workflow figcaption {
+  margin-top: 12px;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.workflow details {
+  margin-top: 14px;
+  border-top: 1px solid var(--hairline);
+  padding-top: 6px;
+  font-size: 15px;
+}
+.workflow summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+}
+.workflow ol {
+  margin: 8px 0 4px;
+}
