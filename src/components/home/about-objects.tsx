@@ -9,13 +9,16 @@ import {
   ExtrudeGeometry,
   InstancedMesh,
   Matrix4,
+  MeshBasicMaterial,
   MeshPhysicalMaterial,
+  PlaneGeometry,
   Quaternion,
   Shape,
   SphereGeometry,
   SRGBColorSpace,
   TubeGeometry,
   Vector3,
+  type Object3D,
 } from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js";
@@ -32,6 +35,11 @@ export const palette = {
   cobalt: "#1947e5",
   volt: "#d8f23c",
   basketball: "#e8762b",
+  // On the studio paper, pale objects need a body of their own.
+  graphite: "#1f2933",
+  keycap: "#e4e7eb",
+  string: "#9aa8ba",
+  link: "#8fa0b8",
 } as const;
 
 export function clay(color: string, extra: Partial<MeshPhysicalMaterial> = {}) {
@@ -171,7 +179,7 @@ export function racket() {
   handle.translate(0, -1.26, 0);
   const strings = new InstancedMesh(
     new BoxGeometry(1, 1, 1),
-    new MeshPhysicalMaterial({ color: "#e8edf3", roughness: 0.5 }),
+    new MeshPhysicalMaterial({ color: palette.string, roughness: 0.5 }),
     24,
   );
   const matrix = new Matrix4();
@@ -245,7 +253,7 @@ export function terminal() {
   });
   return {
     body,
-    bodyMaterial: clay(palette.paper),
+    bodyMaterial: clay(palette.graphite, { roughness: 0.45 }),
     screenMaterial: new MeshPhysicalMaterial({
       map: screen,
       roughness: 0.3,
@@ -367,10 +375,10 @@ export function network() {
   const links = new InstancedMesh(
     new CylinderGeometry(1, 1, 1, 6),
     new MeshPhysicalMaterial({
-      color: "#dce5f5",
+      color: palette.link,
       roughness: 0.4,
       transparent: true,
-      opacity: 0.55,
+      opacity: 0.7,
     }),
     edges.length,
   );
@@ -396,7 +404,7 @@ export function keycaps() {
   const geometry = new RoundedBoxGeometry(0.46, 0.46, 0.24, 4, 0.08);
   const legends = ["ML", "⌘"].map((legend) =>
     labelTexture((c, s) => {
-      c.fillStyle = palette.paper;
+      c.fillStyle = palette.keycap;
       c.fillRect(0, 0, s, s);
       c.fillStyle = palette.ink;
       c.font = `800 ${s * 0.34}px "Manrope Variable", system-ui, sans-serif`;
@@ -407,7 +415,7 @@ export function keycaps() {
   );
   return {
     geometry,
-    capMaterial: clay(palette.paper, { roughness: 0.45 }),
+    capMaterial: clay(palette.keycap, { roughness: 0.45 }),
     legendMaterials: legends.map(
       (map) => new MeshPhysicalMaterial({ map, roughness: 0.45 }),
     ),
@@ -433,4 +441,82 @@ export function useLogoGeometry(path: string) {
     geometry.scale(1 / 24, 1 / 24, 1 / 24);
     return geometry;
   }, [path]);
+}
+
+/**
+ * Soft contact shadows on a virtual wall behind the objects: one instanced
+ * mesh of blurred ovals, so every shadow costs a single draw call and no
+ * shadow map. A shadow falls down and right of its object (the key light is
+ * up and left) and grows softer and larger the further the object floats.
+ */
+export function contactShadows(count: number) {
+  const texture = labelTexture((c, s) => {
+    const gradient = c.createRadialGradient(
+      s / 2,
+      s / 2,
+      0,
+      s / 2,
+      s / 2,
+      s / 2,
+    );
+    gradient.addColorStop(0, "rgb(23 33 43 / 0.5)");
+    gradient.addColorStop(0.45, "rgb(23 33 43 / 0.2)");
+    gradient.addColorStop(1, "rgb(23 33 43 / 0)");
+    c.fillStyle = gradient;
+    c.fillRect(0, 0, s, s);
+  }, 128);
+  const mesh = new InstancedMesh(
+    new PlaneGeometry(1, 1),
+    new MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      depthWrite: false,
+      opacity: 0.42,
+      toneMapped: false,
+    }),
+    count,
+  );
+  mesh.frustumCulled = false;
+  mesh.renderOrder = -1;
+  mesh.count = 0;
+  return mesh;
+}
+
+const wall = -2.4;
+// The About camera looks down -z from here; see AboutScene.
+const cameraZ = 8;
+const shadowMatrix = new Matrix4();
+const shadowPosition = new Vector3();
+const shadowScale = new Vector3();
+const flat = new Quaternion();
+/**
+ * Places the next shadow behind `object`; returns the following index. The
+ * shadow is set on the wall where the object's own line of sight meets it,
+ * then nudged down and right, so it reads as the object's own shadow.
+ */
+export function placeShadow(
+  mesh: InstancedMesh,
+  index: number,
+  object: Object3D,
+  slot: { scale: number },
+) {
+  if (index >= mesh.instanceMatrix.count) return index;
+  const gap = object.position.z - wall;
+  const behind = (cameraZ - wall) / (cameraZ - object.position.z);
+  shadowPosition.set(
+    object.position.x * behind + 0.06 * gap,
+    object.position.y * behind - 0.1 * gap,
+    wall,
+  );
+  const size = slot.scale * behind * (1.6 + 0.18 * gap);
+  shadowScale.set(size, size * 0.85, 1);
+  shadowMatrix.compose(shadowPosition, flat, shadowScale);
+  mesh.setMatrixAt(index, shadowMatrix);
+  return index + 1;
+}
+
+/** Draws the first `count` shadows placed this frame. */
+export function showShadows(mesh: InstancedMesh, count: number) {
+  mesh.count = count;
+  mesh.instanceMatrix.needsUpdate = true;
 }

@@ -1,21 +1,51 @@
-/* The desk's paper palette. The static composition doubles as the 3D poster. */
+/*
+ * Studio paper: the desk's paper palette with depth. A warm-white backdrop
+ * that cools toward the floor, a soft light pool behind the copy, a faint
+ * vignette and paper grain (an inline SVG turbulence tile, multiplied).
+ */
 .section {
-  --bg: var(--paper);
+  --bg: #f4f5f6;
   --text: var(--ink);
-  --text-body: var(--ink);
+  --text-body: #26323e;
   --text-muted: var(--muted);
-  --hairline: var(--line);
+  --hairline: #cbd3dd;
   --focus: var(--blue);
+  --card: #ffffff;
+  --card-line: #dde3ea;
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .09 0 0 0 0 .13 0 0 0 0 .17 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
   color-scheme: light;
   position: relative;
   isolation: isolate;
-  overflow: clip;
-  min-height: min(100svh, 980px);
+  min-height: 100svh;
   display: grid;
   align-items: center;
-  padding-block: clamp(96px, 12vw, 176px);
-  background: var(--bg);
+  padding-block: clamp(56px, 7vh, 96px);
+  background:
+    radial-gradient(120% 90% at 50% 45%, transparent 60%, rgb(23 33 43 / 0.05)),
+    radial-gradient(
+      60% 45% at 50% 40%,
+      rgb(255 255 255 / 0.85),
+      transparent 70%
+    ),
+    linear-gradient(180deg, #fafaf8, #f4f5f6 55%, #eceef1);
   color: var(--text);
+}
+/* Phones and tall views keep bands above and below the copy for the objects. */
+@media (max-width: 759px), (max-aspect-ratio: 9/10) {
+  .section {
+    padding-block: 128px;
+  }
+}
+.section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: var(--grain);
+  background-size: 180px;
+  opacity: 0.035;
+  mix-blend-mode: multiply;
+  pointer-events: none;
 }
 .inner {
   position: relative;
@@ -30,13 +60,13 @@
 }
 .copy {
   max-width: 62ch;
-  margin: clamp(28px, 4vw, 48px) auto 0;
+  margin: clamp(20px, 3vh, 40px) auto 0;
 }
 .copy p {
-  margin-bottom: 18px;
+  margin-bottom: 14px;
   color: var(--text-body);
-  font-size: clamp(17px, 1.45vw, 20px);
-  line-height: 1.7;
+  font-size: clamp(16px, 1.3vw, 19px);
+  line-height: 1.65;
 }
 .actions {
   display: flex;
@@ -44,7 +74,7 @@
   align-items: center;
   justify-content: center;
   gap: 14px 22px;
-  margin-top: clamp(24px, 3vw, 36px);
+  margin-top: clamp(20px, 2.6vh, 32px);
 }
 /* Volt means "act": one primary action, then the CV, then research. */
 .cta {
@@ -57,7 +87,9 @@
   background: var(--accent);
   color: var(--accent-ink);
   font-weight: 750;
-  box-shadow: 0 16px 40px #d8f23c2e;
+  box-shadow:
+    0 1px 2px rgb(23 33 43 / 0.12),
+    0 10px 24px rgb(23 33 43 / 0.1);
   transition:
     transform 350ms var(--ease-out),
     box-shadow 350ms var(--ease-out),
@@ -80,8 +112,9 @@
   align-items: center;
   min-height: 48px;
   padding: 0 22px;
-  border: 1px solid var(--hairline);
+  border: 1px solid rgb(23 33 43 / 0.28);
   border-radius: 999px;
+  background: rgb(255 255 255 / 0.6);
   color: var(--text);
   font-weight: 700;
   transition:
@@ -97,11 +130,13 @@
 @media (hover: hover) and (pointer: fine) {
   .cta:hover {
     transform: translateY(-2px);
-    box-shadow: 0 22px 50px #d8f23c47;
+    box-shadow:
+      0 2px 4px rgb(23 33 43 / 0.14),
+      0 16px 32px rgb(23 33 43 / 0.14);
   }
   .outline:hover {
     border-color: var(--text);
-    background: color-mix(in oklab, var(--ink) 5%, transparent);
+    background: #fff;
   }
   .cta:hover span {
     transform: translateX(4px);
@@ -110,15 +145,24 @@
     color: var(--ink);
   }
 }
-/* Static clay shapes in the corners; hidden once the 3D scene is live. */
-.decor {
+/*
+ * The resting composition, captured from the 3D scene itself, stands in
+ * until the scene's first frame (and for good under reduced motion, without
+ * JavaScript or WebGL); then the canvas fades in over it.
+ */
+.poster {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
   pointer-events: none;
-  transition: opacity 500ms ease;
+  transition: opacity 400ms ease;
 }
-.section:has([data-stage-state="live"]) .decor {
+.poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.section:has([data-stage-state="live"]) .poster {
   opacity: 0;
 }
 /* The WebGL objects sit behind the copy and never take pointer input. */
@@ -128,97 +172,62 @@
   z-index: 1;
   pointer-events: none;
 }
+.stage canvas {
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+.stage[data-stage-state="live"] canvas {
+  opacity: 1;
+}
+/* A small round pause in the corner; it never moves the layout. */
 .pause {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 44px;
-  margin-top: 18px;
-  padding: 0 16px;
-  border: 1px solid var(--hairline);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 13px;
-  font-weight: 650;
+  position: absolute;
+  z-index: 3;
+  right: clamp(16px, 3vw, 40px);
+  bottom: clamp(16px, 3vw, 40px);
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgb(23 33 43 / 0.2);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.8);
+  color: var(--ink);
   cursor: pointer;
 }
 .pause:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 4px;
 }
+@media (hover: hover) and (pointer: fine) {
+  .pause:hover {
+    background: #fff;
+    border-color: var(--ink);
+  }
+}
 /* Only offered once the objects are actually moving. */
 .section:not(:has([data-stage-state="live"])) .pause {
-  display: none;
-}
-.decor span {
-  position: absolute;
-  border-radius: 50%;
-}
-.ball {
-  top: 7%;
-  left: 2%;
-  width: clamp(88px, 12vw, 180px);
-  aspect-ratio: 1;
-  background:
-    radial-gradient(circle at 34% 30%, #ffb27a 0 8%, transparent 30%),
-    radial-gradient(circle at 60% 65%, #9c4213, transparent 70%),
-    var(--basketball);
-  box-shadow: inset -14px -18px 36px #0000004d;
-}
-.tennis {
-  right: 8%;
-  bottom: 14%;
-  width: clamp(64px, 8vw, 120px);
-  aspect-ratio: 1;
-  background:
-    radial-gradient(circle at 34% 30%, #fbffd6 0 8%, transparent 32%),
-    radial-gradient(circle at 60% 65%, #93a71d, transparent 70%), var(--volt);
-  box-shadow: inset -10px -14px 28px #0000003d;
-}
-.chip {
-  top: 9%;
-  right: 5%;
-  width: clamp(54px, 6vw, 96px);
-  aspect-ratio: 1;
-  border-radius: 22% !important;
-  background: linear-gradient(145deg, #3c6bff, #1535a8);
-  box-shadow:
-    inset -8px -10px 22px #00000040,
-    0 0 0 6px #1947e526;
-  transform: rotate(-14deg);
-}
-@media (max-width: 700px) {
-  .ball {
-    top: auto;
-    bottom: 3%;
-    left: -8%;
-  }
-  .chip {
-    top: 3%;
-    right: 6%;
-  }
-  .tennis {
-    bottom: 4%;
-  }
+  visibility: hidden;
 }
 
 /* Degree, academy and publication. */
 .facts {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1px;
+  gap: 12px;
   width: min(880px, 100%);
-  margin: clamp(28px, 4vw, 44px) auto 0;
-  overflow: hidden;
-  border: 1px solid var(--hairline);
-  border-radius: 18px;
-  background: var(--hairline);
+  margin: clamp(20px, 3vh, 40px) auto 0;
   text-align: left;
 }
 .facts > div {
-  padding: 16px 18px;
-  background: color-mix(in oklab, var(--bg) 82%, transparent);
+  padding: 14px 18px;
+  border: 1px solid var(--card-line, var(--hairline));
+  border-radius: 16px;
+  background: var(--card, var(--surface-1));
+  box-shadow:
+    0 1px 2px rgb(23 33 43 / 0.05),
+    0 8px 24px rgb(23 33 43 / 0.06);
 }
 .facts dt {
   margin-bottom: 6px;

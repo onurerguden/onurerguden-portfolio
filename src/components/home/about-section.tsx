@@ -7,7 +7,39 @@ import AboutStage from "./about-stage";
 import EducationFacts from "./education-facts";
 import styles from "./about.module.css";
 
-/** Paper "About me" band with floating procedural objects around the copy. */
+/**
+ * The resting 3D composition, captured from the scene itself
+ * (`npm run about:poster`): wide and narrow layouts, AVIF with a WebP
+ * fallback. Decorative, so it has no text alternative.
+ */
+function AboutPoster() {
+  const narrow = "(max-width: 759px), (max-aspect-ratio: 9/10)";
+  return (
+    <picture className={styles.poster}>
+      <source
+        media={narrow}
+        type="image/avif"
+        srcSet="/images/about/poster-narrow.avif"
+      />
+      <source
+        media={narrow}
+        type="image/webp"
+        srcSet="/images/about/poster-narrow.webp"
+      />
+      <source type="image/avif" srcSet="/images/about/poster-wide.avif" />
+      <img
+        src="/images/about/poster-wide.webp"
+        alt=""
+        width={1440}
+        height={900}
+        loading="lazy"
+        decoding="async"
+      />
+    </picture>
+  );
+}
+
+/** Studio-paper "About me" band with floating procedural objects around the copy. */
 export default function AboutSection({ locale }: { locale: Locale }) {
   const en = locale === "en";
   const about = getAbout(locale);
@@ -22,18 +54,14 @@ export default function AboutSection({ locale }: { locale: Locale }) {
       aria-labelledby="about-title"
       tabIndex={-1}
     >
-      <div className={styles.decor} aria-hidden="true">
-        <span className={styles.ball} />
-        <span className={styles.tennis} />
-        <span className={styles.chip} />
-      </div>
+      <AboutPoster />
       <AboutStage logos={logos} />
       <div className={styles.inner} data-about-copy>
         <GiantTitle
           id="about-title"
           text={en ? "About me" : "Hakkımda"}
           locale={locale}
-          fill={84}
+          fill={70}
           className={styles.title}
         />
         <div className={styles.copy}>
@@ -54,8 +82,8 @@ export default function AboutSection({ locale }: { locale: Locale }) {
             {en ? "My research" : "Araştırmalarım"}
           </a>
         </div>
-        <MotionToggle locale={locale} className={styles.pause} />
       </div>
+      <MotionToggle locale={locale} className={styles.pause} iconOnly />
     </section>
   );
 }

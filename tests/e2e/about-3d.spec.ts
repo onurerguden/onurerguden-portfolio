@@ -36,6 +36,41 @@ test.describe("About objects", () => {
     await expect(canvas).toHaveCount(0, { timeout: ci(10000) });
   });
 
+  test("the poster stands in until the first frame and the copy never moves", async ({
+    page,
+  }) => {
+    await page.goto("/en");
+    const copy = page.locator("[data-about-copy]");
+    const poster = page.locator("#about picture img");
+    await page.locator("#about").scrollIntoViewIfNeeded();
+    await expect(poster).toBeVisible();
+    const before = await copy.boundingBox();
+    const stage = page.locator("[data-about-stage]");
+    await expect(stage).toHaveAttribute("data-stage-state", "live", {
+      timeout: ci(30000),
+    });
+    // The canvas fades in over the poster, which fades out.
+    await expect
+      .poll(() =>
+        stageCanvas(page, "about").evaluate(
+          (node) => getComputedStyle(node).opacity,
+        ),
+      )
+      .toBe("1");
+    await expect
+      .poll(() =>
+        page
+          .locator("#about picture")
+          .evaluate((node) => getComputedStyle(node).opacity),
+      )
+      .toBe("0");
+    expect(await copy.boundingBox()).toEqual(before);
+    // The pause button was there, invisible, all along.
+    await expect(
+      page.locator("#about").getByRole("button", { name: "Pause motion" }),
+    ).toBeVisible();
+  });
+
   test("pausing motion freezes the scene on its last frame", async ({
     page,
   }) => {
