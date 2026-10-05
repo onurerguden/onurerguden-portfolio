@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { forceSectionScenes, journeyCanvas, ci } from "./helpers";
+import { forceSectionScenes, journeyCanvas, ci, reach } from "./helpers";
 import AxeBuilder from "@axe-core/playwright";
 const paths = [
   "",
@@ -46,7 +46,7 @@ for (const locale of ["en", "tr"]) {
     else await page.keyboard.press("Tab");
     await expect(page.locator(".skip-link")).toBeFocused();
     await page.keyboard.press("Enter");
-    await page.locator("#work").scrollIntoViewIfNeeded();
+    await reach(page, "work");
     for (const image of await page.locator(".phone-pair img").all()) {
       // WebKit loads lazy images only near the view.
       await image.scrollIntoViewIfNeeded();

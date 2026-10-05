@@ -49,10 +49,8 @@ export default function AboutSection({ locale }: { locale: Locale }) {
   );
   return (
     <section
-      id="about"
       className={`${styles.section} bleed`}
       aria-labelledby="about-title"
-      tabIndex={-1}
     >
       <AboutPoster />
       <AboutStage logos={logos} />

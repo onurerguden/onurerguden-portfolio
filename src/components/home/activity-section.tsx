@@ -110,7 +110,6 @@ export default function ActivitySection({ locale }: { locale: Locale }) {
   const en = locale === "en";
   return (
     <section
-      id="activity"
       className={`${styles.section} bleed`}
       aria-labelledby="activity-title"
     >

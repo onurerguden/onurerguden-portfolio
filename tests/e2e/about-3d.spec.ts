@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { forceSectionScenes, stageCanvas, ci } from "./helpers";
+import { forceSectionScenes, stageCanvas, ci, reach } from "./helpers";
 
 test.describe("About objects", () => {
   test.skip(
@@ -15,7 +15,7 @@ test.describe("About objects", () => {
     await page.goto("/en");
     const canvas = stageCanvas(page, "about");
     await expect(canvas).toHaveCount(0);
-    await page.locator("#about").scrollIntoViewIfNeeded();
+    await reach(page, "about");
     await expect(canvas).toHaveCount(1, { timeout: ci(20000) });
     await expect(canvas).toHaveAttribute("aria-hidden", "true");
     await expect
@@ -32,7 +32,7 @@ test.describe("About objects", () => {
     expect(
       Number(await canvas.getAttribute("data-stage-triangles")),
     ).toBeLessThanOrEqual(120000);
-    await page.locator("#contact").scrollIntoViewIfNeeded();
+    await reach(page, "contact");
     await expect(canvas).toHaveCount(0, { timeout: ci(10000) });
   });
 
@@ -42,7 +42,7 @@ test.describe("About objects", () => {
     await page.goto("/en");
     const copy = page.locator("[data-about-copy]");
     const poster = page.locator("#about picture img");
-    await page.locator("#about").scrollIntoViewIfNeeded();
+    await reach(page, "about");
     await expect(poster).toBeVisible();
     const before = await copy.boundingBox();
     const stage = page.locator("[data-about-stage]");
@@ -75,7 +75,7 @@ test.describe("About objects", () => {
     page,
   }) => {
     await page.goto("/en");
-    await page.locator("#about").scrollIntoViewIfNeeded();
+    await reach(page, "about");
     const canvas = stageCanvas(page, "about");
     await expect
       .poll(
@@ -106,7 +106,7 @@ test.describe("About objects", () => {
     page,
   }) => {
     await page.goto("/tr");
-    await page.locator("#about").scrollIntoViewIfNeeded();
+    await reach(page, "about");
     const canvas = stageCanvas(page, "about");
     await expect(canvas).toHaveCount(1, { timeout: ci(20000) });
     await canvas.evaluate((node) =>

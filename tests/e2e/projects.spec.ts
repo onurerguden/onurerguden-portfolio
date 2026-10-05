@@ -1,10 +1,11 @@
 import { test, expect } from "@playwright/test";
+import { reach } from "./helpers";
 
 test("every project link is reachable and never hidden under a later card", async ({
   page,
 }) => {
   await page.goto("/en");
-  await page.locator("#work").scrollIntoViewIfNeeded();
+  await reach(page, "work");
   const links = page.locator("#work a");
   const count = await links.count();
   expect(count).toBeGreaterThanOrEqual(10);

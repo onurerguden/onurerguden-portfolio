@@ -85,3 +85,18 @@ export async function go(page: Page, d: number) {
     )
     .toBe(true);
 }
+
+/**
+ * Scrolls a home section's start into view. The sections are sheets whose
+ * wrappers are taller than the view, so scrollIntoViewIfNeeded would centre
+ * the wrapper and leave the next sheet over the section.
+ */
+export async function reach(page: Page, id: string) {
+  await page.evaluate(
+    (target) =>
+      document
+        .getElementById(target)
+        ?.scrollIntoView({ block: "start", behavior: "instant" }),
+    id,
+  );
+}

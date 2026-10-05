@@ -15,10 +15,8 @@ export default function ResearchTeaser({ locale }: { locale: Locale }) {
   const { publication } = sharedFacts;
   return (
     <section
-      id="research"
       className={`${styles.section} bleed`}
       aria-labelledby="research-title"
-      tabIndex={-1}
     >
       <div className={styles.inner}>
         <GiantTitle

@@ -60,9 +60,11 @@
   box-sizing: border-box;
 }
 html {
+  /* Clears the docked nav, so a focused or linked element lands below it. */
+  --scroll-pad: 88px;
   background: var(--bg);
   scroll-behavior: smooth;
-  scroll-padding-top: 30px;
+  scroll-padding-top: var(--scroll-pad);
 }
 body {
   margin: 0;
@@ -338,4 +340,92 @@ body:has([data-journey-stage]) {
 .anchor-alias {
   display: block;
   height: 0;
+}
+
+/*
+ * Section sheets (home page, after the desk). Every section lives in a
+ * wrapper that carries its id, so links land where the section starts. On
+ * wide screens with motion, About holds: its wrapper is a spacer of one view
+ * plus a dwell, then the section pinned with `sticky; bottom: 0`. It settles
+ * at the top, holds for the dwell (a few wheel steps), and Projects, pulled
+ * up one view, slides over it like a sheet of paper. From Projects on the
+ * sections read as one continuous page. Phones, reduced motion and print read
+ * everything in plain flow.
+ */
+.sheet {
+  position: relative;
+  scroll-margin-top: calc(-1 * var(--scroll-pad));
+}
+.sheet > .anchor-alias {
+  position: absolute;
+  top: 0;
+}
+.sheet:focus {
+  outline: none;
+}
+@media screen and (min-width: 761px) and (min-height: 621px) and (prefers-reduced-motion: no-preference) {
+  .sheet[data-sheet="hold"] {
+    --sheets: on;
+    --sheet-dwell: 40svh;
+    display: flex;
+    flex-direction: column;
+    view-timeline: var(--sheet-name) block;
+  }
+  .sheet[data-sheet="hold"]::before {
+    content: "";
+    flex: none;
+    height: calc(var(--sheet-dwell) + 100svh);
+  }
+  .sheet[data-sheet="hold"] > section {
+    position: sticky;
+    bottom: 0;
+    min-height: 100svh;
+  }
+  /* The section after the held one slides over it. */
+  .sheet[data-sheet="hold"] + .sheet {
+    margin-top: -100svh;
+  }
+  .sheet[data-sheet="hold"] + .sheet > section {
+    border-radius: 28px 28px 0 0;
+    box-shadow:
+      0 -1px 0 #ffffff1f,
+      0 -28px 60px #02050d59;
+  }
+}
+/*
+ * While Projects slides over it, the held sheet shrinks a little toward its
+ * top and dims: the last view of its pin, on its wrapper's own timeline.
+ */
+@supports (animation-timeline: view()) {
+  @media screen and (min-width: 761px) and (min-height: 621px) and (prefers-reduced-motion: no-preference) {
+    .sheet[data-sheet="hold"] > section {
+      transform-origin: 50% 0;
+      animation: sheet-recede linear both;
+      animation-timeline: var(--sheet-name);
+      animation-range: contain calc(100% - 100svh) contain 100%;
+    }
+    .sheet[data-sheet="hold"] > section::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      border-radius: inherit;
+      background: #050912;
+      opacity: 0;
+      pointer-events: none;
+      animation: sheet-dim linear both;
+      animation-timeline: var(--sheet-name);
+      animation-range: contain calc(100% - 100svh) contain 100%;
+    }
+  }
+}
+@keyframes sheet-recede {
+  to {
+    transform: scale(0.94);
+  }
+}
+@keyframes sheet-dim {
+  to {
+    opacity: 0.45;
+  }
 }

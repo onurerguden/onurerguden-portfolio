@@ -460,9 +460,12 @@ export default function DeskJourney({
     target.scrollIntoView({ behavior: "instant", block: "start" });
     // A smooth scroll already in flight can carry past the jump; hold the
     // target for a few frames unless the visitor scrolls themselves.
+    // Where the target rests: the page's scroll padding plus its own scroll
+    // margin (negative on the section sheets, which land at the very top).
     const padding =
-      parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) ||
-      0;
+      (parseFloat(
+        getComputedStyle(document.documentElement).scrollPaddingTop,
+      ) || 0) + (parseFloat(getComputedStyle(target).scrollMarginTop) || 0);
     let frames = 0;
     let frame = requestAnimationFrame(function hold() {
       if (pendingHash.current !== pending || ++frames > 40) return;
