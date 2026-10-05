@@ -57,7 +57,7 @@ test.describe("section sheets", () => {
   test("links land on each section's top and the sections after Projects read in one flow", async ({
     page,
   }) => {
-    for (const id of ["research", "activity", "contact"]) {
+    for (const id of ["research", "activity"]) {
       await page.goto(`/en#${id}`);
       await expect
         .poll(() =>
@@ -69,14 +69,28 @@ test.describe("section sheets", () => {
         )
         .toBe(0);
     }
+    // Contact ends the page: it lands as high as the page can scroll, whole.
+    await page.goto("/en#contact");
+    await expect
+      .poll(() =>
+        page.evaluate(() => {
+          const rect = document
+            .querySelector("#contact > section")!
+            .getBoundingClientRect();
+          const end =
+            Math.abs(
+              scrollY + innerHeight - document.documentElement.scrollHeight,
+            ) < 2;
+          return end && rect.top >= 0 && rect.bottom <= innerHeight;
+        }),
+      )
+      .toBe(true);
     // From Research on nothing holds or overlaps: scrolling moves Research
     // by the same distance and GitHub activity follows right below it.
     await page.goto("/en#research");
     await expect
-      .poll(async () =>
-        Math.round((await tops(page, "research", "activity")).section),
-      )
-      .toBe(0);
+      .poll(async () => (await tops(page, "research", "activity")).section)
+      .toBeCloseTo(0, 0);
     await page.evaluate(() =>
       scrollBy({ top: innerHeight * 0.5, behavior: "instant" }),
     );
@@ -105,10 +119,8 @@ test.describe("section sheets", () => {
   test("keyboard focus is never left under Projects", async ({ page }) => {
     await page.goto("/en#work");
     await expect
-      .poll(async () =>
-        Math.round((await tops(page, "work", "research")).section),
-      )
-      .toBe(0);
+      .poll(async () => (await tops(page, "work", "research")).section)
+      .toBeCloseTo(0, 0);
     // Projects now covers About; focus a link in About.
     const link = page.locator("#about a").first();
     await link.focus();
