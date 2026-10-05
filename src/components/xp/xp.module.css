@@ -32,23 +32,11 @@
   cursor: grabbing;
   user-select: none;
 }
-/*
- * The keyboard's way to move a ball (the drag alternative). Out of sight for
- * the pointer, which hovers and drags; it opens when focus reaches it.
- */
+/* The keyboard's way to move a ball (xp-balls.tsx hides it until focused). */
 .ballMoves {
   display: flex;
   gap: calc(6 * var(--u));
   padding: 0 calc(10 * var(--u)) calc(10 * var(--u));
-}
-.ballMoves:not(:focus-within) {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
 }
 .ballMoves select,
 .ballMoves button {
@@ -652,9 +640,9 @@
   list-style: none;
 }
 .entry {
-  min-height: calc(30 * var(--u));
+  min-height: calc(32 * var(--u));
   padding: calc(3 * var(--u)) 0;
-  font-size: calc(14 * var(--u));
+  font-size: calc(16 * var(--u));
 }
 .entry:hover {
   background: #e8f0fd;
@@ -716,6 +704,8 @@
 }
 @container xp (max-width: 700px) {
   .explorer {
+    top: calc(var(--takeover-top, 0px) + 26 * var(--u));
+    bottom: calc(56 * var(--u));
     width: 94cqw;
   }
   .columns,

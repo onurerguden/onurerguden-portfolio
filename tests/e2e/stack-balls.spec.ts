@@ -224,8 +224,9 @@ test.describe("the MacBook's balls", () => {
     });
     // The pointer hovers and drags; the controls open for keyboard focus.
     const moves = page.locator("[data-ball-controls] > div");
-    expect((await moves.boundingBox())!.height).toBeLessThanOrEqual(1);
+    await expect(moves).toHaveCSS("clip-path", "inset(50%)");
     await selector.focus();
+    await expect(moves).toHaveCSS("clip-path", "none");
     expect((await moves.boundingBox())!.height).toBeGreaterThan(30);
     await selector.selectOption("1");
     const right = page.getByRole("button", {
