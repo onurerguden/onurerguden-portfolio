@@ -46,8 +46,10 @@ test.describe("the paper curtain", () => {
       "desk",
       "about",
     ]);
-    // At the end only About is left, and the desk has stopped drawing.
-    await go(page, end);
+    // At the end only About is left, and the desk has stopped drawing. The
+    // story's distance stops at its end, so a step past it lands exactly
+    // there whatever the scroll position rounds to.
+    await go(page, end + 0.03);
     expect(await hits(page, [0.05, 0.3, 0.5, 0.7, 0.95])).toEqual(
       Array(5).fill("about"),
     );
