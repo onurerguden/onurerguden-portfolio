@@ -2,6 +2,7 @@ import { Fragment, type CSSProperties, type ReactNode } from "react";
 import type { Locale } from "@/lib/content";
 import { homeSections, type HomeSectionId } from "@/lib/home-sections";
 import { getCertificates } from "@/lib/home-content";
+import { curtain } from "@/lib/desk-story/timeline";
 import AboutSection from "@/components/home/about-section";
 import ProjectsSection from "@/components/home/projects-section";
 import ActivitySection from "@/components/home/activity-section";
@@ -61,7 +62,18 @@ export default function HomeContinuation({ locale }: { locale: Locale }) {
             className="sheet"
             data-sheet={section.id === "about" ? "hold" : ""}
             tabIndex={-1}
-            style={{ "--sheet-name": `--sheet-${section.id}` } as CSSProperties}
+            style={
+              {
+                "--sheet-name": `--sheet-${section.id}`,
+                // The desk's paper curtain opens onto About (site.css).
+                ...(section.id === "about"
+                  ? {
+                      "--curtain-lead": curtain.lead,
+                      "--curtain-landing": curtain.landing,
+                    }
+                  : {}),
+              } as CSSProperties
+            }
           >
             {aliases[section.id as FlowSectionId] ? (
               <span

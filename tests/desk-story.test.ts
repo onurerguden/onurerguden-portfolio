@@ -15,6 +15,8 @@ import {
   remapDistance,
   riseRange,
   roomDistance,
+  exitRange,
+  curtain,
   storyAt,
 } from "../src/lib/desk-story/timeline";
 
@@ -185,5 +187,33 @@ describe("desk story camera", () => {
     expect(offset.z).toBeCloseTo(0.990268, 4);
     expect(anchors.desktop.position.z).toBe(1.25);
     expect(cameraAnchors(390, 844).desktop.position.z).toBe(1.05);
+  });
+});
+
+describe("paper curtain", () => {
+  it("ends the story on an exit after the final hold, with the camera still", () => {
+    const timeline = buildTimeline({ portrait: 1, macbook: 1, exit: true });
+    const exit = exitRange(timeline)!;
+    expect(exit[1]).toBeCloseTo(timeline.length);
+    expect(exit[1] - exit[0]).toBeCloseTo(lengths.exit);
+    // The final view's hold comes just before it.
+    expect(exit[0] - roomDistance(timeline)).toBeCloseTo(holds.room);
+    for (const fraction of [0, 0.5, 1]) {
+      const state = storyAt(timeline, exit[0] + fraction * lengths.exit);
+      expect(state.from).toBe("room");
+      expect(state.to).toBe("room");
+      expect(state.travel).toBe(0);
+    }
+    expect(storyAt(timeline, exit[0] - 0.01).exit).toBe(0);
+    expect(storyAt(timeline, exit[0] + 0.5).exit).toBeCloseTo(0.5);
+    expect(storyAt(timeline, timeline.length).exit).toBe(1);
+    expect(storyAt(timeline, exit[0] - 0.1).segment).toBe("hold");
+  });
+  it("has no exit without the curtain, and About's lengths match the story", () => {
+    const timeline = buildTimeline({ portrait: 1, macbook: 1 });
+    expect(exitRange(timeline)).toBeNull();
+    expect(timeline.length - roomDistance(timeline)).toBeCloseTo(holds.room);
+    expect(curtain.landing).toBeCloseTo(holds.room + lengths.exit);
+    expect(curtain.lead).toBeCloseTo(curtain.landing + 1);
   });
 });

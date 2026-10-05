@@ -7,6 +7,7 @@ import {
   screenPixelWidths,
 } from "@/lib/desk-story/camera";
 import { buildTimeline, type Timeline } from "@/lib/desk-story/timeline";
+import { curtainQuery } from "@/lib/desk-story/curtain";
 import type { PanelRefs } from "./screen-panels";
 
 /** The monitor is laid out as a column at least this many visible px wide. */
@@ -161,7 +162,9 @@ export function useStoryLayout(
         },
         macbook: { ...laptop, overflow: listOverflow, window: listWindow },
       };
+      const exit = matchMedia(curtainQuery).matches;
       const changed =
+        exit !== previous.timeline.segments.some((s) => s.kind === "exit") ||
         width !== previous.stage.width ||
         height !== previous.stage.height ||
         (["portrait", "macbook"] as const).some(
@@ -176,6 +179,7 @@ export function useStoryLayout(
               portrait: (monitorOverflow * monitor.scale) / height,
               macbook: (listOverflow * laptop.scale) / height,
               dive: { portrait: monitor.dive, macbook: laptop.dive },
+              exit,
             })
           : previous.timeline,
         stage: { width, height },

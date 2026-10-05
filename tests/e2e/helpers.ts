@@ -34,6 +34,8 @@ type Story = {
   portrait: [number, number];
   macbook: [number, number];
   room: number;
+  /** The paper curtain's start and end, on wide screens with motion. */
+  exit: [number, number] | null;
   chapters: Record<"services" | "experience" | "stack", number>;
 };
 export async function story(page: Page): Promise<Story> {

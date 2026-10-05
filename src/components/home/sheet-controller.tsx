@@ -16,7 +16,7 @@ export default function SheetController() {
       if (
         !sheet ||
         target === sheet ||
-        getComputedStyle(sheet).getPropertyValue("--sheets") !== "on"
+        getComputedStyle(sheet).getPropertyValue("--sheets").trim() !== "on"
       )
         return;
       const rect = target.getBoundingClientRect();
@@ -29,8 +29,20 @@ export default function SheetController() {
       // the wrapper's top is this far above the view.
       const section = sheet.querySelector<HTMLElement>(":scope > section");
       const overflow = Math.max(0, (section?.offsetHeight ?? 0) - innerHeight);
+      // Under the desk's paper curtain, About is uncovered once it has been
+      // drawn aside.
+      const style = getComputedStyle(sheet);
+      const landing =
+        style.getPropertyValue("--curtain").trim() === "on"
+          ? parseFloat(style.getPropertyValue("--curtain-landing")) *
+            innerHeight
+          : 0;
       window.scrollTo({
-        top: sheet.getBoundingClientRect().top + window.scrollY + overflow,
+        top:
+          sheet.getBoundingClientRect().top +
+          window.scrollY +
+          landing +
+          overflow,
         behavior: "instant",
       });
       target.scrollIntoView({ block: "nearest", behavior: "instant" });

@@ -17,6 +17,9 @@ import {
 import {
   arrivalDistance,
   clamp,
+  ease,
+  exitRange,
+  holds,
   readDistance,
   readRange,
   remapDistance,
@@ -36,6 +39,7 @@ import { stageRegistry } from "@/lib/stage-registry";
 import { homeSections, type SectionLink } from "@/lib/home-sections";
 import { currentSection } from "@/lib/current-section";
 import { deskMode, useStaticDesk } from "@/lib/desk-mode";
+import { curtainProgress } from "@/lib/desk-story/curtain";
 import { laptopPhase, type LaptopPhase } from "@/lib/desk-story/store";
 import { signal } from "@/lib/desk-story/signal";
 import SceneBoundary from "@/components/three/scene-boundary";
@@ -97,6 +101,31 @@ function phaseAt(measure: StoryMeasure, story: StoryState): LaptopPhase {
   return story.rise[2] < 1 ? "rise" : "gone";
 }
 
+/**
+ * Draws the paper curtain: the stage clipped by `side`% from each side, the
+ * desk scaled back and dimmed by `exit`, and the paper edges placed on the
+ * clip. Inline styles on a handful of elements, never a document-wide
+ * custom property, so a scroll frame restyles only them.
+ */
+function paintCurtain(
+  stage: HTMLElement | null,
+  scene: HTMLElement | null,
+  edges: (HTMLElement | null)[],
+  side: number,
+  exit: number,
+) {
+  if (!stage) return;
+  stage.style.clipPath = side > 0 ? `inset(0 ${side}% 0 ${side}%)` : "";
+  stage.style.setProperty("--curtain-dim", String(0.55 * exit));
+  if (scene)
+    scene.style.transform = exit > 0 ? `scale(${1 - 0.06 * exit})` : "";
+  edges.forEach((edge, i) => {
+    if (!edge) return;
+    edge.style.display = side > 0 ? "block" : "";
+    edge.style.setProperty(i ? "right" : "left", `${side}%`);
+  });
+}
+
 export default function DeskJourney({
   locale,
   content,
@@ -114,6 +143,8 @@ export default function DeskJourney({
   const stage = useRef<HTMLDivElement>(null);
   const wrapper = useRef<HTMLDivElement>(null);
   const panels = useRef<(HTMLDivElement | null)[]>([]);
+  // The paper curtain's two edges (left, right).
+  const edges = useRef<(HTMLSpanElement | null)[]>([]);
   const nav = useRef<HTMLElement>(null);
   const hideNavOnScroll = useRef(false);
   // The static section to land on when the desk gives way to the page.
@@ -188,7 +219,27 @@ export default function DeskJourney({
     paintScreens(measure, state, panels.current);
     laptopPhase.set(phaseAt(measure, state));
     const dive = Math.max(...state.dive);
-    const nextCover = { covered: dive >= 1, diving: dive > 0 };
+    // The paper curtain: during the final hold the desk's sides draw back a
+    // little to show the page beneath, then the exit clips it from both
+    // sides to nothing while it recedes and dims. The camera does not move,
+    // so the desk draws no frames meanwhile.
+    const exit = exitRange(measure.timeline);
+    const side = exit
+      ? 4 * ease((d - roomDistance(measure.timeline)) / holds.room) +
+        46 * state.exit
+      : 0;
+    paintCurtain(
+      stage.current,
+      wrapper.current,
+      edges.current,
+      side,
+      state.exit,
+    );
+    curtainProgress.set(exit ? state.exit : 1);
+    const nextCover = {
+      covered: dive >= 1 || state.exit >= 1,
+      diving: dive > 0,
+    };
     if (
       nextCover.covered !== coverRef.current.covered ||
       nextCover.diving !== coverRef.current.diving
@@ -197,7 +248,7 @@ export default function DeskJourney({
       setCovered(nextCover.covered);
       setDiving(nextCover.diving);
     }
-    const nextFinalView = state.from === "room" && state.to === "room";
+    const nextFinalView = state.segment === "hold" && state.from === "room";
     if (finalViewRef.current !== nextFinalView) {
       finalViewRef.current = nextFinalView;
       setFinalView(nextFinalView);
@@ -208,7 +259,13 @@ export default function DeskJourney({
       setChapter(nextChapter);
     }
     if (d < measure.timeline.length)
-      currentSection.set(nextChapter >= 0 ? chapterIds[nextChapter] : null);
+      currentSection.set(
+        state.exit >= 0.5
+          ? "about"
+          : nextChapter >= 0
+            ? chapterIds[nextChapter]
+            : null,
+      );
     // The chapters before and after this point, for the step buttons.
     const distances = chapterDistances(measure);
     const previous = distances.findLastIndex((t) => t < d - 0.02);
@@ -256,7 +313,11 @@ export default function DeskJourney({
       const node = nav.current;
       const content = document.getElementById("journey-content");
       if (!node || !content) return;
-      const docked = content.getBoundingClientRect().top < 0;
+      // With the curtain, About is already in place once the journey has one
+      // view left to scroll; without it, once the journey has gone.
+      const curtained = section.current?.dataset.journeyCurtain === "on";
+      const docked =
+        content.getBoundingClientRect().top < (curtained ? innerHeight + 1 : 0);
       node.dataset.docked = String(docked);
       const y = window.scrollY;
       if (Math.abs(y - lastY) > 8) {
@@ -396,8 +457,15 @@ export default function DeskJourney({
   }, []);
   const remember = useCallback(() => {
     const measure = layout.current;
-    const index = chapterAt(measure, storyAt(measure.timeline, distance.get()));
-    fallbackTarget.current = index >= 0 ? chapterIds[index] : null;
+    const d = distance.get();
+    const index = chapterAt(measure, storyAt(measure.timeline, d));
+    // From the final view on, the page continues with About.
+    fallbackTarget.current =
+      d >= roomDistance(measure.timeline)
+        ? "about"
+        : index >= 0
+          ? chapterIds[index]
+          : null;
   }, [layout, distance]);
   const onFailure = useCallback(() => {
     remember();
@@ -494,6 +562,8 @@ export default function DeskJourney({
     if (!enhanced) {
       currentSection.set(null);
       laptopPhase.set("away");
+      curtainProgress.set(1);
+      paintCurtain(stage.current, wrapper.current, edges.current, 0, 0);
     }
   }, [enhanced]);
   useEffect(() => {
@@ -631,6 +701,7 @@ export default function DeskJourney({
         data-ready={ready}
         data-static={still}
         data-journey-released={released}
+        data-journey-curtain={enhanced && exitRange(story) ? "on" : "off"}
         data-story={
           measuredReady
             ? JSON.stringify({
@@ -638,6 +709,7 @@ export default function DeskJourney({
                 portrait: readRange(story, 0),
                 macbook: readRange(story, 2),
                 room: roomDistance(story),
+                exit: exitRange(story),
                 chapters: Object.fromEntries(
                   chapterIds.map((id, i) => [id, targets[i]]),
                 ),
@@ -651,7 +723,20 @@ export default function DeskJourney({
         }
         aria-label={en ? "From my desk to my work" : "Masamdan çalışmalarıma"}
       >
-        <div className={styles.stage} ref={stage} data-journey-stage>
+        <div
+          className={styles.stage}
+          ref={stage}
+          data-journey-stage
+          onFocus={(event) => {
+            // Focus in a desk being drawn aside brings the whole desk back.
+            const measure = layout.current;
+            if (
+              storyAt(measure.timeline, distance.get()).exit > 0 &&
+              event.target !== event.currentTarget
+            )
+              jumpTo(roomDistance(measure.timeline) + holds.room / 2);
+          }}
+        >
           <PortraitIdentity content={content} opening interactive={!still} />
           {posterVisible ? (
             <Image
@@ -699,6 +784,19 @@ export default function DeskJourney({
               ) : null}
             </div>
           ) : null}
+          {enhanced
+            ? (["left", "right"] as const).map((side, i) => (
+                <span
+                  key={side}
+                  ref={(node) => {
+                    edges.current[i] = node;
+                  }}
+                  className={styles.curtainEdge}
+                  data-side={side}
+                  aria-hidden="true"
+                />
+              ))
+            : null}
           {enhanced && ready && finalView ? (
             // Remounted on every return to the final view, so its few
             // strokes play again and then stop (WCAG 2.2.2).
@@ -790,6 +888,9 @@ export default function DeskJourney({
           const target = document.getElementById("about");
           target?.scrollIntoView({ behavior: "instant", block: "start" });
           target?.focus({ preventScroll: true });
+          // Treat it as a link: the journey keeps About in place if it is
+          // still measuring and grows.
+          window.dispatchEvent(new HashChangeEvent("hashchange"));
         }}
       />
       {/* Where the desk ends: the nav docks once this has scrolled past. */}

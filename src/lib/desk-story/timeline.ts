@@ -13,7 +13,9 @@ export type SegmentKind =
   | "rise"
   /** A screen growing to fill the view, or shrinking back onto the desk. */
   | "diveIn"
-  | "diveOut";
+  | "diveOut"
+  /** The desk drawn aside like paper, revealing the page beneath it. */
+  | "exit";
 export type Segment = {
   kind: SegmentKind;
   from: CameraStop;
@@ -31,6 +33,8 @@ export type StoryLayout = {
   macbook: number;
   /** Screens too small to read on the desk take over the view instead. */
   dive?: { portrait: boolean; macbook: boolean };
+  /** The paper curtain: wide screens with motion end on an exit segment. */
+  exit?: boolean;
 };
 
 export const holds = {
@@ -40,9 +44,22 @@ export const holds = {
   desktopXp: 0.5,
   room: 0.35,
 };
-export const lengths = { rise: 0.3, dive: 0.35 };
+export const lengths = { rise: 0.3, dive: 0.35, exit: 1 };
+/**
+ * The paper curtain, in stage heights: About's wrapper starts `lead` before
+ * the journey's end (where the final hold begins) and its section has
+ * arrived `landing` after that. Server-rendered CSS reads the same numbers.
+ */
+export const curtain = {
+  lead: holds.room + lengths.exit + 1,
+  landing: holds.room + lengths.exit,
+};
 /** Before anything is measured: about one screen of content each. */
-export const defaultLayout: StoryLayout = { portrait: 1.6, macbook: 1 };
+export const defaultLayout: StoryLayout = {
+  portrait: 1.6,
+  macbook: 1,
+  exit: true,
+};
 /** A read never collapses entirely, so its anchors stay distinct. */
 const minimumRead = 0.05;
 
@@ -89,6 +106,9 @@ export function buildTimeline(layout: StoryLayout = defaultLayout): Timeline {
     ]),
     ["travel", "macbook", "room", 1.5, -1],
     ["hold", "room", "room", holds.room, -1],
+    ...(layout.exit
+      ? ([["exit", "room", "room", lengths.exit, -1]] satisfies Step[])
+      : []),
   ];
   let start = 0;
   const segments = plan.map(([kind, from, to, length, screen]) => {
@@ -117,6 +137,10 @@ export type StoryState = {
   dive: number[];
   /** The screen the camera rests on, or -1 while travelling or elsewhere. */
   active: number;
+  /** The kind of segment at this distance. */
+  segment: SegmentKind;
+  /** How far the paper curtain has drawn the desk aside (0–1, eased). */
+  exit: number;
 };
 
 export function storyAt(timeline: Timeline, distance: number): StoryState {
@@ -149,6 +173,7 @@ export function storyAt(timeline: Timeline, distance: number): StoryState {
     }
   });
   const travel = current.kind === "travel" ? ease(local) : 0;
+  const exit = current.kind === "exit" ? ease(local) : 0;
   return {
     distance: d,
     from: current.from,
@@ -160,6 +185,8 @@ export function storyAt(timeline: Timeline, distance: number): StoryState {
     rise: rise.map(ease),
     dive: dive.map(ease),
     active: current.kind === "travel" ? -1 : current.screen,
+    segment: current.kind,
+    exit,
   };
 }
 
@@ -204,9 +231,16 @@ export function readDistance(
   return start + (end - start) * clamp(fraction);
 }
 
-/** The final, full view of the desk. */
+/** The final, full view of the desk: where its hold begins. */
 export const roomDistance = (timeline: Timeline) =>
-  timeline.segments[timeline.segments.length - 1].start;
+  timeline.segments.find((s) => s.kind === "hold" && s.from === "room")
+    ?.start ?? timeline.length;
+
+/** Start and end of the paper curtain, or null without one. */
+export function exitRange(timeline: Timeline) {
+  const segment = timeline.segments.find((s) => s.kind === "exit");
+  return segment ? ([segment.start, segment.end] as const) : null;
+}
 
 /**
  * The same moment of the story in a re-measured timeline: the same segment
