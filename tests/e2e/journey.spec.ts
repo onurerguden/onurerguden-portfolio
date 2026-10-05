@@ -185,7 +185,9 @@ test("scroll separates reading from camera travel, reverses, focuses links and e
   );
   await expect(canvas).toHaveCount(0);
   // Returning remounts it from the model cache behind the final-view poster.
-  await go(page, s.length);
+  // The final hold, where the desk is in view: at the story's end the paper
+  // curtain has drawn it aside and it rightly stops drawing.
+  await scrollToDistance(page, s.exit ? s.exit[0] : s.length);
   await expect(page.locator("[data-journey-released]")).toHaveAttribute(
     "data-journey-released",
     "false",
