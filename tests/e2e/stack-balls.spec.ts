@@ -222,6 +222,11 @@ test.describe("the MacBook's balls", () => {
     const selector = page.getByRole("combobox", {
       name: "Hareket ettirilecek topu seç",
     });
+    // The pointer hovers and drags; the controls open for keyboard focus.
+    const moves = page.locator("[data-ball-controls] > div");
+    expect((await moves.boundingBox())!.height).toBeLessThanOrEqual(1);
+    await selector.focus();
+    expect((await moves.boundingBox())!.height).toBeGreaterThan(30);
     await selector.selectOption("1");
     const right = page.getByRole("button", {
       name: /topunu sağa hareket ettir/,
