@@ -555,6 +555,8 @@ test("changing the motion preference restores the journey without reloading", as
   test.skip(browserName === "webkit", "Headless WebKit lacks reliable WebGL2.");
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/en");
+  // Switch only once the page is interactive, so the change is heard.
+  await page.waitForLoadState("networkidle");
   await expect(page.locator("canvas")).toHaveCount(0);
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await expect(page.locator("[data-ready]")).toHaveAttribute(
@@ -687,6 +689,8 @@ test("keyboard focus and the step buttons bring monitor content into view", asyn
     { timeout: ci(20000) },
   );
   const s = await story(page);
+  // The story's own distance: on a phone the MacBook takes over the view and
+  // the desk canvas stops drawing, so its counters lag.
   // The VBT row's link sits deep in Experience.
   const link = page
     .locator('[data-screen="0"]')
@@ -694,7 +698,7 @@ test("keyboard focus and the step buttons bring monitor content into view", asyn
   await link.focus();
   await expect
     .poll(async () =>
-      Number(await journeyCanvas(page).getAttribute("data-distance")),
+      Number(await page.locator("[data-story]").getAttribute("data-distance")),
     )
     .toBeGreaterThan(s.chapters.experience);
   await expect(link).toBeInViewport();
@@ -703,7 +707,7 @@ test("keyboard focus and the step buttons bring monitor content into view", asyn
   await page.keyboard.press("Enter");
   await expect
     .poll(async () =>
-      Number(await journeyCanvas(page).getAttribute("data-distance")),
+      Number(await page.locator("[data-story]").getAttribute("data-distance")),
     )
     .toBeCloseTo(s.chapters.stack, 1);
   // The step buttons appear for keyboard focus only.
@@ -711,7 +715,7 @@ test("keyboard focus and the step buttons bring monitor content into view", asyn
   await page.keyboard.press("Enter");
   await expect
     .poll(async () =>
-      Number(await journeyCanvas(page).getAttribute("data-distance")),
+      Number(await page.locator("[data-story]").getAttribute("data-distance")),
     )
     .toBeCloseTo(s.chapters.experience, 1);
 });
