@@ -23,13 +23,11 @@ try {
   await page.waitForFunction(
     () => document.querySelector("canvas")?.dataset.distance === "0",
   );
-  await page
-    .locator("canvas")
-    .screenshot({
-      path: "docs/qa/desk/browser-loading.png",
-      style:
-        "[data-journey-stage] * { visibility: hidden !important; } [data-journey-stage] canvas { visibility: visible !important; }",
-    });
+  await page.locator("canvas").screenshot({
+    path: "docs/qa/desk/browser-loading.png",
+    style:
+      "[data-journey-stage] * { visibility: hidden !important; } [data-journey-stage] canvas { visibility: visible !important; }",
+  });
   const bytes = await readFile("public/models/desk/onur-desk.glb");
   await writeFile(
     "docs/qa/desk/loading-poster.json",

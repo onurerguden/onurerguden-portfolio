@@ -223,6 +223,7 @@ export default function InteractionScene({
       if (id === "drawers") {
         if (drawerStart.current === null) {
           drawerStart.current = performance.now();
+          gl.domElement.setAttribute("data-drawer-peak", "0.000");
           requestAnimation(drawerWave.duration);
           invalidate();
         }
@@ -333,6 +334,16 @@ export default function InteractionScene({
       return offset.toFixed(3);
     });
     gl.domElement.setAttribute("data-drawer-offsets", offsets.join(","));
+    // For QA: the wave's largest offset, so a slow renderer that draws few
+    // frames cannot hide the movement between samples.
+    if (drawersMoving)
+      gl.domElement.setAttribute(
+        "data-drawer-peak",
+        Math.max(
+          Number(gl.domElement.dataset.drawerPeak || 0),
+          ...offsets.map(Number),
+        ).toFixed(3),
+      );
     gl.domElement.setAttribute(
       "data-drawers-motion",
       drawersMoving ? "running" : "idle",

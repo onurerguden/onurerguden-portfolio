@@ -1,6 +1,13 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { go, journeyCanvas, scrollToDistance, story, within } from "./helpers";
+import {
+  go,
+  journeyCanvas,
+  scrollToDistance,
+  story,
+  within,
+  ci,
+} from "./helpers";
 
 test("opening portrait stays sharp until scroll and returns on reverse", async ({
   page,
@@ -11,7 +18,7 @@ test("opening portrait stays sharp until scroll and returns on reverse", async (
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
     "true",
-    { timeout: 20000 },
+    { timeout: ci(20000) },
   );
   const opening = page.locator("[data-opening-poster]");
   await expect(opening).toHaveCSS("opacity", "1");
@@ -119,7 +126,7 @@ test("scroll separates reading from camera travel, reverses, focuses links and e
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
     "true",
-    { timeout: 20000 },
+    { timeout: ci(20000) },
   );
   const canvas = journeyCanvas(page);
   const s = await story(page);
@@ -174,7 +181,7 @@ test("scroll separates reading from camera travel, reverses, focuses links and e
   await expect(page.locator("[data-journey-released]")).toHaveAttribute(
     "data-journey-released",
     "true",
-    { timeout: 5000 },
+    { timeout: ci(5000) },
   );
   await expect(canvas).toHaveCount(0);
   // Returning remounts it from the model cache behind the final-view poster.
@@ -184,7 +191,7 @@ test("scroll separates reading from camera travel, reverses, focuses links and e
     "false",
   );
   await expect(page.locator("[data-journey-poster]")).toHaveCount(0, {
-    timeout: 20000,
+    timeout: ci(20000),
   });
   await expect(canvas).toHaveAttribute("data-active", "true");
   expect(failedImages).toEqual([]);
@@ -197,7 +204,7 @@ test("failed model collapses the pinned journey and preserves content", async ({
   await expect(page.locator("[data-enhanced]")).toHaveAttribute(
     "data-enhanced",
     "false",
-    { timeout: 20000 },
+    { timeout: ci(20000) },
   );
   await expect(page.locator("#services")).toBeVisible();
   await expect(page.locator("#journey-content")).toBeAttached();
@@ -246,13 +253,13 @@ test("late loading keeps the current scroll position; context loss restores norm
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
     "true",
-    { timeout: 20000 },
+    { timeout: ci(20000) },
   );
   await expect
     .poll(
       async () =>
         Number(await journeyCanvas(page).getAttribute("data-distance")),
-      { timeout: 20000 },
+      { timeout: ci(20000) },
     )
     .toBeCloseTo(travel, 1);
   await journeyCanvas(page).evaluate((canvas) =>
@@ -276,7 +283,7 @@ test("narrow and zoom-equivalent viewports preserve screen links and readable ty
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
     "true",
-    { timeout: 20000 },
+    { timeout: ci(20000) },
   );
   const s = await story(page);
   for (const [screen, d] of [
@@ -325,7 +332,7 @@ test("portrait screen uses scene depth instead of a CSS cutout", async ({
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
     "true",
-    { timeout: 20000 },
+    { timeout: ci(20000) },
   );
   const s = await story(page);
   await go(page, s.portrait[1] + 0.7);
@@ -357,7 +364,7 @@ test("home keeps desk interactions available and exits promptly after the full v
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
     "true",
-    { timeout: 20000 },
+    { timeout: ci(20000) },
   );
   await expect(page.locator('[data-screen="1"] article')).toHaveCount(0);
   await expect(page.getByText("Scroll down", { exact: true })).toBeVisible();
@@ -375,7 +382,7 @@ test("home keeps desk interactions available and exits promptly after the full v
   await expect(journeyCanvas(page)).toHaveAttribute(
     "data-drawers-motion",
     "idle",
-    { timeout: 5000 },
+    { timeout: ci(5000) },
   );
   await go(page, s.room + 0.1);
   const camera = await journeyCanvas(page).getAttribute("data-camera");
@@ -401,7 +408,7 @@ test("cosmic grid remains active through close-ups and returns to demand-rendere
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
     "true",
-    { timeout: 20000 },
+    { timeout: ci(20000) },
   );
   const canvas = journeyCanvas(page);
   const s = await story(page);
@@ -445,7 +452,7 @@ test("cosmic grid remains active through close-ups and returns to demand-rendere
         await page.waitForTimeout(400);
         return (await canvas.getAttribute("data-frames")) === before;
       },
-      { timeout: 10000 },
+      { timeout: ci(10000) },
     )
     .toBe(true);
 
@@ -486,7 +493,15 @@ test("journey bar hides after travel and returns at the top edge", async ({
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
     "true",
-    { timeout: 20000 },
+    { timeout: ci(20000) },
+  );
+  // Headless Linux Chromium (CI) reports no fine pointer, so the bar's
+  // pointer reveal does not exist there.
+  test.skip(
+    !(await page.evaluate(
+      () => matchMedia("(hover: hover) and (pointer: fine)").matches,
+    )),
+    "The browser reports no fine pointer.",
   );
   const navigation = page.getByRole("navigation", {
     name: "Journey sections",
@@ -536,7 +551,7 @@ test("changing the motion preference restores the journey without reloading", as
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
     "true",
-    { timeout: 20000 },
+    { timeout: ci(20000) },
   );
   await page.emulateMedia({ reducedMotion: "reduce" });
   await expect(page.locator("canvas")).toHaveCount(0);
@@ -552,7 +567,7 @@ test("the monitor reads What I do and Experience the same both ways", async ({
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
     "true",
-    { timeout: 20000 },
+    { timeout: ci(20000) },
   );
   const s = await story(page);
   const panel = page.locator('[data-screen="0"]');
@@ -596,7 +611,7 @@ test("monitor rows fill from the side the pointer enters", async ({
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
     "true",
-    { timeout: 20000 },
+    { timeout: ci(20000) },
   );
   await go(page, (await story(page)).chapters.services);
   const row = page.locator('[data-screen="0"] [data-row]').first();
@@ -631,14 +646,14 @@ for (const id of ["services", "experience"])
     await expect(page.locator("[data-ready]")).toHaveAttribute(
       "data-ready",
       "true",
-      { timeout: 20000 },
+      { timeout: ci(20000) },
     );
     const s = await story(page);
     await expect
       .poll(
         async () =>
           Number(await journeyCanvas(page).getAttribute("data-distance")),
-        { timeout: 20000 },
+        { timeout: ci(20000) },
       )
       .toBeCloseTo(s.chapters[id as "services"], 1);
     await expect(page.locator(`#${id}-title`)).toBeInViewport();
@@ -660,7 +675,7 @@ test("keyboard focus and the step buttons bring monitor content into view", asyn
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
     "true",
-    { timeout: 20000 },
+    { timeout: ci(20000) },
   );
   const s = await story(page);
   // The VBT row's link sits deep in Experience.

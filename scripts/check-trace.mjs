@@ -32,4 +32,6 @@ for (const route of routes) {
   failed ||= missing.length > 0;
 }
 if (failed) process.exit(1);
-console.log(`${files.length} content files traced into ${routes.length} routes.`);
+console.log(
+  `${files.length} content files traced into ${routes.length} routes.`,
+);

@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { go, story } from "./helpers";
+import { go, story, ci } from "./helpers";
 
 async function hydrated(page: Page) {
   // The motion store marks <html> once the page has hydrated.
@@ -17,7 +17,7 @@ test("Bliss parts as the camera reaches the MacBook and rests at the desktop", a
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
     "true",
-    { timeout: 20000 },
+    { timeout: ci(20000) },
   );
   const s = await story(page);
   const skyShift = () =>

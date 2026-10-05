@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { ci } from "./helpers";
 import AxeBuilder from "@axe-core/playwright";
 
 const order = [
@@ -47,7 +48,7 @@ test("the Sections menu opens, navigates and closes from the keyboard", async ({
   // Headless Chromium draws the desk with software WebGL (SwiftShader), so
   // the smooth scroll past it can stall frames for a couple of seconds.
   await expect(page.locator("#services-title")).toBeInViewport({
-    timeout: 15000,
+    timeout: ci(15000),
   });
 });
 
@@ -164,7 +165,7 @@ test("older desk chapter links land on the sections that hold that content", asy
   ]) {
     await page.goto(`/en#${alias}`);
     await expect(page.locator(`#${id}-title`)).toBeInViewport({
-      timeout: 10000,
+      timeout: ci(10000),
     });
   }
 });
