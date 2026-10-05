@@ -40,7 +40,8 @@
 - [x] Onur approved the corrected facts (PR 02) and the AI work copy (PR 07) in `docs/content-review.md` (5 October 2026).
 - [x] Onur approved the technologies added from his organizations' repositories (PR 11, `docs/content-review.md`; 5 October 2026).
 - [x] Onur approved the visual gates on 5 October 2026: desk controls (PR 04), portrait framing (PR 05), studio About (PR 06), section sheets (PR 08, reduced to About → Projects after his review), paper curtain (PR 09) and the smaller tech stack windows (PR 11). Captures: `docs/qa/final-polish/`.
-- [ ] Kuyumcum team approves publishing `kuyumcum_ai_workflow_chart.png`; then add it to the case study as a `figure` with a long description.
+- [x] The Kuyumcum team approved publishing `kuyumcum_ai_workflow_chart.png` (5 October 2026); it is in the case study's "Multi-agent reports" section with a step-by-step text equivalent (PR 12).
+- [x] Icons and error pages (PR 12): `favicon.ico`, Apple touch icon, web manifest, and localized error pages for a failed page or root layout.
 - [ ] Physical iPhone Safari pass: hint, sheets (off on phones), About objects, curtain (off on phones), two WebGL contexts.
 
 ## Deploy readiness (next step, outside this series)
