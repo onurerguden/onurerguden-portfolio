@@ -4,8 +4,14 @@
  * 'strict-dynamic'); the desk's Draco decoder needs 'wasm-unsafe-eval' and a
  * blob worker. Styles allow inline attributes, which React's style props and
  * next/image write. Development adds 'unsafe-eval' for React's debugging.
+ * Only a page served over HTTPS asks for its requests to be upgraded: over
+ * plain http (a local production build, the CI browsers) WebKit would turn
+ * every script and stylesheet into an https request that cannot connect.
  */
-export function contentSecurityPolicy(nonce: string, development = false) {
+export function contentSecurityPolicy(
+  nonce: string,
+  { development = false, secure = true } = {},
+) {
   return [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'wasm-unsafe-eval'${
@@ -22,7 +28,7 @@ export function contentSecurityPolicy(nonce: string, development = false) {
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    ...(development ? [] : ["upgrade-insecure-requests"]),
+    ...(secure && !development ? ["upgrade-insecure-requests"] : []),
   ].join("; ");
 }
 

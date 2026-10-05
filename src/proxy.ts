@@ -20,10 +20,10 @@ export function proxy(request: NextRequest) {
     });
   const locale = path.split("/")[1] === "tr" ? "tr" : "en";
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
-  const policy = contentSecurityPolicy(
-    nonce,
-    process.env.NODE_ENV === "development",
-  );
+  const policy = contentSecurityPolicy(nonce, {
+    development: process.env.NODE_ENV === "development",
+    secure: request.nextUrl.protocol === "https:",
+  });
   const headers = new Headers(request.headers);
   headers.set("x-portfolio-locale", locale);
   headers.set("x-nonce", nonce);

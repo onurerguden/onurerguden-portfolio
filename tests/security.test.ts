@@ -10,7 +10,18 @@ describe("security", () => {
     expect(policy).not.toContain("'unsafe-eval'");
     expect(policy).toContain("worker-src 'self' blob:");
     expect(policy).toContain("frame-ancestors 'none'");
-    expect(contentSecurityPolicy("abc", true)).toContain("'unsafe-eval'");
+    expect(contentSecurityPolicy("abc", { development: true })).toContain(
+      "'unsafe-eval'",
+    );
+  });
+  it("upgrades requests only on a page served over HTTPS", () => {
+    expect(contentSecurityPolicy("abc")).toContain("upgrade-insecure-requests");
+    expect(contentSecurityPolicy("abc", { secure: false })).not.toContain(
+      "upgrade-insecure-requests",
+    );
+    expect(contentSecurityPolicy("abc", { development: true })).not.toContain(
+      "upgrade-insecure-requests",
+    );
   });
   it("removes the lab pages wherever the site is public", () => {
     expect(labBlocked("/en/lab/desk", { VERCEL_ENV: "production" })).toBe(true);
