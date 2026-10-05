@@ -54,7 +54,7 @@ test.describe("section sheets", () => {
     if (supported) expect(scale).not.toBe("none");
   });
 
-  test("links land on each section's top and nothing shows behind the last", async ({
+  test("links land on each section's top and the sections after Projects read in one flow", async ({
     page,
   }) => {
     for (const id of ["research", "activity", "contact"]) {
@@ -69,39 +69,57 @@ test.describe("section sheets", () => {
         )
         .toBe(0);
     }
+    // From Research on nothing holds or overlaps: scrolling moves Research
+    // by the same distance and GitHub activity follows right below it.
+    await page.goto("/en#research");
+    await expect
+      .poll(async () =>
+        Math.round((await tops(page, "research", "activity")).section),
+      )
+      .toBe(0);
     await page.evaluate(() =>
-      scrollTo({ top: document.body.scrollHeight, behavior: "instant" }),
+      scrollBy({ top: innerHeight * 0.5, behavior: "instant" }),
     );
-    // At the end Contact fills everything above the footer.
-    const end = await page.evaluate(() => {
-      const contact = document
-        .querySelector("#contact > section")!
+    const flow = await page.evaluate(() => {
+      const research = document
+        .querySelector("#research > section")!
         .getBoundingClientRect();
-      const footer = document.querySelector("footer")!.getBoundingClientRect();
-      return { top: contact.top, gap: footer.top - contact.bottom };
+      const activity = document
+        .querySelector("#activity > section")!
+        .getBoundingClientRect();
+      return {
+        top: research.top,
+        gap: activity.top - research.bottom,
+        view: innerHeight,
+      };
     });
-    expect(end.top).toBeLessThanOrEqual(0);
-    expect(Math.abs(end.gap)).toBeLessThan(2);
+    expect(flow.top).toBeCloseTo(-flow.view * 0.5, 0);
+    expect(Math.abs(flow.gap)).toBeLessThan(2);
+    for (const id of ["research", "activity", "contact"])
+      await expect(page.locator(`#${id} > section`)).not.toHaveCSS(
+        "position",
+        "sticky",
+      );
   });
 
-  test("keyboard focus is never left under a later sheet", async ({ page }) => {
-    await page.goto("/en#research");
-    await page.evaluate(() =>
-      scrollBy({ top: innerHeight * 1.2, behavior: "instant" }),
-    );
-    // Focus a link in Projects, which Research now covers.
-    await page.locator("#work a").first().focus();
-    const covered = await page
-      .locator("#work a")
-      .first()
-      .evaluate((node) => {
-        const rect = node.getBoundingClientRect();
-        const top = document.elementFromPoint(
-          rect.left + rect.width / 2,
-          rect.top + rect.height / 2,
-        );
-        return !node.contains(top) && !top?.contains(node);
-      });
+  test("keyboard focus is never left under Projects", async ({ page }) => {
+    await page.goto("/en#work");
+    await expect
+      .poll(async () =>
+        Math.round((await tops(page, "work", "research")).section),
+      )
+      .toBe(0);
+    // Projects now covers About; focus a link in About.
+    const link = page.locator("#about a").first();
+    await link.focus();
+    const covered = await link.evaluate((node) => {
+      const rect = node.getBoundingClientRect();
+      const top = document.elementFromPoint(
+        rect.left + rect.width / 2,
+        rect.top + rect.height / 2,
+      );
+      return !node.contains(top) && !top?.contains(node);
+    });
     expect(covered).toBe(false);
   });
 

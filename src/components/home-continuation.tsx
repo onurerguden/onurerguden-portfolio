@@ -39,10 +39,11 @@ const aliases: Partial<Record<FlowSectionId, string>> = {
  * sections on the desk's screens belong to the journey, which shows them on
  * the screens or, without the desk, in the page.
  *
- * Each section is a sheet (site.css): on wide screens it settles into the
- * view, holds there for a few scroll steps and is then covered by the next
- * one sliding up. The wrapper carries the section's id, so links and the
- * skip link land on it rather than on the pinned section.
+ * Each section sits in a wrapper that carries its id, so links and the skip
+ * link land where the section starts. About is the one sheet that holds
+ * (site.css): on wide screens it settles into the view for a few scroll steps
+ * and Projects slides up over it; the sections after Projects read in one
+ * continuous page.
  */
 export default function HomeContinuation({ locale }: { locale: Locale }) {
   const flow = homeSections.filter(
@@ -53,12 +54,12 @@ export default function HomeContinuation({ locale }: { locale: Locale }) {
   );
   return (
     <>
-      {flow.map((section, index) => (
+      {flow.map((section) => (
         <Fragment key={section.id}>
           <div
             id={section.id}
             className="sheet"
-            data-sheet={index === flow.length - 1 ? "last" : ""}
+            data-sheet={section.id === "about" ? "hold" : ""}
             tabIndex={-1}
             style={{ "--sheet-name": `--sheet-${section.id}` } as CSSProperties}
           >

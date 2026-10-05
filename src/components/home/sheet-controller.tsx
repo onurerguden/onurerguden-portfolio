@@ -2,9 +2,9 @@
 import { useEffect } from "react";
 
 /**
- * Keeps keyboard focus visible on the stacked section sheets (WCAG 2.4.11).
- * A later sheet slides over the one before it, so a focused element can sit
- * under it; then the page scrolls back to where its sheet is uncovered.
+ * Keeps keyboard focus visible on the held section sheet (WCAG 2.4.11).
+ * Projects slides over About, so a focused element in About can sit under
+ * it; then the page scrolls back to where About is uncovered.
  */
 export default function SheetController() {
   useEffect(() => {
