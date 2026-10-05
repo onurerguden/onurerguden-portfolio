@@ -67,6 +67,9 @@ export default function XpBalls({
   const [overlay, setOverlay] = useState<HTMLElement | null>(null);
   const [controls, setControls] = useState<HTMLElement | null>(null);
   const [controlIndex, setControlIndex] = useState(0);
+  // The pointer hovers and drags; the picker and arrows (the keyboard's
+  // alternative to dragging) stay out of sight until focus reaches them.
+  const [movesOpen, setMovesOpen] = useState(false);
   const [box, setBox] = useState<Box | null>(null);
   const [selected, setSelected] = useState<{
     index: number;
@@ -298,7 +301,19 @@ export default function XpBalls({
   const moveControls =
     controls && mount && phase === "desk"
       ? createPortal(
-          <div className={styles.ballMoves} data-no-physics>
+          <div
+            className={
+              movesOpen
+                ? styles.ballMoves
+                : `${styles.ballMoves} visually-hidden`
+            }
+            data-no-physics
+            onFocus={() => setMovesOpen(true)}
+            onBlur={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget))
+                setMovesOpen(false);
+            }}
+          >
             <select
               aria-label={
                 en ? "Choose a ball to move" : "Hareket ettirilecek topu seç"

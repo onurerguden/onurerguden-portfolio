@@ -288,8 +288,9 @@ for (const locale of ["en", "tr"] as const) {
     await page.goto(`/${locale}`);
     const section = page.locator("#activity");
     const events = section.locator("ol");
-    await events.scrollIntoViewIfNeeded();
+    // The live panels replace the first render once the routed data arrives.
     await expect(section.locator("dd")).toHaveCount(3);
+    await events.scrollIntoViewIfNeeded();
     await expect(events.locator("li")).toHaveCount(3);
     expect(
       await events

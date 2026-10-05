@@ -235,7 +235,7 @@ describe("home section content", () => {
 describe("technology evidence", () => {
   it("links technologies to projects, roles or this site", () => {
     const items = getTechStack("en").flatMap((category) => category.items);
-    expect(items).toHaveLength(41);
+    expect(items).toHaveLength(48);
     const evidence = (id: string) =>
       items.find((item) => item.id === id)?.evidence ?? [];
     expect(evidence("python").map((proof) => proof.href)).toEqual([
@@ -250,10 +250,16 @@ describe("technology evidence", () => {
     expect(evidence("mcp").map((proof) => proof.href)).toEqual([
       "/en/projects/gymrap-ai-coach",
     ]);
-    // Docker is shown only where it was used: the VBT internship and CarbonPilot.
-    expect(evidence("docker").map((proof) => proof.href)).toEqual([
+    // Docker is shown only where it was used: the VBT internship, CarbonPilot
+    // and the Future Is Now role.
+    expect(evidence("docker").map((proof) => proof.label)).toEqual([
+      expect.stringContaining("VBT"),
+      "CarbonPilot AI",
+      "Future Is Now",
+    ]);
+    // Private repositories are never named: their tools point to the role.
+    expect(evidence("minio").map((proof) => proof.href)).toEqual([
       "#experience",
-      "/en/projects#carbonpilot",
     ]);
     expect(evidence("threejs")).toEqual([
       expect.objectContaining({ kind: "site", external: true }),

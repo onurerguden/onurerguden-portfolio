@@ -32,10 +32,11 @@
   cursor: grabbing;
   user-select: none;
 }
+/* The keyboard's way to move a ball (xp-balls.tsx hides it until focused). */
 .ballMoves {
   display: flex;
   gap: calc(6 * var(--u));
-  padding: 0 calc(12 * var(--u)) calc(12 * var(--u));
+  padding: 0 calc(10 * var(--u)) calc(10 * var(--u));
 }
 .ballMoves select,
 .ballMoves button {
@@ -199,7 +200,8 @@
 }
 /* A small Luna-style dialog. */
 .window {
-  width: min(calc(360 * var(--u)), 88%);
+  position: relative;
+  width: min(calc(300 * var(--u)), 88%);
   overflow: hidden;
   border: calc(2 * var(--u)) solid #0831d9;
   border-radius: calc(9 * var(--u)) calc(9 * var(--u)) calc(4 * var(--u))
@@ -208,7 +210,7 @@
   color: #1b1b1b;
   box-shadow: 0 calc(16 * var(--u)) calc(40 * var(--u)) #0a2a7a55;
   font:
-    calc(13 * var(--u))/1.45 Tahoma,
+    calc(12 * var(--u))/1.45 Tahoma,
     "Segoe UI",
     system-ui,
     sans-serif;
@@ -280,7 +282,7 @@
 }
 .window p {
   margin: 0;
-  padding: calc(10 * var(--u)) calc(12 * var(--u)) calc(12 * var(--u));
+  padding: calc(8 * var(--u)) calc(10 * var(--u)) calc(10 * var(--u));
 }
 /* Taskbar with a start menu and İzmir clock. */
 .taskbar {
@@ -549,12 +551,12 @@
 .explorer {
   position: absolute;
   z-index: 7;
-  top: calc(var(--takeover-top, 0px) + 26 * var(--u));
-  bottom: calc(56 * var(--u));
+  top: calc(var(--takeover-top, 0px) + 64 * var(--u));
+  bottom: calc(76 * var(--u));
   left: 50%;
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr) auto;
-  width: min(calc(820 * var(--u)), 92cqw);
+  width: min(calc(620 * var(--u)), 92cqw);
   overflow: hidden;
   border: calc(3 * var(--u)) solid #0831d9;
   border-radius: calc(9 * var(--u)) calc(9 * var(--u)) calc(4 * var(--u))
@@ -562,7 +564,7 @@
   background: #fff;
   color: #000;
   box-shadow: 0 calc(20 * var(--u)) calc(50 * var(--u)) #0a2a7a66;
-  font-size: calc(14 * var(--u));
+  font-size: calc(13 * var(--u));
   /* Below the screen until it rises; still in the accessibility tree. */
   transform: translate(-50%, calc((1 - var(--rise)) * 130cqh));
 }
@@ -638,8 +640,8 @@
   list-style: none;
 }
 .entry {
-  min-height: calc(36 * var(--u));
-  padding: calc(4 * var(--u)) 0;
+  min-height: calc(32 * var(--u));
+  padding: calc(3 * var(--u)) 0;
   font-size: calc(16 * var(--u));
 }
 .entry:hover {
@@ -702,6 +704,8 @@
 }
 @container xp (max-width: 700px) {
   .explorer {
+    top: calc(var(--takeover-top, 0px) + 26 * var(--u));
+    bottom: calc(56 * var(--u));
     width: 94cqw;
   }
   .columns,
