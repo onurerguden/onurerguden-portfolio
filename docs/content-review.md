@@ -142,7 +142,7 @@ Onur approved the copy above on 5 October 2026. He then asked to look at his org
 
 ## Icons, error pages and the Kuyumcum chart (PR 12, October 5)
 
-The Kuyumcum team approved publishing their AI report workflow chart (Onur, 5 October 2026). The chart itself is published as supplied (English labels, converted losslessly). New copy, EN and TR; **awaiting Onur's approval**:
+The Kuyumcum team approved publishing their AI report workflow chart (Onur, 5 October 2026). The chart itself is published as supplied (English labels, converted losslessly). New copy, EN and TR; Onur approved all of it on 5 October 2026:
 
 | Block | English | Turkish |
 | --- | --- | --- |
