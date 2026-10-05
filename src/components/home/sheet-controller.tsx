@@ -11,8 +11,11 @@ export default function SheetController() {
     const reveal = (event: FocusEvent) => {
       const target = event.target as HTMLElement;
       const sheet = target.closest<HTMLElement>("[data-sheet]");
+      // The sheet itself takes focus when a link lands on it (/en#research);
+      // the landing owns that scroll, and the sheet's top is what it shows.
       if (
         !sheet ||
+        target === sheet ||
         getComputedStyle(sheet).getPropertyValue("--sheets") !== "on"
       )
         return;
