@@ -111,6 +111,33 @@ describe("compact public activity", () => {
     expect(selected[0].at).toBe("2026-01-03T10:00:00Z");
   });
 
+  it("shows one update per repository before repeating one, and this site last", () => {
+    const at = (day: number) =>
+      `2026-01-${String(day).padStart(2, "0")}T00:00:00Z`;
+    const push = (id: string, repo: string, day: number): ActivityEvent => ({
+      id,
+      repo,
+      at: at(day),
+      kind: "push",
+      commits: 1,
+      branch: null,
+    });
+    const site = "onurerguden/onurerguden-portfolio";
+    const events = [
+      push("site-1", site, 9),
+      push("site-2", site, 8),
+      push("site-3", site, 7),
+      push("gym-1", "onurerguden/GymRap-AI-Coach", 6),
+      push("gym-2", "onurerguden/GymRap-AI-Coach", 5),
+      push("water", "onurerguden/izsu_ai_project", 2),
+    ];
+    expect(recentEvents(events).map((event) => event.id)).toEqual([
+      "site-1",
+      "gym-1",
+      "water",
+    ]);
+  });
+
   it("preserves source order for tied times and handles fewer than three updates", () => {
     const events: ActivityEvent[] = [
       { ...base, id: "first", kind: "push", commits: null, branch: null },

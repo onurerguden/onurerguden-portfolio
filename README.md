@@ -27,6 +27,8 @@ The desk's screens tell the first part of the story: the ultrawide shows my name
 | `npm run desk:portrait`                       | Re-encodes the opening portrait as AVIF and checks it against the WebP (PSNR ≥ 42 dB).                           |
 | `node scripts/desk/capture-cosmic-poster.mjs` | Captures the final-view posters per language from a running production server.                                   |
 | `node scripts/desk/capture-story.mjs`         | Captures the QA screenshots in `docs/qa/desk-story/captures/`.                                                   |
+| `npm run about:poster`                        | Captures the About scene at rest as its wide and narrow poster (`ABOUT_URL` = a running production server).      |
+| `node scripts/qa/*.mjs`                       | QA captures: a page or element (`shot`, `element`), section sheets (`scroll-shot`) and the paper curtain.        |
 
 Section scenes stay static on software WebGL renderers; set `localStorage["portfolio:force-3d"] = "1"` to review them in headless or GPU-less browsers.
 

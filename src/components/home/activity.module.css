@@ -476,3 +476,31 @@ td.cell:hover {
     animation: none;
   }
 }
+/* Without live data: the repositories worth opening instead. */
+.featured {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.featured a {
+  display: grid;
+  gap: 4px;
+  min-height: 72px;
+  padding: 14px 18px;
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  background: var(--surface-1);
+  text-decoration: none;
+}
+.featured a:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+@media (max-width: 700px) {
+  .featured {
+    grid-template-columns: 1fr;
+  }
+}

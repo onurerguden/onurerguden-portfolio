@@ -45,7 +45,9 @@ describe("desk asset URLs", () => {
       );
   });
   it("cache only versioned files as immutable", async () => {
-    const rules = (await nextConfig.headers?.()) ?? [];
+    const rules = ((await nextConfig.headers?.()) ?? []).filter((rule) =>
+      rule.headers.some((header) => header.value.includes("immutable")),
+    );
     expect(rules.map((rule) => rule.source)).toEqual([
       "/models/:path*",
       "/images/desk/:path*",

@@ -210,3 +210,29 @@ test("research, education and the name read before any 3D", async ({
   await expect(actions.filter({ hasText: "Contact me" })).toHaveCount(1);
   await expect(actions.filter({ hasText: /CV/ })).toHaveCount(1);
 });
+
+test("contact offers the address, a copy button and the CV request", async ({
+  page,
+  context,
+  browserName,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/en#contact");
+  const contact = page.locator("#contact");
+  const mail = contact.getByRole("link", { name: "onurerguden5@gmail.com" });
+  await expect(mail).toHaveAttribute("href", "mailto:onurerguden5@gmail.com");
+  await expect(
+    contact.getByRole("link", { name: "Request my CV" }),
+  ).toHaveAttribute("href", /^mailto:.*subject=CV%20request$/);
+  test.skip(
+    browserName !== "chromium",
+    "Clipboard access is granted in Chromium.",
+  );
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await contact.getByRole("button", { name: "Copy address" }).click();
+  await expect(contact.getByRole("button", { name: "Copied" })).toBeVisible();
+  await expect(contact.getByRole("status")).toHaveText("Email address copied");
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+    "onurerguden5@gmail.com",
+  );
+});

@@ -175,11 +175,28 @@ export function describeEvent(event: ActivityEvent, locale: "en" | "tr") {
 export type RecentActivityEvent = Exclude<ActivityEvent, { kind: "create" }>;
 
 /** The newest three meaningful updates, including older cached snapshots. */
-export function recentEvents(events: readonly ActivityEvent[]) {
-  return events
+/**
+ * The three latest updates, one per repository where possible: a burst of
+ * pushes to one repository (usually this site) should not fill the list.
+ * Other repositories come first; the rest fill any remaining places.
+ */
+export function recentEvents(
+  events: readonly ActivityEvent[],
+  quiet = "onurerguden/onurerguden-portfolio",
+) {
+  const sorted = events
     .filter((event): event is RecentActivityEvent => event.kind !== "create")
-    .sort((a, b) => Date.parse(b.at) - Date.parse(a.at))
-    .slice(0, 3);
+    .sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
+  const picked: RecentActivityEvent[] = [];
+  const seen = new Set<string>();
+  for (const event of sorted)
+    if (event.repo !== quiet && !seen.has(event.repo) && picked.length < 3) {
+      seen.add(event.repo);
+      picked.push(event);
+    }
+  for (const event of sorted)
+    if (picked.length < 3 && !picked.includes(event)) picked.push(event);
+  return picked.sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
 }
 
 /** Keep GitHub's actual shares; the three selected languages need not sum to 100. */

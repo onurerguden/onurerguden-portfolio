@@ -33,6 +33,24 @@
 - [x] The AVIF opening portrait passed its gate (PSNR 43.28 dB at the same 1254 px) and replaced the WebP for browsers that support it; the WebP stays as the fallback.
 - [ ] Physical iPhone Safari pass for the desk story: monitor reading, MacBook takeover, balls, two contexts, context loss, LinkedIn in-app browser.
 
+## Final polish (October 2026)
+
+- [x] Open PRs #39–#43 merged into `main` (4 October 2026); tree identical to their stack.
+- [x] CI active on every pull request and `main` (PR 01).
+- [ ] Onur approves the corrected facts (PR 02) and the AI work copy (PR 07) in `docs/content-review.md`, and confirms his part in CarbonPilot.
+- [ ] Onur approves the visual gates: desk controls (PR 04), portrait framing (PR 05), studio About (PR 06), section sheets (PR 08), paper curtain (PR 09). Captures: `docs/qa/final-polish/`.
+- [ ] Kuyumcum team approves publishing `kuyumcum_ai_workflow_chart.png`; then add it to the case study as a `figure` with a long description.
+- [ ] Physical iPhone Safari pass: hint, sheets (off on phones), About objects, curtain (off on phones), two WebGL contexts.
+
+## Deploy readiness (next step, outside this series)
+
+1. Create the Vercel project from this repository; production branch `main`.
+2. Set, before the first production build (robots, sitemap and canonical URLs are rendered at build time): `NEXT_PUBLIC_SITE_URL` (canonical HTTPS origin) and, on production only, `SITE_INDEXABLE=true`. Previews keep it unset.
+3. Server-only secrets: `GITHUB_TOKEN` (fine-grained, public read-only), Upstash Redis URL and token, `CRON_SECRET`, `GITHUB_WEBHOOK_SECRET`. Separate Redis for previews.
+4. Domain: add it in Vercel, then point DNS; HSTS is already sent (no preload).
+5. After the first deploy: call `/api/cron/github` once, add the repository webhooks, check the activity totals against the GitHub profile, enable Speed Insights.
+6. Lab routes return 404 in production (`VERCEL_ENV=production` or `SITE_INDEXABLE=true`) and always send `X-Robots-Tag: noindex`.
+
 ## PR order
 
 Foundation -> design -> content -> 3D -> GitHub synchronization -> release QA. Stacked branches preserve reviewable changes without merging ahead of approval. Retarget the next PR to main after its prerequisite is merged, preserving commits.

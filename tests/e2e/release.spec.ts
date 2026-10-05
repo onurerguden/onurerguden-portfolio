@@ -27,6 +27,7 @@ test("the home page describes me as a Person with my profiles", async ({
       "https://github.com/onurerguden",
       "https://www.linkedin.com/in/onurerguden/",
     ],
+    knowsAbout: expect.arrayContaining(["Model Context Protocol"]),
   });
 });
 
