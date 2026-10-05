@@ -322,8 +322,13 @@
   }
 }
 
-/* After the journey the bar stays reachable on touch screens too. */
-.nav[data-docked="true"] {
+/*
+ * After the journey the bar stays reachable on touch screens too. Keyboard
+ * focus in it (the skip link first) pins it as well, so focusing it never
+ * scrolls the page back to its top.
+ */
+.nav[data-docked="true"],
+.nav:not(.page):focus-within {
   position: fixed;
 }
 @media not ((hover: hover) and (pointer: fine)) {

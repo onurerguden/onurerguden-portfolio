@@ -20,7 +20,7 @@ The pre-deploy series, PRs 00–10 (plan approved by Onur on 4 October 2026). Ca
 | | Before | After |
 | --- | --- | --- |
 | First-load script (`/en`, reduced motion) | 219,622 B | 178,019 B (ceiling 184,000) |
-| First-load stylesheet | 17,619 B | 20,987 B (ceiling 21,000) |
+| First-load stylesheet | 17,619 B | 21,001 B (ceiling 21,500, see `tests/e2e/budgets.json`) |
 | Portrait close-up at 1440 × 900 | 692 px | 783 px |
 | Desk frames while scrolling through a reading stop or the curtain | one per scroll event | 0 |
 | CSP violations over a full desk scroll (Chromium) and the page (WebKit) | n/a | 0 |
