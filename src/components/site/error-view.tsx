@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import { useEffect } from "react";
 import GiantTitle from "@/components/giant-title";
 import styles from "@/app/not-found.module.css";
@@ -26,7 +25,9 @@ const copy = {
 /**
  * What a page shows when it fails to render, in one language or, when the
  * language is unknown (the root layout failed), in both. The digest matches
- * the server log entry; the message itself is never shown.
+ * the server log entry; the message itself is never shown. Its links are
+ * plain anchors: a full load clears the broken state, and global-error
+ * would otherwise carry its own copy of next/link on every first load.
  */
 export default function ErrorView({
   error,
@@ -82,13 +83,13 @@ export default function ErrorView({
         </li>
         {languages.map((language) => (
           <li key={language}>
-            <Link
+            <a
               href={`/${language}`}
               hrefLang={language}
               lang={locale ? undefined : language}
             >
               {copy[language].home} <span aria-hidden="true">→</span>
-            </Link>
+            </a>
           </li>
         ))}
       </ul>
