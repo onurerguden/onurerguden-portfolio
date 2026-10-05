@@ -36,6 +36,6 @@ Work proceeds through reviewable PRs under Onur's Git identity, merged on Onur's
 
 ## Review artifacts
 
-`docs/qa/README.md` records tests and limitations; screenshots are in the same directory. GitHub Actions (`.github/workflows/ci.yml`) runs on every pull request and on `main`: one job for formatting, types, lint, unit tests and the production build, then one browser job per Playwright project. CI retries a failed browser test once and uploads the report when a job fails.
+`docs/qa/README.md` records tests and limitations; screenshots are in the same directory. GitHub Actions (`.github/workflows/ci.yml`) runs on every pull request and on `main`: one job for formatting, types, lint, unit tests and the production build, then one browser job per Playwright project. CI retries a failed browser test once and uploads the report when a job fails. CI renders WebGL in software, so the few tests that measure the desk's real-time animation (listed as `gpuOnly` in `playwright.config.ts`) are skipped there; run the full suite locally on a machine with a GPU (`npx playwright test`) before merging changes to the desk.
 
 Remote preview requires renewing the expired Vercel login. `vercel login`, then `vercel` from this repository creates a preview; configure the server-only environment in Vercel before testing synchronization. Keep production and preview Redis separate. Do not use `--prod` until the release checklist is complete.
