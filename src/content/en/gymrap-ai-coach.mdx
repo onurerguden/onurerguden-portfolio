@@ -1,0 +1,24 @@
+---
+slug: gymrap-ai-coach
+locale: en
+---
+
+## A coach that reads the data I already have
+
+GymRap reads what my watch and phone record through Health Connect, works out what last night and yesterday's training mean, and emails me a coach report shortly after I wake up, with a shorter debrief after every gym session. I built it end to end for myself and published it under the MIT license.
+
+## Architecture
+
+A Kotlin bridge reads 23 Health Connect record types and uploads only the days that changed. A Cloudflare Worker with D1, KV and Cron Triggers stores them and computes everything: a readiness score against my own 30-day baselines, sleep debt, double-progression training targets and weekly sets per muscle group. The same Worker is a remote MCP server with 13 tools, protected by OAuth 2.1 with PKCE and limited to one owner account. The Gmail API delivers the reports.
+
+## Where the language model sits
+
+The backend makes no LLM API calls. ChatGPT connects to the MCP server, reads a structured brief and writes the coaching text; the server validates that JSON against a schema before storing it. Every number comes from tested code, so the model interprets the data but never produces it, and the system costs nothing to run beyond the ChatGPT subscription.
+
+## Reliability and tests
+
+Each report moves through a ledger, and a send whose outcome is uncertain is never repeated automatically: a duplicate email is worse than a missing one. A cron job checks every ten minutes and sends a numbers-only report if no coach text has arrived. When ChatGPT's safety layer blocked the report save in six scheduled runs over three days, the server's call log showed the write never arrived; I redesigned around it, so the server guarantees the daily report and the coaching is one sentence away in chat. At the published commit (8f35eba) the repository has 137 backend tests that run inside the Workers runtime against a local D1, plus Android unit tests.
+
+## Limitations
+
+It is a single-user system by design: one owner, one device, one timezone. The readiness score is my own transparent formula, not a medical measure and not a vendor's readiness score. The screenshots use synthetic data; no personal health data is published.

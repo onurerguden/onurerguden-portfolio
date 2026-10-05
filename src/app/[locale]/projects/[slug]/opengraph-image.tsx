@@ -20,6 +20,7 @@ const pictures: Record<
 > = {
   kuyumcum: { name: "kuyumcum", width: 217, height: 470 },
   "water-safety": { name: "water-safety", width: 520, height: 257 },
+  "gymrap-ai-coach": { name: "gymrap-ai-coach", width: 334, height: 470 },
 };
 
 /** A case study as a card: its name, category, real media and my name. */
@@ -76,7 +77,7 @@ export default async function Image({
             style={{ borderRadius: 16 }}
           />
         </div>
-      ) : (
+      ) : slug === "course-intelligence" ? (
         // Course Intelligence has no screenshot: its pipeline, as in the
         // case study's conceptual diagram.
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -96,7 +97,7 @@ export default async function Image({
             </div>
           ))}
         </div>
-      )}
+      ) : null}
     </div>,
     { ...size, fonts: await ogFonts() },
   );

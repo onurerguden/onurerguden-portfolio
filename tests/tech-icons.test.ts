@@ -15,7 +15,8 @@ describe("technology icons", () => {
   it("stores a colour and path for every generated icon", () => {
     for (const icon of Object.values(techIcons.icons)) {
       expect(icon.hex).toMatch(/^#[0-9A-F]{6}$/);
-      expect(icon.path.length).toBeGreaterThan(20);
+      // Kotlin's mark is a single 20-character path.
+      expect(icon.path.length).toBeGreaterThanOrEqual(16);
     }
   });
   it("uses short lettering where no official icon exists", () => {

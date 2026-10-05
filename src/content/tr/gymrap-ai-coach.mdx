@@ -1,0 +1,24 @@
+---
+slug: gymrap-ai-coach
+locale: tr
+---
+
+## Zaten elimde olan veriyi okuyan bir koç
+
+GymRap, saatimin ve telefonumun Health Connect üzerinden kaydettiklerini okuyor, dün geceki uykunun ve dünkü antrenmanın ne anlama geldiğini hesaplıyor; uyandıktan kısa süre sonra bana bir koç raporu, her antrenmandan sonra da daha kısa bir değerlendirme e-postalıyor. Kendim için uçtan uca geliştirdim ve MIT lisansıyla yayımladım.
+
+## Mimari
+
+Kotlin ile yazılan köprü 23 Health Connect kayıt türünü okuyor ve yalnızca değişen günleri yüklüyor. D1, KV ve Cron Triggers kullanan bir Cloudflare Worker bunları saklayıp her şeyi hesaplıyor: kendi 30 günlük tabanlarıma göre hazırlık skoru, uyku borcu, double progression antrenman hedefleri ve kas grubu başına haftalık set sayısı. Aynı Worker, 13 aracı olan uzak bir MCP sunucusu; PKCE ile OAuth 2.1 tarafından korunuyor ve tek bir hesaba açık. Raporları Gmail API'si gönderiyor.
+
+## Dil modelinin yeri
+
+Backend hiçbir LLM API'sini çağırmıyor. ChatGPT MCP sunucusuna bağlanıyor, yapılandırılmış bir özeti okuyup koçluk metnini yazıyor; sunucu bu JSON'u kaydetmeden önce bir şemaya göre doğruluyor. Her sayı test edilmiş koddan geliyor; model veriyi yorumluyor ama üretmiyor. Sistemin ChatGPT aboneliği dışında çalışma maliyeti yok.
+
+## Güvenilirlik ve testler
+
+Her rapor bir kayıt defterinden geçiyor; sonucu belirsiz kalan bir gönderim otomatik olarak tekrarlanmıyor, çünkü mükerrer e-posta eksik e-postadan daha kötü. Bir cron görevi her on dakikada kontrol ediyor ve koç metni gelmediyse yalnızca sayılardan oluşan raporu gönderiyor. ChatGPT'nin güvenlik katmanı üç gün içinde altı zamanlanmış çalıştırmada rapor kaydını engellediğinde, sunucunun çağrı kaydı yazmanın hiç ulaşmadığını gösterdi; sistemi buna göre yeniden kurdum. Artık günlük raporu sunucu garanti ediyor, koç yorumu ise sohbette tek cümle uzakta. Yayımlanan commit'te (8f35eba) depoda, yerel bir D1'e karşı Workers çalışma ortamında koşan 137 backend testi ve Android birim testleri var.
+
+## Sınırlamalar
+
+Tasarım gereği tek kullanıcılı bir sistem: tek hesap, tek cihaz, tek saat dilimi. Hazırlık skoru kendi şeffaf formülüm; tıbbi bir ölçüm ya da bir üreticinin hazırlık skoru değil. Ekran görüntüleri sentetik veri kullanıyor; kişisel sağlık verisi yayımlanmıyor.

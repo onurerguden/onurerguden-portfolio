@@ -6,8 +6,8 @@
   },
   {
     "id": "agents",
-    "proof": { "kind": "section", "id": "experience" },
-    "tech": ["langchain", "langgraph", "qdrant"]
+    "proof": { "kind": "project", "slug": "gymrap-ai-coach" },
+    "tech": ["langgraph", "mcp", "langchain", "gemini"]
   },
   {
     "id": "ml",

@@ -40,5 +40,26 @@
     "title": "Pluggable authentication",
     "summary": "A four-person course project: a Java authentication interface for Local, LDAP and Kerberos providers, kept extensible with adapter and factory patterns.",
     "category": "Software architecture"
+  },
+  "gymrap-ai-coach": {
+    "title": "GymRap AI Coach",
+    "summary": "A personal strength coach on Health Connect, Cloudflare and an OAuth-protected MCP server. Tested, deterministic analysis runs on the server; ChatGPT reads it through MCP and writes the coaching.",
+    "category": "MCP · agent tooling",
+    "role": "Design and implementation, end to end",
+    "mediaAlt": [
+      "Daily coach report email, rendered from synthetic data",
+      "Post-workout report email, rendered from synthetic data",
+      "Heart-rate zones and weekly sets per muscle group, rendered from synthetic data"
+    ]
+  },
+  "carbonpilot": {
+    "title": "CarbonPilot AI",
+    "summary": "A five-person Google AI & Technology Academy graduation project: carbon accounting for CBAM exporters with deterministic emission calculations and a guarded LangGraph agent. My part: the agent graph with loop, timeout and fallback guards, Gemini extraction, LangSmith tracing and the PDF/JSON reports.",
+    "category": "Agentic workflows · team project"
+  },
+  "voiceops": {
+    "title": "VoiceOps",
+    "summary": "A Google hackathon project: a Turkish voice assistant for warehouse staff that turns speech into Gemini function calls over stock data. My part was the application scaffold.",
+    "category": "Voice agents · hackathon"
   }
 }

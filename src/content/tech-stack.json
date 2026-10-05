@@ -45,7 +45,20 @@
       "icon": { "simpleIcons": "typescript" },
       "ball": "white",
       "priority": 1,
-      "evidence": [{ "kind": "project", "slug": "taskfoo" }, { "kind": "site" }]
+      "evidence": [
+        { "kind": "project", "slug": "taskfoo" },
+        { "kind": "site" },
+        { "kind": "project", "slug": "gymrap-ai-coach" }
+      ]
+    },
+    {
+      "id": "kotlin",
+      "name": "Kotlin",
+      "category": "languages",
+      "icon": { "simpleIcons": "kotlin" },
+      "ball": "white",
+      "priority": 3,
+      "evidence": [{ "kind": "project", "slug": "gymrap-ai-coach" }]
     },
     {
       "id": "javascript",
@@ -141,7 +154,10 @@
       "ball": "yellow",
       "priority": 1,
       "aboutLogo": true,
-      "evidence": [{ "kind": "experience", "id": "fin-ai-engineer" }]
+      "evidence": [
+        { "kind": "experience", "id": "fin-ai-engineer" },
+        { "kind": "project", "slug": "carbonpilot" }
+      ]
     },
     {
       "id": "langgraph",
@@ -150,7 +166,10 @@
       "icon": { "simpleIcons": "langgraph" },
       "ball": "white",
       "priority": 1,
-      "evidence": [{ "kind": "experience", "id": "fin-ai-engineer" }]
+      "evidence": [
+        { "kind": "experience", "id": "fin-ai-engineer" },
+        { "kind": "project", "slug": "carbonpilot" }
+      ]
     },
     {
       "id": "qdrant",
@@ -186,6 +205,64 @@
       "icon": { "simpleIcons": "googlegemini" },
       "ball": "white",
       "priority": 1,
+      "evidence": [
+        { "kind": "project", "slug": "kuyumcum" },
+        { "kind": "project", "slug": "carbonpilot" },
+        { "kind": "project", "slug": "voiceops" }
+      ]
+    },
+    {
+      "id": "mcp",
+      "name": "MCP",
+      "category": "ai-ml",
+      "icon": { "simpleIcons": "modelcontextprotocol" },
+      "ball": "white",
+      "priority": 1,
+      "evidence": [{ "kind": "project", "slug": "gymrap-ai-coach" }]
+    },
+    {
+      "id": "openai",
+      "name": "OpenAI API",
+      "category": "ai-ml",
+      "icon": { "monogram": "OpenAI" },
+      "ball": "white",
+      "priority": 3,
+      "evidence": [{ "kind": "experience", "id": "fin-ai-engineer" }]
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic API",
+      "category": "ai-ml",
+      "icon": { "simpleIcons": "anthropic" },
+      "ball": "white",
+      "priority": 3,
+      "evidence": [{ "kind": "experience", "id": "fin-ai-engineer" }]
+    },
+    {
+      "id": "langsmith",
+      "name": "LangSmith",
+      "category": "ai-ml",
+      "icon": { "monogram": "LSmith" },
+      "ball": "white",
+      "priority": 3,
+      "evidence": [{ "kind": "project", "slug": "carbonpilot" }]
+    },
+    {
+      "id": "ollama",
+      "name": "Ollama",
+      "category": "ai-ml",
+      "icon": { "simpleIcons": "ollama" },
+      "ball": "white",
+      "priority": 3,
+      "evidence": [{ "kind": "project", "slug": "course-intelligence" }]
+    },
+    {
+      "id": "ultralytics",
+      "name": "Ultralytics YOLO",
+      "category": "ai-ml",
+      "icon": { "simpleIcons": "ultralytics" },
+      "ball": "white",
+      "priority": 3,
       "evidence": [{ "kind": "project", "slug": "kuyumcum" }]
     },
     {
@@ -233,6 +310,18 @@
       "evidence": [{ "kind": "project", "slug": "taskfoo" }]
     },
     {
+      "id": "fastapi",
+      "name": "FastAPI",
+      "category": "web-mobile",
+      "icon": { "simpleIcons": "fastapi" },
+      "ball": "white",
+      "priority": 1,
+      "evidence": [
+        { "kind": "project", "slug": "carbonpilot" },
+        { "kind": "project", "slug": "voiceops" }
+      ]
+    },
+    {
       "id": "flutter",
       "name": "Flutter",
       "category": "web-mobile",
@@ -251,6 +340,15 @@
       "evidence": [{ "kind": "project", "slug": "kuyumcum" }]
     },
     {
+      "id": "cloudflare-workers",
+      "name": "Cloudflare Workers",
+      "category": "web-mobile",
+      "icon": { "simpleIcons": "cloudflareworkers" },
+      "ball": "yellow",
+      "priority": 2,
+      "evidence": [{ "kind": "project", "slug": "gymrap-ai-coach" }]
+    },
+    {
       "id": "threejs",
       "name": "Three.js",
       "category": "web-mobile",
@@ -266,7 +364,10 @@
       "icon": { "simpleIcons": "postgresql" },
       "ball": "white",
       "priority": 1,
-      "evidence": [{ "kind": "project", "slug": "taskfoo" }]
+      "evidence": [
+        { "kind": "project", "slug": "taskfoo" },
+        { "kind": "project", "slug": "carbonpilot" }
+      ]
     },
     {
       "id": "docker",
@@ -275,7 +376,10 @@
       "icon": { "simpleIcons": "docker" },
       "ball": "white",
       "priority": 1,
-      "evidence": [{ "kind": "experience", "id": "vbt-intern" }]
+      "evidence": [
+        { "kind": "experience", "id": "vbt-intern" },
+        { "kind": "project", "slug": "carbonpilot" }
+      ]
     },
     {
       "id": "git",

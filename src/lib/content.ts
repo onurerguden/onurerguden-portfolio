@@ -26,6 +26,12 @@ const projectSchema = z.object({
         src: z.string().startsWith("/images/"),
         width: z.number().int().positive(),
         height: z.number().int().positive(),
+        /**
+         * phone: an app screen, shown in a device frame; screen: another
+         * real screen (an email, a page), shown flat; figure: a chart or
+         * plot from the work itself, shown with its caption.
+         */
+        kind: z.enum(["phone", "screen", "figure"]),
         alt: z.string().min(1),
       }),
     )
@@ -106,7 +112,12 @@ type SharedProject = Pick<
   /** A shared count shown with its localized label; never a model score. */
   metric?: Measurement;
   /** Real screenshots or repository artefacts only; alt text is localized. */
-  media?: { src: string; width: number; height: number }[];
+  media?: {
+    src: string;
+    width: number;
+    height: number;
+    kind: "phone" | "screen" | "figure";
+  }[];
 };
 const projects: SharedProject[] = [
   {
@@ -123,8 +134,18 @@ const projects: SharedProject[] = [
     year: "",
     featured: true,
     media: [
-      { src: "/images/kuyumcum/map.webp", width: 756, height: 1638 },
-      { src: "/images/kuyumcum/ai-reports.webp", width: 756, height: 1638 },
+      {
+        src: "/images/kuyumcum/map.webp",
+        width: 756,
+        height: 1638,
+        kind: "phone",
+      },
+      {
+        src: "/images/kuyumcum/ai-reports.webp",
+        width: 756,
+        height: 1638,
+        kind: "phone",
+      },
     ],
   },
   {
@@ -146,11 +167,13 @@ const projects: SharedProject[] = [
         src: "/images/projects/water-safety/health-factor-trend.webp",
         width: 1600,
         height: 792,
+        kind: "figure",
       },
       {
         src: "/images/projects/water-safety/parameter-correlation.webp",
         width: 1200,
         height: 1026,
+        kind: "figure",
       },
     ],
   },
@@ -162,11 +185,47 @@ const projects: SharedProject[] = [
     repoUrl: "https://github.com/onurerguden/IEU-Chat-Bot",
   },
   {
-    slug: "taskfoo",
-    stack: ["Spring Boot", "React", "TypeScript", "PostgreSQL"],
-    year: "2025",
+    slug: "gymrap-ai-coach",
+    stack: [
+      "MCP",
+      "TypeScript",
+      "Cloudflare Workers",
+      "D1",
+      "OAuth 2.1",
+      "Kotlin",
+    ],
+    year: "2026",
+    featured: true,
+    repoUrl: "https://github.com/onurerguden/GymRap-AI-Coach",
+    // The repository's own screenshots, rendered from synthetic data (MIT).
+    media: [
+      {
+        src: "/images/projects/gymrap/daily-email.webp",
+        width: 640,
+        height: 1520,
+        kind: "screen",
+      },
+      {
+        src: "/images/projects/gymrap/workout-email.webp",
+        width: 640,
+        height: 1680,
+        kind: "screen",
+      },
+      {
+        src: "/images/projects/gymrap/workout-heart-volume.webp",
+        width: 640,
+        height: 1595,
+        kind: "screen",
+      },
+    ],
+  },
+  // The archive, in the order the home page's archive card lists it.
+  {
+    slug: "carbonpilot",
+    stack: ["LangGraph", "Gemini", "FastAPI", "pgvector", "Docker"],
+    year: "2026",
     featured: false,
-    repoUrl: "https://github.com/onurerguden/TaskFoo",
+    repoUrl: "https://github.com/fatmanurdurmus/YZTA-BOOTCAMP-GRUP-9",
   },
   {
     slug: "urban-mobility",
@@ -179,8 +238,23 @@ const projects: SharedProject[] = [
         src: "/images/projects/urban-mobility/dbscan-clusters.webp",
         width: 1600,
         height: 1193,
+        kind: "figure",
       },
     ],
+  },
+  {
+    slug: "taskfoo",
+    stack: ["Spring Boot", "React", "TypeScript", "PostgreSQL"],
+    year: "2025",
+    featured: false,
+    repoUrl: "https://github.com/onurerguden/TaskFoo",
+  },
+  {
+    slug: "voiceops",
+    stack: ["FastAPI", "Gemini", "React", "Web Speech API"],
+    year: "2026",
+    featured: false,
+    repoUrl: "https://github.com/fkaanc/voiceops_hackathon_google",
   },
   {
     slug: "pam",

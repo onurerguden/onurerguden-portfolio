@@ -9,13 +9,21 @@ Precious metals and foreign currency are often tracked across disconnected tools
 
 ## My contribution
 
-I co-developed the full-stack application with Flutter, Dart and Firebase/Firestore. My AI work used Python, TensorFlow and Gemini for camera-based asset recognition and retrieval-grounded portfolio reports.
+I co-developed the full-stack application with Flutter, Dart and Firebase/Firestore. My AI work covers two layers: recognizing coins and gold from the camera on the phone itself, and multi-agent portfolio reports grounded in retrieved data.
 
 ## Architecture and constraints
 
 The mobile application connects portfolio and merchant workflows with Firebase/Firestore and Google Maps. AI-powered reports combine market data, recent news, historical context and macroeconomic signals to produce portfolio risk insights.
 
 The engineering challenge is keeping those different sources useful within a coherent product flow. A report needs context from the user's holdings as well as the information retrieved for it.
+
+## On-device recognition
+
+The camera identifies coins and gold items without a server round trip: a YOLO11n model trained in Python on ten classes is exported to TensorFlow Lite and runs in the Flutter app through flutter_vision.
+
+## Multi-agent reports
+
+Portfolio reports are written by Firebase Cloud Functions with Gemini. Four analyst agents take a bull, bear, macroeconomic and risk view of the holdings, and a synthesizer combines their findings into one report. Their context comes from hybrid retrieval, BM25 and dense search with re-ranking, plus a separate retrieval layer for macroeconomic sources.
 
 ## What I can demonstrate
 

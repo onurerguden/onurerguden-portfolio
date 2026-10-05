@@ -4,7 +4,16 @@
     "company": "Future Is Now",
     "start": "2026-07",
     "end": null,
-    "tools": ["python", "langchain", "langgraph", "qdrant"]
+    "tools": [
+      "python",
+      "langchain",
+      "langgraph",
+      "qdrant",
+      "openai",
+      "anthropic",
+      "gemini",
+      "fastapi"
+    ]
   },
   {
     "id": "fin-intern",

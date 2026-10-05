@@ -64,6 +64,31 @@ export default async function ResearchPage({
           <span aria-hidden="true"> →</span>
         </Link>
       </section>
+      <section
+        className={`${styles.paper} ${styles.study}`}
+        aria-labelledby="study-title"
+      >
+        <p className={`${styles.status} ${styles.quietStatus}`}>
+          {research.study.status}
+        </p>
+        <h2 id="study-title">{research.study.title}</h2>
+        <p className={styles.journal}>{research.study.team}</p>
+        <p className={styles.summary}>{research.study.data}</p>
+        <p className={styles.summary}>{research.study.method}</p>
+        <p className={styles.studyLinks}>
+          <Link
+            className={styles.link}
+            href={`/${locale}/projects#urban-mobility`}
+          >
+            {en ? "See it in the archive" : "Arşivde gör"}
+            <span aria-hidden="true"> →</span>
+          </Link>
+          <a className={styles.link} href={research.study.repoUrl}>
+            {en ? "Source on GitHub" : "GitHub’da kaynak kod"}
+            <span aria-hidden="true"> ↗</span>
+          </a>
+        </p>
+      </section>
       <section className={styles.questions} aria-labelledby="questions-title">
         <h2 id="questions-title">
           {en ? "Questions I’m exploring" : "Üzerinde düşündüğüm sorular"}
