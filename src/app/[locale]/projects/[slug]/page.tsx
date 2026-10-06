@@ -22,7 +22,12 @@ export async function generateMetadata({
   if (!isLocale(locale)) return {};
   const project = getProject(locale, slug);
   return project
-    ? pageMetadata(locale, `/projects/${slug}`, project.title, project.summary)
+    ? pageMetadata(
+        locale,
+        `/projects/${slug}`,
+        project.title,
+        project.description ?? project.summary,
+      )
     : {};
 }
 

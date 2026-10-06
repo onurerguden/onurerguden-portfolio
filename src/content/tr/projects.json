@@ -2,6 +2,7 @@
   "kuyumcum": {
     "title": "Kuyumcum",
     "summary": "Değerli metal varlıklarını, portföy analizini ve yerel kuyumcuları bir araya getiren mobil ekosistem. Ürünü birlikte geliştirdim ve yapay zekâ özellikleri üzerinde çalıştım.",
+    "description": "Değerli metal varlıklarını, portföy analizini ve yerel kuyumcuları buluşturan mobil uygulama: ürünü birlikte nasıl geliştirdiğim ve yapay zekâ özellikleri.",
     "category": "Ürün geliştirme · uygulamalı yapay zekâ",
     "role": "Ortak geliştirici · AI özellikleri",
     "mediaAlt": ["Kuyumcum kuyumcu keşif haritası", "Kuyumcum AI rapor listesi"]
@@ -9,6 +10,7 @@
   "water-safety": {
     "title": "HealthFactor-AI",
     "summary": "Su güvenliğini iki katmanda ele alan sistem: mevcut kirliliği tespit etmek ve güvenlik eğilimini öngörmek.",
+    "description": "İçme suyu güvenliği için iki katmanlı yapay zekâ sistemi: mevcut kirliliği tespit ediyor, güvenliğin nasıl değişeceğini öngörüyor. Kabul edilmiş araştırma.",
     "category": "Makine öğrenmesi · araştırma",
     "role": "İki katmanlı çerçeve, veri hattı ve modeller",
     "metricLabel": "76 örnekleme noktasından su kalitesi ölçümü, Ağustos 2025 – Temmuz 2026",
@@ -20,6 +22,7 @@
   "course-intelligence": {
     "title": "Course Intelligence RAG",
     "summary": "Yerel dil modellerini, anlamsal aramayı ve yanıt sınırlarını birleştiren, farklı bölümlerin bilgilerine erişim sağlayan asistan.",
+    "description": "Yerel dil modelleri, anlamsal arama ve bilinçli olarak sınırlandırılmış yanıtlarla çalışan, bölüm bilgilerine erişim sağlayan asistan.",
     "category": "Bilgi getirme · LLM sistemleri",
     "role": "Bilgi getirme ve LLM orkestrasyon mimarisi"
   },
@@ -44,6 +47,7 @@
   "gymrap-ai-coach": {
     "title": "GymRap AI Coach",
     "summary": "Health Connect, Cloudflare ve OAuth korumalı bir MCP sunucusu üzerinde çalışan kişisel kuvvet koçu. Test edilmiş, deterministik analiz sunucuda yapılıyor; ChatGPT bunu MCP üzerinden okuyup koçluk yorumunu yazıyor.",
+    "description": "Health Connect, Cloudflare ve OAuth korumalı bir MCP sunucusu üzerinde kişisel kuvvet koçu; ChatGPT sunucunun analizini okuyup koçluk yorumunu yazıyor.",
     "category": "MCP · ajan araçları",
     "role": "Uçtan uca tasarım ve geliştirme",
     "mediaAlt": [
