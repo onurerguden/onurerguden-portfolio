@@ -25,7 +25,7 @@ Set these server-only environment variables in the hosting dashboard (never `NEX
 
 - `GITHUB_TOKEN`: a fine-grained token scoped to public repository metadata, read-only. Avoid access to private repositories.
 - `GITHUB_WEBHOOK_SECRET`: a strong random shared secret.
-- `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`: dedicated Redis REST credentials.
+- `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`: dedicated Redis REST credentials. The Vercel Marketplace Upstash integration injects them as `KV_REST_API_URL` and `KV_REST_API_TOKEN`, which are read when the Upstash names are unset.
 - `CRON_SECRET`: a strong random secret for the reconciliation endpoint.
 
 Redis is accessed with its HTTPS REST command API to apply explicit 2.5-second timeouts and `no-store`; no browser SDK is used. Keep preview deployments on a separate Redis database and do not configure production webhooks against previews.
