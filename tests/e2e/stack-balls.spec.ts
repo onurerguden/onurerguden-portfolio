@@ -254,4 +254,29 @@ test.describe("the MacBook's balls", () => {
     await pause.press("Space");
     await expect(right).toBeEnabled();
   });
+
+  test("under reduced motion the balls still drop onto the page's photo", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/en");
+    await page.evaluate(() =>
+      document
+        .querySelector("[data-xp]")
+        ?.scrollIntoView({ behavior: "instant" }),
+    );
+    const canvas = stageCanvas(page, "desk-stack");
+    await expect(canvas).toHaveAttribute(
+      "data-physics-mode",
+      /dropping|resting/,
+      {
+        timeout: ci(30000),
+      },
+    );
+    await expect(canvas).toHaveAttribute("data-physics-settled", "true", {
+      timeout: ci(60000),
+    });
+    // The desk itself stays static; only the balls' canvas exists.
+    await expect(page.locator("canvas")).toHaveCount(1);
+  });
 });

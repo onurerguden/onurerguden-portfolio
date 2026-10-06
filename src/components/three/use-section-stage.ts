@@ -62,12 +62,17 @@ type Options = {
    */
   visible?: boolean;
   wanted?: boolean;
+  /**
+   * Mount under reduced motion too (the tech stack balls, at Onur's request).
+   * The visitor's pause still freezes the scene.
+   */
+  evenWhenReduced?: boolean;
 };
 
 /**
  * Gates a section's WebGL scene: it mounts at idle once the section is near,
- * only while the page-wide registry grants it a context, and never under
- * reduced motion or without WebGL2. It unmounts again when far offscreen.
+ * only while the page-wide registry grants it a context, and never without
+ * WebGL2 or (unless `evenWhenReduced`) under reduced motion. It unmounts again when far offscreen.
  */
 export function useSectionStage(
   ref: RefObject<HTMLElement | null>,
@@ -79,6 +84,7 @@ export function useSectionStage(
     farMargin = "160% 0px",
     visible: visibleOverride,
     wanted: wantedOverride,
+    evenWhenReduced = false,
   }: Options,
 ) {
   const motion = useMotionPreference();
@@ -137,7 +143,11 @@ export function useSectionStage(
     };
   }, [ref, nearMargin, farMargin]);
 
-  const eligible = allowsStages(motion) && supported && !failed && requested;
+  const eligible =
+    (evenWhenReduced ? motion.hydrated : allowsStages(motion)) &&
+    supported &&
+    !failed &&
+    requested;
 
   useEffect(() => {
     if (!eligible) {
