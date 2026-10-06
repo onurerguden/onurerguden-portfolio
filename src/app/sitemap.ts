@@ -12,7 +12,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ["en", "tr"].map((locale) => ({
       url: `${origin}/${locale}${path}`,
       alternates: {
-        languages: { en: `${origin}/en${path}`, tr: `${origin}/tr${path}` },
+        languages: {
+          en: `${origin}/en${path}`,
+          tr: `${origin}/tr${path}`,
+          "x-default": `${origin}/en${path}`,
+        },
       },
     })),
   );

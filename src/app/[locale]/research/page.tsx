@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isLocale, sharedFacts } from "@/lib/content";
 import { pageMetadata } from "@/lib/site";
+import { researchStructuredData } from "@/lib/structured-data";
+import JsonLd from "@/components/json-ld";
 import GiantTitle from "@/components/giant-title";
 import EducationFacts from "@/components/home/education-facts";
 import styles from "./research.module.css";
@@ -34,6 +36,7 @@ export default async function ResearchPage({
   const research = getResearch(locale);
   return (
     <main id="main" tabIndex={-1} className={styles.page}>
+      <JsonLd data={researchStructuredData(locale)} />
       <header className={styles.hero}>
         <p className={styles.kicker}>
           {en ? "Research & academic work" : "Araştırma ve akademik çalışmalar"}

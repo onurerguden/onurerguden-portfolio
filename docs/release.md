@@ -53,6 +53,16 @@
 5. After the first deploy: call `/api/cron/github` once, add the repository webhooks, check the activity totals against the GitHub profile, enable Speed Insights.
 6. Lab routes return 404 in production (`VERCEL_ENV=production` or `SITE_INDEXABLE=true`) and always send `X-Robots-Tag: noindex`.
 
+## SEO and GEO (October 2026)
+
+- **Titles and cards.** The home page title leads with my name (`Onur Ergüden — AI Engineer` / `AI Mühendisi`); other pages keep `Page | Onur Ergüden`. Open Graph and X cards carry the full title and always use the large image.
+- **Structured data** (`src/lib/structured-data.ts`). One graph per page, linked by `@id`: the home page is a `ProfilePage` whose main entity is the `Person` (role, employer, university, degree, certificates, profiles), with the `WebSite`. Case studies are `CreativeWork`s with their source as `SoftwareSourceCode`; the archive is an `ItemList`; the paper is a `ScholarlyArticle` with every author in order and `creativeWorkStatus: Accepted`. Pages below the home page carry a `BreadcrumbList`. Only facts the pages show belong there. Check with the Rich Results Test after each content change.
+- **AI assistants (GEO).** `/llms.txt` (llmstxt.org) maps the site; `/llms-full.txt` carries the About, services, experience, research, case studies and certificates as Markdown. Both are built from the same content files as the pages, in English, and are static.
+- **Crawling.** `/` answers with a permanent 308 to `/en` (the `x-default`). The sitemap lists `x-default` next to `en` and `tr`. `GOOGLE_SITE_VERIFICATION` and `BING_SITE_VERIFICATION` add the ownership tags when set; a DNS TXT record for a Search Console domain property is the preferred route.
+- **Region.** Functions run in `fra1` (Frankfurt), next to the visitors in Türkiye and Europe. Redis stays in us-east-1: the activity API is cached at the edge, and only the archive page reads Redis while rendering.
+- [ ] Production: `SITE_INDEXABLE=true`, then redeploy (robots and sitemap are built at build time).
+- [ ] Search Console (domain property, DNS TXT at Name.com) and the sitemap submitted; Bing Webmaster Tools imported from Search Console.
+
 ## PR order
 
 Foundation -> design -> content -> 3D -> GitHub synchronization -> release QA. Stacked branches preserve reviewable changes without merging ahead of approval. Retarget the next PR to main after its prerequisite is merged, preserving commits.
