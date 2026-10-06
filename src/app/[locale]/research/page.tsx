@@ -110,11 +110,7 @@ export default async function ResearchPage({
           {en ? "Academic foundation" : "Akademik temel"}
         </h2>
         <EducationFacts locale={locale} publicationHref="#publication-title" />
-        <p>
-          {en
-            ? "Academic interests: AI, machine learning, data science and software architecture."
-            : "Akademik ilgi alanları: AI, makine öğrenmesi, veri bilimi ve yazılım mimarisi."}
-        </p>
+        <p>{research.interests}</p>
       </section>
     </main>
   );

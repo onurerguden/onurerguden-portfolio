@@ -32,6 +32,9 @@ export function getResearch(locale: Locale) {
         : "DBSCAN kümeleme, mevsimsel özellikler ve XGBoost ile Random Forest kullanan talep tahmini.",
       repoUrl: "https://github.com/onurerguden/IZMIR-PUBLIC-TRANSPORTATION-ML",
     },
+    interests: en
+      ? "Academic interests: AI, machine learning, data science and software architecture."
+      : "Akademik ilgi alanları: AI, makine öğrenmesi, veri bilimi ve yazılım mimarisi.",
     questions: en
       ? [
           "How should retrieval systems behave when the available evidence cannot support an answer?",
