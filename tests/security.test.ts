@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { contentSecurityPolicy, labBlocked } from "../src/lib/security";
+import {
+  contentSecurityPolicy,
+  labBlocked,
+  securityTxt,
+} from "../src/lib/security";
 
 describe("security", () => {
   it("allows scripts only with the nonce, and the decoder's wasm", () => {
@@ -31,5 +35,17 @@ describe("security", () => {
     );
     expect(labBlocked("/en/labs", { VERCEL_ENV: "production" })).toBe(false);
     expect(labBlocked("/en", { VERCEL_ENV: "production" })).toBe(false);
+  });
+  it("publishes a security contact that expires a year ahead", () => {
+    const txt = securityTxt(
+      "me@example.com",
+      "https://onurerguden.dev",
+      new Date("2026-10-06T00:00:00Z"),
+    );
+    expect(txt).toContain("Contact: mailto:me@example.com\n");
+    expect(txt).toContain("Expires: 2027-10-06T00:00:00.000Z\n");
+    expect(txt).toContain(
+      "Canonical: https://onurerguden.dev/.well-known/security.txt\n",
+    );
   });
 });

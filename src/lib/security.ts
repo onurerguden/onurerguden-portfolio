@@ -46,3 +46,20 @@ export function labBlocked(
     (env.VERCEL_ENV === "production" || env.SITE_INDEXABLE === "true")
   );
 }
+
+/**
+ * Where to report a security problem (RFC 9116). The required expiry is a
+ * year after `now`; the file is built with each deploy, so it stays ahead
+ * while the site is maintained.
+ */
+export function securityTxt(email: string, origin: string, now = new Date()) {
+  const expires = new Date(now);
+  expires.setUTCFullYear(expires.getUTCFullYear() + 1);
+  return [
+    `Contact: mailto:${email}`,
+    `Expires: ${expires.toISOString()}`,
+    "Preferred-Languages: en, tr",
+    `Canonical: ${origin}/.well-known/security.txt`,
+    "",
+  ].join("\n");
+}
