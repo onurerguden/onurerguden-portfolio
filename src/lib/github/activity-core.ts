@@ -71,6 +71,8 @@ export interface ActivityStore {
   /** True if no refresh was started in the last two minutes (and claims the slot). */
   cooldown(): Promise<boolean>;
   markDirty(): Promise<void>;
+  /** True the first time a webhook delivery is seen; later calls return false. */
+  claim(delivery: string): Promise<boolean>;
   backoff(until?: number): Promise<number>;
 }
 
@@ -542,4 +544,25 @@ export function sharedReader<T>(
       entry = null;
     },
   };
+}
+
+/**
+ * A push marks the calendar for eager reads, then refreshes once per
+ * delivery: GitHub's redeliveries and replays of a signed body only renew the
+ * mark, which is harmless.
+ */
+export async function recordPush({
+  store,
+  token,
+  delivery,
+  fetcher = fetch,
+}: {
+  store: ActivityStore;
+  token: string;
+  delivery: string;
+  fetcher?: typeof fetch;
+}): Promise<"committed" | "skipped" | "stale" | "duplicate"> {
+  await store.markDirty();
+  if (!(await store.claim(delivery))) return "duplicate";
+  return refreshActivity({ store, token, fetcher });
 }

@@ -4,6 +4,7 @@ import {
   fetchActivity,
   isStale,
   mapEvents,
+  recordPush,
   refreshActivity,
   sharedReader,
   streaks,
@@ -153,6 +154,7 @@ function memoryStore(): ActivityStore & { state: Record<string, unknown> } {
     cooldown: false,
     dirty: false,
     backoff: 0,
+    deliveries: new Set<string>(),
   };
   return {
     state,
@@ -190,6 +192,12 @@ function memoryStore(): ActivityStore & { state: Record<string, unknown> } {
     },
     async markDirty() {
       state.dirty = true;
+    },
+    async claim(delivery) {
+      const seen = state.deliveries as Set<string>;
+      if (seen.has(delivery)) return false;
+      seen.add(delivery);
+      return true;
     },
     async backoff(until) {
       if (until && until > (state.backoff as number)) state.backoff = until;
@@ -449,6 +457,21 @@ describe("GitHub activity refresh", () => {
         fetcher: github(),
       }),
     ).toBe("skipped");
+  });
+
+  it("refreshes once per push delivery, however often it arrives", async () => {
+    const store = memoryStore();
+    const fetcher = vi.fn(github());
+    const push = () =>
+      recordPush({ store, token: "t", delivery: "d-1", fetcher });
+    expect(await push()).toBe("committed");
+    const calls = fetcher.mock.calls.length;
+    store.state.cooldown = false;
+    store.state.dirty = false;
+    expect(await push()).toBe("duplicate");
+    expect(fetcher).toHaveBeenCalledTimes(calls);
+    // A replay still leaves reads eager, which costs nothing.
+    expect(store.state.dirty).toBe(true);
   });
 
   it("rejects an older fetch that finishes after a newer one", async () => {
