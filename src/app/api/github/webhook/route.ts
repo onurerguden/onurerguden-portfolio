@@ -1,7 +1,7 @@
 import { after } from "next/server";
 import { parseEvent, synchronize, verifySignature } from "@/lib/github/core";
 import { createStore } from "@/lib/github/store";
-import { refreshActivity } from "@/lib/github/activity-core";
+import { recordPush } from "@/lib/github/activity-core";
 import { createActivityStore } from "@/lib/github/activity-store";
 
 export const runtime = "nodejs";
@@ -87,13 +87,13 @@ export async function POST(request: Request) {
     }
 
     // A push changes the contribution calendar too. GitHub can take a few
-    // minutes to count it, so reads stay eager for fifteen minutes.
+    // minutes to count it, so reads stay eager for fifteen minutes; the
+    // refresh itself runs once per delivery, like the repository sync.
     if (kind !== "push") return;
     const activity = createActivityStore();
     if (!activity) return;
     try {
-      await activity.markDirty();
-      await refreshActivity({ store: activity, token });
+      await recordPush({ store: activity, token, delivery });
     } catch {
       console.error("GitHub activity refresh failed; snapshot retained.");
     }

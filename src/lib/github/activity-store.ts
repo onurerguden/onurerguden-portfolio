@@ -12,6 +12,7 @@ const keys = {
   cooldown: PREFIX + "cooldown",
   dirty: PREFIX + "dirty",
   backoff: PREFIX + "backoff",
+  delivery: PREFIX + "delivery:",
 };
 
 // The snapshot is stored as an opaque JSON string: Lua only compares the
@@ -75,6 +76,18 @@ export function createActivityStore(timeout = 2500): ActivityStore | null {
     },
     async markDirty() {
       await command("SET", keys.dirty, "1", "EX", 900);
+    },
+    async claim(delivery) {
+      return (
+        (await command(
+          "SET",
+          keys.delivery + delivery,
+          "1",
+          "NX",
+          "EX",
+          604800,
+        )) === "OK"
+      );
     },
     async backoff(until) {
       if (until)
