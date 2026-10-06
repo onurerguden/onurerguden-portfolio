@@ -14,6 +14,7 @@ import { coverFrame } from "@/lib/bliss-geometry";
 import { laptopPhase } from "@/lib/desk-story/store";
 import { unprojectPoint } from "@/lib/screen-geometry";
 import type { BallItem } from "./tech-atlas";
+import { startBallsDebug } from "./xp-debug";
 import { dropEvent } from "./xp-drop";
 import {
   ballAt,
@@ -80,6 +81,8 @@ export default function XpBalls({
     laptopPhase.get,
     () => "away" as const,
   );
+
+  useEffect(() => startBallsDebug(), []);
 
   // Only a desktop on a screen gets balls.
   useEffect(() => {
