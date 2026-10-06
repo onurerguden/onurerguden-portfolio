@@ -50,6 +50,17 @@ export default async function RootLayout({
     (await headers()).get("x-portfolio-locale") === "tr" ? "tr" : "en";
   return (
     <html lang={locale}>
+      <head>
+        {/* The giant titles, every page's largest text, use this 8 KB subset;
+            asked for with the HTML, it arrives before the first paint. */}
+        <link
+          rel="preload"
+          href="/fonts/portfolio-display-latin.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body>{children}</body>
     </html>
   );
