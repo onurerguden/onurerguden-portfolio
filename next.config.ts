@@ -35,6 +35,11 @@ const nextConfig: NextConfig = {
     // (src/lib/desk-asset-urls.ts).
     localPatterns: [{ pathname: "/**", search: "" }],
   },
+  // English is the default language (x-default), so the bare origin moves
+  // there permanently and search engines index /en rather than /.
+  async redirects() {
+    return [{ source: "/", destination: "/en", permanent: true }];
+  },
   async headers() {
     return [
       { source: "/:path*", headers: security },

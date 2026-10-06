@@ -22,6 +22,16 @@ export const metadata: Metadata = {
   },
   description:
     "AI engineering, applied machine learning and research by Onur Ergüden.",
+  applicationName: "Onur Ergüden",
+  authors: [{ name: "Onur Ergüden", url: siteOrigin() }],
+  creator: "Onur Ergüden",
+  // Search Console and Bing Webmaster Tools ownership, when configured.
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION || undefined,
+    other: process.env.BING_SITE_VERIFICATION
+      ? { "msvalidate.01": process.env.BING_SITE_VERIFICATION }
+      : undefined,
+  },
   robots: {
     index:
       process.env.SITE_INDEXABLE === "true" &&

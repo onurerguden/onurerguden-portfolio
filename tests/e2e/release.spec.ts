@@ -32,6 +32,21 @@ test("the home page describes me as a Person with my profiles", async ({
   expect(data["@graph"].map((node) => node["@type"])).toContain("ProfilePage");
 });
 
+test("the bare origin moves to English for good", async ({ request }) => {
+  const response = await request.get("/", { maxRedirects: 0 });
+  expect(response.status()).toBe(308);
+  expect(response.headers().location).toBe("/en");
+});
+
+test("AI assistants get the site as Markdown", async ({ request }) => {
+  for (const path of ["/llms.txt", "/llms-full.txt"]) {
+    const response = await request.get(path);
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-type"]).toContain("text/markdown");
+    expect(await response.text()).toMatch(/^# Onur Ergüden\n\n> /);
+  }
+});
+
 test("the first load stays within its byte budget", async ({
   page,
   browserName,
