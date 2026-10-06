@@ -231,13 +231,14 @@ test("a case study section survives switching language", async ({ page }) => {
 
 test("projects and research each have a share card", async ({ request }) => {
   for (const path of [
+    "/en/projects",
     "/en/projects/kuyumcum",
     "/tr/projects/water-safety",
     "/en/projects/course-intelligence",
     "/tr/projects/gymrap-ai-coach",
     "/tr/research",
   ]) {
-    const response = await request.get(`${path}/opengraph-image`);
+    const response = await request.get(`${path}/opengraph-image/card`);
     expect(response.status(), path).toBe(200);
     expect(response.headers()["content-type"]).toBe("image/png");
     expect((await response.body()).byteLength).toBeGreaterThan(10_000);

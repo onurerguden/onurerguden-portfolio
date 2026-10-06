@@ -12,6 +12,8 @@ const projectSchema = z.object({
   slug: z.string().min(1),
   title: z.string().min(1),
   summary: z.string().min(1),
+  /** A case study's search-result description, short enough not to be cut. */
+  description: z.string().min(50).max(160).optional(),
   category: z.string().min(1),
   /** What I did on a case study, from its "my contribution" section. */
   role: z.string().min(1).optional(),
@@ -268,6 +270,7 @@ const translationSchema = z
   .object({
     title: z.string().min(1),
     summary: z.string().min(1),
+    description: z.string().min(50).max(160).optional(),
     category: z.string().min(1),
     role: z.string().min(1).optional(),
     metricLabel: z.string().min(1).optional(),
@@ -318,10 +321,15 @@ export function getProjects(
       throw new Error(
         `Role belongs to case studies only: ${locale}/${shared.slug}`,
       );
+    if (shared.featured !== Boolean(copy.description))
+      throw new Error(
+        `Search description belongs to case studies only: ${locale}/${shared.slug}`,
+      );
     return projectSchema.parse({
       ...shared,
       title: copy.title,
       summary: copy.summary,
+      description: copy.description,
       category: copy.category,
       role: copy.role,
       body,

@@ -3,10 +3,29 @@ import budget from "./budgets.json";
 
 test("each locale has its own share card", async ({ request }) => {
   for (const locale of ["en", "tr"]) {
-    const response = await request.get(`/${locale}/opengraph-image`);
+    const response = await request.get(`/${locale}/opengraph-image/card`);
     expect(response.status()).toBe(200);
     expect(response.headers()["content-type"]).toBe("image/png");
     expect((await response.body()).byteLength).toBeGreaterThan(10_000);
+  }
+});
+
+test("share cards are described in the page's language", async ({ page }) => {
+  for (const [path, alt] of [
+    ["/tr", "Onur Ergüden, AI mühendisi"],
+    ["/en/projects/kuyumcum", "Kuyumcum: a case study by Onur Ergüden"],
+    ["/tr/projects/kuyumcum", "Kuyumcum: Onur Ergüden’in vaka çalışması"],
+  ]) {
+    await page.goto(path);
+    const image = page.locator('meta[property="og:image"]');
+    await expect(image).toHaveAttribute("content", /\/opengraph-image\/card/);
+    await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute(
+      "content",
+      alt,
+    );
+    await expect(
+      page.locator('meta[name="twitter:image:alt"]'),
+    ).toHaveAttribute("content", alt);
   }
 });
 

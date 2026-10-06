@@ -8,7 +8,12 @@ import {
 } from "@/lib/home-content";
 import { homeSectionLinks } from "@/lib/home-sections";
 import { cvLink } from "@/lib/site";
-import { blissSrcSet, layerBox, type BlissLayer } from "@/lib/bliss-geometry";
+import {
+  bliss,
+  blissSrcSet,
+  layerBox,
+  type BlissLayer,
+} from "@/lib/bliss-geometry";
 import XpBalls from "./xp-balls";
 import XpDrop from "./xp-drop";
 import XpExplorer from "./xp-explorer";
@@ -32,6 +37,8 @@ function Layer({ layer }: { layer: BlissLayer }) {
       <img
         srcSet={blissSrcSet(layer, "webp")}
         sizes={SIZES}
+        width={bliss.width}
+        height={bliss.layers[layer].height}
         alt=""
         loading="lazy"
         decoding="async"
@@ -84,6 +91,8 @@ export default function XpDesktop({ locale }: { locale: Locale }) {
           <img
             srcSet={blissSrcSet("original", "webp")}
             sizes={SIZES}
+            width={bliss.width}
+            height={bliss.height}
             alt=""
             loading="lazy"
             decoding="async"

@@ -1,11 +1,10 @@
 import { ImageResponse } from "next/og";
-import { isLocale } from "@/lib/content";
+import { getProjects, isLocale } from "@/lib/content";
 import {
   ogBackground,
   ogColors,
   ogFontFamily,
   ogFonts,
-  ogPicture,
   ogSize,
   upper,
 } from "@/lib/og";
@@ -24,15 +23,15 @@ export function generateImageMetadata({
       id: "card",
       alt:
         params.locale === "tr"
-          ? "Onur Ergüden, AI mühendisi"
-          : "Onur Ergüden, AI engineer",
+          ? "Onur Ergüden’in projeleri"
+          : "Projects by Onur Ergüden",
       size: ogSize,
       contentType: "image/png",
     },
   ];
 }
 
-/** The opening, as a card: my name, the head illustration and my role. */
+/** The archive: its title, the case studies by name and my name. */
 export default async function Image({
   params,
 }: {
@@ -40,41 +39,44 @@ export default async function Image({
 }) {
   const { locale } = await params;
   const tr = isLocale(locale) && locale === "tr";
-  const head = await ogPicture("head");
+  const projects = getProjects(tr ? "tr" : "en");
+  const cases = projects.filter((project) => project.featured);
   return new ImageResponse(
     <div
       style={{
         width: "100%",
         height: "100%",
         display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
+        flexDirection: "column",
+        justifyContent: "center",
         padding: "0 80px",
         background: ogBackground,
         color: ogColors.text,
         fontFamily: ogFontFamily,
       }}
     >
-      <div style={{ display: "flex", flexDirection: "column" }}>
-        <div
-          style={{
-            fontSize: 118,
-            lineHeight: 0.9,
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <span>ONUR</span>
-          <span>ERGÜDEN</span>
-        </div>
-        <div style={{ marginTop: 34, fontSize: 40, color: ogColors.accent }}>
-          {upper(tr ? "AI mühendisi" : "AI engineer", tr)}
-        </div>
-        <div style={{ marginTop: 14, fontSize: 24, color: ogColors.muted }}>
-          {upper("RAG · agents · ML · full-stack", tr)}
-        </div>
+      <div style={{ fontSize: 120, lineHeight: 0.9 }}>
+        {upper(tr ? "Projeler" : "Projects", tr)}
       </div>
-      <img src={head} width={400} height={400} alt="" />
+      <div
+        style={{
+          marginTop: 40,
+          fontSize: 34,
+          lineHeight: 1.25,
+          maxWidth: 1040,
+          color: ogColors.accent,
+        }}
+      >
+        {upper(cases.map((project) => project.title).join(" · "), false)}
+      </div>
+      <div style={{ marginTop: 34, fontSize: 24, color: ogColors.muted }}>
+        {upper(
+          tr
+            ? `${projects.length} proje · Onur Ergüden`
+            : `${projects.length} projects · Onur Ergüden`,
+          tr,
+        )}
+      </div>
     </div>,
     { ...ogSize, fonts: await ogFonts() },
   );

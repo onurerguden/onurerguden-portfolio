@@ -20,8 +20,8 @@ export async function generateMetadata({
     "/projects",
     locale === "en" ? "Projects" : "Projeler",
     locale === "en"
-      ? "AI products, machine learning experiments and software engineering projects."
-      : "AI ürünleri, makine öğrenmesi deneyleri ve yazılım mühendisliği projeleri.",
+      ? "Case studies and projects by Onur Ergüden: Kuyumcum, HealthFactor-AI, Course Intelligence RAG, GymRap AI Coach and more across AI, ML and software."
+      : "Onur Ergüden’in vaka çalışmaları ve projeleri: Kuyumcum, HealthFactor-AI, Course Intelligence RAG, GymRap AI Coach ve AI, ML ve yazılımda daha fazlası.",
   );
 }
 export default async function ProjectsPage({
