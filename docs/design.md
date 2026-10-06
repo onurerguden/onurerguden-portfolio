@@ -67,6 +67,10 @@ Onur requested the About section use the same light background as the desk. Abou
 
 Onur requested primary-button dragging on the MacBook's technology balls, with gentle movement of neighbouring balls. This supersedes October 2's "No pushing" rule for explicit grabs only; hovering still identifies a tool. A damped spring follows the original grab offset, collisions shift the pile, and a bounded release settles back to idle rendering. Pointer capture ends on release, cancellation, Escape, blur, resize, phase changes or motion pause. Touch keeps native page scrolling and tap-to-pin; the XP dialog's ball selector and left/right buttons offer touch, keyboard and single-click movement. Reduced motion retains the existing static Explorer list.
 
+## October 6: the balls drop under reduced motion
+
+Onur found that the technology balls never appeared on his phone and tablet: both had the system's reduce-motion setting on, which keeps the desk static and, until now, removed the balls with it. He chose to have them drop anyway. The desk journey and every other scene still respect reduced motion; only the balls' stage (`evenWhenReduced` in `use-section-stage.ts`) mounts under it. In the static page they drop onto the original photo once most of it is in view, with the same balloon, drag, keyboard controls and drop-again box as on the MacBook. The visitor's pause still freezes them, and this supersedes October 3's "Reduced motion retains the existing static Explorer list" for the balls only; the list stays below them.
+
 ## October 4: compact GitHub and certificate paper stacks
 
 Onur approved three activity totals, three public repository languages and three recent pushes, pull requests or releases. The calendar fills its panel with equal square days and keeps readable horizontal scrolling on narrow screens. The language and update panels have equal desktop widths and heights; mobile stacks them in reading order. Percentages remain GitHub's actual shares, including languages outside the visible selection. Branch creation is omitted from the compact feed. GitHub and certificates align with Projects at `min(1320px, 90%)`.

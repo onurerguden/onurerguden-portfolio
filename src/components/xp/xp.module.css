@@ -1,8 +1,8 @@
 /*
  * My tech stack as a Windows XP desktop on Bliss. `.screen` is the MacBook's
  * panel (or its takeover on a phone), where `--u` is one visible CSS px;
- * `.page` is the same markup in the document flow, with the original photo
- * and the list in place of the balls.
+ * `.page` is the same markup in the document flow, with the original photo,
+ * the balls over it once their stage is live, and the list.
  */
 .screen {
   --u: calc(1px / var(--screen-scale, 1));
@@ -132,9 +132,12 @@
   position: absolute;
   inset: 0;
 }
-.page .layer,
-.page .ballsHolder {
+.page .layer {
   display: none;
+}
+/* In the page the balls lie on the original photo, under the dialog. */
+.page .ballsHolder {
+  z-index: 1;
 }
 .page .original {
   display: block;
@@ -145,10 +148,12 @@
   padding: 0;
   cursor: pointer;
 }
-.screen:has([data-stage-state="live"]) .drop {
+.screen:has([data-stage-state="live"]) .drop,
+.page:has([data-stage-state="live"]) .drop {
   display: block;
 }
-.screen:has([data-stage-state="live"]) .close[aria-hidden="true"] {
+.screen:has([data-stage-state="live"]) .close[aria-hidden="true"],
+.page:has([data-stage-state="live"]) .close[aria-hidden="true"] {
   display: none;
 }
 .drop[aria-disabled="true"] {
@@ -159,15 +164,15 @@
   outline: calc(2 * var(--u)) solid #fff;
   outline-offset: calc(2 * var(--u));
 }
-.withoutBalls,
-.page .withBalls {
+.withoutBalls {
   display: none;
 }
-.page .withoutBalls,
-.screen:not(:has([data-stage-state="live"])) .withoutBalls {
+.screen:not(:has([data-stage-state="live"])) .withoutBalls,
+.page:not(:has([data-stage-state="live"])) .withoutBalls {
   display: block;
 }
-.screen:not(:has([data-stage-state="live"])) .withBalls {
+.screen:not(:has([data-stage-state="live"])) .withBalls,
+.page:not(:has([data-stage-state="live"])) .withBalls {
   display: none;
 }
 .head {

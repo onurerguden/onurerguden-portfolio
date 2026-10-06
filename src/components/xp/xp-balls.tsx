@@ -11,7 +11,7 @@ import { createPortal } from "react-dom";
 import SceneBoundary from "@/components/three/scene-boundary";
 import { useSectionStage } from "@/components/three/use-section-stage";
 import { coverFrame } from "@/lib/bliss-geometry";
-import { laptopPhase } from "@/lib/desk-story/store";
+import { laptopPhase, type LaptopPhase } from "@/lib/desk-story/store";
 import { unprojectPoint } from "@/lib/screen-geometry";
 import type { BallItem } from "./tech-atlas";
 import { dropEvent } from "./xp-drop";
@@ -31,9 +31,16 @@ const NARROW_BALLS = 18;
 
 type Box = { width: number; height: number; left: number; top: number };
 
-/** The desktop point under a pointer, through the panel's projection. */
+/**
+ * The ball stage point under a pointer: through the panel's projection on a
+ * screen, or straight from the photo's box in the page.
+ */
 function desktopPoint(desktop: HTMLElement, x: number, y: number) {
   const panel = desktop.closest<HTMLElement>("[data-screen]");
+  if (!panel) {
+    const frame = desktop.firstElementChild!.getBoundingClientRect();
+    return { x: x - frame.left, y: y - frame.top };
+  }
   const layer = panel?.parentElement;
   if (!panel || !layer) return null;
   const transform = getComputedStyle(panel).transform;
@@ -49,8 +56,9 @@ function desktopPoint(desktop: HTMLElement, x: number, y: number) {
 }
 
 /**
- * The technology balls on the MacBook. They only exist on the projected
- * screen (or its takeover); in the page the Explorer list stands alone.
+ * The technology balls on the MacBook's projected screen (or its takeover)
+ * and, in the page, on the photo once it scrolls into view. They drop under
+ * reduced motion too, at Onur's request; pausing motion still freezes them.
  * Hovering a settled ball, or tapping it, names it in an XP balloon. A
  * primary-button drag moves it; native controls offer the same gentle nudge.
  */
@@ -64,6 +72,9 @@ export default function XpBalls({
   const en = locale === "en";
   const holder = useRef<HTMLDivElement>(null);
   const [desktop, setDesktop] = useState<HTMLElement | null>(null);
+  // In the page (static desk, reduced motion) rather than on a screen.
+  const [inPage, setInPage] = useState(false);
+  const [seen, setSeen] = useState(false);
   const [overlay, setOverlay] = useState<HTMLElement | null>(null);
   const [controls, setControls] = useState<HTMLElement | null>(null);
   const [controlIndex, setControlIndex] = useState(0);
@@ -75,23 +86,33 @@ export default function XpBalls({
     index: number;
     pinned: boolean;
   } | null>(null);
-  const phase = useSyncExternalStore(
+  const story = useSyncExternalStore(
     laptopPhase.subscribe,
     laptopPhase.get,
     () => "away" as const,
   );
+  // The page has no story: the balls drop once the photo is in view.
+  const phase: LaptopPhase = inPage ? (seen ? "desk" : "near") : story;
+  const phaseRef = useRef(phase);
+  useEffect(() => {
+    phaseRef.current = phase;
+  }, [phase]);
 
-  // Only a desktop on a screen gets balls.
   useEffect(() => {
     const node = holder.current?.closest<HTMLElement>("[data-xp]") ?? null;
-    if (!node?.closest("[data-screen]")) return;
+    if (!node) return;
+    // On a screen the stage is the desktop and the photo frame is placed
+    // inside it; in the page the frame is the stage.
+    const page = !node.closest("[data-screen]");
+    const stage = page ? holder.current!.parentElement! : node;
+    setInPage(page);
     setDesktop(node);
     setOverlay(node.querySelector<HTMLElement>("[data-xp-overlay]"));
     setControls(node.querySelector<HTMLElement>("[data-ball-controls]"));
     const measure = () => {
-      const width = node.offsetWidth;
-      const height = node.offsetHeight;
-      const frame = coverFrame(width, height);
+      const width = stage.offsetWidth;
+      const height = stage.offsetHeight;
+      const frame = page ? { x: 0, y: 0 } : coverFrame(width, height);
       setBox((previous) =>
         previous?.width === width && previous.height === height
           ? previous
@@ -100,8 +121,19 @@ export default function XpBalls({
     };
     measure();
     const observer = new ResizeObserver(measure);
-    observer.observe(node);
-    return () => observer.disconnect();
+    observer.observe(stage);
+    // Most of the photo in view, so the drop is seen from the start.
+    const view = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setSeen(true);
+      },
+      { threshold: 0.6 },
+    );
+    if (page) view.observe(stage);
+    return () => {
+      observer.disconnect();
+      view.disconnect();
+    };
   }, []);
 
   const narrow = (box?.width ?? 1280) < 700;
@@ -118,8 +150,13 @@ export default function XpBalls({
     {
       id: "desk-stack",
       priority: 2,
-      visible: phase === "desk" || phase === "rise",
-      wanted: phase === "near" || phase === "desk" || phase === "rise",
+      // The page's intersection observers suffice; the projected screen
+      // needs the story.
+      visible: inPage ? undefined : phase === "desk" || phase === "rise",
+      wanted: inPage
+        ? undefined
+        : phase === "near" || phase === "desk" || phase === "rise",
+      evenWhenReduced: true,
     },
   );
 
@@ -132,7 +169,7 @@ export default function XpBalls({
 
   useEffect(() => {
     if (!desktop || !mount || phase !== "desk") return;
-    const panel = desktop.closest<HTMLElement>("[data-screen]")!;
+    const panel = desktop.closest<HTMLElement>("[data-screen]") ?? desktop;
     const excluded = (target: EventTarget | null) =>
       target instanceof Element &&
       Boolean(target.closest("a, button, [data-no-physics], [data-balloon]"));
@@ -290,7 +327,7 @@ export default function XpBalls({
 
   useEffect(() => {
     const again = () => {
-      if (laptopPhase.get() === "desk") drop(true);
+      if (phaseRef.current === "desk") drop(true);
     };
     window.addEventListener(dropEvent, again);
     return () => window.removeEventListener(dropEvent, again);

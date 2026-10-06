@@ -105,13 +105,16 @@ async function scrollThroughHome(page: Page, check: () => Promise<void>) {
     await check();
   }
 }
-test("reduced motion never creates WebGL anywhere on the home page", async ({
+test("reduced motion creates no WebGL on the home page but the tech stack balls", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/en");
+  // The balls drop under reduced motion at Onur's request (docs/design.md).
   await scrollThroughHome(page, async () => {
-    await expect(page.locator("canvas")).toHaveCount(0);
+    await expect(
+      page.locator('canvas:not([data-stage-canvas="desk-stack"])'),
+    ).toHaveCount(0);
   });
 });
 test("the home page never holds more than two WebGL contexts", async ({
