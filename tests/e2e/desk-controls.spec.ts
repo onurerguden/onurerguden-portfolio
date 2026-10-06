@@ -123,11 +123,16 @@ test("the nav turns the desk's 3D off and on for this visit", async ({
   );
 });
 
-test("reduced motion offers neither toggle", async ({ page }) => {
+test("reduced motion offers the pause but not the 3D toggle", async ({
+  page,
+}) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/en");
   await page.getByRole("button", { name: "Sections" }).click();
   const menu = page.locator("#journey-sections-menu");
   await expect(menu.getByRole("button", { name: /3D/ })).toHaveCount(0);
-  await expect(menu.getByRole("button", { name: /motion/i })).toHaveCount(0);
+  // The stack balls still drop under reduced motion, so the pause stays.
+  await expect(menu.getByRole("button", { name: "Pause motion" })).toHaveCount(
+    1,
+  );
 });

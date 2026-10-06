@@ -65,7 +65,11 @@ test("the start menu works from the keyboard", async ({ page }) => {
   await expect(start).toHaveAttribute("aria-expanded", "true");
   const menu = page.getByRole("menu", { name: "Bir bölüme git" });
   await expect(menu.getByRole("menuitem").first()).toBeFocused();
-  // Both columns are one list for the arrow keys.
+  // Both columns and the pause are one list for the arrow keys.
+  await page.keyboard.press("ArrowUp");
+  await expect(
+    menu.getByRole("menuitemcheckbox", { name: "Hareketi duraklat" }),
+  ).toBeFocused();
   await page.keyboard.press("ArrowUp");
   await expect(
     menu.getByRole("menuitem", { name: "CV’mi iste" }),
