@@ -21,8 +21,15 @@ const sources = (
 const text = (
   await Promise.all(sources.map((file) => readFile(file, "utf8")))
 ).join("\n");
-// Generated sets are referenced by pattern, not by full name.
-const patterns = [/^images\/bliss\//, /^decoders\//, /^fonts\//, /^licenses\//];
+// Generated sets are referenced by pattern, not by full name; so is the
+// IndexNow key (scripts/indexnow.mjs).
+const patterns = [
+  /^images\/bliss\//,
+  /^decoders\//,
+  /^fonts\//,
+  /^licenses\//,
+  /^[0-9a-f]{32}\.txt$/,
+];
 const unused = (await walk("public"))
   .map((file) => relative("public", file))
   .filter((path) => !patterns.some((pattern) => pattern.test(path)))
