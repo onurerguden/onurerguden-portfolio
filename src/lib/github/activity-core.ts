@@ -514,3 +514,32 @@ export async function refreshActivity({
     await store.release(nonce);
   }
 }
+
+/**
+ * Shares one read among concurrent callers and keeps it for `ttl` after it
+ * starts, so a burst of requests on a warm instance costs one Redis call. A
+ * failed read is dropped at once so the next caller tries again.
+ */
+export function sharedReader<T>(
+  read: () => Promise<T>,
+  ttl = 60_000,
+  clock = Date.now,
+) {
+  let entry: { value: Promise<T>; at: number } | null = null;
+  return {
+    read() {
+      const now = clock();
+      if (!entry || now - entry.at >= ttl) {
+        const current = { value: read(), at: now };
+        entry = current;
+        current.value.catch(() => {
+          if (entry === current) entry = null;
+        });
+      }
+      return entry.value;
+    },
+    clear() {
+      entry = null;
+    },
+  };
+}

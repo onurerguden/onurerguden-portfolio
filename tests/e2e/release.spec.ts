@@ -57,6 +57,14 @@ test("the bare origin moves to English for good", async ({ request }) => {
   expect(response.headers().location).toBe("/en");
 });
 
+test("the activity feed has one cacheable address", async ({ request }) => {
+  const response = await request.get("/api/github/activity?bust=1", {
+    maxRedirects: 0,
+  });
+  expect(response.status()).toBe(308);
+  expect(response.headers().location).toBe("/api/github/activity");
+});
+
 test("AI assistants get the site as Markdown", async ({ request }) => {
   for (const path of ["/llms.txt", "/llms-full.txt"]) {
     const response = await request.get(path);
