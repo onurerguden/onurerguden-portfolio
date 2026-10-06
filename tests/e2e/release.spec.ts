@@ -18,9 +18,9 @@ test("the home page describes me as a Person with my profiles", async ({
     (await page
       .locator('script[type="application/ld+json"]')
       .textContent()) as string,
-  );
-  expect(data).toMatchObject({
-    "@type": "Person",
+  ) as { "@graph": { "@type": string }[] };
+  const person = data["@graph"].find((node) => node["@type"] === "Person");
+  expect(person).toMatchObject({
     name: "Onur Ergüden",
     jobTitle: "AI Mühendisi",
     sameAs: [
@@ -29,6 +29,7 @@ test("the home page describes me as a Person with my profiles", async ({
     ],
     knowsAbout: expect.arrayContaining(["Model Context Protocol"]),
   });
+  expect(data["@graph"].map((node) => node["@type"])).toContain("ProfilePage");
 });
 
 test("the first load stays within its byte budget", async ({

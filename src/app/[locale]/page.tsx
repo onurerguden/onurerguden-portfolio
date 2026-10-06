@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
-import { isLocale, sharedFacts } from "@/lib/content";
-import { pageMetadata, siteOrigin } from "@/lib/site";
+import { isLocale } from "@/lib/content";
+import { pageMetadata } from "@/lib/site";
+import { homeStructuredData } from "@/lib/structured-data";
+import JsonLd from "@/components/json-ld";
 import DeskJourney from "@/components/desk/journey";
 import { getJourneyContent } from "@/lib/desk-story/content";
 import ServiceRows from "@/components/sections/service-rows";
@@ -36,38 +38,9 @@ export default async function Home({
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  // Structured data so search engines can connect the profiles.
-  const person = {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    name: sharedFacts.name,
-    jobTitle: locale === "en" ? "AI Engineer" : "AI Mühendisi",
-    worksFor: { "@type": "Organization", name: sharedFacts.work.company },
-    alumniOf: {
-      "@type": "CollegeOrUniversity",
-      name: sharedFacts.education.university,
-    },
-    url: `${siteOrigin()}/${locale}`,
-    sameAs: [sharedFacts.github, sharedFacts.linkedin],
-    // What the case studies show, in the field's own terms.
-    knowsAbout: [
-      "Large language models",
-      "Retrieval-augmented generation",
-      "AI agents",
-      "Model Context Protocol",
-      "LangGraph",
-      "Machine learning",
-      "Computer vision",
-    ],
-  };
   return (
     <main id="main" tabIndex={-1} data-home>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(person).replace(/</g, "\\u003c"),
-        }}
-      />
+      <JsonLd data={homeStructuredData(locale)} />
       <DeskJourney
         locale={locale}
         content={getJourneyContent(locale)}

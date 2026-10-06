@@ -5,6 +5,8 @@ import { getProjects, isLocale, sharedFacts } from "@/lib/content";
 import { getPublicProjects } from "@/lib/github";
 import { publicDescription } from "@/lib/github/core";
 import { pageMetadata } from "@/lib/site";
+import { projectsStructuredData } from "@/lib/structured-data";
+import JsonLd from "@/components/json-ld";
 import styles from "./archive.module.css";
 export async function generateMetadata({
   params,
@@ -39,6 +41,7 @@ export default async function ProjectsPage({
     }).format(new Date(value));
   return (
     <main id="main" tabIndex={-1} className={styles.page}>
+      <JsonLd data={projectsStructuredData(locale, projects)} />
       <header className={styles.hero}>
         <p className={styles.kicker}>
           {en ? "The project archive" : "Proje arşivi"}

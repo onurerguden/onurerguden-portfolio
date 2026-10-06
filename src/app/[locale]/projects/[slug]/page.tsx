@@ -10,6 +10,8 @@ import ReportWorkflow from "@/components/case/report-workflow";
 import styles from "@/components/case/case.module.css";
 import { caseSections, getProject, isLocale } from "@/lib/content";
 import { pageMetadata } from "@/lib/site";
+import { caseStudyStructuredData } from "@/lib/structured-data";
+import JsonLd from "@/components/json-ld";
 
 export async function generateMetadata({
   params,
@@ -47,6 +49,7 @@ export default async function ProjectPage({
     sections.find((section) => section.label === label.trim())?.id;
   return (
     <main id="main" tabIndex={-1} className={styles.page}>
+      <JsonLd data={caseStudyStructuredData(locale, project)} />
       <header className={styles.hero}>
         <Link className={styles.back} href={`/${locale}#work`}>
           <span aria-hidden="true">←</span> {en ? "Projects" : "Projeler"}
