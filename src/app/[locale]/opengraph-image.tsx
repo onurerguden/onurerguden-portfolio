@@ -10,9 +10,27 @@ import {
   upper,
 } from "@/lib/og";
 
-export const alt = "Onur Ergüden, AI engineer";
-export const size = ogSize;
-export const contentType = "image/png";
+/**
+ * One card per page, described in the page's language. The id names the card
+ * in its URL (`…/opengraph-image/card`).
+ */
+export function generateImageMetadata({
+  params,
+}: {
+  params: { locale: string };
+}) {
+  return [
+    {
+      id: "card",
+      alt:
+        params.locale === "tr"
+          ? "Onur Ergüden, AI mühendisi"
+          : "Onur Ergüden, AI engineer",
+      size: ogSize,
+      contentType: "image/png",
+    },
+  ];
+}
 
 /** The opening, as a card: my name, the head illustration and my role. */
 export default async function Image({
@@ -58,6 +76,6 @@ export default async function Image({
       </div>
       <img src={head} width={400} height={400} alt="" />
     </div>,
-    { ...size, fonts: await ogFonts() },
+    { ...ogSize, fonts: await ogFonts() },
   );
 }

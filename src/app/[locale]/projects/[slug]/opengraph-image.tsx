@@ -10,9 +10,25 @@ import {
   upper,
 } from "@/lib/og";
 
-export const alt = "A case study by Onur Ergüden";
-export const size = ogSize;
-export const contentType = "image/png";
+/** One card per case study, described in the page's language. */
+export function generateImageMetadata({
+  params,
+}: {
+  params: { locale: string; slug: string };
+}) {
+  const tr = params.locale === "tr";
+  const title = getProject(tr ? "tr" : "en", params.slug)?.title;
+  return [
+    {
+      id: "card",
+      alt: tr
+        ? `${title}: Onur Ergüden’in vaka çalışması`
+        : `${title}: a case study by Onur Ergüden`,
+      size: ogSize,
+      contentType: "image/png",
+    },
+  ];
+}
 
 const pictures: Record<
   string,
@@ -99,6 +115,6 @@ export default async function Image({
         </div>
       ) : null}
     </div>,
-    { ...size, fonts: await ogFonts() },
+    { ...ogSize, fonts: await ogFonts() },
   );
 }

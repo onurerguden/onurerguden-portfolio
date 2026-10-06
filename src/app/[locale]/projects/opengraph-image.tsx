@@ -9,9 +9,27 @@ import {
   upper,
 } from "@/lib/og";
 
-export const alt = "Projects by Onur Ergüden";
-export const size = ogSize;
-export const contentType = "image/png";
+/**
+ * One card per page, described in the page's language. The id names the card
+ * in its URL (`…/opengraph-image/card`).
+ */
+export function generateImageMetadata({
+  params,
+}: {
+  params: { locale: string };
+}) {
+  return [
+    {
+      id: "card",
+      alt:
+        params.locale === "tr"
+          ? "Onur Ergüden’in projeleri"
+          : "Projects by Onur Ergüden",
+      size: ogSize,
+      contentType: "image/png",
+    },
+  ];
+}
 
 /** The archive: its title, the case studies by name and my name. */
 export default async function Image({
@@ -60,6 +78,6 @@ export default async function Image({
         )}
       </div>
     </div>,
-    { ...size, fonts: await ogFonts() },
+    { ...ogSize, fonts: await ogFonts() },
   );
 }
