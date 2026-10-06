@@ -59,6 +59,12 @@ export function createStore(): SyncStore | null {
     async complete(delivery) {
       await command("SET", PREFIX + "done:" + delivery, "1", "EX", 604800);
     },
+    async lastSuccess() {
+      return command<string | null>("GET", PREFIX + "cron:last-success");
+    },
+    async markSuccess(at) {
+      await command("SET", PREFIX + "cron:last-success", at);
+    },
     async backoff(until) {
       if (until)
         await command(

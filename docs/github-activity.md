@@ -17,7 +17,7 @@ Upstash Redis, prefix `portfolio:github:activity:v1:`. The snapshot is stored as
 
 - **On read.** `getActivity()` (page render and `GET /api/github/activity`) reads Redis with a 1.2-second timeout. If the snapshot is older than ten minutes, or a push marked it dirty more than 90 seconds ago, it refreshes after the response with `after()`, guarded by the cooldown and lock. Incremental refreshes re-read only the last twelve months and the current year.
 - **On push.** The existing repository webhook marks the data dirty and refreshes it. GitHub can take a few minutes to count a contribution, so reads stay eager for fifteen minutes. Pushes to private repositories arrive through the read-time refresh and the cron.
-- **Daily.** `GET /api/cron/github` reconciles repositories and then does a full activity refresh; it returns 503 if either fails.
+- **Daily.** `GET /api/cron/github` reconciles repositories and then does a full activity refresh; it returns 503 if either fails and reports `skipped` when either was turned away.
 - **In the browser.** The section polls the API every few minutes while the tab is visible; ETags make unchanged polls a 304.
 
 Worst case this is about one GraphQL request and one conditional REST request every two minutes, far below GitHub's limits. `after()` is not a durable queue; the daily cron is the recovery path.

@@ -45,6 +45,8 @@ function memoryStore(): SyncStore {
       if (until) backoff = until;
       return backoff;
     },
+    lastSuccess: async () => null,
+    markSuccess: async () => {},
   };
 }
 const repo = (id = 1, name = "example") => ({

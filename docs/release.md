@@ -48,7 +48,7 @@
 
 1. Create the Vercel project from this repository; production branch `main`.
 2. Set, before the first production build (robots, sitemap and canonical URLs are rendered at build time): `NEXT_PUBLIC_SITE_URL` (canonical HTTPS origin) and, on production only, `SITE_INDEXABLE=true`. Previews keep it unset.
-3. Server-only secrets: `GITHUB_TOKEN` (fine-grained, public read-only), Upstash Redis URL and token, `CRON_SECRET`, `GITHUB_WEBHOOK_SECRET`. Separate Redis for previews.
+3. Server-only secrets: `GITHUB_TOKEN` (fine-grained, public read-only), Upstash Redis URL and token, `CRON_SECRET`, `GITHUB_WEBHOOK_SECRET`, optionally `CRON_HEARTBEAT_URL` (see `docs/github-sync.md`). Separate Redis for previews.
 4. Domain: add it in Vercel, then point DNS; HSTS is already sent (no preload).
 5. After the first deploy: call `/api/cron/github` once, add the repository webhooks, check the activity totals against the GitHub profile, enable Speed Insights.
 6. Lab routes return 404 in production (`VERCEL_ENV=production` or `SITE_INDEXABLE=true`) and always send `X-Robots-Tag: noindex`.

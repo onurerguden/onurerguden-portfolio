@@ -29,6 +29,9 @@ export interface SyncStore {
   done(delivery: string): Promise<boolean>;
   complete(delivery: string): Promise<void>;
   backoff(until?: number): Promise<number>;
+  /** When the daily reconciliation last fully succeeded (ISO), if ever. */
+  lastSuccess(): Promise<string | null>;
+  markSuccess(at: string): Promise<void>;
 }
 /** Repositories whose GitHub description is never shown on this site. */
 const hiddenDescriptions = new Set(["pistithegame"]);
