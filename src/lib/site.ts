@@ -8,15 +8,23 @@ export function siteOrigin() {
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
   return "http://localhost:3000";
 }
+/**
+ * A page's title, description, canonical URL and language alternates. Titles
+ * get the name after them (the root layout's template) unless `absolute`,
+ * which the home page uses to lead with the name; share cards always carry
+ * the full title, since they are read away from the site.
+ */
 export function pageMetadata(
   locale: "en" | "tr",
   path: string,
   title: string,
   description: string,
+  { absolute = false } = {},
 ): Metadata {
   const base = siteOrigin();
+  const full = absolute ? title : `${title} | Onur Ergüden`;
   return {
-    title,
+    title: absolute ? { absolute: title } : title,
     description,
     metadataBase: new URL(base),
     alternates: {
@@ -28,7 +36,7 @@ export function pageMetadata(
       },
     },
     openGraph: {
-      title,
+      title: full,
       description,
       url: `${base}/${locale}${path}`,
       locale: locale === "tr" ? "tr_TR" : "en_US",
@@ -36,6 +44,7 @@ export function pageMetadata(
       type: "website",
       siteName: "Onur Ergüden",
     },
+    twitter: { card: "summary_large_image", title: full, description },
   };
 }
 

@@ -21,11 +21,12 @@ export async function generateMetadata({
     locale,
     "",
     locale === "en"
-      ? "AI engineering & research"
-      : "AI mühendisliği ve araştırma",
+      ? "Onur Ergüden — AI Engineer"
+      : "Onur Ergüden — AI Mühendisi",
     locale === "en"
-      ? "Onur Ergüden builds AI products, retrieval systems and applied machine learning research."
-      : "Onur Ergüden: AI ürünleri, bilgi erişim sistemleri ve uygulamalı makine öğrenmesi araştırmaları.",
+      ? "Onur Ergüden is an AI engineer at Future Is Now, building LLM applications end to end: retrieval, LangGraph and MCP agents, and applied ML research."
+      : "Onur Ergüden, Future Is Now’da AI mühendisi. Uçtan uca LLM uygulamaları geliştiriyor: bilgi erişimi, LangGraph ve MCP ajanları, uygulamalı ML araştırması.",
+    { absolute: true },
   );
 }
 export default async function Home({
