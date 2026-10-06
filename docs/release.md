@@ -66,6 +66,7 @@
 ## Maintenance
 
 - `/.well-known/security.txt` (RFC 9116) names the public email; its expiry is a year after each deploy, so a year without deploys lets it lapse.
+- After each production deploy, `.github/workflows/indexnow.yml` submits the sitemap's pages to IndexNow (Bing, Yandex and others). The key in `public/<key>.txt` is public by design; to rotate it, replace the file.
 - Dependabot opens one grouped npm pull request a week and one for the GitHub Actions each month; CI decides whether they merge.
 
 ## PR order
