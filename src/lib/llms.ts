@@ -5,6 +5,7 @@ import {
   getExperience,
   getServices,
 } from "./home-content";
+import { reportWorkflow } from "./report-workflow";
 import { getResearch } from "./research";
 import { siteOrigin } from "./site";
 
@@ -65,11 +66,25 @@ export function llmsIndex() {
   ].join("\n");
 }
 
-/** Case-study Markdown without the MDX components the pages draw. */
+/** The text a case study's figures carry on the page, as Markdown. */
+const figures: Record<string, () => string> = {
+  ReportWorkflow: () =>
+    [
+      reportWorkflow[locale].caption,
+      "",
+      ...reportWorkflow[locale].steps.map((step, i) => `${i + 1}. ${step}`),
+    ].join("\n"),
+};
+
+/** Case-study Markdown with each MDX component replaced by its text, if any. */
 const prose = (body: string) =>
   body
     .split("\n")
-    .filter((line) => !/^\s*<[A-Z][^>]*\/>\s*$/.test(line))
+    .flatMap((line) => {
+      const component = line.match(/^\s*<([A-Z]\w*)[^>]*\/>\s*$/)?.[1];
+      if (!component) return [line];
+      return figures[component] ? [figures[component]()] : [];
+    })
     .join("\n")
     .replace(/^## /gm, "### ")
     .trim();
@@ -105,6 +120,14 @@ export function llmsFull() {
     research.approach,
     "",
     `- **${publication.title}**. ${publication.authors.join(", ")}. ${publication.journal}. ${publication.statusLabel.en}. ${research.publicationSummary}`,
+    "",
+    `- **${research.study.title}**. ${research.study.status}. ${research.study.team}. ${research.study.data} ${research.study.method} Source: ${research.study.repoUrl}`,
+    "",
+    "### Questions I’m exploring",
+    "",
+    ...research.questions.map((question) => `- ${question}`),
+    "",
+    research.interests,
     "",
     ...projects
       .filter((project) => project.featured && project.body)

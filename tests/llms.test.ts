@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { getProject, getProjects, sharedFacts } from "../src/lib/content";
 import { llmsFull, llmsIndex } from "../src/lib/llms";
+import { reportWorkflow } from "../src/lib/report-workflow";
+import { getResearch } from "../src/lib/research";
 
 afterEach(() => vi.unstubAllEnvs());
 
@@ -22,5 +24,27 @@ describe("llms.txt", () => {
     expect(full).toContain(`## Case study: ${kuyumcum?.title}`);
     expect(full).not.toMatch(/<[A-Z]\w*\s*\/>/);
     expect(full).not.toContain("[[metric:");
+  });
+
+  it("carries the Kuyumcum workflow steps the page shows", () => {
+    const full = llmsFull();
+    const { caption, steps } = reportWorkflow.en;
+    expect(full).toContain(caption);
+    steps.forEach((step, i) => expect(full).toContain(`${i + 1}. ${step}`));
+  });
+
+  it("carries every research section the page shows", () => {
+    const full = llmsFull();
+    const research = getResearch("en");
+    for (const text of [
+      research.approach,
+      research.study.title,
+      research.study.data,
+      research.study.method,
+      research.study.repoUrl,
+      ...research.questions,
+      research.interests,
+    ])
+      expect(full).toContain(text);
   });
 });
