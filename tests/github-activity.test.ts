@@ -5,6 +5,7 @@ import {
   isStale,
   mapEvents,
   refreshActivity,
+  sharedReader,
   streaks,
   toYear,
   type ActivitySnapshot,
@@ -510,5 +511,35 @@ describe("GitHub activity refresh", () => {
     expect(
       isStale({ snapshot, fetchedAt: NOW - 2 * 60_000, dirty: true }, NOW),
     ).toBe(true);
+  });
+});
+
+describe("shared activity reads", () => {
+  it("makes one read for concurrent callers and reuses it for a minute", async () => {
+    let now = 0;
+    const read = vi.fn(async () => ({ n: read.mock.calls.length }));
+    const shared = sharedReader(read, 60_000, () => now);
+    const [a, b] = await Promise.all([shared.read(), shared.read()]);
+    expect(read).toHaveBeenCalledTimes(1);
+    expect(a).toBe(b);
+    now = 59_999;
+    await shared.read();
+    expect(read).toHaveBeenCalledTimes(1);
+    now = 60_000;
+    await shared.read();
+    expect(read).toHaveBeenCalledTimes(2);
+    shared.clear();
+    await shared.read();
+    expect(read).toHaveBeenCalledTimes(3);
+  });
+  it("drops a failed read so the next caller tries again", async () => {
+    const read = vi
+      .fn<() => Promise<string>>()
+      .mockRejectedValueOnce(new Error("down"))
+      .mockResolvedValueOnce("ok");
+    const shared = sharedReader(read, 60_000, () => 0);
+    await expect(shared.read()).rejects.toThrow("down");
+    await expect(shared.read()).resolves.toBe("ok");
+    expect(read).toHaveBeenCalledTimes(2);
   });
 });
