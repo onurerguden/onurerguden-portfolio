@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { getProject, getProjects, sharedFacts } from "../src/lib/content";
+import { getProjects, sharedFacts } from "../src/lib/content";
 import {
   caseStudyStructuredData,
   homeStructuredData,
