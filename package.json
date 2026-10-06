@@ -15,6 +15,7 @@
     "test:e2e": "playwright test",
     "format:check": "prettier --check src tests scripts *.ts *.mts",
     "check:links": "tsx scripts/check-external-links.ts",
+    "smoke:seo": "node scripts/seo-smoke.mjs",
     "desk:package": "node scripts/desk/package.mjs",
     "desk:capture-cosmic": "node scripts/desk/capture-cosmic-poster.mjs",
     "check:trace": "node scripts/check-trace.mjs",
