@@ -38,7 +38,21 @@ const nextConfig: NextConfig = {
   // English is the default language (x-default), so the bare origin moves
   // there permanently and search engines index /en rather than /.
   async redirects() {
-    return [{ source: "/", destination: "/en", permanent: true }];
+    // Share cards moved to …/opengraph-image/card (one card per page, with
+    // a localized alt); links already shared keep working.
+    const card = "(opengraph-image|twitter-image)";
+    return [
+      { source: "/", destination: "/en", permanent: true },
+      ...[
+        "/:locale(en|tr)",
+        "/:locale(en|tr)/:section(research|projects)",
+        "/:locale(en|tr)/projects/:slug",
+      ].map((page) => ({
+        source: `${page}/:card${card}`,
+        destination: `${page.replace(/\([^)]*\)/g, "")}/:card/card`,
+        permanent: true,
+      })),
+    ];
   },
   async headers() {
     return [

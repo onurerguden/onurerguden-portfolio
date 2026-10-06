@@ -65,6 +65,26 @@ test("the activity feed has one cacheable address", async ({ request }) => {
   expect(response.headers().location).toBe("/api/github/activity");
 });
 
+test("share cards at their old addresses move to the card", async ({
+  request,
+}) => {
+  for (const page of [
+    "/en",
+    "/tr/research",
+    "/en/projects",
+    "/tr/projects/kuyumcum",
+  ])
+    for (const kind of ["opengraph-image", "twitter-image"]) {
+      const response = await request.get(`${page}/${kind}`, {
+        maxRedirects: 0,
+      });
+      expect(response.status()).toBe(308);
+      expect(new URL(response.headers().location, "http://x").pathname).toBe(
+        `${page}/${kind}/card`,
+      );
+    }
+});
+
 test("AI assistants get the site as Markdown", async ({ request }) => {
   for (const path of ["/llms.txt", "/llms-full.txt"]) {
     const response = await request.get(path);
