@@ -231,6 +231,7 @@ test("a case study section survives switching language", async ({ page }) => {
 
 test("projects and research each have a share card", async ({ request }) => {
   for (const path of [
+    "/en/projects",
     "/en/projects/kuyumcum",
     "/tr/projects/water-safety",
     "/en/projects/course-intelligence",
