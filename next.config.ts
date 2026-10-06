@@ -54,6 +54,11 @@ const nextConfig: NextConfig = {
       })),
     ];
   },
+  async rewrites() {
+    return [
+      { source: "/.well-known/security.txt", destination: "/security.txt" },
+    ];
+  },
   async headers() {
     return [
       { source: "/:path*", headers: security },

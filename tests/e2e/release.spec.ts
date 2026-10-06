@@ -85,6 +85,15 @@ test("share cards at their old addresses move to the card", async ({
     }
 });
 
+test("security contacts are published where scanners look", async ({
+  request,
+}) => {
+  const response = await request.get("/.well-known/security.txt");
+  expect(response.status()).toBe(200);
+  expect(response.headers()["content-type"]).toContain("text/plain");
+  expect(await response.text()).toMatch(/^Contact: mailto:/);
+});
+
 test("AI assistants get the site as Markdown", async ({ request }) => {
   for (const path of ["/llms.txt", "/llms-full.txt"]) {
     const response = await request.get(path);

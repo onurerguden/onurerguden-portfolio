@@ -95,7 +95,7 @@ const missing = await get("/en/no-such-page");
 if (missing.status !== 404)
   fail("/en/no-such-page", `answered ${missing.status}, not 404`);
 
-for (const path of ["/llms.txt", "/llms-full.txt"])
+for (const path of ["/llms.txt", "/llms-full.txt", "/.well-known/security.txt"])
   if ((await get(path)).status !== 200) fail(path, "is missing");
 
 if (failures.length) {
