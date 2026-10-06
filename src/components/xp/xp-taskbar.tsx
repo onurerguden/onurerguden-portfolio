@@ -35,7 +35,7 @@ export default function XpTaskbar({
 }) {
   const en = locale === "en";
   const time = useIzmirClock();
-  const { paused, reduced } = useMotionPreference();
+  const { paused } = useMotionPreference();
   const [open, setOpen] = useState(false);
   const id = useId();
   const button = useRef<HTMLButtonElement>(null);
@@ -130,21 +130,20 @@ export default function XpTaskbar({
             ))}
           </div>
         </div>
-        {reduced ? null : (
-          <div className={styles.startFooter}>
-            <button
-              type="button"
-              role="menuitemcheckbox"
-              aria-checked={paused}
-              tabIndex={-1}
-              data-no-physics
-              onClick={() => setMotionPaused(!paused)}
-            >
-              <span className={styles.power} aria-hidden="true" />
-              {en ? "Pause motion" : "Hareketi duraklat"}
-            </button>
-          </div>
-        )}
+        {/* Kept under reduced motion: the balls still drop there. */}
+        <div className={styles.startFooter}>
+          <button
+            type="button"
+            role="menuitemcheckbox"
+            aria-checked={paused}
+            tabIndex={-1}
+            data-no-physics
+            onClick={() => setMotionPaused(!paused)}
+          >
+            <span className={styles.power} aria-hidden="true" />
+            {en ? "Pause motion" : "Hareketi duraklat"}
+          </button>
+        </div>
       </div>
       <div className={styles.tray}>
         <span className={styles.credit}>
