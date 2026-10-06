@@ -20,8 +20,8 @@ export async function generateMetadata({
     "/research",
     locale === "en" ? "Research" : "Araştırma",
     locale === "en"
-      ? "Applied AI, machine learning and data science research by Onur Ergüden."
-      : "Onur Ergüden’in uygulamalı AI, makine öğrenmesi ve veri bilimi araştırmaları.",
+      ? "Research by Onur Ergüden: a two-layered AI system for drinking-water safety, accepted by the International Journal of Engineering Approaches."
+      : "Onur Ergüden’in araştırması: içme suyu güvenliği için iki katmanlı bir AI sistemi, International Journal of Engineering Approaches’ta yayına kabul edildi.",
   );
 }
 export default async function ResearchPage({
