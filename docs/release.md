@@ -3,16 +3,16 @@
 ## External inputs
 
 - [x] CI is active (4 October 2026): `.github/workflows/ci.yml` checks formatting, types, lint, unit tests, the production build and each Playwright project on every pull request and on `main`.
-- [ ] Refresh the expired Vercel CLI login before creating the remote preview.
+- [x] Vercel project linked; production deploys from `main`, every pull request gets a preview (6 October 2026).
 - [x] Onur supplied Kuyumcum screenshots. Merchant map and AI report list are included; balance/holdings screens are excluded.
 - [ ] Onur supplies updated publication-ready CV (July file has outdated publication status and personal phone).
 - [ ] Confirm per-project contribution details and current LinkedIn text against drafts.
-- [ ] Link own Vercel account/project and Upstash Redis; configure secrets outside source control.
-- [ ] Configure public repository webhooks and daily reconciliation.
-- [ ] Choose and connect domain. Set NEXT_PUBLIC_SITE_URL to its canonical HTTPS origin.
-- [ ] Enable Vercel Speed Insights. Field p75 metrics remain unmeasured until sufficient visits exist.
+- [x] Own Vercel project and Upstash Redis (production only); secrets set in Vercel, not in source (6 October 2026).
+- [x] Webhooks on the public repositories and the daily 03:00 UTC reconciliation (6 October 2026).
+- [x] Domain `onurerguden.dev` connected, `www` redirects to the apex; `NEXT_PUBLIC_SITE_URL=https://onurerguden.dev` (6 October 2026).
+- [x] Vercel Speed Insights enabled (6 October 2026). Field p75 metrics remain unmeasured until sufficient visits exist.
 - [ ] Confirm actual iOS Safari on a physical device, not just Playwright WebKit.
-- [ ] Only after content and domain review: SITE_INDEXABLE=true on production, false on previews.
+- [x] `SITE_INDEXABLE=true` on production only (6 October 2026).
 - [x] Bliss: Onur chose the original Microsoft photograph with a visible credit and accepts the republication risk (29 September 2026, see docs/bliss.md). Revisit if Microsoft objects; the pipeline can swap the source.
 
 ## S+ home page inputs
@@ -22,7 +22,7 @@
 - [x] Onur supplied the certificates (4 October 2026). Six selected education credentials passed `npm run certificate` and personal-data review; openHPI emails are omitted from the public raster images. See `docs/qa/selected-certificates/README.md` for the selection and source review.
 - [x] Course Intelligence: the unconfirmed "100% on the quantitative set" sentence was removed (2 October 2026); the case study now describes the evaluation approach. The repository's own 5 / 4 / 1 rating can be added later with Onur's approval.
 - [ ] Optional: TaskFoo and ScoreStack screenshots for the archive card.
-- [ ] Vercel: `GITHUB_TOKEN` (fine-grained, public read-only) and Upstash credentials; call `/api/cron/github` once, then check the activity totals against the GitHub profile.
+- [x] Vercel: `GITHUB_TOKEN` (fine-grained, public read-only) and Upstash credentials; first sync matched the GitHub profile totals (6 October 2026).
 - [x] Local GitHub connection verified with Onur's authenticated CLI (4 October 2026): real contribution calendars, public events and public repository metadata, refreshed by `npm run preview:github`. Credentials are kept in the sync process's memory; hosted configuration above remains pending. See `docs/qa/github-connected/README.md`.
 - [x] Compact GitHub panels and certificate paper stacks verified (4 October 2026): three metrics/languages/updates, equal panel bounds, genuine percentages and six complete document images. EN/TR desktop/mobile Chromium and mobile WebKit, keyboard, motion preferences and axe checks passed. See `docs/qa/github-certificates-polish/README.md`.
 - [ ] Physical iPhone Safari pass: About objects, balls, desk release and restore, memory and context loss.
@@ -60,8 +60,13 @@
 - **AI assistants (GEO).** `/llms.txt` (llmstxt.org) maps the site; `/llms-full.txt` carries the About, services, experience, research, case studies and certificates as Markdown. Both are built from the same content files as the pages, in English, and are static.
 - **Crawling.** `/` answers with a permanent 308 to `/en` (the `x-default`). The sitemap lists `x-default` next to `en` and `tr`. `GOOGLE_SITE_VERIFICATION` and `BING_SITE_VERIFICATION` add the ownership tags when set; a DNS TXT record for a Search Console domain property is the preferred route.
 - **Region.** Functions run in `fra1` (Frankfurt), next to the visitors in Türkiye and Europe. Redis stays in us-east-1: the activity API is cached at the edge, and only the archive page reads Redis while rendering.
-- [ ] Production: `SITE_INDEXABLE=true`, then redeploy (robots and sitemap are built at build time).
-- [ ] Search Console (domain property, DNS TXT at Name.com) and the sitemap submitted; Bing Webmaster Tools imported from Search Console.
+- [x] Production: `SITE_INDEXABLE=true`, then redeployed (6 October 2026).
+- [x] Search Console (domain property, DNS TXT at Name.com) and the sitemap submitted; Bing Webmaster Tools imported from Search Console (6 October 2026).
+
+## Maintenance
+
+- `/.well-known/security.txt` (RFC 9116) names the public email; its expiry is a year after each deploy, so a year without deploys lets it lapse.
+- Dependabot opens one grouped npm pull request a week and one for the GitHub Actions each month; CI decides whether they merge.
 
 ## PR order
 
