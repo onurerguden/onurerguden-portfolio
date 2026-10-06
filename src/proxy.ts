@@ -34,14 +34,12 @@ export function proxy(request: NextRequest) {
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
   return response;
 }
+// Every page request runs the proxy, prefetches included: skipping them would
+// serve lab pages and HTML without a policy to anyone who sends the header.
+// Only the API, build output and public files with a known extension skip it,
+// so a page path that merely contains a dot is still covered.
 export const config = {
   matcher: [
-    {
-      source: "/((?!api|_next|.*\\..*).*)",
-      missing: [
-        { type: "header", key: "next-router-prefetch" },
-        { type: "header", key: "purpose", value: "prefetch" },
-      ],
-    },
+    "/((?!api(?:/|$)|_next/static/|_next/image(?:/|$)|.*\\.(?:avif|webp|png|jpe?g|gif|svg|ico|woff2?|txt|xml|json|webmanifest|glb|wasm|js|css|map)$).*)",
   ],
 };

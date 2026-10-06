@@ -20,6 +20,22 @@ test("pages send a nonce CSP and the security headers", async ({ request }) => {
   expect(again).not.toBe(csp);
 });
 
+test("prefetches and dotted page paths get the policy too", async ({
+  request,
+}) => {
+  const requests: [string, Record<string, string>][] = [
+    ["/tr/projects/kuyumcum", { purpose: "prefetch" }],
+    ["/tr/projects/kuyumcum", { "next-router-prefetch": "1", rsc: "1" }],
+    ["/en/projects/v1.2", {}],
+  ];
+  for (const [path, headers] of requests) {
+    const response = await request.get(path, { headers });
+    expect(response.headers()["content-security-policy"], path).toMatch(
+      /'nonce-[\w+/=]+'/,
+    );
+  }
+});
+
 test("versioned desk files are cached for good, others revalidate", async ({
   request,
   page,
@@ -40,8 +56,11 @@ test("versioned desk files are cached for good, others revalidate", async ({
 });
 
 test("lab pages are never indexed", async ({ request }) => {
-  const response = await request.get("/en/lab/desk/journey");
-  expect(response.headers()["x-robots-tag"]).toContain("noindex");
+  const variants: Record<string, string>[] = [{}, { purpose: "prefetch" }];
+  for (const headers of variants) {
+    const response = await request.get("/en/lab/desk/journey", { headers });
+    expect(response.headers()["x-robots-tag"]).toContain("noindex");
+  }
 });
 
 test("a full scroll through the desk raises no CSP violation", async ({
