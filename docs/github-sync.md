@@ -37,7 +37,9 @@ For each public `onurerguden` repository, add a GitHub repository webhook:
 - Subscribe to **Pushes** and **Repositories**. Ping is supported.
 - The endpoint accepts signed payloads up to 2 MiB. An exceptionally large push delivery should be recovered through reconciliation.
 
-Schedule authenticated `GET /api/cron/github` daily (for example `0 3 * * *` in Vercel cron configuration). Vercel attaches `Authorization: Bearer <CRON_SECRET>`. Invoke the endpoint once after configuration to create the initial snapshot. A successful response reports `ok: true`; 503 means the existing snapshot was preserved and the run needs attention.
+Schedule authenticated `GET /api/cron/github` daily (for example `0 3 * * *` in Vercel cron configuration). Vercel attaches `Authorization: Bearer <CRON_SECRET>`. Invoke the endpoint once after configuration to create the initial snapshot. The response's `status` is `ok` only when both the repositories and the activity were refreshed; `skipped` (200) means the work was turned away, for example by a lock or GitHub's backoff; `failed` (503) means the existing snapshot was preserved and the run needs attention. `lastSuccess` is the time of the last full success.
+
+For monitoring, set the optional `CRON_HEARTBEAT_URL` to a heartbeat check (for example Healthchecks.io or Better Stack, daily period, 90-minute grace). It is called only on a full success, so a run that is skipped or failed for over a day raises the alert. The URL is never logged.
 
 ## Behavior and recovery
 

@@ -3,6 +3,7 @@ import { synchronize } from "@/lib/github/core";
 import { createStore } from "@/lib/github/store";
 import { refreshActivity } from "@/lib/github/activity-core";
 import { createActivityStore } from "@/lib/github/activity-store";
+import { cronStatus, pingHeartbeat } from "@/lib/github/cron";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -20,8 +21,8 @@ export async function GET(request: Request) {
   const token = process.env.GITHUB_TOKEN;
   if (!store || !token)
     return Response.json({ error: "Integration unavailable" }, { status: 503 });
-  let repos: unknown = null;
-  let activity: unknown = null;
+  let repos: Parameters<typeof cronStatus>[0] = "failed";
+  let activity: Parameters<typeof cronStatus>[1] = "unconfigured";
   try {
     repos = await synchronize(store, token, `cron-${crypto.randomUUID()}`);
   } catch {
@@ -38,11 +39,30 @@ export async function GET(request: Request) {
         force: true,
       });
     } catch {
+      activity = "failed";
       console.error(
         "GitHub activity reconciliation failed; snapshot retained.",
       );
     }
-  if (repos === null || (activityStore && activity === null))
-    return Response.json({ error: "Reconciliation failed" }, { status: 503 });
-  return Response.json({ ok: true, result: repos, activity });
+  // Without Redis for activity there is no full success to report.
+  const status = cronStatus(repos, activity);
+  let lastSuccess: string | null = null;
+  try {
+    if (status === "ok") {
+      lastSuccess = new Date().toISOString();
+      await store.markSuccess(lastSuccess);
+    } else lastSuccess = await store.lastSuccess();
+  } catch {
+    console.error("Could not record the reconciliation time.");
+  }
+  // Only a full success tells the uptime monitor all is well.
+  if (status === "ok") await pingHeartbeat(process.env.CRON_HEARTBEAT_URL);
+  else
+    console.error(
+      `GitHub reconciliation ${status}: repos ${repos}, activity ${activity}.`,
+    );
+  return Response.json(
+    { status, repos, activity, lastSuccess },
+    { status: status === "failed" ? 503 : 200 },
+  );
 }
