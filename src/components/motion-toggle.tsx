@@ -31,11 +31,10 @@ export default function MotionToggle({
   className?: string;
   iconOnly?: boolean;
 }) {
-  const { paused, reduced } = useMotionPreference();
+  // Shown under reduced motion too: the stack balls still drop there.
+  const { paused } = useMotionPreference();
   // Announced only after a press, never on load.
   const [announced, setAnnounced] = useState(false);
-  // With reduced motion nothing moves on its own, so there is nothing to pause.
-  if (reduced) return null;
   const t = copy[locale];
   const label = paused ? t.resume : t.pause;
   return (

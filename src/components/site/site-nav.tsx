@@ -99,21 +99,26 @@ function SectionsMenu({
   const menu = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
-    const close = (event: Event) => {
-      if (
-        event instanceof KeyboardEvent
-          ? event.key === "Escape"
-          : !menu.current?.contains(event.target as Node)
-      ) {
-        setOpen(false);
-        if (event instanceof KeyboardEvent) button.current?.focus();
-      }
+    const inside = (node: EventTarget | null) =>
+      !!menu.current?.contains(node as Node);
+    // Escape belongs to whichever menu has focus: this one takes focus back
+    // only when focus is still inside it. Focus or a press anywhere else,
+    // such as the Start menu, simply closes it.
+    const key = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setOpen(false);
+      if (inside(document.activeElement)) button.current?.focus();
     };
-    document.addEventListener("keydown", close);
-    document.addEventListener("pointerdown", close);
+    const away = (event: Event) => {
+      if (!inside(event.target)) setOpen(false);
+    };
+    document.addEventListener("keydown", key);
+    document.addEventListener("pointerdown", away);
+    document.addEventListener("focusin", away);
     return () => {
-      document.removeEventListener("keydown", close);
-      document.removeEventListener("pointerdown", close);
+      document.removeEventListener("keydown", key);
+      document.removeEventListener("pointerdown", away);
+      document.removeEventListener("focusin", away);
     };
   }, [open]);
   return (

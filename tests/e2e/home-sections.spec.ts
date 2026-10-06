@@ -52,6 +52,56 @@ test("the Sections menu opens, navigates and closes from the keyboard", async ({
   });
 });
 
+test("Escape returns focus to the menu that has it", async ({ page }) => {
+  await page.goto("/en");
+  const sections = page.getByRole("button", { name: "Sections" });
+  await sections.click();
+  const menu = page.locator("#journey-sections-menu");
+  await expect(menu).toBeVisible();
+  // Focus moving to the Start menu closes Sections.
+  const start = page.getByRole("button", { name: "start", exact: true });
+  await start.focus();
+  await expect(menu).toBeHidden();
+  await start.press("Enter");
+  const startMenu = page.getByRole("menu", { name: "Jump to a section" });
+  await expect(startMenu).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(startMenu).toBeHidden();
+  await expect(start).toBeFocused();
+  await expect(menu).toBeHidden();
+});
+
+for (const locale of ["en", "tr"] as const)
+  test(`motion can be paused under reduced motion too (${locale})`, async ({
+    page,
+  }) => {
+    // The stack balls drop even with reduced motion, so the pause stays.
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto(`/${locale}`);
+    const pause = locale === "en" ? "Pause motion" : "Hareketi duraklat";
+    const resume = locale === "en" ? "Resume motion" : "Hareketi sürdür";
+    await page
+      .getByRole("button", { name: locale === "en" ? "Sections" : "Bölümler" })
+      .click();
+    const menu = page.locator("#journey-sections-menu");
+    await menu.getByRole("button", { name: pause }).click();
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-motion-paused",
+      "true",
+    );
+    await menu.getByRole("button", { name: resume }).click();
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-motion-paused",
+      "false",
+    );
+    const start = page.getByRole("button", { name: "start", exact: true });
+    await start.focus();
+    await start.press("Enter");
+    await expect(
+      page.getByRole("menuitemcheckbox", { name: pause }),
+    ).toBeVisible();
+  });
+
 test("pausing motion says what it did and lasts for this visit only", async ({
   page,
   context,
