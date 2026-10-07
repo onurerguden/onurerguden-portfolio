@@ -6,6 +6,7 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
   type RefObject,
 } from "react";
 import DeskPlatform from "./platform";
@@ -23,6 +24,7 @@ import {
   screens,
   type CameraStop,
 } from "@/lib/desk-story/camera";
+import { createFrameBudget } from "@/lib/desk-story/frame-budget";
 import { storyAt, type StoryState } from "@/lib/desk-story/timeline";
 import type { Signal } from "@/lib/desk-story/signal";
 import type { PanelRefs } from "./screen-panels";
@@ -374,6 +376,21 @@ function Driver({
   }, -1);
   return <CosmicEnvironment pointer={pointer} />;
 }
+/**
+ * Drops the desk to one device pixel per CSS pixel when its moving frames run
+ * well below 40 fps (a mid-range phone's GPU against a dense screen). It
+ * steps down once and never back, so the image does not pump while scrolling.
+ */
+function AdaptiveResolution() {
+  const setDpr = useThree((state) => state.setDpr);
+  const [budget] = useState(() => createFrameBudget());
+  useFrame(({ gl }) => {
+    if (!budget.record(performance.now()) || gl.getPixelRatio() <= 1) return;
+    setDpr(1);
+    gl.domElement.setAttribute("data-dpr-reduced", "true");
+  });
+  return null;
+}
 /** Include reflection and shadow passes in the reported per-frame cost. */
 function RenderFrame() {
   useFrame(({ gl }) => {
@@ -457,6 +474,7 @@ function JourneyScene(props: JourneySceneProps) {
           <ScreenDepthPlanes />
         </Suspense>
         <RenderFrame />
+        <AdaptiveResolution />
         <Driver {...props} active={controls.active} />
       </Canvas>
       {!props.poster ? (
