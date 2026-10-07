@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { PageNav } from "@/components/site/site-nav";
 import SiteFooter from "@/components/site/site-footer";
+import CustomCursor from "@/components/site/custom-cursor";
 import { isLocale } from "@/lib/content";
 export default async function LocaleLayout({
   children,
@@ -22,6 +23,7 @@ export default async function LocaleLayout({
         {children}
       </div>
       <SiteFooter locale={locale} />
+      <CustomCursor />
       {process.env.VERCEL ? <SpeedInsights /> : null}
     </>
   );
