@@ -8,6 +8,12 @@ import sharp from "sharp";
 
 const svg = await readFile("public/icon.svg", "utf8");
 const square = svg.replace(/ rx="[^"]*"/, "");
+// Android may cut the maskable icon to a circle 80% wide: the monogram shrinks
+// into it while the background stays full bleed.
+const maskable = square.replace(
+  /(<\/rect>|<rect[^>]*\/>)([\s\S]*)<\/svg>/,
+  '$1<g transform="translate(32 32) scale(.78) translate(-32 -32)">$2</g></svg>',
+);
 
 const png = (source, size, { opaque = false } = {}) => {
   const image = sharp(Buffer.from(source), {
@@ -50,7 +56,7 @@ await writeFile("public/icon-192.png", await png(svg, 192));
 await writeFile("public/icon-512.png", await png(svg, 512));
 await writeFile(
   "public/icon-maskable-512.png",
-  await png(square, 512, { opaque: true }),
+  await png(maskable, 512, { opaque: true }),
 );
 console.log(
   "Wrote favicon.ico, apple-touch-icon.png and three manifest icons.",
