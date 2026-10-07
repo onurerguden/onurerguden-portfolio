@@ -1,5 +1,11 @@
 import { test, expect, type Page } from "@playwright/test";
-import { forceSectionScenes, journeyCanvas, ci, reach } from "./helpers";
+import {
+  forceSectionScenes,
+  journeyCanvas,
+  ci,
+  reach,
+  touchStatic,
+} from "./helpers";
 import AxeBuilder from "@axe-core/playwright";
 const paths = [
   "",
@@ -120,7 +126,9 @@ test("reduced motion creates no WebGL on the home page but the tech stack balls"
 test("the home page never holds more than two WebGL contexts", async ({
   page,
   browserName,
+  isMobile,
 }) => {
+  test.skip(isMobile, touchStatic);
   test.skip(browserName === "webkit", "Headless WebKit lacks WebGL2.");
   // Walking the whole page with software WebGL (SwiftShader) takes a while.
   test.setTimeout(150000);
@@ -138,7 +146,9 @@ test("the home page never holds more than two WebGL contexts", async ({
 test("3D canvas is decorative, within budget and safely loses context", async ({
   page,
   browserName,
+  isMobile,
 }) => {
+  test.skip(isMobile, touchStatic);
   test.skip(
     browserName === "webkit",
     "Headless WebKit may not provide WebGL; fallback is audited separately.",
@@ -307,3 +317,45 @@ for (const locale of ["en", "tr"])
     const full = await figure.locator("figcaption a").getAttribute("href");
     expect((await request.get(full!)).status()).toBe(200);
   });
+
+test("phones and tablets read the static flow without the desk", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(!isMobile, "Covers touch devices; desktop keeps the 3D desk.");
+  const deskRequests: string[] = [];
+  page.on("request", (request) => {
+    if (/\.glb|draco/.test(request.url())) deskRequests.push(request.url());
+  });
+  await page.goto("/en");
+  await expect(page.locator("section[data-static]")).toHaveAttribute(
+    "data-static",
+    "true",
+  );
+  await page.waitForLoadState("networkidle");
+  expect(deskRequests).toEqual([]);
+  await expect(journeyCanvas(page)).toHaveCount(0);
+  await expect(page.locator("[data-desk-toggle]")).toHaveCount(0);
+  // The archive card's image and entries each keep their own space.
+  const archive = page.locator('article[aria-labelledby="project-archive"]');
+  await archive.scrollIntoViewIfNeeded();
+  const overlaps = await archive.evaluate((card) => {
+    const grid = card.querySelector("[data-rows]")!;
+    const boxes = [...grid.children].map((tile) =>
+      tile.getBoundingClientRect(),
+    );
+    return boxes.flatMap((a, i) =>
+      boxes
+        .slice(i + 1)
+        .filter(
+          (b) =>
+            a.left < b.right - 1 &&
+            b.left < a.right - 1 &&
+            a.top < b.bottom - 1 &&
+            b.top < a.bottom - 1,
+        )
+        .map(() => i),
+    );
+  });
+  expect(overlaps).toEqual([]);
+});

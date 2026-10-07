@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { go, story } from "./helpers";
+import { go, story, touchStatic } from "./helpers";
 
 const viewports = [
   { width: 1440, height: 900 },
@@ -16,7 +16,9 @@ const viewports = [
 
 test("the opening's scroll hint hangs below the chin at every size", async ({
   page,
+  isMobile,
 }) => {
+  test.skip(isMobile, touchStatic);
   await page.goto("/en");
   const hint = page.locator("[data-scroll-hint]");
   await expect(hint).toBeVisible();
@@ -88,7 +90,9 @@ test("desk controls stay out of sight until keyboard focus reaches them", async 
 test("the nav turns the desk's 3D off and on for this visit", async ({
   page,
   context,
+  isMobile,
 }) => {
+  test.skip(isMobile, touchStatic);
   await page.goto("/tr");
   const menuButton = page.getByRole("button", { name: "Bölümler" });
   await menuButton.click();

@@ -5,6 +5,9 @@ import { expect, type Page } from "@playwright/test";
  * the desk takes several times longer to load and draw than on a laptop.
  */
 export const ci = (ms: number) => (process.env.CI ? ms * 3 : ms);
+/** Phones and tablets read the static flow (`staticQuery`); desktop covers the 3D. */
+export const touchStatic =
+  "Touch devices read the static flow; desktop projects cover the 3D.";
 
 /**
  * Canvas locators scoped to one stage. The home page can hold the desk journey

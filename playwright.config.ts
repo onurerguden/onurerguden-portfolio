@@ -41,7 +41,10 @@ export default defineConfig({
     : [["list"], ["html", { open: "never" }]],
   use: { baseURL: `http://localhost:${port}`, trace: "retain-on-failure" },
   webServer: {
-    command: `npm run start -- --port ${port}`,
+    // The production build behind a proxy that keeps image optimization
+    // from hanging when a test closes its page mid-load (scripts/e2e).
+    command: `node scripts/e2e/server.mjs`,
+    env: { PORT: port },
     url: `http://localhost:${port}/en`,
     reuseExistingServer: !process.env.CI,
     timeout: 60000,

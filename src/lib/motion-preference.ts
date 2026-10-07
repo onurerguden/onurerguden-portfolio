@@ -6,6 +6,7 @@ import { useSyncExternalStore } from "react";
  * only freezes it on its current frame.
  */
 export type MotionState = {
+  /** No WebGL scenes: OS reduced motion, or a phone or tablet (see `staticQuery`). */
   reduced: boolean;
   paused: boolean;
   /** False during server rendering and hydration, so 3D never renders there. */
@@ -22,6 +23,15 @@ export const serverMotionState: MotionState = Object.freeze({
   paused: false,
   hydrated: false,
 });
+
+/**
+ * Phones and tablets read the same plain flow as reduced motion: the 3D desk
+ * and section scenes stuttered on them and their canvases got in the way of
+ * taps and scrolling (Onur's decision, 7 October). Only the technology balls,
+ * which drop under reduced motion too, still run there.
+ */
+export const staticQuery =
+  "(prefers-reduced-motion: reduce), (hover: none) and (pointer: coarse)";
 
 export const motionStorageKey = "portfolio:motion-paused";
 
@@ -79,7 +89,7 @@ function readPaused() {
 function start() {
   if (started || typeof window === "undefined") return;
   started = true;
-  const media = matchMedia("(prefers-reduced-motion: reduce)");
+  const media = matchMedia(staticQuery);
   emit({ type: "hydrate", reduced: media.matches, paused: readPaused() });
   media.addEventListener("change", (event) =>
     emit({ type: "reduced", value: event.matches }),
