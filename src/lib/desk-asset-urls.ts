@@ -15,7 +15,7 @@ export const deskModelSrc = `/models/desk/onur-desk.glb?v=${assets.revision}`;
  * NOTICE.txt). The folder carries three's version, so a new copy gets a new
  * URL and the files can be cached as immutable.
  */
-export const deskDecoderPath = "/decoders/draco/three-0.185.1/";
+export const deskDecoderPath = "/decoders/draco/three-0.186.1/";
 
 /** A rendered desk view or detail. */
 export const deskImage = (name: string) =>

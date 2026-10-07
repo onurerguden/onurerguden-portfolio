@@ -11,6 +11,18 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+    ignore:
+      # Types follow the Node major in package.json engines and CI, so they
+      # never describe APIs the runtime lacks. Raise both together.
+      - dependency-name: "@types/node"
+        versions: [">=25"]
+      # Blocked upstream: eslint-plugin-react, -import and -jsx-a11y (via
+      # eslint-config-next) do not run on ESLint 10, and typescript-eslint
+      # refuses TypeScript 7. Revisit when eslint-config-next supports them.
+      - dependency-name: eslint
+        update-types: ["version-update:semver-major"]
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
