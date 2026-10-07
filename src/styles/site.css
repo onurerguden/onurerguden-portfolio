@@ -110,6 +110,11 @@ button {
   outline: 3px solid var(--focus);
   outline-offset: 6px;
 }
+/* The custom cursor (custom-cursor.tsx) sets this only while it is showing. */
+html[data-custom-cursor],
+html[data-custom-cursor] * {
+  cursor: none !important;
+}
 ::selection {
   background: var(--accent);
   color: var(--accent-ink);
