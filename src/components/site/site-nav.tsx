@@ -43,7 +43,7 @@ function DeskToggle({ locale }: { locale: "en" | "tr" }) {
   const staticView = useStaticDesk();
   const { reduced } = useMotionPreference();
   const [announced, setAnnounced] = useState(false);
-  // Reduced motion never runs the 3D, so there is nothing to switch.
+  // Reduced motion and touch devices never run the 3D: nothing to switch.
   if (reduced) return null;
   return (
     <>

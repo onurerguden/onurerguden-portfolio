@@ -49,6 +49,7 @@ import xpStyles from "@/components/xp/xp.module.css";
 import styles from "./journey.module.css";
 import hintStyles from "./scroll-hint.module.css";
 import PortraitIdentity from "./portrait-identity";
+import { staticQuery } from "@/lib/motion-preference";
 import ScreenPanels from "./screen-panels";
 import { paintScreens } from "./paint-screens";
 import {
@@ -286,7 +287,7 @@ export default function DeskJourney({
     };
   }, [update]);
   useEffect(() => {
-    const motion = matchMedia("(prefers-reduced-motion: reduce)");
+    const motion = matchMedia(staticQuery);
     const refresh = () => {
       setStaticMode(motion.matches);
       setEnabled(!motion.matches);
