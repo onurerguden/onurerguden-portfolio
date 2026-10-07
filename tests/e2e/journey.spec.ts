@@ -7,6 +7,7 @@ import {
   story,
   within,
   ci,
+  touchStatic,
 } from "./helpers";
 
 test("opening portrait stays sharp until scroll and returns on reverse", async ({
@@ -103,7 +104,9 @@ for (const locale of ["en", "tr"])
 test("scroll separates reading from camera travel, reverses, focuses links and exits", async ({
   page,
   browserName,
+  isMobile,
 }) => {
+  test.skip(isMobile, touchStatic);
   test.skip(
     browserName === "webkit",
     "Headless WebKit has no reliable WebGL2; static paths are covered.",
@@ -227,7 +230,9 @@ test("without JavaScript the complete story and continuation are present", async
 test("late loading keeps the current scroll position; context loss restores normal flow", async ({
   page,
   browserName,
+  isMobile,
 }) => {
+  test.skip(isMobile, touchStatic);
   test.skip(browserName === "webkit", "Headless WebKit lacks reliable WebGL2.");
   let release: () => void = () => {};
   const gate = new Promise<void>((resolve) => {
@@ -278,7 +283,9 @@ test("late loading keeps the current scroll position; context loss restores norm
 test("narrow and zoom-equivalent viewports preserve screen links and readable type", async ({
   page,
   browserName,
+  isMobile,
 }) => {
+  test.skip(isMobile, touchStatic);
   test.skip(browserName === "webkit", "Headless WebKit lacks reliable WebGL2.");
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/en/lab/desk/journey");
@@ -327,7 +334,9 @@ test("narrow and zoom-equivalent viewports preserve screen links and readable ty
 test("portrait screen uses scene depth instead of a CSS cutout", async ({
   page,
   browserName,
+  isMobile,
 }) => {
+  test.skip(isMobile, touchStatic);
   test.skip(browserName === "webkit", "Headless WebKit lacks reliable WebGL2.");
   await page.setViewportSize({ width: 2400, height: 1100 });
   await page.goto("/tr/lab/desk/journey");
@@ -574,7 +583,9 @@ test("changing the motion preference restores the journey without reloading", as
 test("the monitor reads What I do and Experience the same both ways", async ({
   page,
   browserName,
+  isMobile,
 }) => {
+  test.skip(isMobile, touchStatic);
   test.skip(browserName === "webkit", "Headless WebKit lacks reliable WebGL2.");
   await page.goto("/en/lab/desk/journey");
   await expect(page.locator("[data-ready]")).toHaveAttribute(
@@ -650,7 +661,9 @@ for (const id of ["services", "experience"])
   test(`#${id} opens the desk on that chapter`, async ({
     page,
     browserName,
+    isMobile,
   }) => {
+    test.skip(isMobile, touchStatic);
     test.skip(
       browserName === "webkit",
       "Headless WebKit lacks reliable WebGL2.",

@@ -1,11 +1,18 @@
 import { test, expect } from "@playwright/test";
-import { forceSectionScenes, stageCanvas, ci, reach } from "./helpers";
+import {
+  forceSectionScenes,
+  stageCanvas,
+  ci,
+  reach,
+  touchStatic,
+} from "./helpers";
 
 test.describe("About objects", () => {
   test.skip(
     ({ browserName }) => browserName === "webkit",
     "Headless WebKit lacks WebGL2; the static shapes are covered by site tests.",
   );
+  test.skip(({ isMobile }) => isMobile, touchStatic);
   test.setTimeout(120000);
   test.beforeEach(({ page }) => forceSectionScenes(page));
 

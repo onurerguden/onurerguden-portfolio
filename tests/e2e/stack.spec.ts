@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { go, story, ci } from "./helpers";
+import { go, story, ci, touchStatic } from "./helpers";
 
 async function hydrated(page: Page) {
   // The motion store marks <html> once the page has hydrated.
@@ -11,7 +11,9 @@ async function hydrated(page: Page) {
 test("Bliss parts as the camera reaches the MacBook and rests at the desktop", async ({
   page,
   browserName,
+  isMobile,
 }) => {
+  test.skip(isMobile, touchStatic);
   test.skip(browserName === "webkit", "Headless WebKit lacks reliable WebGL2.");
   await page.goto("/en/lab/desk/journey");
   await expect(page.locator("[data-ready]")).toHaveAttribute(
