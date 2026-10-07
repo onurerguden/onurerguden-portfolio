@@ -195,6 +195,9 @@
 }
 .figure {
   display: grid;
+  /* A definite track, so the image's 100% height fits the frame instead of
+     overflowing it where the frame takes its height from aspect-ratio. */
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
   place-items: center;
   margin: 0;
   padding: 14px;
@@ -369,7 +372,8 @@
     justify-content: flex-start;
   }
   .media,
-  .archive {
+  .archive,
+  .archive[data-rows="4"] {
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto;
     height: auto;
