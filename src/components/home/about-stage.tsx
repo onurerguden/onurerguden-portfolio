@@ -28,18 +28,30 @@ export default function AboutStage({
 }) {
   const stage = useRef<HTMLDivElement>(null);
   const section = useRef<HTMLElement | null>(null);
+  const logoList = useRef(logos);
+  useEffect(() => {
+    logoList.current = logos;
+  }, [logos]);
   useEffect(() => {
     section.current = stage.current?.closest("section") ?? null;
   }, []);
   useEffect(() => {
     // Once the desk reaches the MacBook, the About scene is next: fetch its
-    // code at idle so it is ready before the page arrives.
+    // code so it is ready before the page arrives.
     let idle = 0;
     const warm = () => {
       const phase = laptopPhase.get();
       if (phase !== "rise" && phase !== "gone") return;
       unsubscribe();
-      idle = window.setTimeout(() => void loadScene(), 200);
+      // Then build its geometry a part at a time, so mounting it has
+      // nothing left to build.
+      idle = window.setTimeout(
+        () =>
+          void loadScene().then((scene) =>
+            scene.prepareAbout(logoList.current),
+          ),
+        200,
+      );
     };
     const unsubscribe = laptopPhase.subscribe(warm);
     warm();

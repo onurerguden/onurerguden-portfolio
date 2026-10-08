@@ -18,6 +18,7 @@ import {
   SRGBColorSpace,
   TubeGeometry,
   Vector3,
+  type BufferGeometry,
   type Object3D,
 } from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
@@ -423,13 +424,20 @@ export function keycaps() {
 }
 
 /** A brand mark from simple-icons, extruded into a puffy clay badge. */
-export function useLogoGeometry(path: string) {
-  return useMemo(() => {
+/**
+ * A logo extruded from its icon path, built once per visit: extruding with a
+ * bevel takes a while for detailed paths, so a remounted scene (scrolling
+ * away and back) reuses it.
+ */
+const logos = new Map<string, BufferGeometry>();
+export function logoGeometry(path: string) {
+  let geometry = logos.get(path);
+  if (!geometry) {
     const svg = new SVGLoader().parse(
       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="${path}"/></svg>`,
     );
     const shapes = svg.paths.flatMap((item) => SVGLoader.createShapes(item));
-    const geometry = new ExtrudeGeometry(shapes, {
+    geometry = new ExtrudeGeometry(shapes, {
       depth: 2.2,
       bevelEnabled: true,
       bevelThickness: 0.9,
@@ -439,8 +447,12 @@ export function useLogoGeometry(path: string) {
     });
     geometry.center();
     geometry.scale(1 / 24, 1 / 24, 1 / 24);
-    return geometry;
-  }, [path]);
+    logos.set(path, geometry);
+  }
+  return geometry;
+}
+export function useLogoGeometry(path: string) {
+  return useMemo(() => logoGeometry(path), [path]);
 }
 
 /**
