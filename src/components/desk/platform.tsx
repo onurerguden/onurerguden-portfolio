@@ -1,9 +1,9 @@
 "use client";
 
-import { MeshReflectorMaterial, useTexture } from "@react-three/drei";
-import { useThree } from "@react-three/fiber";
+import { MeshReflectorMaterial } from "@react-three/drei";
+import { useLoader, useThree } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
-import { RepeatWrapping, SRGBColorSpace } from "three";
+import { RepeatWrapping, SRGBColorSpace, TextureLoader } from "three";
 
 const PLATFORM_TOP = -0.694;
 const PLATFORM_THICKNESS = 0.06;
@@ -14,7 +14,7 @@ export const PLATFORM_RADIUS_Z = 0.58;
 
 export default function DeskPlatform() {
   const mobile = useThree((state) => state.size.width < 700);
-  const source = useTexture("/images/desk/room-marble.svg");
+  const source = useLoader(TextureLoader, "/images/desk/room-marble.svg");
   const marble = useMemo(() => {
     const map = source.clone();
     map.wrapS = map.wrapT = RepeatWrapping;
