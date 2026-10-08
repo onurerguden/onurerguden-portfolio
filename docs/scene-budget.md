@@ -59,3 +59,14 @@ One instanced sphere mesh draws every ball, with logos sampled from a texture at
 - **Loading.** The model (497 KB) and the Draco decoder are preloaded alongside the scene chunk and cached as immutable (`?v=` revisions; the decoder lives in a folder named for its three release). Shaders compile before the desk and About report ready.
 - **About.** Geometry is built once per visit; one instanced mesh draws every contact shadow (one draw call, no shadow map); the scene's code is fetched while the desk shows the MacBook. Draw calls stay within the existing 32 budget.
 - **First load** (`/en`, reduced motion): 176 KB script (from 220 KB), 20 KB CSS, 48 KB fonts, 152 KB images; `motion` is no longer a dependency.
+
+## October 8 performance series
+
+Measured with `npm run perf` (`docs/qa/perf/`): headless Chromium on an M1 Pro GPU, 1440 × 900 at 2x, wheel scrolling from 0.7 s, medians of three runs. "First visit" changes every shader's source so no GPU cache helps.
+
+|                         | Longest frame, first visit | Returning | 4× slower CPU | Desk ready (first / returning) |
+| ----------------------- | -------------------------- | --------- | ------------- | ------------------------------ |
+| Baseline (main 6970b7e) | 3,063 ms                   | 180 ms    | 344 ms        | 4.4 s / 1.2 s                  |
+| Desk warm-up            | 898 ms                     | 148 ms    | 341 ms        | 3.5 s / 1.2 s                  |
+
+The warm-up's remaining first-visit frame is the reflective floor: its blur pass and one reflection variant compile inside the hidden frame.
