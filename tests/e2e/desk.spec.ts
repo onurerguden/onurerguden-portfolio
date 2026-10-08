@@ -63,6 +63,12 @@ test("desk camera visits four stops, respects budgets and stops idle rendering",
       timeout: ci(20000),
     })
     .toBeGreaterThan(1000);
+  // The warm-up draws one hidden frame first; the review is ready after it.
+  await expect(page.locator("[data-desk-stage] [data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+    { timeout: ci(30000) },
+  );
   await expect(canvas).toHaveAttribute("aria-hidden", "true");
   await expect(canvas).toHaveAttribute("tabindex", "-1");
   for (let i = 0; i < 4; i++) {
@@ -118,6 +124,12 @@ test("reduced motion snaps the camera and context loss returns to the current po
       timeout: ci(20000),
     })
     .toBeGreaterThan(1000);
+  // The warm-up draws one hidden frame first; the review is ready after it.
+  await expect(page.locator("[data-desk-stage] [data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+    { timeout: ci(30000) },
+  );
   const slider = page.getByRole("slider");
   await slider.focus();
   await page.keyboard.press("End");

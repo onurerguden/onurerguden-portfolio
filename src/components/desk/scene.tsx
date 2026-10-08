@@ -59,6 +59,7 @@ function CameraJourney({
   progress,
   reduced,
   active,
+  revealed,
   onFailure,
   panels,
 }: Props & { panels: RefObject<HTMLDivElement | null> }) {
@@ -93,11 +94,14 @@ function CameraJourney({
     [],
   );
 
+  // Frames only once the model is warm (the Canvas's prop says the same, so
+  // a Canvas re-render cannot restart them early).
+  const running = active && revealed;
   useEffect(() => {
-    setFrameloop(active ? "demand" : "never");
+    setFrameloop(running ? "demand" : "never");
     gl.domElement.setAttribute("data-active", String(active));
-    if (active) invalidate();
-  }, [active, setFrameloop, invalidate, gl]);
+    if (running) invalidate();
+  }, [active, running, setFrameloop, invalidate, gl]);
   useEffect(() => {
     transition.current = { from: current.current, started: performance.now() };
     invalidate();
@@ -201,13 +205,19 @@ export default function DeskScene(props: Props) {
   const panels = useRef<HTMLDivElement>(null);
   const controls = useDeskInteractions(props.active, props.reduced);
   return (
-    <div className={styles.canvas} style={{ opacity: props.revealed ? 1 : 0 }}>
+    <div
+      className={styles.canvas}
+      style={{ opacity: props.revealed ? 1 : 0 }}
+      data-ready={props.revealed}
+    >
       <Canvas
         // PCF, which three now renders for PCFSoft anyway; naming it keeps
         // R3F from marking the cached shadow maps dirty on every render.
         shadows="percentage"
         dpr={[1, 1.5]}
-        frameloop="demand"
+        // Nothing draws until the model is warm (see warm-up.ts), as on the
+        // home page; the warm-up draws its own hidden frame.
+        frameloop={props.revealed && props.active ? "demand" : "never"}
         camera={{ position: [0.12, 0.69, 1.48], fov: 43, near: 0.01, far: 12 }}
         gl={{ antialias: true, alpha: false, powerPreference: "low-power" }}
       >
