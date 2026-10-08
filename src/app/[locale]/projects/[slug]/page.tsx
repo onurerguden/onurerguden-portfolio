@@ -8,10 +8,23 @@ import CaseToc from "@/components/case/case-toc";
 import OtherProjects from "@/components/case/other-projects";
 import ReportWorkflow from "@/components/case/report-workflow";
 import styles from "@/components/case/case.module.css";
-import { caseSections, getProject, isLocale } from "@/lib/content";
+import { caseSections, getProject, getProjects, isLocale } from "@/lib/content";
 import { pageMetadata } from "@/lib/site";
 import { caseStudyStructuredData } from "@/lib/structured-data";
 import JsonLd from "@/components/json-ld";
+
+// Every case study is built ahead; any other slug is a 404.
+export const dynamicParams = false;
+export function generateStaticParams({
+  params,
+}: {
+  params: { locale: string };
+}) {
+  if (!isLocale(params.locale)) return [];
+  return getProjects(params.locale)
+    .filter((project) => project.featured && project.body)
+    .map((project) => ({ slug: project.slug }));
+}
 
 export async function generateMetadata({
   params,
