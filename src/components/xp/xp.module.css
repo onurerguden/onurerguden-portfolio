@@ -15,9 +15,17 @@
   background: var(--bg);
   color: var(--text);
 }
+/*
+ * Set per frame on the Explorer alone (paint-screens.ts). Not inherited, so
+ * a change restyles the window, not every row of its list.
+ */
+@property --rise {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
 .desktop {
   --s: 0;
-  --rise: 0;
   position: relative;
   height: 100%;
   overflow: clip;

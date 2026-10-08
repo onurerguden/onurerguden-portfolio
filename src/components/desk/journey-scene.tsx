@@ -20,6 +20,7 @@ import { createScreenProjection, projectScreen } from "@/lib/desk-projection";
 import { cameraAnchors } from "@/lib/desk-story/anchors";
 import {
   screenIds,
+  screenPixelWidths,
   screenStops,
   screens,
   type CameraStop,
@@ -27,7 +28,7 @@ import {
 import { createFrameBudget } from "@/lib/desk-story/frame-budget";
 import { storyAt, type StoryState } from "@/lib/desk-story/timeline";
 import type { Signal } from "@/lib/desk-story/signal";
-import type { PanelRefs } from "./screen-panels";
+import { shadeOf, type PanelRefs } from "./screen-panels";
 import type { StoryMeasure } from "./use-story-layout";
 export type JourneySceneProps = {
   poster?: boolean;
@@ -325,7 +326,9 @@ function Driver({
       if (layout?.dive && step.dive[index] > 0) return;
       // A diving screen's panel is laid out for the whole view; the desk
       // shows its top, cropped to the screen's shape.
-      const panelWidth = layout?.width ?? panel.offsetWidth;
+      // From the layout, not offsetWidth: reading layout here, after this
+      // frame's style writes, would force a synchronous reflow every frame.
+      const panelWidth = layout?.width ?? screenPixelWidths[index];
       const crop = layout?.dive
         ? Math.min(
             panelWidth,
@@ -363,9 +366,8 @@ function Driver({
         step.from === "room" || step.from === screenStops[index] ? 1 : 0;
       const toEmphasis =
         step.to === "room" || step.to === screenStops[index] ? 1 : 0;
-      panel.style.setProperty(
-        "--screen-shade",
-        String(0.35 * (1 - fromEmphasis - (toEmphasis - fromEmphasis) * t)),
+      shadeOf(panel).style.opacity = String(
+        0.35 * (1 - fromEmphasis - (toEmphasis - fromEmphasis) * t),
       );
     });
 

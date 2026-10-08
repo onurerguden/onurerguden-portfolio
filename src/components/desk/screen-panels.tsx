@@ -12,6 +12,13 @@ import PortraitIdentity from "./portrait-identity";
 export type PanelRefs = RefObject<(HTMLDivElement | null)[]>;
 
 /**
+ * The shade over a panel's content. Its own opacity changes every moving
+ * frame; a custom property on the panel would restyle all of the content.
+ */
+export const shadeOf = (panel: HTMLElement) =>
+  panel.firstElementChild!.lastElementChild as HTMLElement;
+
+/**
  * The HTML drawn onto the desk's three displays. The scene's Driver projects
  * each panel onto its screen with `matrix3d`; until it does, panels stay
  * hidden but laid out, so the story can be measured before the 3D loads.
@@ -54,6 +61,8 @@ export default function ScreenPanels({
               {id === "PortraitScreen" ? monitor : null}
               {id === "MacBookScreen" ? laptop : null}
             </div>
+            {/* Dims a screen the camera is not on; see shadeOf. */}
+            <span className={styles.screenShade} aria-hidden="true" />
           </div>
         </div>
       ))}

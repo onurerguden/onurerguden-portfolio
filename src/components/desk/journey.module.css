@@ -146,12 +146,11 @@
   color: #182027;
 }
 
-.screenSurface::after {
-  content: "";
+.screenShade {
   position: absolute;
   inset: 0;
   background: #000;
-  opacity: var(--screen-shade, 0);
+  opacity: 0;
   pointer-events: none;
 }
 
@@ -304,14 +303,13 @@
 .journey[data-journey-curtain="on"] .stage {
   pointer-events: auto;
 }
-/* The desk dims as it is drawn aside. */
-.journey[data-journey-curtain="on"] .stage::after {
-  content: "";
+/* The desk dims as it is drawn aside (paintCurtain sets the opacity). */
+.curtainDim {
   position: absolute;
   inset: 0;
   z-index: 3;
   background: #050912;
-  opacity: var(--curtain-dim, 0);
+  opacity: 0;
   pointer-events: none;
 }
 /*

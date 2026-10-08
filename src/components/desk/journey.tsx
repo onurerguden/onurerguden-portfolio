@@ -105,19 +105,20 @@ function phaseAt(measure: StoryMeasure, story: StoryState): LaptopPhase {
 /**
  * Draws the paper curtain: the stage clipped by `side`% from each side, the
  * desk scaled back and dimmed by `exit`, and the paper edges placed on the
- * clip. Inline styles on a handful of elements, never a document-wide
- * custom property, so a scroll frame restyles only them.
+ * clip. Inline styles on a handful of elements, never a custom property
+ * on an ancestor, so a scroll frame restyles only them.
  */
 function paintCurtain(
   stage: HTMLElement | null,
   scene: HTMLElement | null,
   edges: (HTMLElement | null)[],
+  dim: HTMLElement | null,
   side: number,
   exit: number,
 ) {
   if (!stage) return;
   stage.style.clipPath = side > 0 ? `inset(0 ${side}% 0 ${side}%)` : "";
-  stage.style.setProperty("--curtain-dim", String(0.55 * exit));
+  if (dim) dim.style.opacity = String(0.55 * exit);
   if (scene)
     scene.style.transform = exit > 0 ? `scale(${1 - 0.06 * exit})` : "";
   edges.forEach((edge, i) => {
@@ -146,6 +147,7 @@ export default function DeskJourney({
   const panels = useRef<(HTMLDivElement | null)[]>([]);
   // The paper curtain's two edges (left, right).
   const edges = useRef<(HTMLSpanElement | null)[]>([]);
+  const dim = useRef<HTMLSpanElement>(null);
   const nav = useRef<HTMLElement>(null);
   const hideNavOnScroll = useRef(false);
   // The static section to land on when the desk gives way to the page.
@@ -204,7 +206,11 @@ export default function DeskJourney({
     const openingProgress = Math.min(1, d / 0.15);
     const openingOpacity =
       1 - openingProgress * openingProgress * (3 - 2 * openingProgress);
-    node.style.setProperty("--opening-opacity", String(openingOpacity));
+    // On the poster itself: on the section, every change would restyle the
+    // whole desk, screens and all.
+    stage.current
+      ?.querySelector<HTMLElement>("[data-opening-poster]")
+      ?.style.setProperty("--opening-opacity", String(openingOpacity));
     node.dataset.travelled = String(d > 0.15);
     // Over the desk the bar gets out of the way; below it, the scroll
     // direction decides (see the docking listener).
@@ -233,6 +239,7 @@ export default function DeskJourney({
       stage.current,
       wrapper.current,
       edges.current,
+      dim.current,
       side,
       state.exit,
     );
@@ -564,7 +571,14 @@ export default function DeskJourney({
       currentSection.set(null);
       laptopPhase.set("away");
       curtainProgress.set(1);
-      paintCurtain(stage.current, wrapper.current, edges.current, 0, 0);
+      paintCurtain(
+        stage.current,
+        wrapper.current,
+        edges.current,
+        dim.current,
+        0,
+        0,
+      );
     }
   }, [enhanced]);
   useEffect(() => {
@@ -856,6 +870,9 @@ export default function DeskJourney({
                 {en ? "Turn 3D off" : "3D’yi kapat"}
               </button>
             </div>
+          ) : null}
+          {enhanced ? (
+            <span ref={dim} className={styles.curtainDim} aria-hidden="true" />
           ) : null}
         </div>
         {measuredReady

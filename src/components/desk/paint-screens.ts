@@ -1,5 +1,6 @@
 import { closeupSize, screens } from "@/lib/desk-story/camera";
 import { clamp, type StoryState } from "@/lib/desk-story/timeline";
+import { shadeOf } from "./screen-panels";
 import type { ScreenLayout, StoryMeasure } from "./use-story-layout";
 
 const portraitIndex = 0;
@@ -44,8 +45,16 @@ export function paintScreens(
     // Bliss parts as the camera arrives (-1 to 0) and leaves (0 to 1).
     const parallax =
       story.arrival[macbookIndex] - 1 + story.departure[macbookIndex];
-    desktop.style.setProperty("--s", parallax.toFixed(4));
-    desktop.style.setProperty("--rise", story.rise[macbookIndex].toFixed(4));
+    // Each value goes on the element that uses it; on the desktop it would
+    // restyle everything inside it, the Explorer's list included, every frame.
+    const shift = parallax.toFixed(4);
+    for (const layer of desktop.querySelectorAll<HTMLElement>(
+      "[data-bliss-layer]",
+    ))
+      layer.style.setProperty("--s", shift);
+    desktop
+      .querySelector<HTMLElement>("[data-explorer]")
+      ?.style.setProperty("--rise", story.rise[macbookIndex].toFixed(4));
     const offset =
       story.reading[macbookIndex] * measure.screens.macbook.overflow;
     const list = desktop.querySelector<HTMLElement>("[data-explorer-list]");
@@ -99,7 +108,7 @@ function takeOver(
   const y = box.y * (1 - dive);
   panel.style.visibility = "visible";
   panel.style.opacity = "";
-  panel.style.setProperty("--screen-shade", "0");
+  shadeOf(panel).style.opacity = "0";
   // The Driver does not touch a panel that is taking over.
   panel.style.pointerEvents = dive >= 1 ? "auto" : "none";
   panel.style.transform = `matrix(${scale}, 0, 0, ${scale}, ${x}, ${y})`;

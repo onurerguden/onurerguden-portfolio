@@ -28,6 +28,7 @@ function Layer({ layer }: { layer: BlissLayer }) {
     <picture
       className={`${styles.layer} ${styles[layer]}`}
       style={layerBox(layer) as CSSProperties}
+      data-bliss-layer={layer}
     >
       <source
         type="image/avif"
