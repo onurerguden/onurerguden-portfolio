@@ -11,7 +11,7 @@ export type FrameBudget = {
 
 export function createFrameBudget({
   samples = 45,
-  slowMs = 26,
+  slowMs = 20,
   gapMs = 120,
 }: { samples?: number; slowMs?: number; gapMs?: number } = {}): FrameBudget {
   const intervals: number[] = [];

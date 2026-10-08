@@ -174,6 +174,7 @@ function Objects({
   const gl = useThree((state) => state.gl);
   const scene = useThree((state) => state.scene);
   const advance = useThree((state) => state.advance);
+  const invalidate = useThree((state) => state.invalidate);
   // The layout follows the browser's view, not the section's shape.
   const [narrow, setNarrow] = useState(isNarrow);
   // Poster capture holds every object at its rest pose (see posterKey).
@@ -190,12 +191,16 @@ function Objects({
   // The section's place, read on scroll and resize rather than every frame.
   const placement = useRef({ top: 0, height: 1 });
   const readiness = useRef<"compiling" | "compiled" | "ready">("compiling");
+  // What the last frame was drawn for; see the end of the frame below.
+  const drawn = useRef({ progress: NaN, spread: NaN });
 
   useEffect(() => {
     const measure = () => {
       setNarrow(isNarrow());
       const rect = sectionRef.current?.getBoundingClientRect();
       if (rect) placement.current = { top: rect.top, height: rect.height };
+      // Scroll moves the objects; draw now rather than on the next tick.
+      invalidate();
     };
     measure();
     window.addEventListener("scroll", measure, { passive: true });
@@ -204,7 +209,7 @@ function Objects({
       window.removeEventListener("scroll", measure);
       window.removeEventListener("resize", measure);
     };
-  }, [sectionRef]);
+  }, [sectionRef, invalidate]);
 
   useEffect(() => {
     // Compile every shader before the first frame, so the canvas never fades
@@ -306,7 +311,23 @@ function Objects({
       shadow = placeShadow(built.shadows, shadow, group, slot);
     }
     showShadows(built.shadows, shadow);
+    // The stage ticks at 30 fps, enough for the idle sway (a few pixels a
+    // second). Scrolling, the curtain, the pointer and a click's turn move
+    // things faster, so while any of them is under way every frame is drawn.
+    let lively =
+      hit !== null ||
+      Math.abs(progress - drawn.current.progress) > 1e-4 ||
+      Math.abs(spread - drawn.current.spread) > 1e-4;
+    for (const body of bodies.values())
+      if (
+        body.velocity.lengthSq() > 1e-6 ||
+        body.push.lengthSq() > 1e-6 ||
+        body.spin.lengthSq() > 1e-4
+      )
+        lively = true;
+    drawn.current = { progress, spread };
     kickRef.current = null;
+    if (lively) invalidate();
   });
 
   // Ready once the first compiled frame has been drawn, not before.
@@ -480,7 +501,7 @@ export default function AboutScene({
       active={active}
       paused={paused}
       onFailure={onFailure}
-      fps={60}
+      fps={30}
       camera={{ position: [0, 0, 8], fov: 30, near: 0.1, far: 30 }}
     >
       <DeskLighting />

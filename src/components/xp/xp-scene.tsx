@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import {
   Color,
@@ -33,6 +33,8 @@ function Balls({
   const size = useThree((state) => state.size);
   const invalidate = useThree((state) => state.invalidate);
   const gl = useThree((state) => state.gl);
+  const scene = useThree((state) => state.scene);
+  const camera = useThree((state) => state.camera);
   const narrow = size.width < 700;
   const radius = Math.max(22, Math.min(44, size.width * 0.028));
   const radii = useMemo(
@@ -155,12 +157,31 @@ function Balls({
     [],
   );
 
+  // The clearcoat shader is compiled before the first ball is drawn, in the
+  // background where the browser can; compiled on first draw, it would
+  // freeze the drop's opening frames. The balls wait above the screen.
+  const [compiled, setCompiled] = useState(false);
   useEffect(() => {
+    let cancelled = false;
+    const done = () => {
+      if (cancelled) return;
+      setCompiled(true);
+      invalidate();
+    };
+    gl.compileAsync(scene, camera).then(done, done);
+    return () => {
+      cancelled = true;
+    };
+  }, [gl, scene, camera, material, invalidate]);
+
+  useEffect(() => {
+    if (!compiled) return;
     const frame = requestAnimationFrame(() => onReady());
     return () => cancelAnimationFrame(frame);
-  }, [onReady]);
+  }, [compiled, onReady]);
 
   useFrame((_, delta) => {
+    if (!compiled) return;
     const world = sim.world;
     const mesh = meshRef.current;
     if (!world || !mesh || world.count !== items.length) return;
@@ -221,6 +242,7 @@ function Balls({
       ref={meshRef}
       args={[geometry, material, items.length]}
       frustumCulled={false}
+      visible={compiled}
     />
   );
 }

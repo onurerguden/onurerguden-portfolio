@@ -32,7 +32,7 @@ try {
     // The Explorer has risen and its list is read to the end.
     await page.waitForFunction(() =>
       document
-        .querySelector("[data-xp]")
+        .querySelector("[data-explorer]")
         ?.getAttribute("style")
         ?.includes("--rise: 1"),
     );
