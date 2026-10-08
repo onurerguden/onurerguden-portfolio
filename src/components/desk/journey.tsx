@@ -225,6 +225,9 @@ export default function DeskJourney({
     const state = storyAt(measure.timeline, d);
     paintScreens(measure, state, panels.current);
     laptopPhase.set(phaseAt(measure, state));
+    // The MacBook's Bliss layers download once the visitor moves (or the
+    // desk is ready), not with the page; the opening covers them until then.
+    if (d > 0.02) node.dataset.bliss = "load";
     const dive = Math.max(...state.dive);
     // The paper curtain: during the final hold the desk's sides draw back a
     // little to show the page beneath, then the exit clips it from both
