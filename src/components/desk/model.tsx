@@ -1,12 +1,20 @@
 "use client";
 import { useEffect, useMemo } from "react";
-import { useThree } from "@react-three/fiber";
-import { useGLTF } from "@react-three/drei";
+import { useLoader, useThree } from "@react-three/fiber";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { Mesh } from "three";
 import { deskModelSrc, deskDecoderPath } from "@/lib/desk-asset-urls";
 import InteractionScene from "./interaction-scene";
 import { warmUp } from "@/components/three/warm-up";
 import type { DeskInteractions } from "./interactions";
+
+// One decoder for every load: its workers outlive a released scene.
+let draco: DRACOLoader | null = null;
+function withDraco(loader: GLTFLoader) {
+  draco ??= new DRACOLoader().setDecoderPath(deskDecoderPath);
+  loader.setDRACOLoader(draco);
+}
 
 /**
  * The desk model with its interactive objects. Shared by the journey and the
@@ -28,7 +36,7 @@ export function Model({
   const gl = useThree((state) => state.gl);
   const camera = useThree((state) => state.camera);
   const root = useThree((state) => state.scene);
-  const { scene } = useGLTF(deskModelSrc, deskDecoderPath);
+  const { scene } = useLoader(GLTFLoader, deskModelSrc, withDraco);
   // useGLTF caches the source. Each mounted view owns transforms and materials.
   const model = useMemo(() => {
     const clone = scene.clone(true);

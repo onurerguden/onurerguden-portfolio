@@ -109,6 +109,17 @@
   left: 0;
   width: 100%;
 }
+/* Lazy images download only once displayed: on the desk the MacBook sits
+   inside the first view from the start, so its Bliss layers would load with
+   the page, competing with everything the opening needs. They are
+   displayed once the desk is ready or the visitor moves, while the opening
+   portrait still covers the screens (journey.tsx). */
+:global(
+    [data-enhanced="true"]:not([data-ready="true"]):not([data-bliss="load"])
+  )
+  .layer {
+  display: none;
+}
 .layer img,
 .original img {
   display: block;

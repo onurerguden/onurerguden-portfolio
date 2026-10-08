@@ -235,6 +235,32 @@ test("the desk draws nothing until its shaders are ready", async ({
     .toBeGreaterThan(0);
 });
 
+test("the MacBook's Bliss layers wait for the visitor to move", async ({
+  page,
+  browserName,
+  isMobile,
+}) => {
+  test.skip(isMobile, touchStatic);
+  test.skip(browserName === "webkit", "Headless WebKit lacks reliable WebGL2.");
+  const bliss: string[] = [];
+  page.on("request", (request) => {
+    if (request.url().includes("/images/bliss/")) bliss.push(request.url());
+  });
+  await page.goto("/en");
+  await expect(page.locator("[data-enhanced]")).toHaveAttribute(
+    "data-enhanced",
+    "true",
+    { timeout: ci(20000) },
+  );
+  await page.waitForTimeout(1000);
+  expect(bliss.filter((url) => !url.includes("original"))).toEqual([]);
+  await page.mouse.move(700, 400);
+  await page.mouse.wheel(0, 400);
+  await expect
+    .poll(() => bliss.length, { timeout: ci(10000) })
+    .toBeGreaterThan(0);
+});
+
 test("failed model collapses the pinned journey and preserves content", async ({
   page,
 }) => {
