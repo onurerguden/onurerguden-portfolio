@@ -12,6 +12,7 @@ import {
   topLanguages,
 } from "@/lib/activity-view";
 import { useMinute } from "@/lib/use-minute";
+import ActivitySkeleton from "./activity-skeleton";
 import ActivityUnavailable from "./activity-unavailable";
 import ContributionGrid from "./contribution-grid";
 import styles from "./activity.module.css";
@@ -48,21 +49,21 @@ function formatsFor(tag: string) {
 const formats = { en: formatsFor("en-GB"), tr: formatsFor("tr-TR") };
 
 export default function ActivityLive({
-  initial,
-  revision: initialRevision,
   locale,
   profile,
 }: {
-  initial: ActivitySnapshot | null;
-  revision: number;
   locale: "en" | "tr";
   profile: string;
 }) {
   const en = locale === "en";
-  const [snapshot, setSnapshot] = useState(initial);
+  const [snapshot, setSnapshot] = useState<ActivitySnapshot | null>(null);
+  // Until the first answer the frame shows its skeleton; a failed first
+  // answer says the data is unavailable.
+  const [failed, setFailed] = useState(false);
+  const section = useRef<HTMLDivElement>(null);
   const [fresh, setFresh] = useState(0);
-  const latest = useRef(initial);
-  const revision = useRef(initialRevision);
+  const latest = useRef<ActivitySnapshot | null>(null);
+  const revision = useRef(0);
   const [tab, setTab] = useState("rolling");
   const [seen, setSeen] = useState<number | null>(null);
   const now = useMinute();
@@ -124,6 +125,7 @@ export default function ActivityLive({
           accept(next, response.headers.get("etag"));
           delay = POLL;
         } else {
+          if (!latest.current && response.status !== 304) setFailed(true);
           // An unread body keeps the request open in Chromium, holding its
           // connection; the 304 and 503 bodies are empty or tiny.
           if (!response.bodyUsed) await response.text();
@@ -131,6 +133,7 @@ export default function ActivityLive({
         }
       } catch {
         if (controller.signal.aborted) return;
+        if (!latest.current) setFailed(true);
         delay = backoff(delay);
       } finally {
         running = false;
@@ -139,9 +142,32 @@ export default function ActivityLive({
       schedule();
     };
 
-    schedule();
-    document.addEventListener("visibilitychange", schedule);
+    // The first request waits until the section is near or the browser is
+    // idle: while the page loads it has better things to do than fetch and
+    // draw numbers far below.
+    let started = false;
+    const start = () => {
+      if (started || controller.signal.aborted) return;
+      started = true;
+      near.disconnect();
+      schedule();
+      document.addEventListener("visibilitychange", schedule);
+    };
+    const near = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) start();
+      },
+      { rootMargin: "150% 0px" },
+    );
+    if (section.current) near.observe(section.current);
+    const idle =
+      typeof requestIdleCallback === "function"
+        ? requestIdleCallback(start, { timeout: 4000 })
+        : window.setTimeout(start, 2000);
     return () => {
+      near.disconnect();
+      if (typeof cancelIdleCallback === "function") cancelIdleCallback(idle);
+      window.clearTimeout(idle);
       controller.abort();
       window.clearTimeout(timer);
       document.removeEventListener("visibilitychange", schedule);
@@ -193,7 +219,15 @@ export default function ActivityLive({
   const format = formats[locale];
   const number = format.number;
   if (!snapshot)
-    return <ActivityUnavailable locale={locale} profile={profile} />;
+    return (
+      <div ref={section}>
+        {failed ? (
+          <ActivityUnavailable locale={locale} profile={profile} />
+        ) : (
+          <ActivitySkeleton locale={locale} profile={profile} />
+        )}
+      </div>
+    );
 
   const years = [...snapshot.years].sort((a, b) => b.year - a.year);
   const current =

@@ -1,4 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
+import { revalidateTag } from "next/cache";
+import { reposTag } from "@/lib/github";
 import { synchronize } from "@/lib/github/core";
 import { createStore } from "@/lib/github/store";
 import { refreshActivity } from "@/lib/github/activity-core";
@@ -25,6 +27,7 @@ export async function GET(request: Request) {
   let activity: Parameters<typeof cronStatus>[1] = "unconfigured";
   try {
     repos = await synchronize(store, token, `cron-${crypto.randomUUID()}`);
+    if (repos === "updated") revalidateTag(reposTag, "max");
   } catch {
     console.error("GitHub reconciliation failed; prior snapshot retained.");
   }
