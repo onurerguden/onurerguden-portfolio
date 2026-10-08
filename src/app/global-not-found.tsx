@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import "@fontsource-variable/manrope";
+import { pageIcons } from "@/lib/icons";
 import NotFoundContent from "./not-found-content";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Page not found | Onur Ergüden",
   robots: { index: false },
+  icons: pageIcons(),
 };
 
 /**

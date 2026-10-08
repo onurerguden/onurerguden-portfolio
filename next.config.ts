@@ -88,6 +88,14 @@ const nextConfig: NextConfig = {
       // The desk model and its rendered views carry a ?v= content revision.
       { source: "/models/:path*", has: versioned, headers: immutable },
       { source: "/images/desk/:path*", has: versioned, headers: immutable },
+      // And the icons, whose links carry their content's revision
+      // (src/lib/icons.ts).
+      {
+        source:
+          "/:icon(favicon\\.ico|icon\\.svg|apple-touch-icon\\.png|icon-192\\.png|icon-512\\.png|icon-maskable-512\\.png)",
+        has: versioned,
+        headers: immutable,
+      },
       // So do the Bliss layers (src/lib/bliss-geometry.ts).
       { source: "/images/bliss/:path*", has: versioned, headers: immutable },
       // The decoder's folder is named after the three release it came with.
