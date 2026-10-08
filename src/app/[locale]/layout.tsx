@@ -6,6 +6,7 @@ import { PageNav } from "@/components/site/site-nav";
 import SiteFooter from "@/components/site/site-footer";
 import CustomCursor from "@/components/site/custom-cursor";
 import { isLocale, locales } from "@/lib/content";
+import { pageIcons } from "@/lib/icons";
 import { siteOrigin } from "@/lib/site";
 import "../globals.css";
 
@@ -25,13 +26,8 @@ export const metadata: Metadata = {
   },
   // The SVG for current browsers, the ICO for the rest and for crawlers that
   // ask for /favicon.ico, and an opaque PNG for iOS home screens.
-  icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "32x32" },
-      { url: "/icon.svg", type: "image/svg+xml" },
-    ],
-    apple: "/apple-touch-icon.png",
-  },
+  // Versioned, so a new icon replaces the one browsers keep (icons.ts).
+  icons: pageIcons(),
   description:
     "AI engineering, applied machine learning and research by Onur Ergüden.",
   applicationName: "Onur Ergüden",

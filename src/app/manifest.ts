@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { iconUrl } from "@/lib/icons";
 
 /**
  * Name, colours and icons for a home-screen shortcut. The site stays a page
@@ -16,11 +17,11 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: "#080e1c",
     theme_color: "#080e1c",
     icons: [
-      { src: "/icon.svg", sizes: "any", type: "image/svg+xml" },
-      { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
-      { src: "/icon-512.png", sizes: "512x512", type: "image/png" },
+      { src: iconUrl("icon.svg"), sizes: "any", type: "image/svg+xml" },
+      { src: iconUrl("icon-192.png"), sizes: "192x192", type: "image/png" },
+      { src: iconUrl("icon-512.png"), sizes: "512x512", type: "image/png" },
       {
-        src: "/icon-maskable-512.png",
+        src: iconUrl("icon-maskable-512.png"),
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",

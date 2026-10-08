@@ -270,22 +270,30 @@ test("browsers, crawlers and home screens find the icons and the manifest", asyn
       ]),
     ),
   );
-  expect(head.icon).toEqual(
-    expect.arrayContaining(["/favicon.ico", "/icon.svg"]),
-  );
-  expect(head["apple-touch-icon"]).toEqual(["/apple-touch-icon.png"]);
+  // Each address carries its icon's revision, so a new icon replaces the
+  // one browsers keep.
+  expect(head.icon).toEqual([
+    expect.stringMatching(/^\/favicon\.ico\?v=[0-9a-f]{12}$/),
+    expect.stringMatching(/^\/icon\.svg\?v=[0-9a-f]{12}$/),
+  ]);
+  expect(head["apple-touch-icon"]).toEqual([
+    expect.stringMatching(/^\/apple-touch-icon\.png\?v=[0-9a-f]{12}$/),
+  ]);
   expect(head.manifest).toHaveLength(1);
   const manifest = await (await request.get(head.manifest[0]!)).json();
   expect(manifest.name).toBe("Onur Ergüden — AI Engineer");
   const icons: { src: string; type: string }[] = manifest.icons;
   for (const src of [
     "/favicon.ico",
-    "/apple-touch-icon.png",
+    ...(head.icon as string[]),
+    ...(head["apple-touch-icon"] as string[]),
     ...icons.map((icon) => icon.src),
   ]) {
     const response = await request.get(src);
     expect(response.status(), src).toBe(200);
     expect(response.headers()["content-type"], src).toMatch(/^image\//);
+    if (src.includes("?v="))
+      expect(response.headers()["cache-control"], src).toContain("immutable");
   }
 });
 

@@ -64,6 +64,12 @@
 - [x] Production: `SITE_INDEXABLE=true`, then redeployed (6 October 2026).
 - [x] Search Console (domain property, DNS TXT at Name.com) and the sitemap submitted; Bing Webmaster Tools imported from Search Console (6 October 2026).
 
+## After a release: icons and link previews
+
+- **Icons.** Every icon link (page head, manifest, the 404 page) carries its file's content revision (`src/lib/icons.ts`), and versioned icons are cached as immutable. Browsers keep favicons in their own cache, so a changed icon used to linger; now a new icon is a new address and replaces the old one on the next visit. `/favicon.ico` itself still answers for crawlers.
+- **Link previews.** The share card's address already changes with its content (`…/opengraph-image/card?<hash>`), but chat apps and social networks cache a page's preview by the page's address. To refresh one: LinkedIn Post Inspector and the Facebook Sharing Debugger re-scrape on request; WhatsApp and iMessage keep a preview per link for days, so share `https://onurerguden.dev/en?ref=…` (any new query) to get a fresh one.
+- **Pages.** Each production deploy replaces the CDN's copy of every page; browsers revalidate HTML on every visit, so nothing else needs purging.
+
 ## Maintenance
 
 - `/.well-known/security.txt` (RFC 9116) names the public email; its expiry is a year after each deploy, so a year without deploys lets it lapse.
