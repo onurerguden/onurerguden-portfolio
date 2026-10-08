@@ -6,24 +6,31 @@ import {
 } from "../src/lib/security";
 
 describe("security", () => {
-  it("allows scripts only with the nonce, and the decoder's wasm", () => {
-    const policy = contentSecurityPolicy("abc");
+  it("allows scripts from this origin, inline page data and the decoder's wasm", () => {
+    const policy = contentSecurityPolicy();
     expect(policy).toContain(
-      "script-src 'self' 'nonce-abc' 'strict-dynamic' 'wasm-unsafe-eval'",
+      "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
     );
+    // Without a nonce, 'strict-dynamic' would switch 'self' off.
+    expect(policy).not.toContain("strict-dynamic");
+    expect(policy).not.toContain("nonce-");
     expect(policy).not.toContain("'unsafe-eval'");
     expect(policy).toContain("worker-src 'self' blob:");
     expect(policy).toContain("frame-ancestors 'none'");
-    expect(contentSecurityPolicy("abc", { development: true })).toContain(
+    expect(policy).toContain("object-src 'none'");
+    expect(contentSecurityPolicy({ development: true })).toContain(
       "'unsafe-eval'",
     );
   });
-  it("upgrades requests only on a page served over HTTPS", () => {
-    expect(contentSecurityPolicy("abc")).toContain("upgrade-insecure-requests");
-    expect(contentSecurityPolicy("abc", { secure: false })).not.toContain(
+  it("is the same for every request, so pages can be cached", () => {
+    expect(contentSecurityPolicy()).toBe(contentSecurityPolicy());
+  });
+  it("upgrades requests only where the site is served over HTTPS", () => {
+    expect(contentSecurityPolicy()).toContain("upgrade-insecure-requests");
+    expect(contentSecurityPolicy({ secure: false })).not.toContain(
       "upgrade-insecure-requests",
     );
-    expect(contentSecurityPolicy("abc", { development: true })).not.toContain(
+    expect(contentSecurityPolicy({ development: true })).not.toContain(
       "upgrade-insecure-requests",
     );
   });
