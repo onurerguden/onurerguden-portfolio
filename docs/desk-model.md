@@ -70,3 +70,7 @@ The desk is now integrated into the homepage in both languages. The journey star
 ## September 16 cosmic platform
 
 The room geometry is superseded by a close-fitting 1.86 × 1.16 m elliptical marble platform with a 6 cm edge, sparse depth-distributed stars and a curved procedural grid curtain. The desk model and screen anchors remain unchanged. The grid and desk-object interactions remain available at every enhanced camera stop; fine-pointer input reaches the bounded camera parallax and local grid deformation from the shared scene surface, while screens and controls suppress deformation. The final full-desk hold is 0.35 viewport heights before the HTML continuation. Mobile keeps the fitted scroll camera with a lighter grid and star count, while reduced motion and failure modes use the updated cosmic poster.
+
+## Web trim (October 8, 2026)
+
+After `scripts/desk/build.py` exports `public/models/desk/onur-desk.glb`, run `npm run desk:optimize` and then `npm run desk:package`. The trim simplifies the listed accessory batches (budgets in `scripts/desk/optimize.mjs`), resizes the baked desk textures to 512 px, deduplicates images and meshes and re-encodes Draco; the result carries `asset.extras.webOptimized` and the script refuses to trim it twice. 97,095 → 50,577 triangles, 497 → 311 KB. Recapture the loading poster and the room posters afterwards (`tests/desk-model.test.ts` checks the model hash).

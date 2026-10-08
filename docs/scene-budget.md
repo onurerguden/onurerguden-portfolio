@@ -70,3 +70,5 @@ Measured with `npm run perf` (`docs/qa/perf/`): headless Chromium on an M1 Pro G
 | Desk warm-up            | 898 ms                     | 148 ms    | 341 ms        | 3.5 s / 1.2 s                  |
 
 With the warm-up alone, the remaining first-visit frame was the reflective floor (its blur pass and one reflection variant compiled inside the hidden frame). Without the live mirror the desk shows with no long frame; the first-visit maximum is now About's scene mounting (about 9 s in). Final view: 55 draw calls / 101,287 triangles, peak 136 during the one-off setup; 36 shader programs.
+
+The lighter model does not move main-thread numbers (its cost was never the main thread); it cuts the download from 497 to 311 KB and the final view's submitted triangles from 101,287 to 54,769, which matters on integrated GPUs.
