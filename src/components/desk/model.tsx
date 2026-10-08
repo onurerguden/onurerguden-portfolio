@@ -5,6 +5,7 @@ import { useGLTF } from "@react-three/drei";
 import { Mesh } from "three";
 import { deskModelSrc, deskDecoderPath } from "@/lib/desk-asset-urls";
 import InteractionScene from "./interaction-scene";
+import { warmUp } from "@/components/three/warm-up";
 import type { DeskInteractions } from "./interactions";
 
 /**
@@ -20,6 +21,7 @@ export function Model({
   controls: DeskInteractions;
 }) {
   const invalidate = useThree((state) => state.invalidate);
+  const advance = useThree((state) => state.advance);
   const gl = useThree((state) => state.gl);
   const camera = useThree((state) => state.camera);
   const root = useThree((state) => state.scene);
@@ -40,19 +42,29 @@ export function Model({
     return clone;
   }, [scene]);
   useEffect(() => {
-    // Compile every shader before the first visible frame, so the desk does
-    // not stall on its first scroll; the poster covers the wait.
+    // Compile every shader, upload every texture and draw one hidden frame
+    // before the desk shows, without blocking the page: the canvas draws
+    // nothing until then (its frame loop waits for onReady) and the opening
+    // poster covers the wait.
     let cancelled = false;
     const done = () => {
       if (cancelled) return;
       onReady();
       invalidate();
     };
-    gl.compileAsync(root, camera).then(done, done);
+    warmUp({
+      gl,
+      scene: root,
+      camera,
+      render: () => advance(performance.now()),
+      cancelled: () => cancelled,
+      // The platform's reflection draws the scene into a render target.
+      offscreen: true,
+    }).then((warm) => warm && done(), done);
     return () => {
       cancelled = true;
     };
-  }, [onReady, invalidate, gl, camera, root]);
+  }, [onReady, invalidate, advance, gl, camera, root]);
   useEffect(
     () => () => {
       model.traverse((object) => {
