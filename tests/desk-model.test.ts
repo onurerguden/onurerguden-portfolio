@@ -24,7 +24,9 @@ describe("desk delivery model", () => {
           n + gltf.accessors[p.indices].count / 3,
         0,
       );
-    expect(triangles).toBeLessThanOrEqual(100_000);
+    // Trimmed for the web (scripts/desk/optimize.mjs): 97,095 → 50,577.
+    expect(triangles).toBeLessThanOrEqual(60_000);
+    expect(gltf.asset.extras?.webOptimized).toBe(true);
     expect(gltf.materials.length).toBeLessThanOrEqual(50);
     for (const id of Object.keys(contract.screens))
       expect(
@@ -37,6 +39,36 @@ describe("desk delivery model", () => {
       ),
     ).toBe(true);
     expect(gltf.extensionsRequired).toContain("KHR_draco_mesh_compression");
+  });
+  it("ships each texture once and the baked desk maps at 512 px", () => {
+    const chunk = bytes.readUInt32LE(12);
+    const bin = bytes.subarray(20 + chunk + 8);
+    const images = gltf.images.map(
+      (image: { bufferView: number; name: string }) => {
+        const view = gltf.bufferViews[image.bufferView];
+        return {
+          name: image.name,
+          bytes: bin.subarray(
+            view.byteOffset ?? 0,
+            (view.byteOffset ?? 0) + view.byteLength,
+          ),
+        };
+      },
+    );
+    const hashes = images.map((image: { bytes: Buffer }) =>
+      createHash("sha256").update(image.bytes).digest("hex"),
+    );
+    expect(new Set(hashes).size).toBe(hashes.length);
+    for (const image of images.filter((entry: { name: string }) =>
+      entry.name.startsWith("Baked "),
+    )) {
+      // JPEG: the frame header holds height then width.
+      const sof = image.bytes.findIndex(
+        (byte: number, i: number) =>
+          byte === 0xff && [0xc0, 0xc2].includes(image.bytes[i + 1]),
+      );
+      expect(image.bytes.readUInt16BE(sof + 7)).toBeLessThanOrEqual(512);
+    }
   });
   it("delivers authored surface normals in the web model, not only in Blender", () => {
     for (const name of [
