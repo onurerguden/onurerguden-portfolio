@@ -88,6 +88,8 @@ const nextConfig: NextConfig = {
       // The desk model and its rendered views carry a ?v= content revision.
       { source: "/models/:path*", has: versioned, headers: immutable },
       { source: "/images/desk/:path*", has: versioned, headers: immutable },
+      // So do the Bliss layers (src/lib/bliss-geometry.ts).
+      { source: "/images/bliss/:path*", has: versioned, headers: immutable },
       // The decoder's folder is named after the three release it came with.
       {
         source: "/decoders/draco/:release(three-[^/]+)/:file*",

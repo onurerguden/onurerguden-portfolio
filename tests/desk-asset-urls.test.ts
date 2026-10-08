@@ -51,9 +51,10 @@ describe("desk asset URLs", () => {
     expect(rules.map((rule) => rule.source)).toEqual([
       "/models/:path*",
       "/images/desk/:path*",
+      "/images/bliss/:path*",
       "/decoders/draco/:release(three-[^/]+)/:file*",
     ]);
-    for (const rule of rules.slice(0, 2))
+    for (const rule of rules.slice(0, 3))
       expect(rule.has).toEqual([{ type: "query", key: "v" }]);
     expect(nextConfig.poweredByHeader).toBe(false);
   });
