@@ -1,0 +1,899 @@
+{
+  "url": "http://localhost:3400/en",
+  "date": "2026-10-08T12:58:08.732Z",
+  "results": {
+    "first-visit": {
+      "median": {
+        "ttfb": 34,
+        "fcp": 244,
+        "lcp": 244,
+        "deskReady": 4365,
+        "maxLoaf": 3063,
+        "maxLoafAt": 1023,
+        "maxLoafSource": "FrameRequestCallback (2cdh18v0l4qbi.js)",
+        "loafsOver100": 5,
+        "loafsOver50": 10,
+        "scrollFrames": 1133,
+        "scrollP50": 17,
+        "scrollP95": 17,
+        "scrollOver50": 8,
+        "glBlocking": 4208,
+        "glBlockingAfterReady": 736,
+        "programs": 53,
+        "contexts": 4,
+        "scriptBytes": 568776,
+        "modelBytes": 400530,
+        "imageBytes": 488456,
+        "milestones": {
+          "stage:stack:static": 356,
+          "stage:about:static": 356,
+          "stage:main:static": 356,
+          "stage:main:idle": 399,
+          "stage:about:idle": 399,
+          "desk-ready": 4365,
+          "stage:main:loading": 7729,
+          "stage:main:live": 8378,
+          "stage:about:loading": 12415,
+          "stage:about:live": 13112
+        },
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+        "parallelCompile": true,
+        "longFrames": [
+          {
+            "start": 709,
+            "duration": 304,
+            "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+          },
+          {
+            "start": 1076,
+            "duration": 3063,
+            "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+          },
+          {
+            "start": 4139,
+            "duration": 226,
+            "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+          },
+          {
+            "start": 12592,
+            "duration": 479,
+            "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+          },
+          {
+            "start": 13192,
+            "duration": 317,
+            "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+          }
+        ]
+      },
+      "runs": [
+        {
+          "ttfb": 38,
+          "fcp": 244,
+          "lcp": 244,
+          "deskReady": 4365,
+          "maxLoaf": 3063,
+          "maxLoafAt": 1076,
+          "maxLoafSource": "FrameRequestCallback (2cdh18v0l4qbi.js)",
+          "loafsOver100": 5,
+          "loafsOver50": 10,
+          "scrollFrames": 1133,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollOver50": 8,
+          "glBlocking": 4208,
+          "glBlockingAfterReady": 736,
+          "programs": 53,
+          "contexts": 4,
+          "scriptBytes": 568776,
+          "modelBytes": 400530,
+          "imageBytes": 488456,
+          "milestones": {
+            "stage:stack:static": 356,
+            "stage:about:static": 356,
+            "stage:main:static": 356,
+            "stage:main:idle": 399,
+            "stage:about:idle": 399,
+            "desk-ready": 4365,
+            "stage:main:loading": 7729,
+            "stage:main:live": 8378,
+            "stage:about:loading": 12415,
+            "stage:about:live": 13112
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": [
+            {
+              "start": 709,
+              "duration": 304,
+              "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+            },
+            {
+              "start": 1076,
+              "duration": 3063,
+              "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+            },
+            {
+              "start": 4139,
+              "duration": 226,
+              "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+            },
+            {
+              "start": 12592,
+              "duration": 479,
+              "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+            },
+            {
+              "start": 13192,
+              "duration": 317,
+              "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+            }
+          ]
+        },
+        {
+          "ttfb": 33,
+          "fcp": 244,
+          "lcp": 244,
+          "deskReady": 5376,
+          "maxLoaf": 4026,
+          "maxLoafAt": 1023,
+          "maxLoafSource": "FrameRequestCallback (2cdh18v0l4qbi.js)",
+          "loafsOver100": 6,
+          "loafsOver50": 13,
+          "scrollFrames": 1127,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollOver50": 11,
+          "glBlocking": 5217,
+          "glBlockingAfterReady": 732,
+          "programs": 53,
+          "contexts": 4,
+          "scriptBytes": 568776,
+          "modelBytes": 400530,
+          "imageBytes": 488456,
+          "milestones": {
+            "stage:stack:static": 336,
+            "stage:about:static": 336,
+            "stage:main:static": 336,
+            "stage:main:idle": 378,
+            "stage:about:idle": 378,
+            "desk-ready": 5376,
+            "stage:main:loading": 8760,
+            "stage:main:live": 9409,
+            "stage:about:loading": 13432,
+            "stage:about:live": 14225
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": [
+            {
+              "start": 690,
+              "duration": 247,
+              "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+            },
+            {
+              "start": 1023,
+              "duration": 4026,
+              "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+            },
+            {
+              "start": 5049,
+              "duration": 324,
+              "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+            },
+            {
+              "start": 13550,
+              "duration": 130,
+              "top": ""
+            },
+            {
+              "start": 13723,
+              "duration": 488,
+              "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+            },
+            {
+              "start": 14223,
+              "duration": 302,
+              "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+            }
+          ]
+        },
+        {
+          "ttfb": 34,
+          "fcp": 236,
+          "lcp": 236,
+          "deskReady": 3987,
+          "maxLoaf": 2964,
+          "maxLoafAt": 1021,
+          "maxLoafSource": "FrameRequestCallback (2cdh18v0l4qbi.js)",
+          "loafsOver100": 5,
+          "loafsOver50": 10,
+          "scrollFrames": 1135,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollOver50": 6,
+          "glBlocking": 4095,
+          "glBlockingAfterReady": 973,
+          "programs": 53,
+          "contexts": 4,
+          "scriptBytes": 568776,
+          "modelBytes": 400530,
+          "imageBytes": 488456,
+          "milestones": {
+            "stage:stack:static": 323,
+            "stage:about:static": 323,
+            "stage:main:static": 323,
+            "stage:main:idle": 366,
+            "stage:about:idle": 366,
+            "desk-ready": 3987,
+            "stage:main:loading": 7574,
+            "stage:main:live": 8207,
+            "stage:about:loading": 12222,
+            "stage:about:live": 12933
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": [
+            {
+              "start": 688,
+              "duration": 242,
+              "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+            },
+            {
+              "start": 1021,
+              "duration": 2964,
+              "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+            },
+            {
+              "start": 3986,
+              "duration": 238,
+              "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+            },
+            {
+              "start": 12421,
+              "duration": 487,
+              "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+            },
+            {
+              "start": 13038,
+              "duration": 321,
+              "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+            }
+          ]
+        }
+      ]
+    },
+    "returning": {
+      "median": {
+        "ttfb": 31,
+        "fcp": 260,
+        "lcp": 260,
+        "deskReady": 1181,
+        "maxLoaf": 180,
+        "maxLoafAt": 992,
+        "maxLoafSource": "FrameRequestCallback (2cdh18v0l4qbi.js)",
+        "loafsOver100": 2,
+        "loafsOver50": 5,
+        "scrollFrames": 1153,
+        "scrollP50": 17,
+        "scrollP95": 17,
+        "scrollOver50": 2,
+        "glBlocking": 185,
+        "glBlockingAfterReady": 22,
+        "programs": 53,
+        "contexts": 4,
+        "scriptBytes": 0,
+        "modelBytes": 0,
+        "imageBytes": 1800,
+        "milestones": {
+          "stage:stack:static": 299,
+          "stage:about:static": 299,
+          "stage:main:static": 299,
+          "stage:main:idle": 336,
+          "stage:about:idle": 336,
+          "desk-ready": 1172,
+          "stage:main:loading": 4423,
+          "stage:main:live": 4854,
+          "stage:about:loading": 9062,
+          "stage:about:live": 9377
+        },
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+        "parallelCompile": true,
+        "longFrames": [
+          {
+            "start": 988,
+            "duration": 180,
+            "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+          },
+          {
+            "start": 9235,
+            "duration": 139,
+            "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+          }
+        ]
+      },
+      "runs": [
+        {
+          "ttfb": 27,
+          "fcp": 268,
+          "lcp": 268,
+          "deskReady": 1191,
+          "maxLoaf": 176,
+          "maxLoafAt": 1014,
+          "maxLoafSource": "FrameRequestCallback (2cdh18v0l4qbi.js)",
+          "loafsOver100": 2,
+          "loafsOver50": 5,
+          "scrollFrames": 1153,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollOver50": 3,
+          "glBlocking": 185,
+          "glBlockingAfterReady": 22,
+          "programs": 53,
+          "contexts": 4,
+          "scriptBytes": 0,
+          "modelBytes": 0,
+          "imageBytes": 1800,
+          "milestones": {
+            "stage:stack:static": 309,
+            "stage:about:static": 309,
+            "stage:main:static": 309,
+            "stage:main:idle": 349,
+            "stage:about:idle": 349,
+            "desk-ready": 1191,
+            "stage:main:loading": 4430,
+            "stage:main:live": 4879,
+            "stage:about:loading": 9062,
+            "stage:about:live": 9436
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": [
+            {
+              "start": 1014,
+              "duration": 176,
+              "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+            },
+            {
+              "start": 9260,
+              "duration": 173,
+              "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+            }
+          ]
+        },
+        {
+          "ttfb": 31,
+          "fcp": 260,
+          "lcp": 260,
+          "deskReady": 1172,
+          "maxLoaf": 180,
+          "maxLoafAt": 988,
+          "maxLoafSource": "FrameRequestCallback (2cdh18v0l4qbi.js)",
+          "loafsOver100": 2,
+          "loafsOver50": 5,
+          "scrollFrames": 1154,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollOver50": 2,
+          "glBlocking": 185,
+          "glBlockingAfterReady": 22,
+          "programs": 53,
+          "contexts": 4,
+          "scriptBytes": 0,
+          "modelBytes": 0,
+          "imageBytes": 1800,
+          "milestones": {
+            "stage:stack:static": 299,
+            "stage:about:static": 299,
+            "stage:main:static": 299,
+            "stage:main:idle": 336,
+            "stage:about:idle": 336,
+            "desk-ready": 1172,
+            "stage:main:loading": 4423,
+            "stage:main:live": 4854,
+            "stage:about:loading": 9062,
+            "stage:about:live": 9377
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": [
+            {
+              "start": 988,
+              "duration": 180,
+              "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+            },
+            {
+              "start": 9235,
+              "duration": 139,
+              "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+            }
+          ]
+        },
+        {
+          "ttfb": 31,
+          "fcp": 260,
+          "lcp": 260,
+          "deskReady": 1181,
+          "maxLoaf": 187,
+          "maxLoafAt": 992,
+          "maxLoafSource": "FrameRequestCallback (2cdh18v0l4qbi.js)",
+          "loafsOver100": 2,
+          "loafsOver50": 5,
+          "scrollFrames": 1152,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollOver50": 2,
+          "glBlocking": 193,
+          "glBlockingAfterReady": 23,
+          "programs": 53,
+          "contexts": 4,
+          "scriptBytes": 0,
+          "modelBytes": 0,
+          "imageBytes": 1800,
+          "milestones": {
+            "stage:stack:static": 301,
+            "stage:about:static": 301,
+            "stage:main:static": 301,
+            "stage:main:idle": 340,
+            "stage:about:idle": 340,
+            "desk-ready": 1181,
+            "stage:main:loading": 4425,
+            "stage:main:live": 4857,
+            "stage:about:loading": 9066,
+            "stage:about:live": 9393
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": [
+            {
+              "start": 992,
+              "duration": 187,
+              "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+            },
+            {
+              "start": 9239,
+              "duration": 151,
+              "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+            }
+          ]
+        }
+      ]
+    },
+    "cpu4": {
+      "median": {
+        "ttfb": 28,
+        "fcp": 456,
+        "lcp": 456,
+        "deskReady": 2069,
+        "maxLoaf": 344,
+        "maxLoafAt": 9624,
+        "maxLoafSource": "MessagePort.onmessage (0a37caasaw7-7.js)",
+        "loafsOver100": 6,
+        "loafsOver50": 9,
+        "scrollFrames": 1099,
+        "scrollP50": 17,
+        "scrollP95": 17,
+        "scrollOver50": 8,
+        "glBlocking": 173,
+        "glBlockingAfterReady": 0,
+        "programs": 53,
+        "contexts": 4,
+        "scriptBytes": 0,
+        "modelBytes": 0,
+        "imageBytes": 1800,
+        "milestones": {
+          "stage:stack:static": 927,
+          "stage:about:static": 927,
+          "stage:main:static": 927,
+          "stage:main:idle": 1084,
+          "stage:about:idle": 1084,
+          "desk-ready": 2069,
+          "stage:main:loading": 4949,
+          "stage:main:live": 5448,
+          "stage:about:loading": 9437,
+          "stage:about:live": 9970
+        },
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+        "parallelCompile": true,
+        "longFrames": [
+          {
+            "start": 569,
+            "duration": 117,
+            "top": "http://localhost:3400/_next/static/chunks/0a37caasaw7-7.js (0a37caasaw7-7.js)"
+          },
+          {
+            "start": 797,
+            "duration": 211,
+            "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+          },
+          {
+            "start": 1078,
+            "duration": 128,
+            "top": "http://localhost:3400/_next/static/chunks/2cdh18v0l4qbi.js (2cdh18v0l4qbi.js)"
+          },
+          {
+            "start": 1307,
+            "duration": 125,
+            "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+          },
+          {
+            "start": 1677,
+            "duration": 343,
+            "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+          },
+          {
+            "start": 5309,
+            "duration": 116,
+            "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+          },
+          {
+            "start": 9610,
+            "duration": 344,
+            "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+          }
+        ]
+      },
+      "runs": [
+        {
+          "ttfb": 28,
+          "fcp": 480,
+          "lcp": 480,
+          "deskReady": 2081,
+          "maxLoaf": 338,
+          "maxLoafAt": 9624,
+          "maxLoafSource": "MessagePort.onmessage (0a37caasaw7-7.js)",
+          "loafsOver100": 6,
+          "loafsOver50": 9,
+          "scrollFrames": 1093,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollOver50": 8,
+          "glBlocking": 169,
+          "glBlockingAfterReady": 0,
+          "programs": 53,
+          "contexts": 4,
+          "scriptBytes": 0,
+          "modelBytes": 0,
+          "imageBytes": 1800,
+          "milestones": {
+            "stage:stack:static": 951,
+            "stage:about:static": 951,
+            "stage:main:static": 952,
+            "stage:main:idle": 1106,
+            "stage:about:idle": 1106,
+            "desk-ready": 2081,
+            "stage:main:loading": 4963,
+            "stage:main:live": 5462,
+            "stage:about:loading": 9449,
+            "stage:about:live": 9977
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": [
+            {
+              "start": 810,
+              "duration": 223,
+              "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+            },
+            {
+              "start": 1111,
+              "duration": 118,
+              "top": "http://localhost:3400/_next/static/chunks/2cdh18v0l4qbi.js (2cdh18v0l4qbi.js)"
+            },
+            {
+              "start": 1342,
+              "duration": 124,
+              "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+            },
+            {
+              "start": 1709,
+              "duration": 328,
+              "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+            },
+            {
+              "start": 5324,
+              "duration": 112,
+              "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+            },
+            {
+              "start": 9624,
+              "duration": 338,
+              "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+            }
+          ]
+        },
+        {
+          "ttfb": 30,
+          "fcp": 360,
+          "lcp": 360,
+          "deskReady": 2069,
+          "maxLoaf": 344,
+          "maxLoafAt": 9610,
+          "maxLoafSource": "MessagePort.onmessage (0a37caasaw7-7.js)",
+          "loafsOver100": 7,
+          "loafsOver50": 9,
+          "scrollFrames": 1104,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollOver50": 7,
+          "glBlocking": 176,
+          "glBlockingAfterReady": 0,
+          "programs": 53,
+          "contexts": 4,
+          "scriptBytes": 0,
+          "modelBytes": 0,
+          "imageBytes": 1800,
+          "milestones": {
+            "stage:stack:static": 927,
+            "stage:about:static": 927,
+            "stage:main:static": 927,
+            "stage:main:idle": 1084,
+            "stage:about:idle": 1084,
+            "desk-ready": 2069,
+            "stage:main:loading": 4949,
+            "stage:main:live": 5448,
+            "stage:about:loading": 9437,
+            "stage:about:live": 9970
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": [
+            {
+              "start": 569,
+              "duration": 117,
+              "top": "http://localhost:3400/_next/static/chunks/0a37caasaw7-7.js (0a37caasaw7-7.js)"
+            },
+            {
+              "start": 797,
+              "duration": 211,
+              "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+            },
+            {
+              "start": 1078,
+              "duration": 128,
+              "top": "http://localhost:3400/_next/static/chunks/2cdh18v0l4qbi.js (2cdh18v0l4qbi.js)"
+            },
+            {
+              "start": 1307,
+              "duration": 125,
+              "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+            },
+            {
+              "start": 1677,
+              "duration": 343,
+              "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+            },
+            {
+              "start": 5309,
+              "duration": 116,
+              "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+            },
+            {
+              "start": 9610,
+              "duration": 344,
+              "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+            }
+          ]
+        },
+        {
+          "ttfb": 28,
+          "fcp": 456,
+          "lcp": 456,
+          "deskReady": 2029,
+          "maxLoaf": 357,
+          "maxLoafAt": 9639,
+          "maxLoafSource": "MessagePort.onmessage (0a37caasaw7-7.js)",
+          "loafsOver100": 6,
+          "loafsOver50": 10,
+          "scrollFrames": 1099,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollOver50": 8,
+          "glBlocking": 173,
+          "glBlockingAfterReady": 0,
+          "programs": 53,
+          "contexts": 4,
+          "scriptBytes": 0,
+          "modelBytes": 0,
+          "imageBytes": 1800,
+          "milestones": {
+            "stage:stack:static": 927,
+            "stage:about:static": 927,
+            "stage:main:static": 927,
+            "stage:main:idle": 1085,
+            "stage:about:idle": 1085,
+            "desk-ready": 2029,
+            "stage:main:loading": 4964,
+            "stage:main:live": 5481,
+            "stage:about:loading": 9464,
+            "stage:about:live": 10014
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": [
+            {
+              "start": 796,
+              "duration": 210,
+              "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+            },
+            {
+              "start": 1072,
+              "duration": 133,
+              "top": "http://localhost:3400/_next/static/chunks/2cdh18v0l4qbi.js (2cdh18v0l4qbi.js)"
+            },
+            {
+              "start": 1303,
+              "duration": 120,
+              "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+            },
+            {
+              "start": 1657,
+              "duration": 341,
+              "top": "FrameRequestCallback (2cdh18v0l4qbi.js)"
+            },
+            {
+              "start": 5323,
+              "duration": 135,
+              "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+            },
+            {
+              "start": 9639,
+              "duration": 357,
+              "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+            }
+          ]
+        }
+      ]
+    },
+    "reduced": {
+      "median": {
+        "ttfb": 31,
+        "fcp": 248,
+        "lcp": 248,
+        "deskReady": null,
+        "maxLoaf": 130,
+        "maxLoafAt": 4305,
+        "maxLoafSource": "",
+        "loafsOver100": 1,
+        "loafsOver50": 2,
+        "scrollFrames": 955,
+        "scrollP50": 17,
+        "scrollP95": 17,
+        "scrollOver50": 1,
+        "glBlocking": 8,
+        "glBlockingAfterReady": 0,
+        "programs": 4,
+        "contexts": 2,
+        "scriptBytes": 481925,
+        "modelBytes": 0,
+        "imageBytes": 397803,
+        "milestones": {
+          "stage:stack:static": 297,
+          "stage:about:static": 297,
+          "stage:stack:idle": 312,
+          "stage:stack:loading": 3959,
+          "stage:stack:live": 4409
+        },
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+        "parallelCompile": true,
+        "longFrames": [
+          {
+            "start": 12139,
+            "duration": 130,
+            "top": ""
+          }
+        ]
+      },
+      "runs": [
+        {
+          "ttfb": 31,
+          "fcp": 256,
+          "lcp": 256,
+          "deskReady": null,
+          "maxLoaf": 130,
+          "maxLoafAt": 12139,
+          "maxLoafSource": "",
+          "loafsOver100": 1,
+          "loafsOver50": 2,
+          "scrollFrames": 952,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollOver50": 1,
+          "glBlocking": 8,
+          "glBlockingAfterReady": 0,
+          "programs": 4,
+          "contexts": 2,
+          "scriptBytes": 481925,
+          "modelBytes": 0,
+          "imageBytes": 397803,
+          "milestones": {
+            "stage:stack:static": 297,
+            "stage:about:static": 297,
+            "stage:stack:idle": 312,
+            "stage:stack:loading": 3959,
+            "stage:stack:live": 4409
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": [
+            {
+              "start": 12139,
+              "duration": 130,
+              "top": ""
+            }
+          ]
+        },
+        {
+          "ttfb": 30,
+          "fcp": 244,
+          "lcp": 244,
+          "deskReady": null,
+          "maxLoaf": 89,
+          "maxLoafAt": 4284,
+          "maxLoafSource": "MessagePort.onmessage (0a37caasaw7-7.js)",
+          "loafsOver100": 0,
+          "loafsOver50": 2,
+          "scrollFrames": 955,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollOver50": 1,
+          "glBlocking": 16,
+          "glBlockingAfterReady": 0,
+          "programs": 4,
+          "contexts": 2,
+          "scriptBytes": 481925,
+          "modelBytes": 0,
+          "imageBytes": 397803,
+          "milestones": {
+            "stage:stack:static": 286,
+            "stage:about:static": 286,
+            "stage:stack:idle": 295,
+            "stage:stack:loading": 3969,
+            "stage:stack:live": 4411
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": []
+        },
+        {
+          "ttfb": 33,
+          "fcp": 248,
+          "lcp": 248,
+          "deskReady": null,
+          "maxLoaf": 133,
+          "maxLoafAt": 4305,
+          "maxLoafSource": "MessagePort.onmessage (0a37caasaw7-7.js)",
+          "loafsOver100": 1,
+          "loafsOver50": 2,
+          "scrollFrames": 957,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollOver50": 1,
+          "glBlocking": 8,
+          "glBlockingAfterReady": 0,
+          "programs": 4,
+          "contexts": 2,
+          "scriptBytes": 481925,
+          "modelBytes": 0,
+          "imageBytes": 397803,
+          "milestones": {
+            "stage:stack:static": 290,
+            "stage:about:static": 290,
+            "stage:stack:idle": 299,
+            "stage:stack:loading": 3992,
+            "stage:stack:live": 4478
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": [
+            {
+              "start": 4305,
+              "duration": 133,
+              "top": "MessagePort.onmessage (0a37caasaw7-7.js)"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

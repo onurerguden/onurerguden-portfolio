@@ -1,0 +1,8 @@
+{
+  "about": "Ceilings for scripts/perf/measure.mjs --check (medians, headless Chromium on an Apple M1 Pro GPU, 1440×900 at 2x, wheel scrolling from 0.7 s). Times in ms. Baseline (8 Oct 2026, before the performance series): first visit froze 3.4–4.6 s at desk ready with 53 shader programs; returning visits had one ~190 ms frame. Each PR of the series lowers its ceilings as it lands (docs/qa/perf).",
+  "scenarios": {
+    "first-visit": {},
+    "returning": {},
+    "cpu4": {}
+  }
+}
