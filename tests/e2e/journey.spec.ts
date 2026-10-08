@@ -236,7 +236,6 @@ test("the desk draws nothing until its shaders are ready", async ({
 });
 
 test("the MacBook's Bliss layers wait for the visitor to move", async ({
-test("integrated graphics get the lighter desk", async ({
   page,
   browserName,
   isMobile,
@@ -260,6 +259,15 @@ test("integrated graphics get the lighter desk", async ({
   await expect
     .poll(() => bliss.length, { timeout: ci(10000) })
     .toBeGreaterThan(0);
+});
+
+test("integrated graphics get the lighter desk", async ({
+  page,
+  browserName,
+  isMobile,
+}) => {
+  test.skip(isMobile, touchStatic);
+  test.skip(browserName === "webkit", "Headless WebKit lacks reliable WebGL2.");
   await page.addInitScript(() =>
     localStorage.setItem("portfolio:quality", "low"),
   );
