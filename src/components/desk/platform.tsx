@@ -1,6 +1,5 @@
 "use client";
 
-import { MeshReflectorMaterial } from "@react-three/drei";
 import { useLoader, useThree } from "@react-three/fiber";
 import { useEffect, useMemo } from "react";
 import { RepeatWrapping, SRGBColorSpace, TextureLoader } from "three";
@@ -36,17 +35,15 @@ export default function DeskPlatform() {
         receiveShadow
       >
         <circleGeometry args={[1, mobile ? 64 : 96]} />
-        <MeshReflectorMaterial
+        {/* Glossy marble lit by the studio environment. A live mirror of the
+            desk redrew the whole scene and five blur passes every frame and
+            doubled the shader programs to compile. */}
+        <meshStandardMaterial
           map={marble}
           color="#ffffff"
-          resolution={mobile ? 256 : 512}
-          blur={mobile ? [128, 64] : [256, 128]}
-          mixBlur={1}
-          mixStrength={0.72}
-          roughness={0.5}
+          roughness={0.3}
           metalness={0.06}
-          mirror={0.32}
-          depthScale={0}
+          envMapIntensity={1.4}
         />
       </mesh>
       <mesh

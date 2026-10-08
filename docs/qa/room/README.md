@@ -32,6 +32,8 @@ The first review caught a room texture suspending outside the model boundary, wh
 
 Demand rendering stops after input settles and when offscreen/hidden. DPR is capped at 1.5. Reflection resolution is 512 on desktop and 256 below 700px. Geometry is unchanged except for five room planes. The material adds a reflection render plus two blur passes; scene counters now count **all passes**, rather than only the last renderer call. A settled desktop room capture measured 106 calls / 192,503 submitted triangles. The initial environment/shadow capture peaked at 279 calls; moving drawers also refresh shadow maps. These are pass submissions, not unique mesh triangles.
 
+> **October 8:** the live reflection described here was removed in the performance series (see `docs/design.md`, "Marble without a live mirror"); the platform is glossy marble lit by the environment. Final view now: 55 draw calls / 101,287 triangles.
+
 The prior 50-call budget described the desk without a reflective room and is not comparable to all-pass accounting. The revised steady-frame check is 130 calls / 210,000 submitted triangles. Initial and moving-shadow frames are recorded separately. This is a laboratory check, not a field INP/LCP or physical iPhone GPU claim.
 
 ## Accessibility and release
