@@ -1,7 +1,8 @@
+import { memo } from "react";
 import { Environment, Lightformer } from "@react-three/drei";
 
 /** One local reflection capture; no HDR download or continuous environment rendering. */
-export default function DeskLighting() {
+function DeskLighting() {
   return (
     <Environment frames={1} resolution={128} environmentIntensity={0.55}>
       <Lightformer
@@ -31,3 +32,11 @@ export default function DeskLighting() {
     </Environment>
   );
 }
+
+/**
+ * Environment captures its cube again whenever its children change, and
+ * children made in a render are new each time: memoised, a scene re-rendering
+ * (a chapter, a stage turning live) never repeats the capture and its
+ * prefiltering.
+ */
+export default memo(DeskLighting);

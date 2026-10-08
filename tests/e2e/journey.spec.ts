@@ -201,6 +201,40 @@ test("scroll separates reading from camera travel, reverses, focuses links and e
   await expect(canvas).toHaveAttribute("data-active", "true");
   expect(failedImages).toEqual([]);
 });
+test("the desk draws nothing until its shaders are ready", async ({
+  page,
+  browserName,
+  isMobile,
+}) => {
+  test.skip(isMobile, touchStatic);
+  test.skip(browserName === "webkit", "Headless WebKit lacks reliable WebGL2.");
+  // Hold the model back: the canvas exists, everything around it is mounted
+  // and asking for frames, but a frame drawn now would compile shaders on
+  // the page's main thread.
+  let release = () => {};
+  const held = new Promise<void>((resolve) => (release = resolve));
+  await page.route("**/models/desk/onur-desk.glb*", async (route) => {
+    await held;
+    await route.continue();
+  });
+  await page.goto("/en");
+  const canvas = journeyCanvas(page);
+  await expect(canvas).toBeAttached({ timeout: ci(20000) });
+  await page.mouse.move(700, 400);
+  await page.mouse.wheel(0, 300);
+  await page.waitForTimeout(800);
+  await expect(canvas).not.toHaveAttribute("data-frames", /.*/);
+  release();
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+    { timeout: ci(30000) },
+  );
+  await expect
+    .poll(async () => Number(await canvas.getAttribute("data-frames")))
+    .toBeGreaterThan(0);
+});
+
 test("failed model collapses the pinned journey and preserves content", async ({
   page,
 }) => {

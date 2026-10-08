@@ -6,6 +6,7 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
   type RefObject,
 } from "react";
 import DeskPlatform from "./platform";
@@ -107,12 +108,13 @@ function cameraKey(step: StoryState) {
 function Driver({
   distance,
   active,
+  running,
   onFailure,
   panels,
   layout,
   wrapper: surface,
-}: JourneySceneProps) {
-  const { camera, gl, size, invalidate, setFrameloop } = useThree();
+}: JourneySceneProps & { running: boolean }) {
+  const { camera, gl, size, invalidate } = useThree();
   // One projection per screen and panel width; a diving screen's panel
   // changes width with the viewport.
   const projections = useRef(
@@ -143,11 +145,12 @@ function Driver({
     () => cameraAnchors(size.width, size.height),
     [size.width, size.height],
   );
+  // The Canvas owns the frame loop (see JourneyScene); a change of either
+  // asks for a fresh frame once frames are allowed.
   useEffect(() => {
-    setFrameloop(active ? "demand" : "never");
     gl.domElement.setAttribute("data-active", String(active));
-    if (active) invalidate();
-  }, [active, invalidate, setFrameloop, gl]);
+    if (running) invalidate();
+  }, [active, running, invalidate, gl]);
   useEffect(() => {
     // Scrolling through a reading stop leaves the camera where it is; the
     // frame would be identical, so only a moving camera redraws the desk.
@@ -383,14 +386,15 @@ function Driver({
  * pixels per CSS pixel, then, if that is still slow, to 1. It only ever steps
  * down, so the image does not pump while scrolling.
  */
-function AdaptiveResolution() {
-  const setDpr = useThree((state) => state.setDpr);
+function AdaptiveResolution({ onStep }: { onStep: (dpr: number) => void }) {
   const budget = useRef(createFrameBudget());
   useFrame(({ gl }) => {
     if (!budget.current.record(performance.now())) return;
     const next = [1.25, 1].find((dpr) => dpr < gl.getPixelRatio());
     if (next === undefined) return;
-    setDpr(next);
+    // Through the Canvas's dpr prop: R3F re-applies that prop whenever the
+    // Canvas renders, which would undo a setDpr made from inside.
+    onStep(next);
     // Judge the new resolution on its own frames.
     budget.current = createFrameBudget();
     gl.domElement.setAttribute("data-dpr-reduced", String(next));
@@ -426,7 +430,21 @@ const coarsePointer = () =>
 function JourneyScene(props: JourneySceneProps) {
   const controls = useDeskInteractions(props.active, false);
   const readyCallback = props.onReady;
-  const onReady = useCallback(() => readyCallback(), [readyCallback]);
+  // Nothing draws until the scene is warm (every program linked, textures
+  // uploaded, one hidden frame drawn): a frame drawn earlier would compile
+  // its shaders synchronously and freeze the page for seconds on a first
+  // visit.
+  const [warm, setWarm] = useState(false);
+  const onReady = useCallback(() => {
+    setWarm(true);
+    readyCallback();
+  }, [readyCallback]);
+  // Phones and tablets already have dense screens; the extra pixels cost
+  // battery for no visible gain. AdaptiveResolution lowers it on slow frames.
+  const [dpr, setDpr] = useState<number | [number, number]>(() =>
+    coarsePointer() ? [1, 1.25] : [1, 1.5],
+  );
+  const running = warm && controls.active;
   return (
     <>
       <Canvas
@@ -440,10 +458,10 @@ function JourneyScene(props: JourneySceneProps) {
         // PCF, which three now renders for PCFSoft anyway; naming it keeps
         // R3F from marking the cached shadow maps dirty on every render.
         shadows="percentage"
-        // Phones and tablets already have dense screens; the extra pixels
-        // cost battery for no visible gain.
-        dpr={coarsePointer() ? [1, 1.25] : [1, 1.5]}
-        frameloop="demand"
+        dpr={dpr}
+        // The only place the frame loop is set: R3F re-applies this prop on
+        // every Canvas render, so a setFrameloop from inside would not last.
+        frameloop={running ? "demand" : "never"}
         // The curtain scales the scene back in CSS; measured by its layout
         // box, the canvas keeps its drawing buffer instead of reallocating
         // and redrawing it at a new size on every scroll frame.
@@ -486,12 +504,13 @@ function JourneyScene(props: JourneySceneProps) {
         />
         <Suspense fallback={null}>
           <DeskPlatform />
-          <Model onReady={onReady} controls={controls} />
+          {/* The platform's reflection draws the scene into a render target. */}
+          <Model onReady={onReady} controls={controls} offscreen />
           <ScreenDepthPlanes />
         </Suspense>
         <RenderFrame />
-        <AdaptiveResolution />
-        <Driver {...props} active={controls.active} />
+        <AdaptiveResolution onStep={setDpr} />
+        <Driver {...props} active={controls.active} running={running} />
       </Canvas>
       {!props.poster ? (
         <DeskObjectControls controls={controls} locale={props.locale} journey />

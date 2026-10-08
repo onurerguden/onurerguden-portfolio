@@ -9,6 +9,7 @@
     loaf: [],
     gl: {},
     programs: 0,
+    programAt: [],
     contexts: [],
     milestones: {},
   });
@@ -29,6 +30,15 @@
           start: Math.round(entry.startTime),
           duration: Math.round(entry.duration),
           blocking: Math.round(entry.blockingDuration),
+          // Style, layout and paint at the end of the frame, after scripts.
+          render: entry.renderStart
+            ? Math.round(entry.startTime + entry.duration - entry.renderStart)
+            : 0,
+          layout: entry.styleAndLayoutStart
+            ? Math.round(
+                entry.startTime + entry.duration - entry.styleAndLayoutStart,
+              )
+            : 0,
           scripts: (entry.scripts || [])
             .map((script) => ({
               invoker: (script.invoker || "").slice(0, 80),
@@ -75,6 +85,29 @@
   // them in the GPU's caches. A branch the compiler cannot remove gives each
   // shader new source on every load, so a fresh profile measures the first
   // visit even on a machine that has compiled the site before.
+  // Which shader each program is, by the name three writes into it.
+  perf.shaders = [];
+  const source = proto.shaderSource;
+  proto.shaderSource = function (shader, text) {
+    if (!/gl_Position\s*=/.test(text))
+      perf.shaders.push([
+        Math.round(performance.now()),
+        /#define SHADER_NAME (\S+)/.exec(text)?.[1] ??
+          (/DEPTH_PACKING/.test(text)
+            ? "depth"
+            : [...text.matchAll(/uniform \w+ (\w+)/g)]
+                .map((match) => match[1])
+                .filter(
+                  (name) =>
+                    !/^(isOrthographic|cameraPosition|viewMatrix|toneMapping)/.test(
+                      name,
+                    ),
+                )
+                .slice(0, 4)
+                .join(",") || "?"),
+      ]);
+    return source.call(this, shader, text);
+  };
   if (config.bustShaderCache) {
     const salt = 1 + Math.floor(Math.random() * 1e6);
     const shaderSource = proto.shaderSource;
@@ -128,6 +161,7 @@
   const createProgram = proto.createProgram;
   proto.createProgram = function (...args) {
     perf.programs++;
+    perf.programAt.push(Math.round(performance.now()));
     return createProgram.apply(this, args);
   };
 
