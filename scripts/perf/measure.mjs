@@ -8,6 +8,8 @@
 // Scenarios:
 // - first-visit: a new browser profile and shaders the GPU has never seen
 //   (inject.js changes every shader's source), as for a first-time visitor.
+// - fresh: a new profile on a GPU that has compiled the site's shaders
+//   before; with first-visit, it tells shader cost from everything else.
 // - returning: the same profile after one full visit; HTTP and shader caches
 //   are warm.
 // - cpu4: returning, with the CPU slowed four times (a mid-range laptop).
@@ -93,6 +95,12 @@ async function visit(context, scenario, measured) {
           fcp: paint?.startTime ?? null,
           lcp: window.__perf.lcp ?? null,
           bytes,
+          marks: Object.fromEntries(
+            performance
+              .getEntriesByType("mark")
+              .filter((mark) => mark.name.startsWith("portfolio:"))
+              .map((mark) => [mark.name.slice(10), Math.round(mark.startTime)]),
+          ),
         };
       })
     : null;
@@ -136,16 +144,21 @@ function summarize(run) {
     scrollP50: quantile(intervals, 0.5),
     scrollP95: quantile(intervals, 0.95),
     scrollOver50: intervals.filter((interval) => interval > 50).length,
+    gaps: scrolling
+      .filter(([, interval]) => interval > 50)
+      .map(([start, interval]) => [start, interval]),
     glBlocking: Math.round(
       Object.values(run.gl).reduce((sum, entry) => sum + entry.ms, 0),
     ),
     glBlockingAfterReady: Math.round(glAfterReady),
     programs: run.programs,
+    programAt: run.programAt,
+    shaders: run.shaders,
     contexts: run.contexts.length,
     scriptBytes: run.bytes.script || 0,
     modelBytes: run.bytes.model || 0,
     imageBytes: run.bytes.image || 0,
-    milestones: run.milestones,
+    milestones: { ...run.marks, ...run.milestones },
     renderer: run.contexts[0]?.renderer ?? "none",
     parallelCompile: run.contexts[0]?.parallelCompile ?? null,
     longFrames: loaf
@@ -153,6 +166,8 @@ function summarize(run) {
       .map((entry) => ({
         start: entry.start,
         duration: entry.duration,
+        render: entry.render,
+        layout: entry.layout,
         top: entry.scripts[0]
           ? `${entry.scripts[0].invoker} (${entry.scripts[0].source})`
           : "",
