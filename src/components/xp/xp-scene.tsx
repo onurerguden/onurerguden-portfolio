@@ -11,8 +11,9 @@ import {
   SphereGeometry,
   Vector3,
 } from "three";
-import SectionCanvas from "@/components/three/section-canvas";
+import SectionCanvas, { useStageWarm } from "@/components/three/section-canvas";
 import DeskLighting from "@/components/desk/lighting";
+import { warmUp } from "@/components/three/warm-up";
 import { floorInStage } from "@/lib/bliss-geometry";
 import { buildAtlas, type BallItem } from "./tech-atlas";
 import { applyPhase, resetWorld, sim } from "./xp-sim";
@@ -157,22 +158,30 @@ function Balls({
     [],
   );
 
-  // The clearcoat shader is compiled before the first ball is drawn, in the
-  // background where the browser can; compiled on first draw, it would
-  // freeze the drop's opening frames. The balls wait above the screen.
+  // The clearcoat shader and the logo atlas are ready before the first ball
+  // is drawn (see warm-up.ts); prepared on first draw, they would freeze the
+  // drop's opening frames. The balls wait above the screen.
   const [compiled, setCompiled] = useState(false);
+  const warm = useStageWarm();
   useEffect(() => {
     let cancelled = false;
     const done = () => {
       if (cancelled) return;
       setCompiled(true);
+      warm();
       invalidate();
     };
-    gl.compileAsync(scene, camera).then(done, done);
+    warmUp({
+      gl,
+      scene,
+      camera,
+      render: () => gl.render(scene, camera),
+      cancelled: () => cancelled,
+    }).then(done, done);
     return () => {
       cancelled = true;
     };
-  }, [gl, scene, camera, material, invalidate]);
+  }, [gl, scene, camera, material, invalidate, warm]);
 
   useEffect(() => {
     if (!compiled) return;
@@ -265,6 +274,7 @@ export default function XpScene({
 }) {
   return (
     <SectionCanvas
+      warmUp
       id="desk-stack"
       active={active}
       paused={paused}
