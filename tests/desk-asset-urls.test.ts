@@ -51,10 +51,11 @@ describe("desk asset URLs", () => {
     expect(rules.map((rule) => rule.source)).toEqual([
       "/models/:path*",
       "/images/desk/:path*",
+      "/:icon(favicon\\.ico|icon\\.svg|apple-touch-icon\\.png|icon-192\\.png|icon-512\\.png|icon-maskable-512\\.png)",
       "/images/bliss/:path*",
       "/decoders/draco/:release(three-[^/]+)/:file*",
     ]);
-    for (const rule of rules.slice(0, 3))
+    for (const rule of rules.slice(0, 4))
       expect(rule.has).toEqual([{ type: "query", key: "v" }]);
     expect(nextConfig.poweredByHeader).toBe(false);
   });
