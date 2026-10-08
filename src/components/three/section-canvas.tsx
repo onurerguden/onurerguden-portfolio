@@ -72,7 +72,11 @@ export default function SectionCanvas({
       events={noEvents}
       orthographic={orthographic}
       camera={camera}
-      resize={resize}
+      // By its layout box, not getBoundingClientRect: a CSS transform on an
+      // ancestor (an arrival scale, say) would otherwise resize the drawing
+      // buffer and redraw every frame, and nothing here needs re-measuring
+      // on scroll.
+      resize={resize ?? { offsetSize: true, scroll: false }}
       gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
     >
       <StageDriver

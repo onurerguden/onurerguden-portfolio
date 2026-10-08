@@ -440,6 +440,10 @@ function JourneyScene(props: JourneySceneProps) {
         // cost battery for no visible gain.
         dpr={coarsePointer() ? [1, 1.25] : [1, 1.5]}
         frameloop="demand"
+        // The curtain scales the scene back in CSS; measured by its layout
+        // box, the canvas keeps its drawing buffer instead of reallocating
+        // and redrawing it at a new size on every scroll frame.
+        resize={{ offsetSize: true, scroll: false }}
         camera={{ fov: 43, near: 0.01, far: 30 }}
         gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
       >
