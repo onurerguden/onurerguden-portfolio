@@ -16,9 +16,12 @@ import type { DeskInteractions } from "./interactions";
 export function Model({
   onReady,
   controls,
+  offscreen = false,
 }: {
   onReady: () => void;
   controls: DeskInteractions;
+  /** The scene is also drawn into a render target (a reflection). */
+  offscreen?: boolean;
 }) {
   const invalidate = useThree((state) => state.invalidate);
   const advance = useThree((state) => state.advance);
@@ -58,13 +61,12 @@ export function Model({
       camera,
       render: () => advance(performance.now()),
       cancelled: () => cancelled,
-      // The platform's reflection draws the scene into a render target.
-      offscreen: true,
+      offscreen,
     }).then((warm) => warm && done(), done);
     return () => {
       cancelled = true;
     };
-  }, [onReady, invalidate, advance, gl, camera, root]);
+  }, [onReady, invalidate, advance, gl, camera, root, offscreen]);
   useEffect(
     () => () => {
       model.traverse((object) => {

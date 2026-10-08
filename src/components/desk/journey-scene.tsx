@@ -504,7 +504,8 @@ function JourneyScene(props: JourneySceneProps) {
         />
         <Suspense fallback={null}>
           <DeskPlatform />
-          <Model onReady={onReady} controls={controls} />
+          {/* The platform's reflection draws the scene into a render target. */}
+          <Model onReady={onReady} controls={controls} offscreen />
           <ScreenDepthPlanes />
         </Suspense>
         <RenderFrame />

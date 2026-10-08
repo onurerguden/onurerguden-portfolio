@@ -204,7 +204,9 @@ test("scroll separates reading from camera travel, reverses, focuses links and e
 test("the desk draws nothing until its shaders are ready", async ({
   page,
   browserName,
+  isMobile,
 }) => {
+  test.skip(isMobile, touchStatic);
   test.skip(browserName === "webkit", "Headless WebKit lacks reliable WebGL2.");
   // Hold the model back: the canvas exists, everything around it is mounted
   // and asking for frames, but a frame drawn now would compile shaders on
