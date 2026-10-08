@@ -26,7 +26,10 @@
     "bliss:build": "node scripts/bliss/build.mjs",
     "certificate": "node scripts/certificates/optimize.mjs",
     "icons:build": "node scripts/icons/build.mjs",
-    "about:poster": "node scripts/about/capture-poster.mjs"
+    "about:poster": "node scripts/about/capture-poster.mjs",
+    "perf": "node scripts/perf/measure.mjs",
+    "perf:check": "node scripts/perf/measure.mjs --check",
+    "qa:stops": "node scripts/perf/stops.mjs"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "5.3.0",
