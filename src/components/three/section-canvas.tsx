@@ -1,5 +1,13 @@
 "use client";
-import { useEffect, useMemo, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import {
   Canvas,
   useFrame,
@@ -20,6 +28,14 @@ const noEvents = (): EventManager<HTMLElement> => ({
   disconnect: () => {},
 });
 
+/**
+ * A scene that prepares itself (see warm-up.ts) calls this once it is warm;
+ * until then its canvas draws nothing, since a frame drawn earlier would
+ * compile shaders on the page's main thread.
+ */
+const WarmContext = createContext<() => void>(() => {});
+export const useStageWarm = () => useContext(WarmContext);
+
 type Props = {
   id: string;
   /** Visible, page visible and granted a context. */
@@ -37,6 +53,8 @@ type Props = {
   orthographic?: boolean;
   /** How the canvas measures itself; see R3F's `resize` option. */
   resize?: CanvasProps["resize"];
+  /** The scene reports when it is warm (useStageWarm); no frames before. */
+  warmUp?: boolean;
   children: ReactNode;
 };
 
@@ -54,8 +72,12 @@ export default function SectionCanvas({
   camera,
   orthographic,
   resize,
+  warmUp = false,
   children,
 }: Props) {
+  const [warmed, setWarmed] = useState(!warmUp);
+  const onWarm = useCallback(() => setWarmed(true), []);
+  const running = active && !paused && warmed;
   const coarse = useMemo(
     () =>
       typeof window !== "undefined" && matchMedia("(pointer: coarse)").matches,
@@ -68,7 +90,7 @@ export default function SectionCanvas({
       dpr={coarse ? [1, 1.25] : [1, 1.5]}
       // The prop too, not only setFrameloop: R3F reapplies it whenever the
       // Canvas re-renders (a resize, say), which would restart a paused scene.
-      frameloop={active && !paused ? "demand" : "never"}
+      frameloop={running ? "demand" : "never"}
       events={noEvents}
       orthographic={orthographic}
       camera={camera}
@@ -81,12 +103,12 @@ export default function SectionCanvas({
     >
       <StageDriver
         id={id}
-        running={active && !paused}
-        active={active}
+        running={running}
+        active={active && warmed}
         onFailure={onFailure}
         fps={fps ? Math.min(fps, coarse ? 30 : 60) : undefined}
       />
-      {children}
+      <WarmContext.Provider value={onWarm}>{children}</WarmContext.Provider>
     </Canvas>
   );
 }

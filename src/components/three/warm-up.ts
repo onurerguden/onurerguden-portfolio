@@ -69,7 +69,8 @@ export async function warmUp({
   }
   step("programs");
   const drawn: Object3D[] = [];
-  scene.traverseVisible((object) => {
+  // Hidden objects too: a scene may keep something hidden until it is warm.
+  scene.traverse((object) => {
     if ("material" in object && "geometry" in object) drawn.push(object);
   });
   const linking: Promise<unknown>[] = [];

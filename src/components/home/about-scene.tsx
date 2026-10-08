@@ -9,9 +9,11 @@ import {
 } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { Group, Vector3 } from "three";
-import SectionCanvas from "@/components/three/section-canvas";
+import SectionCanvas, { useStageWarm } from "@/components/three/section-canvas";
 import DeskLighting from "@/components/desk/lighting";
+import { warmUp } from "@/components/three/warm-up";
 import { seededRandom } from "@/lib/random";
+import { yieldToMain } from "@/lib/yield";
 import techIcons from "@/lib/tech-icons.generated.json";
 import { kick, restPose, swayAmplitude, turn } from "./about-motion";
 import { curtainProgress } from "@/lib/desk-story/curtain";
@@ -22,6 +24,7 @@ import {
   clay,
   contactShadows,
   keycaps,
+  logoGeometry,
   placeShadow,
   showShadows,
   network,
@@ -132,22 +135,40 @@ function createBodies(slots: Record<string, Slot>) {
 /**
  * Procedural geometry is built once per visit: a scene that is released and
  * mounted again (scrolling away and back) reuses it instead of rebuilding.
+ * `prepareAbout` builds it ahead, one part per task, while the visitor is
+ * still at the desk, so mounting the scene has nothing left to build.
  */
-let cachedParts: ReturnType<typeof buildParts> | null = null;
-function buildParts() {
-  return {
-    basketball: basketball(),
-    tennis: tennisBall(),
-    racket: racket(),
-    terminal: terminal(),
-    braces: braces(),
-    chip: chip(),
-    network: network(),
-    keycaps: keycaps(),
-    shadows: contactShadows(Object.keys(wideSlots).length),
-  };
+const builders = {
+  basketball,
+  tennis: tennisBall,
+  racket,
+  terminal,
+  braces,
+  chip,
+  network,
+  keycaps,
+  shadows: () => contactShadows(Object.keys(wideSlots).length),
+};
+type Parts = { [K in keyof typeof builders]: ReturnType<(typeof builders)[K]> };
+const cachedParts: Partial<Parts> = {};
+function build<K extends keyof Parts>(key: K) {
+  return (cachedParts[key] ??= builders[key]() as Parts[K]);
 }
-const parts = () => (cachedParts ??= buildParts());
+const parts = () => {
+  for (const key of Object.keys(builders) as (keyof Parts)[]) build(key);
+  return cachedParts as Parts;
+};
+const icons = techIcons.icons as Record<string, { path: string; hex: string }>;
+export async function prepareAbout(logos: string[]) {
+  for (const key of Object.keys(builders) as (keyof Parts)[]) {
+    await yieldToMain();
+    build(key);
+  }
+  for (const slug of logos.slice(0, 3)) {
+    await yieldToMain();
+    if (icons[slug]) logoGeometry(icons[slug].path);
+  }
+}
 
 function Objects({
   logos,
@@ -191,6 +212,7 @@ function Objects({
   // The section's place, read on scroll and resize rather than every frame.
   const placement = useRef({ top: 0, height: 1 });
   const readiness = useRef<"compiling" | "compiled" | "ready">("compiling");
+  const warm = useStageWarm();
   // What the last frame was drawn for; see the end of the frame below.
   const drawn = useRef({ progress: NaN, spread: NaN });
 
@@ -212,20 +234,29 @@ function Objects({
   }, [sectionRef, invalidate]);
 
   useEffect(() => {
-    // Compile every shader before the first frame, so the canvas never fades
-    // in on a frame that stalled on compilation.
+    // Prepare every shader before the first frame, so the canvas never
+    // fades in on a frame that stalled on compilation.
     let cancelled = false;
     const done = () => {
       if (cancelled) return;
       readiness.current = "compiled";
+      warm();
       // Draw it now even when paused, so a paused visit still gets its still.
       advance(performance.now());
     };
-    gl.compileAsync(scene, camera).then(done, done);
+    // Compiled, drawn once hidden and built by the GPU without blocking the
+    // page (see warm-up.ts).
+    warmUp({
+      gl,
+      scene,
+      camera,
+      render: () => advance(performance.now()),
+      cancelled: () => cancelled,
+    }).then(done, done);
     return () => {
       cancelled = true;
     };
-  }, [gl, scene, camera, advance]);
+  }, [gl, scene, camera, advance, warm]);
 
   useFrame((state, delta) => {
     if (simulation.current?.key !== slots)
@@ -337,10 +368,6 @@ function Objects({
     onReady();
   }, 2);
 
-  const icons = techIcons.icons as Record<
-    string,
-    { path: string; hex: string }
-  >;
   return (
     <>
       <primitive object={built.shadows} />
@@ -497,6 +524,7 @@ export default function AboutScene({
   }, [sectionRef, active, paused]);
   return (
     <SectionCanvas
+      warmUp
       id="about"
       active={active}
       paused={paused}
