@@ -6,7 +6,6 @@ import {
   useEffect,
   useMemo,
   useRef,
-  useState,
   type RefObject,
 } from "react";
 import DeskPlatform from "./platform";
@@ -379,17 +378,22 @@ function Driver({
   return <CosmicEnvironment pointer={pointer} />;
 }
 /**
- * Drops the desk to one device pixel per CSS pixel when its moving frames run
- * well below 40 fps (a mid-range phone's GPU against a dense screen). It
- * steps down once and never back, so the image does not pump while scrolling.
+ * Lowers the desk's resolution while its moving frames run below about
+ * 50 fps (an integrated GPU against a dense screen): first to 1.25 device
+ * pixels per CSS pixel, then, if that is still slow, to 1. It only ever steps
+ * down, so the image does not pump while scrolling.
  */
 function AdaptiveResolution() {
   const setDpr = useThree((state) => state.setDpr);
-  const [budget] = useState(() => createFrameBudget());
+  const budget = useRef(createFrameBudget());
   useFrame(({ gl }) => {
-    if (!budget.record(performance.now()) || gl.getPixelRatio() <= 1) return;
-    setDpr(1);
-    gl.domElement.setAttribute("data-dpr-reduced", "true");
+    if (!budget.current.record(performance.now())) return;
+    const next = [1.25, 1].find((dpr) => dpr < gl.getPixelRatio());
+    if (next === undefined) return;
+    setDpr(next);
+    // Judge the new resolution on its own frames.
+    budget.current = createFrameBudget();
+    gl.domElement.setAttribute("data-dpr-reduced", String(next));
   });
   return null;
 }
@@ -445,7 +449,13 @@ function JourneyScene(props: JourneySceneProps) {
         // and redrawing it at a new size on every scroll frame.
         resize={{ offsetSize: true, scroll: false }}
         camera={{ fov: 43, near: 0.01, far: 30 }}
-        gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
+        // The desk is the page's one heavy scene: on a computer with two GPUs
+        // it gets the faster one. Section scenes stay on low power.
+        gl={{
+          antialias: true,
+          alpha: true,
+          powerPreference: "high-performance",
+        }}
       >
         <DeskLighting />
 

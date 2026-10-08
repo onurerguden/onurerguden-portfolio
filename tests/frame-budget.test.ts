@@ -19,6 +19,10 @@ describe("desk frame budget", () => {
     expect(verdicts.filter(Boolean)).toHaveLength(1);
     expect(verdicts.indexOf(true)).toBe(10);
   });
+  it("counts frames under about 50 fps as slow", () => {
+    expect(run(Array(40).fill(22))).toContain(true);
+    expect(run(Array(40).fill(18))).not.toContain(true);
+  });
   it("ignores idle gaps between demand-rendered frames", () => {
     const intervals = Array.from({ length: 40 }, (_, i) => (i % 2 ? 16 : 500));
     expect(run(intervals)).not.toContain(true);
