@@ -3,7 +3,7 @@ import GiantTitle from "@/components/giant-title";
 import styles from "./not-found.module.css";
 
 /** Shared by both languages: it can be reached from any path. */
-export default function NotFound() {
+export default function NotFoundContent() {
   return (
     <main id="main" className={styles.page}>
       <GiantTitle

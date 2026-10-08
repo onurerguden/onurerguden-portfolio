@@ -1,4 +1,6 @@
 import { after } from "next/server";
+import { revalidateTag } from "next/cache";
+import { reposTag } from "@/lib/github";
 import { parseEvent, synchronize, verifySignature } from "@/lib/github/core";
 import { createStore } from "@/lib/github/store";
 import { recordPush } from "@/lib/github/activity-core";
@@ -64,6 +66,8 @@ export async function POST(request: Request) {
   if (event.remove) {
     try {
       await store.remove(event.id);
+      // The built archive page must drop it now, not at its next refresh.
+      revalidateTag(reposTag, { expire: 0 });
     } catch {
       return Response.json(
         { error: "Integration unavailable" },
@@ -73,13 +77,14 @@ export async function POST(request: Request) {
   }
   after(async () => {
     try {
-      await synchronize(
+      const result = await synchronize(
         store,
         token,
         delivery,
         fetch,
         event.remove ? event.id : undefined,
       );
+      if (result === "updated") revalidateTag(reposTag, "max");
     } catch {
       console.error(
         "GitHub sync failed; redeliver webhook or run reconciliation.",

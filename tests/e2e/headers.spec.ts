@@ -1,11 +1,14 @@
 import { test, expect } from "@playwright/test";
 import { ci, go, story } from "./helpers";
 
-test("pages send a nonce CSP and the security headers", async ({ request }) => {
+test("pages are built ahead with one policy and the security headers", async ({
+  request,
+}) => {
   const response = await request.get("/en");
   const headers = response.headers();
   const csp = headers["content-security-policy"];
-  expect(csp).toMatch(/script-src 'self' 'nonce-[\w+/=]+' 'strict-dynamic'/);
+  expect(csp).toContain("script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'");
+  expect(csp).not.toContain("nonce-");
   expect(csp).toContain("frame-ancestors 'none'");
   expect(csp).toContain("object-src 'none'");
   expect(headers["x-content-type-options"]).toBe("nosniff");
@@ -15,25 +18,42 @@ test("pages send a nonce CSP and the security headers", async ({ request }) => {
   expect(headers["cross-origin-opener-policy"]).toBe("same-origin");
   expect(headers["strict-transport-security"]).toContain("max-age=");
   expect(headers["x-powered-by"]).toBeUndefined();
-  // A fresh nonce on every request.
+  // The same policy every time, and a page a CDN may keep.
   const again = (await request.get("/en")).headers()["content-security-policy"];
-  expect(again).not.toBe(csp);
+  expect(again).toBe(csp);
+  expect(headers["cache-control"]).toMatch(/s-maxage=\d+/);
 });
 
-test("prefetches and dotted page paths get the policy too", async ({
+test("prefetches, dotted paths and missing pages get the policy too", async ({
   request,
 }) => {
   const requests: [string, Record<string, string>][] = [
     ["/tr/projects/kuyumcum", { purpose: "prefetch" }],
     ["/tr/projects/kuyumcum", { "next-router-prefetch": "1", rsc: "1" }],
     ["/en/projects/v1.2", {}],
+    ["/nope", {}],
   ];
   for (const [path, headers] of requests) {
     const response = await request.get(path, { headers });
-    expect(response.headers()["content-security-policy"], path).toMatch(
-      /'nonce-[\w+/=]+'/,
+    expect(response.headers()["content-security-policy"], path).toContain(
+      "default-src 'self'",
     );
   }
+});
+
+test("missing pages answer 404 in and outside the languages", async ({
+  page,
+}) => {
+  for (const path of ["/nope", "/en/nope", "/tr/projects/nope"]) {
+    const response = await page.goto(path);
+    expect(response?.status(), path).toBe(404);
+    await expect(
+      page.getByRole("link", { name: /English homepage/ }),
+    ).toBeVisible();
+  }
+  const response = await page.goto("/");
+  expect(page.url()).toMatch(/\/en$/);
+  expect(response?.ok()).toBe(true);
 });
 
 test("versioned desk files are cached for good, others revalidate", async ({
