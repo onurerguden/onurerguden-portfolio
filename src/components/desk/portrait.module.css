@@ -84,6 +84,9 @@
 :global([data-enhanced="true"][data-ready="true"]) .opening {
   opacity: var(--opening-opacity, 1);
 }
+:global([data-enhanced="true"][data-arrived-late="true"]) .opening {
+  transition: opacity 0.4s ease-out;
+}
 .openingScreen {
   position: absolute;
   width: max(108.696%, 253.748svh);

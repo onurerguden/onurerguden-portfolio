@@ -460,9 +460,16 @@ export default function DeskJourney({
     };
   }, []);
   const onReady = useCallback(() => {
+    // A visitor who scrolled on while the desk prepared is already past the
+    // opening: fade it out instead of cutting to the desk.
+    const node = section.current;
+    if (node && distance.get() > 0.15) {
+      node.dataset.arrivedLate = "true";
+      window.setTimeout(() => delete node.dataset.arrivedLate, 600);
+    }
     setReady(true);
     setSceneShown(true);
-  }, []);
+  }, [distance]);
   const remember = useCallback(() => {
     const measure = layout.current;
     const d = distance.get();
@@ -583,7 +590,9 @@ export default function DeskJourney({
   }, [enhanced]);
   useEffect(() => {
     if (!enhanced || ready || released) return;
-    const timeout = window.setTimeout(onFailure, 12000);
+    // A first visit compiles every shader before the desk shows; on a slow
+    // GPU that alone can take several seconds, without blocking the page.
+    const timeout = window.setTimeout(onFailure, 20000);
     return () => window.clearTimeout(timeout);
   }, [enhanced, ready, released, onFailure]);
   const jumpTo = useCallback(
