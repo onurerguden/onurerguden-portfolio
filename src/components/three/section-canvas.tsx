@@ -15,6 +15,7 @@ import {
   type CanvasProps,
   type EventManager,
 } from "@react-three/fiber";
+import { quality } from "@/lib/quality";
 
 /**
  * Section scenes listen to the page themselves and never use R3F's pointer
@@ -83,11 +84,13 @@ export default function SectionCanvas({
       typeof window !== "undefined" && matchMedia("(pointer: coarse)").matches,
     [],
   );
+  // Integrated graphics draw at one device pixel, without multisampling.
+  const low = useMemo(() => quality() === "low", []);
   return (
     <Canvas
       className={className}
       style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
-      dpr={coarse ? [1, 1.25] : [1, 1.5]}
+      dpr={low ? 1 : coarse ? [1, 1.25] : [1, 1.5]}
       // The prop too, not only setFrameloop: R3F reapplies it whenever the
       // Canvas re-renders (a resize, say), which would restart a paused scene.
       frameloop={running ? "demand" : "never"}
@@ -99,7 +102,7 @@ export default function SectionCanvas({
       // buffer and redraw every frame, and nothing here needs re-measuring
       // on scroll.
       resize={resize ?? { offsetSize: true, scroll: false }}
-      gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
+      gl={{ antialias: !low, alpha: true, powerPreference: "low-power" }}
     >
       <StageDriver
         id={id}

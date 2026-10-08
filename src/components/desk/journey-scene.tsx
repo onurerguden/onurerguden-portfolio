@@ -26,6 +26,7 @@ import {
   type CameraStop,
 } from "@/lib/desk-story/camera";
 import { createFrameBudget } from "@/lib/desk-story/frame-budget";
+import { quality } from "@/lib/quality";
 import { storyAt, type StoryState } from "@/lib/desk-story/timeline";
 import type { Signal } from "@/lib/desk-story/signal";
 import { shadeOf, type PanelRefs } from "./screen-panels";
@@ -441,8 +442,11 @@ function JourneyScene(props: JourneySceneProps) {
   }, [readyCallback]);
   // Phones and tablets already have dense screens; the extra pixels cost
   // battery for no visible gain. AdaptiveResolution lowers it on slow frames.
+  // Integrated graphics start at one device pixel per CSS pixel, without
+  // multisampling or the lamp's shadow (src/lib/quality.ts).
+  const [low] = useState(() => quality() === "low");
   const [dpr, setDpr] = useState<number | [number, number]>(() =>
-    coarsePointer() ? [1, 1.25] : [1, 1.5],
+    low ? 1 : coarsePointer() ? [1, 1.25] : [1, 1.5],
   );
   const running = warm && controls.active;
   return (
@@ -470,9 +474,9 @@ function JourneyScene(props: JourneySceneProps) {
         // The desk is the page's one heavy scene: on a computer with two GPUs
         // it gets the faster one. Section scenes stay on low power.
         gl={{
-          antialias: true,
+          antialias: !low,
           alpha: true,
-          powerPreference: "high-performance",
+          powerPreference: low ? "low-power" : "high-performance",
         }}
       >
         <DeskLighting />

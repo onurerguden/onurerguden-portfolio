@@ -41,6 +41,7 @@ import { currentSection } from "@/lib/current-section";
 import { deskMode, useStaticDesk } from "@/lib/desk-mode";
 import { curtainProgress } from "@/lib/desk-story/curtain";
 import { laptopPhase, type LaptopPhase } from "@/lib/desk-story/store";
+import { quality } from "@/lib/quality";
 import { signal } from "@/lib/desk-story/signal";
 import SceneBoundary from "@/components/three/scene-boundary";
 import { JourneyNav, plainClick } from "@/components/site/site-nav";
@@ -298,15 +299,17 @@ export default function DeskJourney({
   }, [update]);
   useEffect(() => {
     const motion = matchMedia(staticQuery);
+    // A computer without GPU acceleration reads the plain flow too.
+    const plain = () => motion.matches || quality() === "static";
     const refresh = () => {
-      setStaticMode(motion.matches);
-      setEnabled(!motion.matches);
+      setStaticMode(plain());
+      setEnabled(!plain());
     };
     refresh();
     motion.addEventListener("change", refresh);
     const observer = new IntersectionObserver(([entry]) => {
       setActive(entry.isIntersecting);
-      if (entry.isIntersecting && !motion.matches) setEnabled(true);
+      if (entry.isIntersecting && !plain()) setEnabled(true);
     });
     if (stage.current) observer.observe(stage.current);
     return () => {
