@@ -47,8 +47,13 @@ for (const url of pages) {
     continue;
   }
   const html = await response.text();
-  if (!response.headers.get("content-security-policy")?.includes("nonce-"))
-    fail(path, "no nonce Content-Security-Policy");
+  // One policy for every response, so pages come from the CDN
+  // (src/lib/security.ts): scripts from this origin only.
+  const policy = response.headers.get("content-security-policy") ?? "";
+  if (!policy.includes("script-src 'self'") || policy.includes("nonce-"))
+    fail(path, "unexpected Content-Security-Policy");
+  if (!/public|s-maxage/.test(response.headers.get("cache-control") ?? ""))
+    fail(path, "not cacheable at the CDN");
   const robotsMeta = attr(html, /<meta name="robots" content="([^"]*)"/);
   if (robotsMeta?.includes("noindex")) fail(path, "is noindex");
   if (attr(html, /<link rel="canonical" href="([^"]*)"/) !== url)
