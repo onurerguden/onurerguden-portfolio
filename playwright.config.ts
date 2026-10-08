@@ -39,7 +39,21 @@ export default defineConfig({
   reporter: process.env.CI
     ? [["github"], ["html", { open: "never" }]]
     : [["list"], ["html", { open: "never" }]],
-  use: { baseURL: `http://localhost:${port}`, trace: "retain-on-failure" },
+  use: {
+    baseURL: `http://localhost:${port}`,
+    trace: "retain-on-failure",
+    // CI renders WebGL in software, which the site gives the plain flow
+    // (src/lib/quality.ts); the desk's tests ask for the full desk.
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: `http://localhost:${port}`,
+          localStorage: [{ name: "portfolio:quality", value: "high" }],
+        },
+      ],
+    },
+  },
   webServer: {
     // The production build behind a proxy that keeps image optimization
     // from hanging when a test closes its page mid-load (scripts/e2e).

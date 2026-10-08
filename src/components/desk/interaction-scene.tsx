@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { quality } from "@/lib/quality";
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import {
   Color,
@@ -55,6 +56,8 @@ function cacheShadows(renderer: WebGLRenderer, cached: boolean) {
 function dirtyShadows(renderer: WebGLRenderer) {
   renderer.shadowMap.needsUpdate = true;
 }
+
+const lampShadow = typeof window !== "undefined" && quality() !== "low";
 
 export default function InteractionScene({
   model,
@@ -487,7 +490,8 @@ export default function InteractionScene({
       </sprite>
       <primitive object={lampTarget} />
       <spotLight
-        castShadow
+        // Integrated graphics skip the lamp's shadow (src/lib/quality.ts).
+        castShadow={lampShadow}
         target={lampTarget}
         angle={1.25}
         penumbra={0.8}

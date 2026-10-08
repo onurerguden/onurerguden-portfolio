@@ -3,6 +3,7 @@
 // before and after for review).
 //
 //   node scripts/perf/stops.mjs capture <label> [--url http://localhost:3100]
+//     [--quality high|low]
 //   node scripts/perf/stops.mjs compare <before> <after> [--min 45]
 //
 // Captures go to work/perf-stops/<label>/ (not committed). compare prints the
@@ -18,6 +19,8 @@ const { values, positionals } = parseArgs({
   options: {
     url: { type: "string", default: "http://localhost:3100" },
     min: { type: "string", default: "45" },
+    // A quality tier to capture (src/lib/quality.ts); the GPU's own otherwise.
+    quality: { type: "string" },
   },
 });
 const [command, ...labels] = positionals;
@@ -62,6 +65,11 @@ async function capture(label) {
           viewport: size.viewport,
           deviceScaleFactor: 1,
         });
+        if (values.quality)
+          await page.addInitScript(
+            (tier) => localStorage.setItem("portfolio:quality", tier),
+            values.quality,
+          );
         await page.goto(`${values.url}/${locale}`);
         await page.waitForSelector('[data-ready="true"]', { timeout: 60000 });
         const dir = `${root}/${label}/${locale}-${size.name}`;

@@ -261,6 +261,54 @@ test("the MacBook's Bliss layers wait for the visitor to move", async ({
     .toBeGreaterThan(0);
 });
 
+test("integrated graphics get the lighter desk", async ({
+  page,
+  browserName,
+  isMobile,
+}) => {
+  test.skip(isMobile, touchStatic);
+  test.skip(browserName === "webkit", "Headless WebKit lacks reliable WebGL2.");
+  await page.addInitScript(() =>
+    localStorage.setItem("portfolio:quality", "low"),
+  );
+  await page.goto("/en");
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+    { timeout: ci(30000) },
+  );
+  const canvas = journeyCanvas(page);
+  const settings = await canvas.evaluate((element: HTMLCanvasElement) => ({
+    antialias: element.getContext("webgl2")?.getContextAttributes()?.antialias,
+    ratio: element.width / element.clientWidth,
+  }));
+  expect(settings.antialias).toBe(false);
+  expect(settings.ratio).toBeCloseTo(1, 1);
+});
+
+test("a computer without GPU acceleration reads the plain flow", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, touchStatic);
+  const models: string[] = [];
+  page.on("request", (request) => {
+    if (/\.glb|draco/.test(request.url())) models.push(request.url());
+  });
+  await page.addInitScript(() =>
+    localStorage.setItem("portfolio:quality", "static"),
+  );
+  await page.goto("/en");
+  await expect(page.locator("[data-enhanced]")).toHaveAttribute(
+    "data-static",
+    "true",
+  );
+  await expect(page.locator("#services")).toBeVisible();
+  await page.waitForTimeout(1000);
+  expect(models).toEqual([]);
+  await expect(page.locator("canvas")).toHaveCount(0);
+});
+
 test("failed model collapses the pinned journey and preserves content", async ({
   page,
 }) => {
