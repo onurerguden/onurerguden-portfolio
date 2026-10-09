@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { preload } from "react-dom";
 import Image from "next/image";
 import {
+  startTransition,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -44,6 +45,7 @@ import { laptopPhase, type LaptopPhase } from "@/lib/desk-story/store";
 import { quality } from "@/lib/quality";
 import { signal } from "@/lib/desk-story/signal";
 import { onScrollFrame } from "@/lib/scroll-frame";
+import { afterScrollPause } from "@/lib/scroll-pause";
 import SceneBoundary from "@/components/three/scene-boundary";
 import { JourneyNav, plainClick } from "@/components/site/site-nav";
 import monitorStyles from "@/components/sections/monitor.module.css";
@@ -359,18 +361,46 @@ export default function DeskJourney({
     const motion = matchMedia(staticQuery);
     // A computer without GPU acceleration reads the plain flow too.
     const plain = () => motion.matches || quality() === "static";
+    // Turning the desk on moves the screens' sections into it and measures
+    // them: a few hundred milliseconds on a slow phone-class CPU. It waits
+    // for a pause in the visitor's scrolling (at most 1.5 s) and renders as
+    // a transition, so their first scroll never waits on it.
+    let pause: AbortController | null = null;
+    const enhance = () => {
+      if (pause) return;
+      const controller = (pause = new AbortController());
+      afterScrollPause(150, 1500, controller.signal).then(() =>
+        startTransition(() => setEnabled(true)),
+      );
+    };
     const refresh = () => {
       setStaticMode(plain());
-      setEnabled(!plain());
+      if (plain()) {
+        pause?.abort();
+        pause = null;
+        setEnabled(false);
+      } else enhance();
     };
     refresh();
+    // The desk's code meanwhile downloads (and runs) while the page is idle.
+    const prefetch = () => void import("./journey-scene");
+    let cancelPrefetch = () => {};
+    if (!plain() && typeof requestIdleCallback === "function") {
+      const id = requestIdleCallback(prefetch, { timeout: 1500 });
+      cancelPrefetch = () => cancelIdleCallback(id);
+    } else if (!plain()) {
+      const id = window.setTimeout(prefetch, 300);
+      cancelPrefetch = () => window.clearTimeout(id);
+    }
     motion.addEventListener("change", refresh);
     const observer = new IntersectionObserver(([entry]) => {
       setActive(entry.isIntersecting);
-      if (entry.isIntersecting && !plain()) setEnabled(true);
+      if (entry.isIntersecting && !plain()) enhance();
     });
     if (stage.current) observer.observe(stage.current);
     return () => {
+      pause?.abort();
+      cancelPrefetch();
       observer.disconnect();
       motion.removeEventListener("change", refresh);
     };
