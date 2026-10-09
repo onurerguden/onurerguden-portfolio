@@ -108,7 +108,8 @@ function phaseAt(measure: StoryMeasure, story: StoryState): LaptopPhase {
  * Draws the paper curtain: the stage clipped by `side`% from each side, the
  * desk scaled back and dimmed by `exit`, and the paper edges placed on the
  * clip. Inline styles on a handful of elements, never a custom property
- * on an ancestor, so a scroll frame restyles only them.
+ * on an ancestor, so a scroll frame restyles only them. The edges move by
+ * transform (`width` is the stage's), so placing them never lays out.
  */
 function paintCurtain(
   stage: HTMLElement | null,
@@ -117,16 +118,19 @@ function paintCurtain(
   dim: HTMLElement | null,
   side: number,
   exit: number,
+  width = 0,
 ) {
   if (!stage) return;
   stage.style.clipPath = side > 0 ? `inset(0 ${side}% 0 ${side}%)` : "";
   if (dim) dim.style.opacity = String(0.55 * exit);
   if (scene)
     scene.style.transform = exit > 0 ? `scale(${1 - 0.06 * exit})` : "";
+  const offset = (side / 100) * width;
   edges.forEach((edge, i) => {
     if (!edge) return;
     edge.style.display = side > 0 ? "block" : "";
-    edge.style.setProperty(i ? "right" : "left", `${side}%`);
+    edge.style.transform =
+      side > 0 ? `translateX(${i ? -offset : offset}px)` : "";
   });
 }
 
@@ -272,6 +276,7 @@ export default function DeskJourney({
       dim.current,
       side,
       state.exit,
+      side > 0 ? measure.stage.width || (stage.current?.offsetWidth ?? 0) : 0,
     );
     curtainProgress.set(exit ? state.exit : 1);
     const nextCover = {

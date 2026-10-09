@@ -325,10 +325,13 @@
   width: 28px;
   pointer-events: none;
 }
+/* Placed on the clip by a transform from their own side (paintCurtain). */
 .curtainEdge[data-side="left"] {
+  left: 0;
   background: linear-gradient(90deg, #02050d8c, transparent);
 }
 .curtainEdge[data-side="right"] {
+  right: 0;
   background: linear-gradient(270deg, #02050d8c, transparent);
 }
 .curtainEdge::before {
