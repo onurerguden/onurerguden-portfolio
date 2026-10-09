@@ -27,7 +27,15 @@ import {
   screens,
   type CameraStop,
 } from "@/lib/desk-story/camera";
-import { createFrameBudget } from "@/lib/desk-story/frame-budget";
+import {
+  createResolutionGovernor,
+  measureFrameInterval,
+  rememberLevel,
+  rememberedLevel,
+  resolutionLevels,
+  type ResolutionGovernor,
+} from "@/lib/desk-story/frame-budget";
+import { createGpuTimer, type GpuTimer } from "@/components/three/gpu-timer";
 import { quality } from "@/lib/quality";
 import { qa } from "@/lib/qa";
 import { storyAt, type StoryState } from "@/lib/desk-story/timeline";
@@ -412,35 +420,89 @@ function Driver({
   return <CosmicEnvironment pointer={pointer} />;
 }
 /**
- * Lowers the desk's resolution while its moving frames run below about
- * 50 fps (an integrated GPU against a dense screen): first to 1.25 device
- * pixels per CSS pixel, then, if that is still slow, to 1. It only ever steps
- * down, so the image does not pump while scrolling.
+ * Keeps the desk's resolution where its moving frames fit this display
+ * (src/lib/desk-story/frame-budget.ts): lower when they don't, back up when
+ * the GPU has room again. A change reallocates the drawing buffer and
+ * changes the image's sharpness, so it waits until the desk has been still
+ * for a moment instead of landing mid-move.
  */
-function AdaptiveResolution({ onStep }: { onStep: (dpr: number) => void }) {
-  const budget = useRef(createFrameBudget());
-  useFrame(({ gl }) => {
-    if (!budget.current.record(performance.now())) return;
-    const next = [1.25, 1].find((dpr) => dpr < gl.getPixelRatio());
-    if (next === undefined) return;
-    // Through the Canvas's dpr prop: R3F re-applies that prop whenever the
-    // Canvas renders, which would undo a setDpr made from inside.
-    onStep(next);
-    // Judge the new resolution on its own frames.
-    budget.current = createFrameBudget();
-    gl.domElement.setAttribute("data-dpr-reduced", String(next));
+function AdaptiveResolution({
+  levels,
+  level,
+  onStep,
+  timerRef,
+}: {
+  levels: number[];
+  level: number;
+  onStep: (dpr: number) => void;
+  timerRef: RefObject<GpuTimer | null | undefined>;
+}) {
+  const governor = useRef<ResolutionGovernor | null>(null);
+  const still = useRef(0);
+  const gl = useThree((state) => state.gl);
+  useEffect(() => {
+    let cancelled = false;
+    void measureFrameInterval().then((frameMs) => {
+      if (cancelled || levels.length < 2) return;
+      governor.current = createResolutionGovernor({
+        levels,
+        level,
+        frameMs,
+        now: performance.now(),
+      });
+    });
+    return () => {
+      cancelled = true;
+      window.clearTimeout(still.current);
+    };
+    // One governor per mount: it follows the levels it proposes itself.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [levels]);
+  useFrame(() => {
+    const judge = governor.current;
+    if (!judge) return;
+    const now = performance.now();
+    judge.record(now);
+    for (const ms of timerRef.current?.poll() ?? []) judge.recordGpu(ms, now);
+    window.clearTimeout(still.current);
+    still.current = window.setTimeout(() => {
+      const at = performance.now();
+      for (const ms of timerRef.current?.poll() ?? []) judge.recordGpu(ms, at);
+      const next = judge.proposal();
+      if (next === null) return;
+      // Through the Canvas's dpr prop: R3F re-applies that prop whenever the
+      // Canvas renders, which would undo a setDpr made from inside.
+      onStep(next);
+      judge.applied(next, at);
+      rememberLevel(next);
+      if (next < levels[0])
+        gl.domElement.setAttribute("data-dpr-reduced", String(next));
+      else gl.domElement.removeAttribute("data-dpr-reduced");
+    }, 250);
   });
   return null;
 }
 /** Include reflection and shadow passes in the reported per-frame cost. */
-function RenderFrame() {
+function RenderFrame({
+  timerRef,
+}: {
+  timerRef: RefObject<GpuTimer | null | undefined>;
+}) {
+  useEffect(() => () => timerRef.current?.dispose(), [timerRef]);
   useFrame(({ gl }) => {
     gl.info.autoReset = false;
     gl.info.reset();
   }, -2);
   useFrame(({ scene, camera, gl }) => {
     if (gl.domElement.dataset.active === "false") return;
+    // The desk's own GPU time per frame decides its resolution.
+    if (timerRef.current === undefined)
+      timerRef.current = createGpuTimer(
+        gl.getContext() as WebGL2RenderingContext,
+      );
+    timerRef.current?.begin();
     gl.render(scene, camera);
+    timerRef.current?.end();
     if (!qa()) return;
     const canvas = gl.domElement;
     canvas.setAttribute("data-draw-calls", String(gl.info.render.calls));
@@ -480,13 +542,19 @@ function JourneyScene(props: JourneySceneProps) {
     readyCallback();
   }, [readyCallback]);
   // Phones and tablets already have dense screens; the extra pixels cost
-  // battery for no visible gain. AdaptiveResolution lowers it on slow frames.
-  // Integrated graphics start at one device pixel per CSS pixel, without
-  // multisampling or the lamp's shadow (src/lib/quality.ts).
+  // battery for no visible gain. AdaptiveResolution moves between the levels
+  // as frames allow. Integrated graphics start at one device pixel per CSS
+  // pixel, without multisampling or the lamp's shadow (src/lib/quality.ts).
   const [low] = useState(() => quality() === "low");
-  const [dpr, setDpr] = useState<number | [number, number]>(() =>
-    low ? 1 : coarsePointer() ? [1, 1.25] : [1, 1.5],
+  const [levels] = useState(() =>
+    resolutionLevels(
+      low ? 1 : coarsePointer() ? 1.25 : 1.5,
+      typeof window === "undefined" ? 1 : window.devicePixelRatio || 1,
+    ),
   );
+  // A computer that settled on a lower level last time starts there.
+  const [dpr, setDpr] = useState(() => rememberedLevel(levels) ?? levels[0]);
+  const timer = useRef<GpuTimer | null | undefined>(undefined);
   const running = warm && controls.active;
   const { distance, layout } = props;
   // While the camera travels the desk slides under the pointer by itself;
@@ -562,9 +630,14 @@ function JourneyScene(props: JourneySceneProps) {
           <Model onReady={onReady} controls={controls} />
           <ScreenDepthPlanes />
         </Suspense>
-        <RenderFrame />
+        <RenderFrame timerRef={timer} />
         {warm ? <ProgramHost /> : null}
-        <AdaptiveResolution onStep={setDpr} />
+        <AdaptiveResolution
+          levels={levels}
+          level={dpr}
+          onStep={setDpr}
+          timerRef={timer}
+        />
         <Driver {...props} active={controls.active} running={running} />
       </Canvas>
       {!props.poster ? (
