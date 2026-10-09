@@ -110,10 +110,24 @@ button {
   outline: 3px solid var(--focus);
   outline-offset: 6px;
 }
-/* The custom cursor (custom-cursor.tsx) sets this only while it is showing. */
+/*
+ * The custom cursor (custom-cursor.tsx) sets this only while it is showing.
+ * Its dot is the system cursor's own image: the operating system draws it,
+ * so it follows the mouse even while the page is busy. A white dot ringed in
+ * ink reads on paper, on the dark sections and on the desk's screens.
+ */
 html[data-custom-cursor],
 html[data-custom-cursor] * {
-  cursor: none !important;
+  cursor:
+    url("/images/cursor/dot.png") 6 6,
+    auto !important;
+  cursor:
+    image-set(
+        url("/images/cursor/dot.png") 1x,
+        url("/images/cursor/dot@2x.png") 2x
+      )
+      6 6,
+    auto !important;
 }
 ::selection {
   background: var(--accent);

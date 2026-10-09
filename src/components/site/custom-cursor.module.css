@@ -1,9 +1,9 @@
 /*
- * White with a difference blend reads dark on paper and the desk's screens,
- * light on the dark system, and stays visible over volt fills. The outer
- * element only moves; the inner span scales, so the two never fight.
+ * The ring that trails the system's dot cursor (src/styles/site.css). White
+ * with a difference blend reads dark on paper and the desk's screens, light
+ * on the dark system, and stays visible over volt fills. The outer element
+ * only moves; the inner span scales, so the two never fight.
  */
-.dot,
 .ring {
   position: fixed;
   top: 0;
@@ -16,31 +16,20 @@
   will-change: transform;
   transition: opacity 150ms ease;
 }
-.dot[data-shown="true"],
 .ring[data-shown="true"] {
   opacity: 1;
 }
-.dot span,
 .ring span {
   position: absolute;
+  inset: -17px;
   border-radius: 50%;
   transition:
     transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
     background-color 220ms ease;
-}
-.dot span {
-  inset: -3px;
-  background: #fff;
-}
-.ring span {
-  inset: -17px;
   border: 1.5px solid #fff;
 }
 
-/* Over something clickable the dot gives way and the ring opens. */
-.dot[data-look="action"] span {
-  transform: scale(0);
-}
+/* Over something clickable the ring opens. */
 .ring[data-look="action"] span {
   transform: scale(1.45);
   background-color: rgb(255 255 255 / 0.12);
@@ -53,21 +42,17 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dot,
   .ring,
-  .dot span,
   .ring span {
     transition: none;
   }
 }
 @media not ((hover: hover) and (pointer: fine)) {
-  .dot,
   .ring {
     display: none;
   }
 }
 @media print {
-  .dot,
   .ring {
     display: none;
   }
