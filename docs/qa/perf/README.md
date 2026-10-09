@@ -12,10 +12,37 @@
 ```bash
 npm run build && npx next start --port 3100
 npm run perf -- --label <name>
+npm run perf -- --scenario returning,cpu4 --input notch,trackpad --label <name>
+npm run perf -- --scenario returning --input trackpad --runs 1 --trace --label <name>
+npm run perf -- --scenario returning,cpu4 --device "iPhone 13" --label <name>
+npm run perf -- --scenario returning --input trackpad --headed --label <name>
 npm run perf:check
 ```
 
-Results are medians of three runs, written to `docs/qa/perf/<label>.{json,md}`. `perf:check` compares them with `tests/perf/budgets.json`. CI renders WebGL in software, so these runs happen on a GPU-backed Mac and their summary goes into each pull request.
+Results are medians of three runs, written to `docs/qa/perf/<label>.{json,md}` (or `--out <dir>` for a scratch run). `perf:check` compares them with `tests/perf/budgets.json`: a scenario's key is `returning`, `returning/trackpad` or `returning@iPhone 13`, and a limit can name a nested field (`regions.opening.p99`). CI renders WebGL in software, so these runs happen on a GPU-backed Mac and their summary goes into each pull request.
+
+### How the visitor scrolls (`--input`)
+
+| Input      | Wheel events                      | What it shows                                                                               |
+| ---------- | --------------------------------- | ------------------------------------------------------------------------------------------- |
+| `measure`  | 120 px every 100 ms               | The steady flick the first budgets were set with.                                           |
+| `notch`    | 100–120 px every 80–150 ms        | A mouse wheel's notches: the cost of each event and how far one notch moves the camera.     |
+| `trackpad` | 6–30 px every 8–16 ms             | A trackpad's stream: about one event per frame, so any per-event cost lands in every frame. |
+| `touch`    | swipes of 300–600 px (`--device`) | A phone, with Chromium standing in for its browser and touch gestures through CDP.          |
+
+The sequence is seeded (`--seed`), so runs of one input scroll alike. Headless Chromium applies each wheel event in one frame and draws at 60 Hz; `--headed` opens a window on this display, the only way to measure a 120 Hz screen. Each result records the display's refresh rate, and a frame counts as slow when it takes 1.2 refresh intervals or more.
+
+### What each run records
+
+- Long animation frames, with the scripts behind them, and frame intervals while scrolling: overall and per region of the page (opening, monitor, MacBook, room and curtain, About, the sections after it), with the share of slow frames and the longest run of them.
+- Per canvas (desk, balls, About): the frames it drew and its GPU time per frame, from `EXT_disjoint_timer_query_webgl2`. "About frames under the curtain" counts About's frames while the journey still covers it.
+- The desk camera's step per frame; "camera lurch" is the largest step over the median one, high when a notch moves the camera in one go.
+- Every scroll the page makes itself (`scrollTo`, `scrollIntoView`) and its caller; a correction under 1 px still cancels the browser's smooth scrolling.
+- The share of scroll events that find style or layout already invalid, and whether the desk lowered its resolution.
+- With `--trace`, a Chrome trace of the visit, read by `scripts/perf/trace.mjs`: the cost of each wheel and scroll event, main-thread time per frame, layout forced by scripts, and the frames the compositor drew without the main thread's update (partial) or dropped.
+- WebGL calls that blocked for longer than a frame, and when; shader programs created.
+
+The harness sets `localStorage["portfolio:qa"]` to `1` for the page's QA-only attributes.
 
 `npm run qa:stops -- capture <label>` captures the desk's stops in both languages at 1440 × 900 and 2400 × 1000 into `work/perf-stops/`; `npm run qa:stops -- compare <before> <after>` prints the PSNR of each pair and fails below 45 dB. Two captures of the same build measure 54 dB or more. About sways on its own and is captured for review only.
 
