@@ -85,7 +85,7 @@
   opacity: var(--opening-opacity, 1);
 }
 :global([data-enhanced="true"][data-arrived-late="true"]) .opening {
-  transition: opacity 0.4s ease-out;
+  transition: opacity 0.32s ease-out;
 }
 /*
  * Where the browser has scroll timelines, the fade runs on the compositor
@@ -103,7 +103,7 @@
   }
   /* A visitor already past the opening sees it fade rather than cut. */
   :global([data-enhanced="true"][data-arrived-late="true"]) .opening {
-    animation: opening-fade 0.4s ease-out both;
+    animation: opening-fade 0.32s ease-out both;
   }
 }
 @keyframes opening-fade {
