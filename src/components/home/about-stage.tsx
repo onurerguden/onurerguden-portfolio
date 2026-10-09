@@ -46,10 +46,14 @@ export default function AboutStage({
       if (phase !== "rise" && phase !== "gone") return;
       unsubscribe();
       // Then, on a pause in scrolling, build its geometry a slice at a
-      // time, so mounting it has nothing left to build.
+      // time, so mounting it has nothing left to build, and link its
+      // programs in the desk's warm context, so that its own links them
+      // from the browser's cache.
       cancelPause = onScrollPause(async () => {
         const scene = await loadScene();
-        await scene.prepareAbout(logoList.current, () => cancelled);
+        const stop = () => cancelled;
+        if (await scene.prepareAbout(logoList.current, stop))
+          await scene.precompileAbout(logoList.current, stop);
       });
     };
     const unsubscribe = laptopPhase.subscribe(warm);

@@ -8,12 +8,26 @@ import {
   type RefObject,
 } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Group, Vector3 } from "three";
+import {
+  AmbientLight,
+  DirectionalLight,
+  Group,
+  InstancedMesh,
+  Mesh,
+  PerspectiveCamera,
+  PlaneGeometry,
+  Scene,
+  Vector3,
+  type BufferGeometry,
+  type Material,
+  type Object3D,
+} from "three";
 import SectionCanvas, { useStageWarm } from "@/components/three/section-canvas";
 import DeskLighting from "@/components/desk/lighting";
 import { warmUp } from "@/components/three/warm-up";
 import { seededRandom } from "@/lib/random";
 import { frameSlices } from "@/lib/yield";
+import { programHost } from "@/components/three/program-host";
 import techIcons from "@/lib/tech-icons.generated.json";
 import { kick, restPose, swayAmplitude, turn } from "./about-motion";
 import { curtainProgress } from "@/lib/desk-story/curtain";
@@ -176,6 +190,122 @@ export async function prepareAbout(
     if (icons[slug]) logoGeometry(icons[slug].path);
   }
   return true;
+}
+
+/** The scene's lights, shared with precompileAbout. */
+const aboutLights = [
+  { kind: "ambient", intensity: 0.35, color: "#cad6ef" },
+  {
+    kind: "directional",
+    position: [-3, 4, 5],
+    intensity: 2.2,
+    color: "#fff4e6",
+  },
+  {
+    kind: "directional",
+    position: [4, -2, 3],
+    intensity: 0.9,
+    color: "#9fb6ff",
+  },
+] as const;
+
+/**
+ * Every geometry and material pair the scene draws, as stand-ins that share
+ * the parts' geometry and copy their materials (custom shader code too).
+ */
+function standIns(logos: string[]) {
+  const built = parts();
+  const plane = new PlaneGeometry();
+  const pairs: [BufferGeometry, Material][] = [
+    [built.basketball.geometry, built.basketball.material],
+    [built.tennis.geometry, built.tennis.material],
+    [built.chip.die, built.chip.dieMaterial],
+    [plane, built.chip.labelMaterial],
+    [built.racket.frame, built.racket.frameMaterial],
+    [built.racket.handle, built.racket.handleMaterial],
+    [built.terminal.body, built.terminal.bodyMaterial],
+    [plane, built.terminal.screenMaterial],
+    [built.braces.geometry, built.braces.material],
+    [built.keycaps.geometry, built.keycaps.capMaterial],
+    ...built.keycaps.legendMaterials.map(
+      (legend): [BufferGeometry, Material] => [plane, legend],
+    ),
+  ];
+  const copy = (material: Material) => {
+    const twin = material.clone();
+    twin.onBeforeCompile = material.onBeforeCompile;
+    twin.customProgramCacheKey = material.customProgramCacheKey;
+    return twin;
+  };
+  const objects: Object3D[] = pairs.map(
+    ([geometry, material]) => new Mesh(geometry, copy(material)),
+  );
+  for (const instanced of [
+    built.chip.pins,
+    built.racket.strings,
+    built.network.spheres,
+    built.network.links,
+    built.shadows,
+  ])
+    objects.push(
+      new InstancedMesh(
+        instanced.geometry,
+        copy(instanced.material as Material),
+        instanced.count,
+      ),
+    );
+  for (const slug of logos.slice(0, 3))
+    if (icons[slug])
+      objects.push(
+        new Mesh(logoGeometry(icons[slug].path), clay(icons[slug].hex)),
+      );
+  const dispose = () => {
+    plane.dispose();
+    for (const object of objects)
+      ((object as Mesh).material as Material).dispose();
+  };
+  return { objects, dispose };
+}
+
+/**
+ * Links the scene's programs ahead in the desk's warm context, lit as the
+ * scene is lit, so that the browser's program cache has them when the scene
+ * mounts in its own context (see program-host.ts). Compiles in the
+ * background, a slice per frame, then lets the desk's copies go: the cache
+ * keeps what was linked and the desk's context has no use for them.
+ */
+export async function precompileAbout(
+  logos: string[],
+  cancelled: () => boolean = () => false,
+) {
+  const host = programHost();
+  if (!host?.scene.environment) return false;
+  const { gl } = host;
+  const lit = new Scene();
+  // The same cube-UV size as the scene's own copy, so the same programs.
+  lit.environment = host.scene.environment;
+  for (const light of aboutLights)
+    lit.add(
+      light.kind === "ambient" ? new AmbientLight() : new DirectionalLight(),
+    );
+  const camera = new PerspectiveCamera();
+  const { objects, dispose } = standIns(logos);
+  const slice = frameSlices();
+  const linking: Promise<unknown>[] = [];
+  try {
+    for (const object of objects) {
+      await slice();
+      if (cancelled() || programHost() !== host) return false;
+      // A program depends on the target bound (the scene draws to the
+      // screen); between the desk's frames none is.
+      if (gl.getRenderTarget() !== null) continue;
+      linking.push(gl.compileAsync(object, camera, lit));
+    }
+    await Promise.all(linking);
+    return !cancelled();
+  } finally {
+    dispose();
+  }
 }
 
 function Objects({
@@ -541,9 +671,22 @@ export default function AboutScene({
       camera={{ position: [0, 0, 8], fov: 30, near: 0.1, far: 30 }}
     >
       <DeskLighting />
-      <ambientLight intensity={0.35} color="#cad6ef" />
-      <directionalLight position={[-3, 4, 5]} intensity={2.2} color="#fff4e6" />
-      <directionalLight position={[4, -2, 3]} intensity={0.9} color="#9fb6ff" />
+      {aboutLights.map((light, i) =>
+        light.kind === "ambient" ? (
+          <ambientLight
+            key={i}
+            intensity={light.intensity}
+            color={light.color}
+          />
+        ) : (
+          <directionalLight
+            key={i}
+            position={light.position}
+            intensity={light.intensity}
+            color={light.color}
+          />
+        ),
+      )}
       <Objects
         logos={logos}
         pointerRef={pointerRef}
