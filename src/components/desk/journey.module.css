@@ -10,6 +10,14 @@
 .journey[data-enhanced="true"] {
   height: var(--journey-height);
 }
+/* The opening portrait fades on the journey's own scroll position
+   (portrait.module.css); no inset, so it starts at the very top. */
+@supports (animation-timeline: view()) {
+  .journey[data-enhanced="true"] {
+    view-timeline: --desk-journey block;
+    view-timeline-inset: 0px;
+  }
+}
 .stage {
   position: relative;
   height: var(--stage-height);

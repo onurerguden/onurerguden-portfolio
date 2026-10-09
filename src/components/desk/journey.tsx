@@ -163,6 +163,12 @@ function scrollToTop(top: number) {
   window.scrollTo({ top, behavior: "instant" });
 }
 
+/** The opening fades on a scroll timeline where the browser has them. */
+let timelines: boolean | undefined;
+const scrollTimelines = () =>
+  (timelines ??=
+    typeof CSS !== "undefined" && CSS.supports("animation-timeline", "view()"));
+
 export default function DeskJourney({
   locale,
   content,
@@ -233,15 +239,20 @@ export default function DeskJourney({
     // For QA: the desk stops drawing behind a takeover, so the scene's own
     // counters can lag; the story's distance never does.
     node.dataset.distance = d.toFixed(3);
-    // Complete the poster handoff while the opening camera is still stationary.
-    const openingProgress = Math.min(1, d / 0.15);
-    const openingOpacity =
-      1 - openingProgress * openingProgress * (3 - 2 * openingProgress);
-    // On the poster itself: on the section, every change would restyle the
-    // whole desk, screens and all.
-    stage.current
-      ?.querySelector<HTMLElement>("[data-opening-poster]")
-      ?.style.setProperty("--opening-opacity", String(openingOpacity));
+    // Complete the poster handoff while the opening camera is still
+    // stationary. Where the browser has scroll timelines the poster fades on
+    // the compositor instead (portrait.module.css), the same curve, and
+    // never waits on this thread.
+    if (!scrollTimelines()) {
+      const openingProgress = Math.min(1, d / 0.15);
+      const openingOpacity =
+        1 - openingProgress * openingProgress * (3 - 2 * openingProgress);
+      // On the poster itself: on the section, every change would restyle
+      // the whole desk, screens and all.
+      stage.current
+        ?.querySelector<HTMLElement>("[data-opening-poster]")
+        ?.style.setProperty("--opening-opacity", String(openingOpacity));
+    }
     node.dataset.travelled = String(d > 0.15);
     // Over the desk the bar gets out of the way; below it, the scroll
     // direction decides (see the docking listener).
