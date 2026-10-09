@@ -36,7 +36,7 @@ The sequence is seeded (`--seed`), so runs of one input scroll alike. Headless C
 
 - Long animation frames, with the scripts behind them, and frame intervals while scrolling: overall and per region of the page (opening, monitor, MacBook, room and curtain, About, the sections after it), with the share of slow frames and the longest run of them.
 - Per canvas (desk, balls, About): the frames it drew and its GPU time per frame, from `EXT_disjoint_timer_query_webgl2`. "About frames under the curtain" counts About's frames while the journey still covers it.
-- The desk camera's step per frame; "camera lurch" is the largest step over the median one, high when a notch moves the camera in one go.
+- The desk camera's step per frame, and its largest step in one frame: large when a notch moves the camera in one go.
 - Every scroll the page makes itself (`scrollTo`, `scrollIntoView`) and its caller; a correction under 1 px still cancels the browser's smooth scrolling.
 - The share of scroll events that find style or layout already invalid, and whether the desk lowered its resolution.
 - With `--trace`, a Chrome trace of the visit, read by `scripts/perf/trace.mjs`: the cost of each wheel and scroll event, main-thread time per frame, layout forced by scripts, and the frames the compositor drew without the main thread's update (partial) or dropped.
