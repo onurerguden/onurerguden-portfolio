@@ -21,6 +21,7 @@ import {
   type WebGLRenderer,
 } from "three";
 import contract from "@/lib/desk-interactions.json";
+import type { Occluders } from "@/lib/ray-occluders";
 import {
   accessoryPose,
   drawerIds,
@@ -41,7 +42,7 @@ const actions = new Set<string>([
   "drawers",
 ]);
 const animated = ["headphones", "mouse", "tablet"] as const;
-function actionFor(object: Object3D): DeskAction | undefined {
+export function actionFor(object: Object3D): DeskAction | undefined {
   const id = object.userData.interaction;
   if (drawerIds.includes(id)) return "drawers";
   return actions.has(id) ? (id as DeskAction) : undefined;
@@ -62,12 +63,29 @@ const lampShadow = typeof window !== "undefined" && quality() !== "low";
 
 export default function InteractionScene({
   model,
+  occluders,
   controls,
 }: {
   model: Group;
+  /** The model's objects that do nothing but still hide what is behind. */
+  occluders: Occluders;
   controls: DeskInteractions;
 }) {
   const { gl, invalidate } = useThree();
+  const setEvents = useThree((state) => state.setEvents);
+  useEffect(() => {
+    // Only the nearest object under the pointer counts (each handler stops
+    // propagation). Objects without an action are not raycast, so check
+    // that none of them sits in front of the nearest hit: a click on the
+    // MacBook must not reach the dial behind it.
+    setEvents({
+      filter: (hits, state) =>
+        hits.length && occluders.occludes(state.raycaster.ray, hits[0].distance)
+          ? []
+          : hits,
+    });
+    return () => setEvents({ filter: undefined });
+  }, [setEvents, occluders]);
   const { active, reduced, registerMotion } = controls;
   const animationFrame = useRef<number | null>(null);
   const animateUntil = useRef(0);

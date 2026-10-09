@@ -13,7 +13,8 @@ import DeskPlatform from "./platform";
 import CosmicEnvironment, { type CosmicPointer } from "./cosmic-environment";
 import DeskLighting from "./lighting";
 import { DeskObjectControls, useDeskInteractions } from "./interactions";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useThree, type RootStore } from "@react-three/fiber";
+import { deskEvents } from "./desk-events";
 import { Matrix4, Quaternion, Vector3, PerspectiveCamera } from "three";
 import { Model } from "./model";
 import { createScreenProjection, projectScreen } from "@/lib/desk-projection";
@@ -461,10 +462,22 @@ function JourneyScene(props: JourneySceneProps) {
     low ? 1 : coarsePointer() ? [1, 1.25] : [1, 1.5],
   );
   const running = warm && controls.active;
+  const { distance, layout } = props;
+  // While the camera travels the desk slides under the pointer by itself;
+  // hover waits for it to stop rather than raycasting every move.
+  const events = useCallback(
+    (store: RootStore) =>
+      deskEvents(store, () => {
+        const step = storyAt(layout.current.timeline, distance.get());
+        return step.from !== step.to;
+      }),
+    [distance, layout],
+  );
   return (
     <>
       <Canvas
         eventSource={props.wrapper as RefObject<HTMLElement>}
+        events={events}
         style={{
           position: "absolute",
           inset: 0,
