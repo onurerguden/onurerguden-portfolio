@@ -130,6 +130,35 @@ function paintCurtain(
   });
 }
 
+/** `top` as the page can scroll to it. */
+function withinPage(top: number) {
+  const root = document.documentElement;
+  return Math.min(Math.max(0, top), root.scrollHeight - root.clientHeight);
+}
+
+/**
+ * Lands on `target` unless it is already there. A scroll of under half a
+ * pixel moves nothing but still cancels a smooth wheel or keyboard scroll
+ * under way, so corrections that come to nothing are skipped. Where a link
+ * lands: under the page's scroll padding, after the target's scroll margin.
+ */
+function landOn(target: HTMLElement) {
+  const rest =
+    (parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) ||
+      0) + (parseFloat(getComputedStyle(target).scrollMarginTop) || 0);
+  const top = withinPage(
+    window.scrollY + target.getBoundingClientRect().top - rest,
+  );
+  if (Math.abs(top - window.scrollY) < 0.5) return;
+  target.scrollIntoView({ behavior: "instant", block: "start" });
+}
+
+/** Scrolls the page to `top` unless it is there already (see landOn). */
+function scrollToTop(top: number) {
+  if (Math.abs(withinPage(top) - window.scrollY) < 0.5) return;
+  window.scrollTo({ top, behavior: "instant" });
+}
+
 export default function DeskJourney({
   locale,
   content,
@@ -443,7 +472,8 @@ export default function DeskJourney({
       const top = target.getBoundingClientRect().top + window.scrollY;
       if (Math.abs(top - pending.top) < 2) return;
       pending.top = top;
-      target.scrollIntoView({ behavior: "instant", block: "start" });
+      // Scroll anchoring may already have kept it in place.
+      landOn(target);
     });
     if (main) resized.observe(main);
     return () => {
@@ -567,13 +597,13 @@ export default function DeskJourney({
     if (!enhanced || !node || previous === measured.timeline) return;
     const height = measured.stage.height;
     const d = -node.getBoundingClientRect().top / height;
+    // Often the line stays where it was; scrolling by nothing would still
+    // stop a smooth scroll under way (see landOn).
     if (!pendingHash.current && d > 0 && d < previous.length)
-      window.scrollTo({
-        top:
-          window.scrollY +
+      scrollToTop(
+        window.scrollY +
           (remapDistance(previous, measured.timeline, d) - d) * height,
-        behavior: "instant",
-      });
+      );
     update();
   }, [enhanced, measured, update]);
   // The journey grows to its pinned height after hydration and again once it
@@ -587,7 +617,7 @@ export default function DeskJourney({
     // Nothing moved: let a smooth scroll that is under way finish itself.
     if (Math.abs(top - pending.top) < 2) return;
     pending.top = top;
-    target.scrollIntoView({ behavior: "instant", block: "start" });
+    landOn(target);
     // A smooth scroll already in flight can carry past the jump; hold the
     // target for a few frames unless the visitor scrolls themselves.
     // Where the target rests: the page's scroll padding plus its own scroll
@@ -600,7 +630,7 @@ export default function DeskJourney({
     let frame = requestAnimationFrame(function hold() {
       if (pendingHash.current !== pending || ++frames > 40) return;
       if (Math.abs(target.getBoundingClientRect().top - padding) > 4)
-        target.scrollIntoView({ behavior: "instant", block: "start" });
+        landOn(target);
       frame = requestAnimationFrame(hold);
     });
     return () => cancelAnimationFrame(frame);
@@ -616,7 +646,7 @@ export default function DeskJourney({
     if (!enhanced) {
       if (fallbackTarget.current) {
         const target = document.getElementById(fallbackTarget.current);
-        target?.scrollIntoView({ behavior: "instant", block: "start" });
+        if (target) landOn(target);
         target?.focus({ preventScroll: true });
         fallbackTarget.current = null;
       }
@@ -646,13 +676,11 @@ export default function DeskJourney({
     (d: number) => {
       const node = section.current;
       if (!enhanced || !node) return;
-      window.scrollTo({
-        top:
-          node.getBoundingClientRect().top +
+      scrollToTop(
+        node.getBoundingClientRect().top +
           window.scrollY +
           d * layout.current.stage.height,
-        behavior: "instant",
-      });
+      );
       update();
     },
     [enhanced, layout, update],
@@ -960,7 +988,7 @@ export default function DeskJourney({
           event.preventDefault();
           history.pushState(null, "", "#about");
           const target = document.getElementById("about");
-          target?.scrollIntoView({ behavior: "instant", block: "start" });
+          if (target) landOn(target);
           target?.focus({ preventScroll: true });
           // Treat it as a link: the journey keeps About in place if it is
           // still measuring and grows.

@@ -66,6 +66,47 @@ test("opening portrait stays sharp until scroll and returns on reverse", async (
   await go(page, 0);
   await expect(opening).toHaveCSS("opacity", "1");
 });
+test("the journey never scrolls the page by nothing", async ({
+  page,
+  browserName,
+  isMobile,
+}) => {
+  test.skip(isMobile, touchStatic);
+  test.skip(browserName === "webkit", "Headless WebKit lacks reliable WebGL2.");
+  // A scroll of under half a pixel still cancels a smooth wheel scroll.
+  await page.addInitScript(() => {
+    const moves: number[] = [];
+    (window as unknown as { moves: number[] }).moves = moves;
+    const track = <A extends unknown[]>(scroll: (...args: A) => void) =>
+      function (this: unknown, ...args: A) {
+        const before = window.scrollY;
+        scroll.apply(this, args);
+        moves.push(Math.abs(window.scrollY - before));
+      };
+    window.scrollTo = track(window.scrollTo) as typeof window.scrollTo;
+    Element.prototype.scrollIntoView = track(Element.prototype.scrollIntoView);
+  });
+  await page.goto("/en");
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+    { timeout: ci(20000) },
+  );
+  // Wheel-sized steps a frame apart, then a resize, which re-measures the
+  // story mid-journey.
+  await page.evaluate(async () => {
+    for (let i = 0; i < 12; i++) {
+      scrollBy({ top: 120, behavior: "instant" });
+      await new Promise(requestAnimationFrame);
+    }
+  });
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.waitForTimeout(500);
+  const moves = await page.evaluate(
+    () => (window as unknown as { moves: number[] }).moves,
+  );
+  expect(moves.filter((move) => move < 0.5)).toEqual([]);
+});
 for (const locale of ["en", "tr"])
   test(`${locale}: journey static content is accessible and has no model in reduced motion`, async ({
     page,
