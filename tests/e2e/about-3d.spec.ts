@@ -71,7 +71,15 @@ test.describe("About objects", () => {
           .evaluate((node) => getComputedStyle(node).opacity),
       )
       .toBe("0");
-    expect(await copy.boundingBox()).toEqual(before);
+    // The desk turns on once scrolling pauses, which can land after the jump
+    // here; the journey keeps About in place to within a fraction of a
+    // pixel (a fractional scroll position rounds to 1/64 px).
+    const after = await copy.boundingBox();
+    expect(after && before).toBeTruthy();
+    expect(after!.width).toBe(before!.width);
+    expect(after!.height).toBe(before!.height);
+    expect(Math.abs(after!.x - before!.x)).toBeLessThan(0.5);
+    expect(Math.abs(after!.y - before!.y)).toBeLessThan(0.5);
     // The pause button was there, invisible, all along.
     await expect(
       page.locator("#about").getByRole("button", { name: "Pause motion" }),
