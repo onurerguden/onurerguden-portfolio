@@ -14,6 +14,7 @@ import DeskLighting from "@/components/desk/lighting";
 import { warmUp } from "@/components/three/warm-up";
 import { seededRandom } from "@/lib/random";
 import { yieldToMain } from "@/lib/yield";
+import { onScrollFrame } from "@/lib/scroll-frame";
 import techIcons from "@/lib/tech-icons.generated.json";
 import { kick, restPose, swayAmplitude, turn } from "./about-motion";
 import { curtainProgress } from "@/lib/desk-story/curtain";
@@ -217,18 +218,23 @@ function Objects({
   const drawn = useRef({ progress: NaN, spread: NaN });
 
   useEffect(() => {
-    const measure = () => {
-      setNarrow(isNarrow());
+    // Read with the page's other scroll reads, before any of their writes
+    // (see scroll-frame).
+    const read = () => {
       const rect = sectionRef.current?.getBoundingClientRect();
-      if (rect) placement.current = { top: rect.top, height: rect.height };
-      // Scroll moves the objects; draw now rather than on the next tick.
-      invalidate();
+      return () => {
+        setNarrow(isNarrow());
+        if (rect) placement.current = { top: rect.top, height: rect.height };
+        // Scroll moves the objects; draw now rather than on the next tick.
+        invalidate();
+      };
     };
+    const measure = () => read()();
     measure();
-    window.addEventListener("scroll", measure, { passive: true });
+    const off = onScrollFrame(read);
     window.addEventListener("resize", measure);
     return () => {
-      window.removeEventListener("scroll", measure);
+      off();
       window.removeEventListener("resize", measure);
     };
   }, [sectionRef, invalidate]);

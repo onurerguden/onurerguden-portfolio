@@ -43,6 +43,7 @@ import { curtainProgress } from "@/lib/desk-story/curtain";
 import { laptopPhase, type LaptopPhase } from "@/lib/desk-story/store";
 import { quality } from "@/lib/quality";
 import { signal } from "@/lib/desk-story/signal";
+import { onScrollFrame } from "@/lib/scroll-frame";
 import SceneBoundary from "@/components/three/scene-boundary";
 import { JourneyNav, plainClick } from "@/components/site/site-nav";
 import monitorStyles from "@/components/sections/monitor.module.css";
@@ -189,17 +190,13 @@ export default function DeskJourney({
   }
   const { layout, measured } = useStoryLayout(enhanced, stage, panels);
   const targets = useMemo(() => chapterDistances(measured), [measured]);
-  const update = useCallback(() => {
+  // The story at its distance: every DOM write a scroll makes, after the one
+  // layout read in `read` below (see scroll-frame).
+  const write = useCallback(() => {
     const node = section.current;
-    if (node?.dataset.enhanced !== "true") return;
+    if (!node) return;
     const measure = layout.current;
-    const height = measure.stage.height || node.offsetHeight;
-    const d = clamp(
-      -node.getBoundingClientRect().top / height,
-      0,
-      measure.timeline.length,
-    );
-    distance.set(d);
+    const d = distance.get();
     // For QA: the desk stops drawing behind a takeover, so the scene's own
     // counters can lag; the story's distance never does.
     node.dataset.distance = d.toFixed(3);
@@ -287,16 +284,32 @@ export default function DeskJourney({
       setAround([previous, next]);
     }
   }, [distance, layout]);
+  const read = useCallback(() => {
+    const node = section.current;
+    if (node?.dataset.enhanced !== "true") return;
+    const measure = layout.current;
+    const height = measure.stage.height || node.offsetHeight;
+    const d = clamp(
+      -node.getBoundingClientRect().top / height,
+      0,
+      measure.timeline.length,
+    );
+    return () => {
+      distance.set(d);
+      write();
+    };
+  }, [distance, layout, write]);
+  const update = useCallback(() => read()?.(), [read]);
   useEffect(() => {
     // Scroll events arrive at most once per frame, so the story follows the
     // page without its own animation loop.
-    window.addEventListener("scroll", update, { passive: true });
+    const off = onScrollFrame(read);
     window.addEventListener("resize", update);
     return () => {
-      window.removeEventListener("scroll", update);
+      off();
       window.removeEventListener("resize", update);
     };
-  }, [update]);
+  }, [read, update]);
   useEffect(() => {
     const motion = matchMedia(staticQuery);
     // A computer without GPU acceleration reads the plain flow too.
@@ -322,40 +335,68 @@ export default function DeskJourney({
     // hides while scrolling down, returning when scrolling up. The section in
     // view is reported so a language switch lands on it.
     const flow = homeSections.filter((s) => s.place === "flow");
+    // Which flow sections' tops have passed 40% of the view, kept by an
+    // observer rather than measured on every scroll.
+    const passed = new Map<string, boolean>();
+    let docked = false;
+    const reading = () => flow.findLast(({ id }) => passed.get(id))?.id ?? null;
+    const sections = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries)
+          passed.set(
+            entry.target.id,
+            entry.isIntersecting ||
+              entry.boundingClientRect.top < (entry.rootBounds?.top ?? 0),
+          );
+        if (docked) currentSection.set(reading());
+      },
+      { rootMargin: "0px 0px -60% 0px" },
+    );
+    const observed = new Set<string>();
+    // Any section not in the page yet is picked up once it is.
+    const observe = () => {
+      for (const { id } of flow) {
+        const target = observed.has(id) ? null : document.getElementById(id);
+        if (!target) continue;
+        observed.add(id);
+        sections.observe(target);
+      }
+    };
+    observe();
     let lastY = window.scrollY;
-    const sync = () => {
+    const read = () => {
       const node = nav.current;
       const content = document.getElementById("journey-content");
       if (!node || !content) return;
-      // With the curtain, About is already in place once the journey has one
-      // view left to scroll; without it, once the journey has gone.
-      const curtained = section.current?.dataset.journeyCurtain === "on";
-      const docked =
-        content.getBoundingClientRect().top < (curtained ? innerHeight + 1 : 0);
-      node.dataset.docked = String(docked);
+      const top = content.getBoundingClientRect().top;
       const y = window.scrollY;
-      if (Math.abs(y - lastY) > 8) {
-        const down = docked && y > lastY;
-        node.dataset.scrollHidden = String(down);
-        if (docked && hideNavOnScroll.current)
-          node.dataset.hidden = String(
-            down && node.dataset.revealed !== "true",
-          );
-        lastY = y;
-      }
-      if (!docked) return;
-      // The last section whose top has passed 40% of the view.
-      let reading: string | null = null;
-      for (const { id } of flow) {
-        const target = document.getElementById(id);
-        if (target && target.getBoundingClientRect().top < innerHeight * 0.4)
-          reading = id;
-      }
-      currentSection.set(reading);
+      return () => {
+        // With the curtain, About is already in place once the journey has
+        // one view left to scroll; without it, once the journey has gone.
+        const curtained = section.current?.dataset.journeyCurtain === "on";
+        docked = top < (curtained ? innerHeight + 1 : 0);
+        node.dataset.docked = String(docked);
+        if (Math.abs(y - lastY) > 8) {
+          const down = docked && y > lastY;
+          node.dataset.scrollHidden = String(down);
+          if (docked && hideNavOnScroll.current)
+            node.dataset.hidden = String(
+              down && node.dataset.revealed !== "true",
+            );
+          lastY = y;
+        }
+        if (!docked) return;
+        if (observed.size < flow.length) observe();
+        // The last section whose top has passed 40% of the view.
+        currentSection.set(reading());
+      };
     };
-    sync();
-    window.addEventListener("scroll", sync, { passive: true });
-    return () => window.removeEventListener("scroll", sync);
+    read()?.();
+    const off = onScrollFrame(read);
+    return () => {
+      off();
+      sections.disconnect();
+    };
   }, []);
   useEffect(() => {
     // Remember the section a link or the first load is heading for, so a
