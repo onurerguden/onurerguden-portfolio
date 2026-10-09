@@ -323,8 +323,9 @@ function summarize(run) {
     };
   }
 
-  // How far the desk's camera moved in each frame it moved: a lurch is one
-  // frame's step many times the usual one.
+  // How far the desk's camera moved in each frame it moved. A notch that
+  // moves the camera in one go shows as a large step; the story's clock
+  // spreads it over several frames.
   const steps = scrolling.map(([, , , , step]) => step).filter((s) => s > 0);
   const gpuAll = {};
   for (const [canvas, entries] of Object.entries(run.gpu)) {
@@ -376,9 +377,6 @@ function summarize(run) {
     aboutFramesInRoom: regions.room?.drew.about ?? 0,
     cameraStepP50: round(quantile(steps, 0.5) * 100) / 100,
     cameraStepMax: round(Math.max(0, ...steps) * 100) / 100,
-    cameraLurch: steps.length
-      ? round(Math.max(...steps) / quantile(steps, 0.5))
-      : 0,
     programmaticScrolls: programmatic.length,
     tinyScrolls: programmatic.filter(
       ([, , before, top]) => top !== null && Math.abs(top - before) < 1,
@@ -506,7 +504,7 @@ const columns = [
   ["deskGpuP95", "Desk GPU p95 (ms)"],
   ["aboutGpuP95", "About GPU p95 (ms)"],
   ["aboutFramesInRoom", "About frames under the curtain"],
-  ["cameraLurch", "Camera lurch (max ÷ median step)"],
+  ["cameraStepMax", "Camera's largest step in a frame (m)"],
   ["tinyScrolls", "Scrolls under 1 px"],
   ["dirtyStyleShare", "Scroll events with dirty style (%)"],
   ["dprReduced", "Desk lowered its resolution"],
