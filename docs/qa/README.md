@@ -26,3 +26,5 @@ Review uses docs/skills/web-interface-guidelines-2026-09-05.md and its recorded 
 
 ## Still requires external validation
 Real Vercel deployment, Redis-backed snapshot, live signed webhook, domain/DNS and real-user Speed Insights are not configured. Actual iPhone Safari and final CV are release inputs. See ../release.md. No public production launch is claimed.
+
+`feel-test.md` is the five-minute test Onur sends friends after a change to the desk's motion, with how to read the answers.
