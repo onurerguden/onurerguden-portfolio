@@ -51,3 +51,7 @@ The harness sets `localStorage["portfolio:qa"]` to `1` for the page's QA-only at
 `baseline.md`, production build of main (6970b7e) on an M1 Pro. A first visit froze for about 3 s at the moment the desk became ready: 53 shader programs linked synchronously on its first frame (4.2 s of blocking WebGL calls in total). Returning visits had one 180 ms frame; a four-times slower CPU, six frames over 100 ms in the first seconds. Once loaded, scrolling held 60 fps (p95 17 ms).
 
 The live site measured the same day (cold HTTP cache, TTFB 320–415 ms from fra1) froze 3.4–4.6 s on a first visit.
+
+## Butter baseline (9 October 2026)
+
+`butter-baseline.md`, production build of main (ce63d36) with trackpad input. The page no longer freezes for long, but it does not flow: every visit lowered the desk's resolution on an M1 Pro, About drew about 230 frames while the curtain still covered it, a notch moved the camera nearly four times as far as the median frame step, and the MacBook's Explorer list dropped about one frame in five while it scrolled (a single 33 ms frame each time, with the main thread mostly idle).
