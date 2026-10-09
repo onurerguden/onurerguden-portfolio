@@ -1,5 +1,6 @@
 "use client";
 
+import { follow } from "@/lib/cursor";
 import { useEffect, useRef } from "react";
 import type { JourneyContent } from "@/lib/desk-story/content";
 import styles from "./portrait.module.css";
@@ -40,15 +41,22 @@ export default function PortraitIdentity({
       if (!frame && document.visibilityState === "visible")
         frame = requestAnimationFrame(tick);
     };
-    const tick = () => {
+    let last = 0;
+    const tick = (now: number) => {
       frame = 0;
-      x += (targetX - x) * 0.16;
-      y += (targetY - y) * 0.16;
+      // By time, not frames: a fixed share per frame moved twice as fast at
+      // 120 Hz. The first frame after a rest counts as one at 60 Hz, so the
+      // portrait never jumps a long idle gap's worth at once.
+      const dt = last ? Math.min(now - last, 1000 / 60) : 1000 / 60;
+      last = now;
+      x = follow(x, targetX, dt, 70);
+      y = follow(y, targetY, dt, 70);
       if (Math.abs(targetX - x) < 0.1) x = targetX;
       if (Math.abs(targetY - y) < 0.1) y = targetY;
       artwork.style.setProperty("--portrait-x", `${x.toFixed(2)}px`);
       artwork.style.setProperty("--portrait-y", `${y.toFixed(2)}px`);
       if (x !== targetX || y !== targetY) frame = requestAnimationFrame(tick);
+      else last = 0;
     };
     const move = (event: PointerEvent) => {
       if (!visible || event.pointerType !== "mouse") return;
