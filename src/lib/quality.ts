@@ -8,8 +8,8 @@
  *   few cores).
  * - static: the plain flow phones get (no GPU acceleration at all).
  *
- * Unknown GPUs start high; the desk's frame timing steps them down if their
- * frames run slow (src/lib/desk-story/frame-budget.ts). A visitor's own
+ * Unknown GPUs start high; the desk's frame timing lowers its resolution if
+ * its frames run slow (src/lib/desk-story/frame-budget.ts). A visitor's own
  * choice ("portfolio:quality" in localStorage) wins, which QA also uses.
  */
 export type Quality = "high" | "low" | "static";
