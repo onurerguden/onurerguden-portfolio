@@ -13,7 +13,7 @@ import SectionCanvas, { useStageWarm } from "@/components/three/section-canvas";
 import DeskLighting from "@/components/desk/lighting";
 import { warmUp } from "@/components/three/warm-up";
 import { seededRandom } from "@/lib/random";
-import { yieldToMain } from "@/lib/yield";
+import { frameSlices } from "@/lib/yield";
 import techIcons from "@/lib/tech-icons.generated.json";
 import { kick, restPose, swayAmplitude, turn } from "./about-motion";
 import { curtainProgress } from "@/lib/desk-story/curtain";
@@ -135,8 +135,9 @@ function createBodies(slots: Record<string, Slot>) {
 /**
  * Procedural geometry is built once per visit: a scene that is released and
  * mounted again (scrolling away and back) reuses it instead of rebuilding.
- * `prepareAbout` builds it ahead, one part per task, while the visitor is
- * still at the desk, so mounting the scene has nothing left to build.
+ * `prepareAbout` builds it ahead, a few milliseconds of it per frame, while
+ * the visitor is still at the desk, so mounting the scene has nothing left
+ * to build.
  */
 const builders = {
   basketball,
@@ -159,15 +160,22 @@ const parts = () => {
   return cachedParts as Parts;
 };
 const icons = techIcons.icons as Record<string, { path: string; hex: string }>;
-export async function prepareAbout(logos: string[]) {
+export async function prepareAbout(
+  logos: string[],
+  cancelled: () => boolean = () => false,
+) {
+  const slice = frameSlices();
   for (const key of Object.keys(builders) as (keyof Parts)[]) {
-    await yieldToMain();
+    await slice();
+    if (cancelled()) return false;
     build(key);
   }
   for (const slug of logos.slice(0, 3)) {
-    await yieldToMain();
+    await slice();
+    if (cancelled()) return false;
     if (icons[slug]) logoGeometry(icons[slug].path);
   }
+  return true;
 }
 
 function Objects({
