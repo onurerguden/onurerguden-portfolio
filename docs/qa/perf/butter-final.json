@@ -1,0 +1,5455 @@
+{
+  "url": "https://onurerguden.dev/en",
+  "date": "2026-10-09T17:54:39.638Z",
+  "results": {
+    "first-visit/trackpad": {
+      "median": {
+        "refresh": 60,
+        "ttfb": 483,
+        "fcp": 788,
+        "lcp": 788,
+        "deskReady": 2864,
+        "maxLoaf": 258,
+        "maxLoafAt": 2102,
+        "maxLoafSource": "",
+        "loafsOver100": 3,
+        "loafsOver50": 10,
+        "scrollLoafsOver50": 5,
+        "scrollFrames": 2311,
+        "scrollP50": 17,
+        "scrollP95": 17,
+        "scrollP99": 33,
+        "scrollOver50": 3,
+        "slowShare": 1.24,
+        "gaps": [
+          [
+            2425,
+            250
+          ],
+          [
+            2875,
+            83
+          ],
+          [
+            22541,
+            100
+          ]
+        ],
+        "regions": {
+          "opening": {
+            "frames": 202,
+            "p50": 17,
+            "p95": 17,
+            "p99": 33,
+            "slowShare": 3.47,
+            "slowStreak": 2,
+            "drew": {
+              "desk": 100
+            },
+            "gpu": {
+              "desk": [
+                2.75,
+                5.16
+              ]
+            }
+          },
+          "monitor": {
+            "frames": 577,
+            "p50": 17,
+            "p95": 17,
+            "p99": 17,
+            "slowShare": 0.52,
+            "slowStreak": 1,
+            "drew": {
+              "desk": 68,
+              "balls": 116
+            },
+            "gpu": {
+              "desk": [
+                4.09,
+                7.22
+              ],
+              "balls": [
+                1.8,
+                5.21
+              ]
+            }
+          },
+          "macbook": {
+            "frames": 192,
+            "p50": 17,
+            "p95": 17,
+            "p99": 17,
+            "slowShare": 0,
+            "slowStreak": 0,
+            "drew": {},
+            "gpu": {}
+          },
+          "room": {
+            "frames": 329,
+            "p50": 17,
+            "p95": 17,
+            "p99": 50,
+            "slowShare": 2.13,
+            "slowStreak": 1,
+            "drew": {
+              "desk": 85,
+              "about": 108
+            },
+            "gpu": {
+              "desk": [
+                5.01,
+                7.55
+              ],
+              "about": [
+                1.73,
+                2.3
+              ]
+            }
+          },
+          "about": {
+            "frames": 160,
+            "p50": 17,
+            "p95": 17,
+            "p99": 17,
+            "slowShare": 0.63,
+            "slowStreak": 1,
+            "drew": {
+              "about": 129,
+              "desk": 4
+            },
+            "gpu": {
+              "desk": [
+                3.97,
+                13.24
+              ],
+              "about": [
+                2.1,
+                2.71
+              ]
+            }
+          },
+          "flow": {
+            "frames": 852,
+            "p50": 17,
+            "p95": 17,
+            "p99": 17,
+            "slowShare": 0.7,
+            "slowStreak": 1,
+            "drew": {
+              "about": 102
+            },
+            "gpu": {
+              "about": [
+                1.98,
+                2.28
+              ]
+            }
+          }
+        },
+        "gpu": {
+          "desk": [
+            4.28,
+            7.07
+          ],
+          "balls": [
+            1.8,
+            5.21
+          ],
+          "about": [
+            1.96,
+            2.53
+          ]
+        },
+        "deskGpuP95": 7.36,
+        "aboutGpuP95": 2.42,
+        "aboutFramesInRoom": 108,
+        "cameraStepP50": 0.013600000000000001,
+        "cameraStepMax": 0.0741,
+        "programmaticScrolls": 0,
+        "tinyScrolls": 0,
+        "scrollCalls": [],
+        "dirtyStyleShare": 56.06,
+        "dprReduced": 0,
+        "glBlocking": 47,
+        "glBlockingAfterReady": 0,
+        "glCalls": [
+          [
+            1553,
+            17,
+            "getProgramInfoLog"
+          ],
+          [
+            1573,
+            18,
+            "getProgramInfoLog"
+          ]
+        ],
+        "programs": 41,
+        "programAt": [
+          1398,
+          1400,
+          1400,
+          1400,
+          1702,
+          1710,
+          1712,
+          1713,
+          1715,
+          1716,
+          1727,
+          1729,
+          1731,
+          1732,
+          1733,
+          1744,
+          1744,
+          1744,
+          1745,
+          1745,
+          1745,
+          1746,
+          12653,
+          18199,
+          18200,
+          18202,
+          18203,
+          18205,
+          18207,
+          18208,
+          18209,
+          18211,
+          22440,
+          22441,
+          22444,
+          22447,
+          22449,
+          22450,
+          22452,
+          22462,
+          22463
+        ],
+        "shaders": [
+          [
+            1399,
+            "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+          ],
+          [
+            1400,
+            "CubemapToCubeUV"
+          ],
+          [
+            1400,
+            "CubemapToCubeUV"
+          ],
+          [
+            1401,
+            "PMREMGGXConvolution"
+          ],
+          [
+            1704,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            1711,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            1713,
+            "Woven"
+          ],
+          [
+            1714,
+            "Satin"
+          ],
+          [
+            1716,
+            "Expanded"
+          ],
+          [
+            1717,
+            "Expanded"
+          ],
+          [
+            1728,
+            "Keycap"
+          ],
+          [
+            1730,
+            "Barracuda"
+          ],
+          [
+            1731,
+            "Inactive"
+          ],
+          [
+            1733,
+            "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+          ],
+          [
+            1733,
+            "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+          ],
+          [
+            1744,
+            "?"
+          ],
+          [
+            1744,
+            "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+          ],
+          [
+            1744,
+            "?"
+          ],
+          [
+            1745,
+            "diffuse,opacity,uvTransform,map"
+          ],
+          [
+            1745,
+            "uReveal,uCells,uFade"
+          ],
+          [
+            1745,
+            "depth"
+          ],
+          [
+            1746,
+            "depth"
+          ],
+          [
+            12654,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            18200,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            18201,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            18202,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            18204,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            18205,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            18208,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            18209,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            18210,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            18211,
+            "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+          ],
+          [
+            22440,
+            "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+          ],
+          [
+            22443,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            22445,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            22448,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            22450,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            22451,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            22453,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            22463,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            22464,
+            "diffuse,emissive,roughness,metalness"
+          ]
+        ],
+        "contexts": 4,
+        "scriptBytes": 572244,
+        "modelBytes": 300700,
+        "imageBytes": 490144,
+        "milestones": {
+          "warm:textures": 22438,
+          "warm:programs": 22439,
+          "warm:offscreen": 22465,
+          "warm:frame": 22514,
+          "warm:gpu": 22533,
+          "warm:done": 22653,
+          "stage:stack:static": 812,
+          "stage:about:static": 812,
+          "stage:stack:idle": 874,
+          "stage:about:idle": 874,
+          "stage:main:static": 983,
+          "stage:main:idle": 1004,
+          "desk-ready": 2864,
+          "stage:main:loading": 12250,
+          "stage:main:live": 12929,
+          "stage:about:loading": 22053,
+          "stage:about:live": 22655
+        },
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+        "parallelCompile": true,
+        "longFrames": [
+          {
+            "start": 1343,
+            "duration": 59,
+            "render": 0,
+            "layout": 0,
+            "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+          },
+          {
+            "start": 1545,
+            "duration": 56,
+            "render": 1,
+            "layout": 0,
+            "top": "TimerHandler:setTimeout (0lp7webz7ghwa.js)"
+          },
+          {
+            "start": 2431,
+            "duration": 258,
+            "render": 1,
+            "layout": 0,
+            "top": ""
+          },
+          {
+            "start": 2882,
+            "duration": 79,
+            "render": 1,
+            "layout": 0,
+            "top": ""
+          },
+          {
+            "start": 13467,
+            "duration": 53,
+            "render": 2,
+            "layout": 0,
+            "top": ""
+          },
+          {
+            "start": 22544,
+            "duration": 109,
+            "render": 1,
+            "layout": 0,
+            "top": ""
+          },
+          {
+            "start": 23430,
+            "duration": 51,
+            "render": 1,
+            "layout": 0,
+            "top": ""
+          }
+        ]
+      },
+      "runs": [
+        {
+          "refresh": 60,
+          "ttfb": 483,
+          "fcp": 1172,
+          "lcp": 1268,
+          "deskReady": 3931,
+          "maxLoaf": 242,
+          "maxLoafAt": 2050,
+          "maxLoafSource": "MessagePort.onmessage (0lp7webz7ghwa.js)",
+          "loafsOver100": 3,
+          "loafsOver50": 10,
+          "scrollLoafsOver50": 5,
+          "scrollFrames": 2311,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollP99": 33,
+          "scrollOver50": 2,
+          "slowShare": 1.25,
+          "gaps": [
+            [
+              3943,
+              83
+            ],
+            [
+              22259,
+              117
+            ]
+          ],
+          "regions": {
+            "opening": {
+              "frames": 183,
+              "p50": 17,
+              "p95": 17,
+              "p99": 50,
+              "slowShare": 3.83,
+              "slowStreak": 1,
+              "drew": {
+                "desk": 54
+              },
+              "gpu": {
+                "desk": [
+                  4.74,
+                  8.65
+                ]
+              }
+            },
+            "monitor": {
+              "frames": 566,
+              "p50": 17,
+              "p95": 17,
+              "p99": 33,
+              "slowShare": 1.24,
+              "slowStreak": 2,
+              "drew": {
+                "desk": 72,
+                "balls": 115
+              },
+              "gpu": {
+                "desk": [
+                  3.49,
+                  6.6
+                ],
+                "balls": [
+                  1.8,
+                  4.03
+                ]
+              }
+            },
+            "macbook": {
+              "frames": 198,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0,
+              "slowStreak": 0,
+              "drew": {},
+              "gpu": {}
+            },
+            "room": {
+              "frames": 335,
+              "p50": 17,
+              "p95": 17,
+              "p99": 50,
+              "slowShare": 2.09,
+              "slowStreak": 2,
+              "drew": {
+                "desk": 88,
+                "about": 120
+              },
+              "gpu": {
+                "desk": [
+                  5.58,
+                  7.78
+                ],
+                "about": [
+                  1.86,
+                  2.55
+                ]
+              }
+            },
+            "about": {
+              "frames": 175,
+              "p50": 17,
+              "p95": 17,
+              "p99": 33,
+              "slowShare": 1.14,
+              "slowStreak": 1,
+              "drew": {
+                "about": 140
+              },
+              "gpu": {
+                "about": [
+                  1.99,
+                  2.36
+                ]
+              }
+            },
+            "flow": {
+              "frames": 854,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.7,
+              "slowStreak": 1,
+              "drew": {
+                "about": 103
+              },
+              "gpu": {
+                "about": [
+                  1.98,
+                  2.41
+                ]
+              }
+            }
+          },
+          "gpu": {
+            "desk": [
+              4.79,
+              7.75
+            ],
+            "balls": [
+              1.8,
+              4.03
+            ],
+            "about": [
+              1.97,
+              2.42
+            ]
+          },
+          "deskGpuP95": 7.75,
+          "aboutGpuP95": 2.42,
+          "aboutFramesInRoom": 120,
+          "cameraStepP50": 0.0141,
+          "cameraStepMax": 0.5659000000000001,
+          "programmaticScrolls": 0,
+          "tinyScrolls": 0,
+          "scrollCalls": [],
+          "dirtyStyleShare": 56.64,
+          "dprReduced": 0,
+          "glBlocking": 76,
+          "glBlockingAfterReady": 0,
+          "glCalls": [
+            [
+              2401,
+              61,
+              "getProgramInfoLog"
+            ]
+          ],
+          "programs": 41,
+          "programAt": [
+            1955,
+            1958,
+            1958,
+            1958,
+            2481,
+            2484,
+            2486,
+            2487,
+            2488,
+            2490,
+            2492,
+            2493,
+            2495,
+            2497,
+            2497,
+            2498,
+            2499,
+            2499,
+            2499,
+            2499,
+            2500,
+            2500,
+            12667,
+            18234,
+            18235,
+            18236,
+            18237,
+            18238,
+            18241,
+            18242,
+            18244,
+            18245,
+            22163,
+            22164,
+            22166,
+            22170,
+            22171,
+            22173,
+            22175,
+            22196,
+            22199
+          ],
+          "shaders": [
+            [
+              1956,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1958,
+              "CubemapToCubeUV"
+            ],
+            [
+              1958,
+              "CubemapToCubeUV"
+            ],
+            [
+              1958,
+              "PMREMGGXConvolution"
+            ],
+            [
+              2482,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              2485,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              2487,
+              "Woven"
+            ],
+            [
+              2488,
+              "Satin"
+            ],
+            [
+              2489,
+              "Expanded"
+            ],
+            [
+              2490,
+              "Expanded"
+            ],
+            [
+              2493,
+              "Keycap"
+            ],
+            [
+              2494,
+              "Barracuda"
+            ],
+            [
+              2496,
+              "Inactive"
+            ],
+            [
+              2497,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              2497,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              2498,
+              "?"
+            ],
+            [
+              2499,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              2499,
+              "?"
+            ],
+            [
+              2499,
+              "diffuse,opacity,uvTransform,map"
+            ],
+            [
+              2499,
+              "uReveal,uCells,uFade"
+            ],
+            [
+              2500,
+              "depth"
+            ],
+            [
+              2500,
+              "depth"
+            ],
+            [
+              12668,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              18234,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              18236,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              18237,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              18238,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              18239,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              18242,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              18243,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              18245,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              18245,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              22164,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              22165,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              22167,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              22171,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              22172,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              22174,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              22176,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              22198,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              22200,
+              "diffuse,emissive,roughness,metalness"
+            ]
+          ],
+          "contexts": 4,
+          "scriptBytes": 572244,
+          "modelBytes": 300700,
+          "imageBytes": 489844,
+          "milestones": {
+            "warm:textures": 22161,
+            "warm:programs": 22163,
+            "warm:offscreen": 22200,
+            "warm:frame": 22232,
+            "warm:gpu": 22251,
+            "warm:done": 22380,
+            "stage:stack:static": 1334,
+            "stage:about:static": 1334,
+            "stage:stack:idle": 1357,
+            "stage:about:idle": 1357,
+            "stage:main:static": 1505,
+            "stage:main:idle": 1528,
+            "desk-ready": 3931,
+            "stage:main:loading": 12233,
+            "stage:main:live": 12896,
+            "stage:about:loading": 21765,
+            "stage:about:live": 22382
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": [
+            {
+              "start": 1595,
+              "duration": 51,
+              "render": 0,
+              "layout": 0,
+              "top": "https://onurerguden.dev/_next/static/immutable/chunks/2nx_k45kfuqpm.js (2nx_k45kfuqpm.js)"
+            },
+            {
+              "start": 1880,
+              "duration": 81,
+              "render": 1,
+              "layout": 0,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 2050,
+              "duration": 242,
+              "render": 0,
+              "layout": 0,
+              "top": "MessagePort.onmessage (0lp7webz7ghwa.js)"
+            },
+            {
+              "start": 2379,
+              "duration": 105,
+              "render": 1,
+              "layout": 0,
+              "top": "TimerHandler:setTimeout (0lp7webz7ghwa.js)"
+            },
+            {
+              "start": 3845,
+              "duration": 52,
+              "render": 1,
+              "layout": 0,
+              "top": ""
+            },
+            {
+              "start": 3950,
+              "duration": 80,
+              "render": 1,
+              "layout": 0,
+              "top": ""
+            },
+            {
+              "start": 12596,
+              "duration": 56,
+              "render": 2,
+              "layout": 1,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 13285,
+              "duration": 59,
+              "render": 2,
+              "layout": 1,
+              "top": ""
+            },
+            {
+              "start": 22263,
+              "duration": 118,
+              "render": 1,
+              "layout": 0,
+              "top": ""
+            },
+            {
+              "start": 23364,
+              "duration": 53,
+              "render": 1,
+              "layout": 0,
+              "top": ""
+            }
+          ]
+        },
+        {
+          "refresh": 60,
+          "ttfb": 487,
+          "fcp": 788,
+          "lcp": 788,
+          "deskReady": 2864,
+          "maxLoaf": 258,
+          "maxLoafAt": 2431,
+          "maxLoafSource": "",
+          "loafsOver100": 2,
+          "loafsOver50": 7,
+          "scrollLoafsOver50": 4,
+          "scrollFrames": 2312,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollP99": 33,
+          "scrollOver50": 3,
+          "slowShare": 1.04,
+          "gaps": [
+            [
+              2425,
+              250
+            ],
+            [
+              2875,
+              83
+            ],
+            [
+              22541,
+              100
+            ]
+          ],
+          "regions": {
+            "opening": {
+              "frames": 202,
+              "p50": 17,
+              "p95": 17,
+              "p99": 33,
+              "slowShare": 3.47,
+              "slowStreak": 2,
+              "drew": {
+                "desk": 100
+              },
+              "gpu": {
+                "desk": [
+                  2.75,
+                  5.16
+                ]
+              }
+            },
+            "monitor": {
+              "frames": 577,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.52,
+              "slowStreak": 1,
+              "drew": {
+                "desk": 68,
+                "balls": 116
+              },
+              "gpu": {
+                "desk": [
+                  4.09,
+                  7.22
+                ],
+                "balls": [
+                  1.8,
+                  5.21
+                ]
+              }
+            },
+            "macbook": {
+              "frames": 192,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0,
+              "slowStreak": 0,
+              "drew": {},
+              "gpu": {}
+            },
+            "room": {
+              "frames": 329,
+              "p50": 17,
+              "p95": 17,
+              "p99": 50,
+              "slowShare": 2.13,
+              "slowStreak": 1,
+              "drew": {
+                "desk": 85,
+                "about": 108
+              },
+              "gpu": {
+                "desk": [
+                  5.01,
+                  7.55
+                ],
+                "about": [
+                  1.73,
+                  2.3
+                ]
+              }
+            },
+            "about": {
+              "frames": 160,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.63,
+              "slowStreak": 1,
+              "drew": {
+                "about": 129,
+                "desk": 4
+              },
+              "gpu": {
+                "desk": [
+                  3.97,
+                  13.24
+                ],
+                "about": [
+                  2.1,
+                  2.71
+                ]
+              }
+            },
+            "flow": {
+              "frames": 852,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.7,
+              "slowStreak": 1,
+              "drew": {
+                "about": 102
+              },
+              "gpu": {
+                "about": [
+                  1.98,
+                  2.28
+                ]
+              }
+            }
+          },
+          "gpu": {
+            "desk": [
+              4.28,
+              7.07
+            ],
+            "balls": [
+              1.8,
+              5.21
+            ],
+            "about": [
+              1.96,
+              2.53
+            ]
+          },
+          "deskGpuP95": 7.07,
+          "aboutGpuP95": 2.53,
+          "aboutFramesInRoom": 108,
+          "cameraStepP50": 0.013600000000000001,
+          "cameraStepMax": 0.0727,
+          "programmaticScrolls": 0,
+          "tinyScrolls": 0,
+          "scrollCalls": [],
+          "dirtyStyleShare": 54.24,
+          "dprReduced": 0,
+          "glBlocking": 47,
+          "glBlockingAfterReady": 0,
+          "glCalls": [
+            [
+              1553,
+              17,
+              "getProgramInfoLog"
+            ],
+            [
+              1573,
+              18,
+              "getProgramInfoLog"
+            ]
+          ],
+          "programs": 41,
+          "programAt": [
+            1398,
+            1400,
+            1400,
+            1400,
+            1702,
+            1710,
+            1712,
+            1713,
+            1715,
+            1716,
+            1727,
+            1729,
+            1731,
+            1732,
+            1733,
+            1744,
+            1744,
+            1744,
+            1745,
+            1745,
+            1745,
+            1746,
+            12653,
+            18199,
+            18200,
+            18202,
+            18203,
+            18205,
+            18207,
+            18208,
+            18209,
+            18211,
+            22440,
+            22441,
+            22444,
+            22447,
+            22449,
+            22450,
+            22452,
+            22462,
+            22463
+          ],
+          "shaders": [
+            [
+              1399,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1400,
+              "CubemapToCubeUV"
+            ],
+            [
+              1400,
+              "CubemapToCubeUV"
+            ],
+            [
+              1401,
+              "PMREMGGXConvolution"
+            ],
+            [
+              1704,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              1711,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              1713,
+              "Woven"
+            ],
+            [
+              1714,
+              "Satin"
+            ],
+            [
+              1716,
+              "Expanded"
+            ],
+            [
+              1717,
+              "Expanded"
+            ],
+            [
+              1728,
+              "Keycap"
+            ],
+            [
+              1730,
+              "Barracuda"
+            ],
+            [
+              1731,
+              "Inactive"
+            ],
+            [
+              1733,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1733,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1744,
+              "?"
+            ],
+            [
+              1744,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1744,
+              "?"
+            ],
+            [
+              1745,
+              "diffuse,opacity,uvTransform,map"
+            ],
+            [
+              1745,
+              "uReveal,uCells,uFade"
+            ],
+            [
+              1745,
+              "depth"
+            ],
+            [
+              1746,
+              "depth"
+            ],
+            [
+              12654,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              18200,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              18201,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              18202,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              18204,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              18205,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              18208,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              18209,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              18210,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              18211,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              22440,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              22443,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              22445,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              22448,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              22450,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              22451,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              22453,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              22463,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              22464,
+              "diffuse,emissive,roughness,metalness"
+            ]
+          ],
+          "contexts": 4,
+          "scriptBytes": 572244,
+          "modelBytes": 300700,
+          "imageBytes": 490144,
+          "milestones": {
+            "warm:textures": 22438,
+            "warm:programs": 22439,
+            "warm:offscreen": 22465,
+            "warm:frame": 22514,
+            "warm:gpu": 22533,
+            "warm:done": 22653,
+            "stage:stack:static": 812,
+            "stage:about:static": 812,
+            "stage:stack:idle": 874,
+            "stage:about:idle": 874,
+            "stage:main:static": 983,
+            "stage:main:idle": 1004,
+            "desk-ready": 2864,
+            "stage:main:loading": 12250,
+            "stage:main:live": 12929,
+            "stage:about:loading": 22053,
+            "stage:about:live": 22655
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": [
+            {
+              "start": 1343,
+              "duration": 59,
+              "render": 0,
+              "layout": 0,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 1545,
+              "duration": 56,
+              "render": 1,
+              "layout": 0,
+              "top": "TimerHandler:setTimeout (0lp7webz7ghwa.js)"
+            },
+            {
+              "start": 2431,
+              "duration": 258,
+              "render": 1,
+              "layout": 0,
+              "top": ""
+            },
+            {
+              "start": 2882,
+              "duration": 79,
+              "render": 1,
+              "layout": 0,
+              "top": ""
+            },
+            {
+              "start": 13467,
+              "duration": 53,
+              "render": 2,
+              "layout": 0,
+              "top": ""
+            },
+            {
+              "start": 22544,
+              "duration": 109,
+              "render": 1,
+              "layout": 0,
+              "top": ""
+            },
+            {
+              "start": 23430,
+              "duration": 51,
+              "render": 1,
+              "layout": 0,
+              "top": ""
+            }
+          ]
+        },
+        {
+          "refresh": 60,
+          "ttfb": 200,
+          "fcp": 436,
+          "lcp": 440,
+          "deskReady": 2520,
+          "maxLoaf": 266,
+          "maxLoafAt": 2102,
+          "maxLoafSource": "",
+          "loafsOver100": 4,
+          "loafsOver50": 10,
+          "scrollLoafsOver50": 6,
+          "scrollFrames": 2261,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollP99": 33,
+          "scrollOver50": 5,
+          "slowShare": 1.24,
+          "gaps": [
+            [
+              2099,
+              267
+            ],
+            [
+              2532,
+              83
+            ],
+            [
+              21681,
+              100
+            ],
+            [
+              34981,
+              117
+            ],
+            [
+              39714,
+              117
+            ]
+          ],
+          "regions": {
+            "opening": {
+              "frames": 191,
+              "p50": 17,
+              "p95": 17,
+              "p99": 83,
+              "slowShare": 3.66,
+              "slowStreak": 1,
+              "drew": {
+                "desk": 95
+              },
+              "gpu": {
+                "desk": [
+                  2.68,
+                  5.01
+                ]
+              }
+            },
+            "monitor": {
+              "frames": 571,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.7,
+              "slowStreak": 1,
+              "drew": {
+                "desk": 76,
+                "balls": 112
+              },
+              "gpu": {
+                "desk": [
+                  3.9,
+                  6.76
+                ],
+                "balls": [
+                  1.81,
+                  6.18
+                ]
+              }
+            },
+            "macbook": {
+              "frames": 180,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0,
+              "slowStreak": 0,
+              "drew": {},
+              "gpu": {}
+            },
+            "room": {
+              "frames": 306,
+              "p50": 17,
+              "p95": 17,
+              "p99": 50,
+              "slowShare": 3.27,
+              "slowStreak": 2,
+              "drew": {
+                "desk": 85,
+                "about": 90
+              },
+              "gpu": {
+                "desk": [
+                  5.69,
+                  7.74
+                ],
+                "about": [
+                  1.78,
+                  2.33
+                ]
+              }
+            },
+            "about": {
+              "frames": 144,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0,
+              "slowStreak": 0,
+              "drew": {
+                "about": 118,
+                "desk": 5
+              },
+              "gpu": {
+                "desk": [
+                  4.78,
+                  13.69
+                ],
+                "about": [
+                  1.95,
+                  2.42
+                ]
+              }
+            },
+            "flow": {
+              "frames": 869,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.81,
+              "slowStreak": 1,
+              "drew": {
+                "about": 102
+              },
+              "gpu": {
+                "about": [
+                  2.01,
+                  2.34
+                ]
+              }
+            }
+          },
+          "gpu": {
+            "desk": [
+              4.38,
+              7.36
+            ],
+            "balls": [
+              1.81,
+              6.18
+            ],
+            "about": [
+              1.95,
+              2.34
+            ]
+          },
+          "deskGpuP95": 7.36,
+          "aboutGpuP95": 2.34,
+          "aboutFramesInRoom": 90,
+          "cameraStepP50": 0.0134,
+          "cameraStepMax": 0.0741,
+          "programmaticScrolls": 0,
+          "tinyScrolls": 0,
+          "scrollCalls": [],
+          "dirtyStyleShare": 56.06,
+          "dprReduced": 0,
+          "glBlocking": 26,
+          "glBlockingAfterReady": 0,
+          "glCalls": [
+            [
+              1235,
+              17,
+              "getProgramInfoLog"
+            ]
+          ],
+          "programs": 41,
+          "programAt": [
+            1073,
+            1075,
+            1075,
+            1076,
+            1376,
+            1384,
+            1386,
+            1388,
+            1389,
+            1390,
+            1401,
+            1403,
+            1404,
+            1406,
+            1406,
+            1407,
+            1407,
+            1418,
+            1419,
+            1419,
+            1419,
+            1420,
+            12027,
+            17672,
+            17674,
+            17675,
+            17676,
+            17677,
+            17681,
+            17682,
+            17683,
+            17685,
+            21587,
+            21588,
+            21590,
+            21594,
+            21596,
+            21597,
+            21599,
+            21609,
+            21611
+          ],
+          "shaders": [
+            [
+              1074,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1075,
+              "CubemapToCubeUV"
+            ],
+            [
+              1075,
+              "CubemapToCubeUV"
+            ],
+            [
+              1076,
+              "PMREMGGXConvolution"
+            ],
+            [
+              1378,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              1385,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              1387,
+              "Woven"
+            ],
+            [
+              1388,
+              "Satin"
+            ],
+            [
+              1390,
+              "Expanded"
+            ],
+            [
+              1391,
+              "Expanded"
+            ],
+            [
+              1402,
+              "Keycap"
+            ],
+            [
+              1404,
+              "Barracuda"
+            ],
+            [
+              1405,
+              "Inactive"
+            ],
+            [
+              1406,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1407,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1407,
+              "?"
+            ],
+            [
+              1407,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1418,
+              "?"
+            ],
+            [
+              1419,
+              "diffuse,opacity,uvTransform,map"
+            ],
+            [
+              1419,
+              "uReveal,uCells,uFade"
+            ],
+            [
+              1420,
+              "depth"
+            ],
+            [
+              1420,
+              "depth"
+            ],
+            [
+              12028,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17673,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17674,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17675,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17676,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17678,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17681,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17683,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17684,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17685,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              21588,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              21589,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21591,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21595,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21597,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21598,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21600,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21610,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21611,
+              "diffuse,emissive,roughness,metalness"
+            ]
+          ],
+          "contexts": 4,
+          "scriptBytes": 572244,
+          "modelBytes": 300700,
+          "imageBytes": 490144,
+          "milestones": {
+            "warm:textures": 21585,
+            "warm:programs": 21587,
+            "warm:offscreen": 21612,
+            "warm:frame": 21655,
+            "warm:gpu": 21673,
+            "warm:done": 21799,
+            "stage:stack:static": 485,
+            "stage:about:static": 485,
+            "stage:stack:idle": 505,
+            "stage:about:idle": 505,
+            "stage:main:static": 655,
+            "stage:main:idle": 674,
+            "desk-ready": 2520,
+            "stage:main:loading": 11626,
+            "stage:main:live": 12287,
+            "stage:about:loading": 21188,
+            "stage:about:live": 21802
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": [
+            {
+              "start": 438,
+              "duration": 60,
+              "render": 12,
+              "layout": 3,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 1018,
+              "duration": 60,
+              "render": 0,
+              "layout": 0,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 1868,
+              "duration": 54,
+              "render": 1,
+              "layout": 0,
+              "top": ""
+            },
+            {
+              "start": 2102,
+              "duration": 266,
+              "render": 1,
+              "layout": 0,
+              "top": ""
+            },
+            {
+              "start": 2538,
+              "duration": 80,
+              "render": 1,
+              "layout": 0,
+              "top": ""
+            },
+            {
+              "start": 13021,
+              "duration": 56,
+              "render": 3,
+              "layout": 1,
+              "top": ""
+            },
+            {
+              "start": 21685,
+              "duration": 101,
+              "render": 1,
+              "layout": 0,
+              "top": ""
+            },
+            {
+              "start": 22420,
+              "duration": 52,
+              "render": 1,
+              "layout": 0,
+              "top": ""
+            },
+            {
+              "start": 34983,
+              "duration": 121,
+              "render": 0,
+              "layout": 0,
+              "top": ""
+            },
+            {
+              "start": 39717,
+              "duration": 125,
+              "render": 1,
+              "layout": 0,
+              "top": ""
+            }
+          ]
+        }
+      ]
+    },
+    "returning/trackpad": {
+      "median": {
+        "refresh": 60,
+        "ttfb": 54,
+        "fcp": 248,
+        "lcp": 248,
+        "deskReady": 1279,
+        "maxLoaf": 59,
+        "maxLoafAt": 21025,
+        "maxLoafSource": "MessagePort.onmessage (3l2igi_7b1eup.js)",
+        "loafsOver100": 0,
+        "loafsOver50": 1,
+        "scrollLoafsOver50": 1,
+        "scrollFrames": 2313,
+        "scrollP50": 17,
+        "scrollP95": 17,
+        "scrollP99": 17,
+        "scrollOver50": 0,
+        "slowShare": 0.48,
+        "gaps": [
+          [
+            21263,
+            67
+          ]
+        ],
+        "regions": {
+          "opening": {
+            "frames": 200,
+            "p50": 17,
+            "p95": 17,
+            "p99": 17,
+            "slowShare": 0,
+            "slowStreak": 0,
+            "drew": {
+              "desk": 98
+            },
+            "gpu": {
+              "desk": [
+                2.78,
+                5.09
+              ]
+            }
+          },
+          "monitor": {
+            "frames": 570,
+            "p50": 17,
+            "p95": 17,
+            "p99": 17,
+            "slowShare": 0.35,
+            "slowStreak": 1,
+            "drew": {
+              "desk": 73,
+              "balls": 118
+            },
+            "gpu": {
+              "desk": [
+                3.86,
+                6.89
+              ],
+              "balls": [
+                1.68,
+                3.99
+              ]
+            }
+          },
+          "macbook": {
+            "frames": 194,
+            "p50": 17,
+            "p95": 17,
+            "p99": 17,
+            "slowShare": 0.52,
+            "slowStreak": 1,
+            "drew": {},
+            "gpu": {}
+          },
+          "room": {
+            "frames": 340,
+            "p50": 17,
+            "p95": 17,
+            "p99": 17,
+            "slowShare": 0.88,
+            "slowStreak": 1,
+            "drew": {
+              "desk": 90,
+              "about": 125
+            },
+            "gpu": {
+              "desk": [
+                5.05,
+                6.88
+              ],
+              "about": [
+                1.44,
+                2.08
+              ]
+            }
+          },
+          "about": {
+            "frames": 182,
+            "p50": 17,
+            "p95": 17,
+            "p99": 17,
+            "slowShare": 0.55,
+            "slowStreak": 1,
+            "drew": {
+              "about": 145,
+              "desk": 4
+            },
+            "gpu": {
+              "desk": [
+                7.01,
+                14.15
+              ],
+              "about": [
+                1.91,
+                2.36
+              ]
+            }
+          },
+          "flow": {
+            "frames": 843,
+            "p50": 17,
+            "p95": 17,
+            "p99": 17,
+            "slowShare": 0.47,
+            "slowStreak": 1,
+            "drew": {
+              "about": 101
+            },
+            "gpu": {
+              "about": [
+                1.97,
+                2.46
+              ]
+            }
+          }
+        },
+        "gpu": {
+          "desk": [
+            4.21,
+            6.78
+          ],
+          "balls": [
+            1.68,
+            3.99
+          ],
+          "about": [
+            1.89,
+            2.42
+          ]
+        },
+        "deskGpuP95": 6.8,
+        "aboutGpuP95": 2.36,
+        "aboutFramesInRoom": 114,
+        "cameraStepP50": 0.0143,
+        "cameraStepMax": 0.0755,
+        "programmaticScrolls": 0,
+        "tinyScrolls": 0,
+        "scrollCalls": [],
+        "dirtyStyleShare": 56.52,
+        "dprReduced": 0,
+        "glBlocking": 4,
+        "glBlockingAfterReady": 0,
+        "glCalls": [],
+        "programs": 41,
+        "programAt": [
+          852,
+          853,
+          853,
+          854,
+          1158,
+          1165,
+          1168,
+          1170,
+          1171,
+          1173,
+          1184,
+          1185,
+          1187,
+          1189,
+          1200,
+          1201,
+          1201,
+          1201,
+          1201,
+          1201,
+          1202,
+          1202,
+          11726,
+          17036,
+          17037,
+          17038,
+          17039,
+          17040,
+          17041,
+          17044,
+          17046,
+          17047,
+          21302,
+          21303,
+          21309,
+          21310,
+          21312,
+          21313,
+          21333,
+          21334,
+          21335
+        ],
+        "shaders": [
+          [
+            852,
+            "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+          ],
+          [
+            853,
+            "CubemapToCubeUV"
+          ],
+          [
+            853,
+            "CubemapToCubeUV"
+          ],
+          [
+            854,
+            "PMREMGGXConvolution"
+          ],
+          [
+            1161,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            1167,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            1169,
+            "Woven"
+          ],
+          [
+            1171,
+            "Satin"
+          ],
+          [
+            1172,
+            "Expanded"
+          ],
+          [
+            1174,
+            "Expanded"
+          ],
+          [
+            1184,
+            "Keycap"
+          ],
+          [
+            1186,
+            "Barracuda"
+          ],
+          [
+            1187,
+            "Inactive"
+          ],
+          [
+            1189,
+            "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+          ],
+          [
+            1200,
+            "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+          ],
+          [
+            1201,
+            "?"
+          ],
+          [
+            1201,
+            "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+          ],
+          [
+            1201,
+            "?"
+          ],
+          [
+            1201,
+            "diffuse,opacity,uvTransform,map"
+          ],
+          [
+            1201,
+            "uReveal,uCells,uFade"
+          ],
+          [
+            1202,
+            "depth"
+          ],
+          [
+            1202,
+            "depth"
+          ],
+          [
+            11727,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            17037,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            17038,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            17039,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            17040,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            17041,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            17042,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            17045,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            17046,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            17047,
+            "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+          ],
+          [
+            21303,
+            "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+          ],
+          [
+            21305,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            21310,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            21311,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            21313,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            21314,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            21333,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            21334,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            21335,
+            "diffuse,emissive,roughness,metalness"
+          ]
+        ],
+        "contexts": 4,
+        "scriptBytes": 0,
+        "modelBytes": 0,
+        "imageBytes": 1800,
+        "milestones": {
+          "warm:textures": 21299,
+          "warm:programs": 21302,
+          "warm:offscreen": 21336,
+          "warm:frame": 21368,
+          "warm:gpu": 21387,
+          "warm:done": 21398,
+          "stage:stack:static": 279,
+          "stage:about:static": 279,
+          "stage:stack:idle": 287,
+          "stage:about:idle": 287,
+          "stage:main:static": 446,
+          "stage:main:idle": 468,
+          "desk-ready": 1289,
+          "stage:main:loading": 11304,
+          "stage:main:live": 11818,
+          "stage:about:loading": 20889,
+          "stage:about:live": 21400
+        },
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+        "parallelCompile": true,
+        "longFrames": [
+          {
+            "start": 800,
+            "duration": 55,
+            "render": 0,
+            "layout": 0,
+            "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+          },
+          {
+            "start": 21249,
+            "duration": 59,
+            "render": 1,
+            "layout": 0,
+            "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+          }
+        ]
+      },
+      "runs": [
+        {
+          "refresh": 60,
+          "ttfb": 54,
+          "fcp": 248,
+          "lcp": 248,
+          "deskReady": 1289,
+          "maxLoaf": 59,
+          "maxLoafAt": 21249,
+          "maxLoafSource": "MessagePort.onmessage (3l2igi_7b1eup.js)",
+          "loafsOver100": 0,
+          "loafsOver50": 2,
+          "scrollLoafsOver50": 1,
+          "scrollFrames": 2329,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollP99": 17,
+          "scrollOver50": 1,
+          "slowShare": 0.47,
+          "gaps": [
+            [
+              21263,
+              67
+            ]
+          ],
+          "regions": {
+            "opening": {
+              "frames": 200,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0,
+              "slowStreak": 0,
+              "drew": {
+                "desk": 98
+              },
+              "gpu": {
+                "desk": [
+                  2.78,
+                  5.09
+                ]
+              }
+            },
+            "monitor": {
+              "frames": 570,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.35,
+              "slowStreak": 1,
+              "drew": {
+                "desk": 73,
+                "balls": 118
+              },
+              "gpu": {
+                "desk": [
+                  3.86,
+                  6.89
+                ],
+                "balls": [
+                  1.68,
+                  3.99
+                ]
+              }
+            },
+            "macbook": {
+              "frames": 194,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.52,
+              "slowStreak": 1,
+              "drew": {},
+              "gpu": {}
+            },
+            "room": {
+              "frames": 340,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.88,
+              "slowStreak": 1,
+              "drew": {
+                "desk": 90,
+                "about": 125
+              },
+              "gpu": {
+                "desk": [
+                  5.05,
+                  6.88
+                ],
+                "about": [
+                  1.44,
+                  2.08
+                ]
+              }
+            },
+            "about": {
+              "frames": 182,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.55,
+              "slowStreak": 1,
+              "drew": {
+                "about": 145,
+                "desk": 4
+              },
+              "gpu": {
+                "desk": [
+                  7.01,
+                  14.15
+                ],
+                "about": [
+                  1.91,
+                  2.36
+                ]
+              }
+            },
+            "flow": {
+              "frames": 843,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.47,
+              "slowStreak": 1,
+              "drew": {
+                "about": 101
+              },
+              "gpu": {
+                "about": [
+                  1.97,
+                  2.46
+                ]
+              }
+            }
+          },
+          "gpu": {
+            "desk": [
+              4.21,
+              6.78
+            ],
+            "balls": [
+              1.68,
+              3.99
+            ],
+            "about": [
+              1.89,
+              2.42
+            ]
+          },
+          "deskGpuP95": 6.78,
+          "aboutGpuP95": 2.42,
+          "aboutFramesInRoom": 125,
+          "cameraStepP50": 0.0143,
+          "cameraStepMax": 0.0852,
+          "programmaticScrolls": 0,
+          "tinyScrolls": 0,
+          "scrollCalls": [],
+          "dirtyStyleShare": 57.73,
+          "dprReduced": 0,
+          "glBlocking": 2,
+          "glBlockingAfterReady": 0,
+          "glCalls": [],
+          "programs": 41,
+          "programAt": [
+            852,
+            853,
+            853,
+            854,
+            1158,
+            1165,
+            1168,
+            1170,
+            1171,
+            1173,
+            1184,
+            1185,
+            1187,
+            1189,
+            1200,
+            1201,
+            1201,
+            1201,
+            1201,
+            1201,
+            1202,
+            1202,
+            11726,
+            17036,
+            17037,
+            17038,
+            17039,
+            17040,
+            17041,
+            17044,
+            17046,
+            17047,
+            21302,
+            21303,
+            21309,
+            21310,
+            21312,
+            21313,
+            21333,
+            21334,
+            21335
+          ],
+          "shaders": [
+            [
+              852,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              853,
+              "CubemapToCubeUV"
+            ],
+            [
+              853,
+              "CubemapToCubeUV"
+            ],
+            [
+              854,
+              "PMREMGGXConvolution"
+            ],
+            [
+              1161,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              1167,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              1169,
+              "Woven"
+            ],
+            [
+              1171,
+              "Satin"
+            ],
+            [
+              1172,
+              "Expanded"
+            ],
+            [
+              1174,
+              "Expanded"
+            ],
+            [
+              1184,
+              "Keycap"
+            ],
+            [
+              1186,
+              "Barracuda"
+            ],
+            [
+              1187,
+              "Inactive"
+            ],
+            [
+              1189,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1200,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1201,
+              "?"
+            ],
+            [
+              1201,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1201,
+              "?"
+            ],
+            [
+              1201,
+              "diffuse,opacity,uvTransform,map"
+            ],
+            [
+              1201,
+              "uReveal,uCells,uFade"
+            ],
+            [
+              1202,
+              "depth"
+            ],
+            [
+              1202,
+              "depth"
+            ],
+            [
+              11727,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17037,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17038,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17039,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17040,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17041,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17042,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17045,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17046,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17047,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              21303,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              21305,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21310,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21311,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21313,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21314,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21333,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21334,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21335,
+              "diffuse,emissive,roughness,metalness"
+            ]
+          ],
+          "contexts": 4,
+          "scriptBytes": 0,
+          "modelBytes": 0,
+          "imageBytes": 1800,
+          "milestones": {
+            "warm:textures": 21299,
+            "warm:programs": 21302,
+            "warm:offscreen": 21336,
+            "warm:frame": 21368,
+            "warm:gpu": 21387,
+            "warm:done": 21398,
+            "stage:stack:static": 279,
+            "stage:about:static": 279,
+            "stage:stack:idle": 287,
+            "stage:about:idle": 287,
+            "stage:main:static": 446,
+            "stage:main:idle": 468,
+            "desk-ready": 1289,
+            "stage:main:loading": 11304,
+            "stage:main:live": 11818,
+            "stage:about:loading": 20889,
+            "stage:about:live": 21400
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": [
+            {
+              "start": 800,
+              "duration": 55,
+              "render": 0,
+              "layout": 0,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 21249,
+              "duration": 59,
+              "render": 1,
+              "layout": 0,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            }
+          ]
+        },
+        {
+          "refresh": 60,
+          "ttfb": 55,
+          "fcp": 252,
+          "lcp": 252,
+          "deskReady": 1279,
+          "maxLoaf": 70,
+          "maxLoafAt": 21025,
+          "maxLoafSource": "MessagePort.onmessage (3l2igi_7b1eup.js)",
+          "loafsOver100": 0,
+          "loafsOver50": 1,
+          "scrollLoafsOver50": 1,
+          "scrollFrames": 2313,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollP99": 17,
+          "scrollOver50": 0,
+          "slowShare": 0.48,
+          "gaps": [],
+          "regions": {
+            "opening": {
+              "frames": 204,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0,
+              "slowStreak": 0,
+              "drew": {
+                "desk": 100
+              },
+              "gpu": {
+                "desk": [
+                  2.46,
+                  4.64
+                ]
+              }
+            },
+            "monitor": {
+              "frames": 562,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.36,
+              "slowStreak": 1,
+              "drew": {
+                "desk": 67,
+                "balls": 116
+              },
+              "gpu": {
+                "desk": [
+                  4.15,
+                  6.61
+                ],
+                "balls": [
+                  1.78,
+                  4.92
+                ]
+              }
+            },
+            "macbook": {
+              "frames": 181,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.55,
+              "slowStreak": 1,
+              "drew": {},
+              "gpu": {}
+            },
+            "room": {
+              "frames": 334,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.9,
+              "slowStreak": 3,
+              "drew": {
+                "desk": 86,
+                "about": 114
+              },
+              "gpu": {
+                "desk": [
+                  5.16,
+                  7.26
+                ],
+                "about": [
+                  1.57,
+                  2.15
+                ]
+              }
+            },
+            "about": {
+              "frames": 162,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0,
+              "slowStreak": 0,
+              "drew": {
+                "about": 130,
+                "desk": 4
+              },
+              "gpu": {
+                "desk": [
+                  6.89,
+                  10.61
+                ],
+                "about": [
+                  1.93,
+                  2.37
+                ]
+              }
+            },
+            "flow": {
+              "frames": 870,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.57,
+              "slowStreak": 2,
+              "drew": {
+                "about": 104
+              },
+              "gpu": {
+                "about": [
+                  2.02,
+                  2.44
+                ]
+              }
+            }
+          },
+          "gpu": {
+            "desk": [
+              4.16,
+              6.89
+            ],
+            "balls": [
+              1.78,
+              4.92
+            ],
+            "about": [
+              1.91,
+              2.36
+            ]
+          },
+          "deskGpuP95": 6.89,
+          "aboutGpuP95": 2.36,
+          "aboutFramesInRoom": 114,
+          "cameraStepP50": 0.0146,
+          "cameraStepMax": 0.0755,
+          "programmaticScrolls": 0,
+          "tinyScrolls": 0,
+          "scrollCalls": [],
+          "dirtyStyleShare": 54.43,
+          "dprReduced": 0,
+          "glBlocking": 4,
+          "glBlockingAfterReady": 0,
+          "glCalls": [],
+          "programs": 41,
+          "programAt": [
+            851,
+            852,
+            852,
+            852,
+            1156,
+            1160,
+            1162,
+            1163,
+            1165,
+            1166,
+            1173,
+            1175,
+            1177,
+            1179,
+            1190,
+            1190,
+            1190,
+            1191,
+            1191,
+            1191,
+            1192,
+            1192,
+            11645,
+            16928,
+            16929,
+            16931,
+            16932,
+            16933,
+            16935,
+            16936,
+            16937,
+            16939,
+            21089,
+            21089,
+            21091,
+            21093,
+            21097,
+            21098,
+            21100,
+            21101,
+            21103
+          ],
+          "shaders": [
+            [
+              851,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              852,
+              "CubemapToCubeUV"
+            ],
+            [
+              852,
+              "CubemapToCubeUV"
+            ],
+            [
+              853,
+              "PMREMGGXConvolution"
+            ],
+            [
+              1158,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              1161,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              1163,
+              "Woven"
+            ],
+            [
+              1164,
+              "Satin"
+            ],
+            [
+              1166,
+              "Expanded"
+            ],
+            [
+              1167,
+              "Expanded"
+            ],
+            [
+              1174,
+              "Keycap"
+            ],
+            [
+              1176,
+              "Barracuda"
+            ],
+            [
+              1178,
+              "Inactive"
+            ],
+            [
+              1179,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1190,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1190,
+              "?"
+            ],
+            [
+              1191,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1191,
+              "?"
+            ],
+            [
+              1191,
+              "diffuse,opacity,uvTransform,map"
+            ],
+            [
+              1191,
+              "uReveal,uCells,uFade"
+            ],
+            [
+              1192,
+              "depth"
+            ],
+            [
+              1192,
+              "depth"
+            ],
+            [
+              11646,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              16929,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              16930,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              16931,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              16932,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              16933,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              16936,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              16937,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              16938,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              16939,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              21089,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              21090,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21092,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21094,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21098,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21099,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21101,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21102,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21104,
+              "diffuse,emissive,roughness,metalness"
+            ]
+          ],
+          "contexts": 4,
+          "scriptBytes": 0,
+          "modelBytes": 0,
+          "imageBytes": 1800,
+          "milestones": {
+            "warm:textures": 21087,
+            "warm:programs": 21089,
+            "warm:offscreen": 21108,
+            "warm:frame": 21160,
+            "warm:gpu": 21179,
+            "warm:done": 21190,
+            "stage:stack:static": 279,
+            "stage:about:static": 279,
+            "stage:stack:idle": 285,
+            "stage:about:idle": 285,
+            "stage:main:static": 449,
+            "stage:main:idle": 469,
+            "desk-ready": 1279,
+            "stage:main:loading": 11245,
+            "stage:main:live": 11726,
+            "stage:about:loading": 20678,
+            "stage:about:live": 21192
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": [
+            {
+              "start": 21025,
+              "duration": 70,
+              "render": 1,
+              "layout": 0,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            }
+          ]
+        },
+        {
+          "refresh": 60,
+          "ttfb": 53,
+          "fcp": 248,
+          "lcp": 248,
+          "deskReady": 1278,
+          "maxLoaf": 0,
+          "maxLoafAt": null,
+          "maxLoafSource": "",
+          "loafsOver100": 0,
+          "loafsOver50": 0,
+          "scrollLoafsOver50": 0,
+          "scrollFrames": 2266,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollP99": 17,
+          "scrollOver50": 0,
+          "slowShare": 0.49,
+          "gaps": [],
+          "regions": {
+            "opening": {
+              "frames": 193,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0,
+              "slowStreak": 0,
+              "drew": {
+                "desk": 96
+              },
+              "gpu": {
+                "desk": [
+                  2.45,
+                  4.85
+                ]
+              }
+            },
+            "monitor": {
+              "frames": 574,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.7,
+              "slowStreak": 1,
+              "drew": {
+                "desk": 78,
+                "balls": 113
+              },
+              "gpu": {
+                "desk": [
+                  3.14,
+                  6.76
+                ],
+                "balls": [
+                  1.8,
+                  5.31
+                ]
+              }
+            },
+            "macbook": {
+              "frames": 173,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.58,
+              "slowStreak": 1,
+              "drew": {},
+              "gpu": {}
+            },
+            "room": {
+              "frames": 306,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.65,
+              "slowStreak": 1,
+              "drew": {
+                "desk": 84,
+                "about": 91
+              },
+              "gpu": {
+                "desk": [
+                  4.69,
+                  7.33
+                ],
+                "about": [
+                  1.7,
+                  2.21
+                ]
+              }
+            },
+            "about": {
+              "frames": 148,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0,
+              "slowStreak": 0,
+              "drew": {
+                "about": 123,
+                "desk": 5
+              },
+              "gpu": {
+                "desk": [
+                  4.87,
+                  8.87
+                ],
+                "about": [
+                  1.92,
+                  2.4
+                ]
+              }
+            },
+            "flow": {
+              "frames": 872,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.46,
+              "slowStreak": 1,
+              "drew": {
+                "about": 104
+              },
+              "gpu": {
+                "about": [
+                  1.96,
+                  2.28
+                ]
+              }
+            }
+          },
+          "gpu": {
+            "desk": [
+              3.85,
+              6.8
+            ],
+            "balls": [
+              1.8,
+              5.31
+            ],
+            "about": [
+              1.9,
+              2.35
+            ]
+          },
+          "deskGpuP95": 6.8,
+          "aboutGpuP95": 2.35,
+          "aboutFramesInRoom": 91,
+          "cameraStepP50": 0.013600000000000001,
+          "cameraStepMax": 0.0738,
+          "programmaticScrolls": 0,
+          "tinyScrolls": 0,
+          "scrollCalls": [],
+          "dirtyStyleShare": 56.52,
+          "dprReduced": 0,
+          "glBlocking": 5,
+          "glBlockingAfterReady": 0,
+          "glCalls": [],
+          "programs": 41,
+          "programAt": [
+            844,
+            846,
+            846,
+            846,
+            1151,
+            1155,
+            1157,
+            1159,
+            1161,
+            1162,
+            1172,
+            1174,
+            1175,
+            1188,
+            1189,
+            1189,
+            1189,
+            1190,
+            1190,
+            1190,
+            1190,
+            1191,
+            11494,
+            17024,
+            17025,
+            17026,
+            17028,
+            17029,
+            17031,
+            17032,
+            17033,
+            17035,
+            20896,
+            20896,
+            20897,
+            20899,
+            20901,
+            20902,
+            20904,
+            20905,
+            20907
+          ],
+          "shaders": [
+            [
+              845,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              846,
+              "CubemapToCubeUV"
+            ],
+            [
+              846,
+              "CubemapToCubeUV"
+            ],
+            [
+              846,
+              "PMREMGGXConvolution"
+            ],
+            [
+              1153,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              1156,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              1159,
+              "Woven"
+            ],
+            [
+              1160,
+              "Satin"
+            ],
+            [
+              1162,
+              "Expanded"
+            ],
+            [
+              1163,
+              "Expanded"
+            ],
+            [
+              1173,
+              "Keycap"
+            ],
+            [
+              1175,
+              "Barracuda"
+            ],
+            [
+              1176,
+              "Inactive"
+            ],
+            [
+              1189,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1189,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1189,
+              "?"
+            ],
+            [
+              1189,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1190,
+              "?"
+            ],
+            [
+              1190,
+              "diffuse,opacity,uvTransform,map"
+            ],
+            [
+              1190,
+              "uReveal,uCells,uFade"
+            ],
+            [
+              1190,
+              "depth"
+            ],
+            [
+              1191,
+              "depth"
+            ],
+            [
+              11495,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17025,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17026,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17027,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17028,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17029,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17032,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17033,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17034,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17035,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              20896,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              20897,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20898,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20899,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20902,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20903,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20905,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20906,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20908,
+              "diffuse,emissive,roughness,metalness"
+            ]
+          ],
+          "contexts": 4,
+          "scriptBytes": 0,
+          "modelBytes": 0,
+          "imageBytes": 1800,
+          "milestones": {
+            "warm:textures": 20894,
+            "warm:programs": 20895,
+            "warm:offscreen": 20923,
+            "warm:frame": 20956,
+            "warm:gpu": 20976,
+            "warm:done": 20986,
+            "stage:stack:static": 277,
+            "stage:about:static": 277,
+            "stage:stack:idle": 283,
+            "stage:about:idle": 283,
+            "stage:main:static": 443,
+            "stage:main:idle": 463,
+            "desk-ready": 1278,
+            "stage:main:loading": 11076,
+            "stage:main:live": 11571,
+            "stage:about:loading": 20494,
+            "stage:about:live": 20988
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": []
+        }
+      ]
+    },
+    "cpu4/trackpad": {
+      "median": {
+        "refresh": 60,
+        "ttfb": 59,
+        "fcp": 460,
+        "lcp": 648,
+        "deskReady": 2107,
+        "maxLoaf": 179,
+        "maxLoafAt": 1002,
+        "maxLoafSource": "MessagePort.onmessage (3l2igi_7b1eup.js)",
+        "loafsOver100": 2,
+        "loafsOver50": 10,
+        "scrollLoafsOver50": 3,
+        "scrollFrames": 2080,
+        "scrollP50": 17,
+        "scrollP95": 17,
+        "scrollP99": 33,
+        "scrollOver50": 1,
+        "slowShare": 1.68,
+        "gaps": [
+          [
+            17079,
+            83
+          ]
+        ],
+        "regions": {
+          "opening": {
+            "frames": 200,
+            "p50": 17,
+            "p95": 17,
+            "p99": 33,
+            "slowShare": 1,
+            "slowStreak": 1,
+            "drew": {
+              "desk": 103
+            },
+            "gpu": {
+              "desk": [
+                2.53,
+                4.55
+              ]
+            }
+          },
+          "monitor": {
+            "frames": 518,
+            "p50": 17,
+            "p95": 17,
+            "p99": 33,
+            "slowShare": 1.35,
+            "slowStreak": 2,
+            "drew": {
+              "desk": 63,
+              "balls": 106
+            },
+            "gpu": {
+              "desk": [
+                4.14,
+                9.27
+              ],
+              "balls": [
+                1.81,
+                4.74
+              ]
+            }
+          },
+          "macbook": {
+            "frames": 166,
+            "p50": 17,
+            "p95": 17,
+            "p99": 33,
+            "slowShare": 3.01,
+            "slowStreak": 3,
+            "drew": {},
+            "gpu": {}
+          },
+          "room": {
+            "frames": 305,
+            "p50": 17,
+            "p95": 17,
+            "p99": 33,
+            "slowShare": 2.3,
+            "slowStreak": 2,
+            "drew": {
+              "desk": 79,
+              "about": 84
+            },
+            "gpu": {
+              "desk": [
+                5.12,
+                6.98
+              ],
+              "about": [
+                1.6,
+                2.2
+              ]
+            }
+          },
+          "about": {
+            "frames": 146,
+            "p50": 17,
+            "p95": 17,
+            "p99": 17,
+            "slowShare": 0.68,
+            "slowStreak": 1,
+            "drew": {
+              "about": 122,
+              "desk": 6
+            },
+            "gpu": {
+              "desk": [
+                5.52,
+                10.8
+              ],
+              "about": [
+                1.88,
+                2.2
+              ]
+            }
+          },
+          "flow": {
+            "frames": 745,
+            "p50": 17,
+            "p95": 17,
+            "p99": 33,
+            "slowShare": 1.74,
+            "slowStreak": 1,
+            "drew": {
+              "about": 96
+            },
+            "gpu": {
+              "about": [
+                1.84,
+                2.17
+              ]
+            }
+          }
+        },
+        "gpu": {
+          "desk": [
+            4.17,
+            7.52
+          ],
+          "balls": [
+            1.81,
+            4.74
+          ],
+          "about": [
+            1.86,
+            2.2
+          ]
+        },
+        "deskGpuP95": 7.52,
+        "aboutGpuP95": 2.21,
+        "aboutFramesInRoom": 84,
+        "cameraStepP50": 0.0155,
+        "cameraStepMax": 0.084,
+        "programmaticScrolls": 0,
+        "tinyScrolls": 0,
+        "scrollCalls": [],
+        "dirtyStyleShare": 55.35,
+        "dprReduced": 0,
+        "glBlocking": 32,
+        "glBlockingAfterReady": 0,
+        "glCalls": [],
+        "programs": 41,
+        "programAt": [
+          1530,
+          1535,
+          1536,
+          1536,
+          1848,
+          1860,
+          1865,
+          1874,
+          1879,
+          1884,
+          1891,
+          1902,
+          1918,
+          1936,
+          1938,
+          1949,
+          1949,
+          1951,
+          1951,
+          1952,
+          1955,
+          1955,
+          12213,
+          17159,
+          17169,
+          17176,
+          17188,
+          17201,
+          17207,
+          17221,
+          17225,
+          17234,
+          21006,
+          21010,
+          21024,
+          21036,
+          21042,
+          21055,
+          21071,
+          21087,
+          21091
+        ],
+        "shaders": [
+          [
+            1532,
+            "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+          ],
+          [
+            1536,
+            "CubemapToCubeUV"
+          ],
+          [
+            1536,
+            "CubemapToCubeUV"
+          ],
+          [
+            1537,
+            "PMREMGGXConvolution"
+          ],
+          [
+            1853,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            1863,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            1869,
+            "Woven"
+          ],
+          [
+            1877,
+            "Satin"
+          ],
+          [
+            1882,
+            "Expanded"
+          ],
+          [
+            1887,
+            "Expanded"
+          ],
+          [
+            1895,
+            "Keycap"
+          ],
+          [
+            1905,
+            "Barracuda"
+          ],
+          [
+            1922,
+            "Inactive"
+          ],
+          [
+            1937,
+            "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+          ],
+          [
+            1939,
+            "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+          ],
+          [
+            1949,
+            "?"
+          ],
+          [
+            1951,
+            "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+          ],
+          [
+            1951,
+            "?"
+          ],
+          [
+            1952,
+            "diffuse,opacity,uvTransform,map"
+          ],
+          [
+            1952,
+            "uReveal,uCells,uFade"
+          ],
+          [
+            1955,
+            "depth"
+          ],
+          [
+            1956,
+            "depth"
+          ],
+          [
+            12224,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            17162,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            17173,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            17178,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            17191,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            17205,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            17211,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            17224,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            17228,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            17236,
+            "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+          ],
+          [
+            21008,
+            "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+          ],
+          [
+            21014,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            21029,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            21039,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            21045,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            21059,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            21073,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            21090,
+            "diffuse,emissive,roughness,metalness"
+          ],
+          [
+            21094,
+            "diffuse,emissive,roughness,metalness"
+          ]
+        ],
+        "contexts": 4,
+        "scriptBytes": 0,
+        "modelBytes": 0,
+        "imageBytes": 1800,
+        "milestones": {
+          "warm:textures": 20993,
+          "warm:programs": 20999,
+          "warm:offscreen": 21102,
+          "warm:frame": 21127,
+          "warm:gpu": 21153,
+          "warm:done": 21165,
+          "stage:stack:static": 809,
+          "stage:about:static": 809,
+          "stage:stack:idle": 833,
+          "stage:about:idle": 833,
+          "stage:main:static": 1118,
+          "stage:main:idle": 1208,
+          "desk-ready": 2085,
+          "stage:main:loading": 11760,
+          "stage:main:live": 12286,
+          "stage:about:loading": 20577,
+          "stage:about:live": 21174
+        },
+        "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+        "parallelCompile": true,
+        "longFrames": [
+          {
+            "start": 615,
+            "duration": 61,
+            "render": 2,
+            "layout": 1,
+            "top": "https://onurerguden.dev/_next/static/immutable/chunks/3l2igi_7b1eup.js (3l2igi_7b1eup.js)"
+          },
+          {
+            "start": 771,
+            "duration": 54,
+            "render": 12,
+            "layout": 1,
+            "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+          },
+          {
+            "start": 866,
+            "duration": 104,
+            "render": 1,
+            "layout": 0,
+            "top": "https://onurerguden.dev/_next/static/immutable/chunks/0lp7webz7ghwa.js (0lp7webz7ghwa.js)"
+          },
+          {
+            "start": 1002,
+            "duration": 179,
+            "render": 63,
+            "layout": 10,
+            "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+          },
+          {
+            "start": 1447,
+            "duration": 95,
+            "render": 1,
+            "layout": 0,
+            "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+          },
+          {
+            "start": 1583,
+            "duration": 58,
+            "render": 37,
+            "layout": 36,
+            "top": "TimerHandler:setTimeout ()"
+          },
+          {
+            "start": 1643,
+            "duration": 55,
+            "render": 45,
+            "layout": 0,
+            "top": "MessagePort.onmessage (0lp7webz7ghwa.js)"
+          },
+          {
+            "start": 12120,
+            "duration": 51,
+            "render": 3,
+            "layout": 0,
+            "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+          },
+          {
+            "start": 17080,
+            "duration": 86,
+            "render": 1,
+            "layout": 0,
+            "top": "MessagePort.onmessage (0lp7webz7ghwa.js)"
+          },
+          {
+            "start": 20937,
+            "duration": 66,
+            "render": 1,
+            "layout": 0,
+            "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+          }
+        ]
+      },
+      "runs": [
+        {
+          "refresh": 60,
+          "ttfb": 59,
+          "fcp": 484,
+          "lcp": 688,
+          "deskReady": 2107,
+          "maxLoaf": 102,
+          "maxLoafAt": 905,
+          "maxLoafSource": "https://onurerguden.dev/_next/static/immutable/chunks/0lp7webz7ghwa.js (0lp7webz7ghwa.js)",
+          "loafsOver100": 1,
+          "loafsOver50": 12,
+          "scrollLoafsOver50": 3,
+          "scrollFrames": 2090,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollP99": 33,
+          "scrollOver50": 2,
+          "slowShare": 1.24,
+          "gaps": [
+            [
+              12150,
+              67
+            ],
+            [
+              16900,
+              100
+            ]
+          ],
+          "regions": {
+            "opening": {
+              "frames": 196,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.51,
+              "slowStreak": 1,
+              "drew": {
+                "desk": 102
+              },
+              "gpu": {
+                "desk": [
+                  2.49,
+                  4.85
+                ]
+              }
+            },
+            "monitor": {
+              "frames": 505,
+              "p50": 17,
+              "p95": 17,
+              "p99": 33,
+              "slowShare": 1.19,
+              "slowStreak": 3,
+              "drew": {
+                "desk": 65,
+                "balls": 106
+              },
+              "gpu": {
+                "desk": [
+                  4.14,
+                  8.47
+                ],
+                "balls": [
+                  1.82,
+                  5.27
+                ]
+              }
+            },
+            "macbook": {
+              "frames": 175,
+              "p50": 17,
+              "p95": 17,
+              "p99": 33,
+              "slowShare": 2.29,
+              "slowStreak": 2,
+              "drew": {},
+              "gpu": {}
+            },
+            "room": {
+              "frames": 316,
+              "p50": 17,
+              "p95": 17,
+              "p99": 33,
+              "slowShare": 1.58,
+              "slowStreak": 2,
+              "drew": {
+                "desk": 84,
+                "about": 99
+              },
+              "gpu": {
+                "desk": [
+                  5.16,
+                  7.12
+                ],
+                "about": [
+                  1.49,
+                  2.2
+                ]
+              }
+            },
+            "about": {
+              "frames": 157,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.64,
+              "slowStreak": 1,
+              "drew": {
+                "about": 134,
+                "desk": 4
+              },
+              "gpu": {
+                "desk": [
+                  6.77,
+                  12.79
+                ],
+                "about": [
+                  1.88,
+                  2.21
+                ]
+              }
+            },
+            "flow": {
+              "frames": 741,
+              "p50": 17,
+              "p95": 17,
+              "p99": 33,
+              "slowShare": 1.21,
+              "slowStreak": 1,
+              "drew": {
+                "about": 95
+              },
+              "gpu": {
+                "about": [
+                  1.85,
+                  2.24
+                ]
+              }
+            }
+          },
+          "gpu": {
+            "desk": [
+              4.04,
+              7.31
+            ],
+            "balls": [
+              1.82,
+              5.27
+            ],
+            "about": [
+              1.86,
+              2.21
+            ]
+          },
+          "deskGpuP95": 7.31,
+          "aboutGpuP95": 2.21,
+          "aboutFramesInRoom": 99,
+          "cameraStepP50": 0.016200000000000003,
+          "cameraStepMax": 0.084,
+          "programmaticScrolls": 0,
+          "tinyScrolls": 0,
+          "scrollCalls": [],
+          "dirtyStyleShare": 56.45,
+          "dprReduced": 0,
+          "glBlocking": 32,
+          "glBlockingAfterReady": 0,
+          "glCalls": [],
+          "programs": 41,
+          "programAt": [
+            1549,
+            1554,
+            1555,
+            1555,
+            1864,
+            1875,
+            1880,
+            1889,
+            1894,
+            1899,
+            1907,
+            1921,
+            1938,
+            1957,
+            1959,
+            1970,
+            1971,
+            1973,
+            1973,
+            1974,
+            1976,
+            1976,
+            12277,
+            16975,
+            16980,
+            16990,
+            16995,
+            17010,
+            17015,
+            17026,
+            17031,
+            17042,
+            20775,
+            20778,
+            20793,
+            20805,
+            20828,
+            20840,
+            20861,
+            20873,
+            20878
+          ],
+          "shaders": [
+            [
+              1551,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1554,
+              "CubemapToCubeUV"
+            ],
+            [
+              1555,
+              "CubemapToCubeUV"
+            ],
+            [
+              1555,
+              "PMREMGGXConvolution"
+            ],
+            [
+              1869,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              1878,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              1885,
+              "Woven"
+            ],
+            [
+              1892,
+              "Satin"
+            ],
+            [
+              1897,
+              "Expanded"
+            ],
+            [
+              1901,
+              "Expanded"
+            ],
+            [
+              1911,
+              "Keycap"
+            ],
+            [
+              1924,
+              "Barracuda"
+            ],
+            [
+              1942,
+              "Inactive"
+            ],
+            [
+              1958,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1959,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1971,
+              "?"
+            ],
+            [
+              1972,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1973,
+              "?"
+            ],
+            [
+              1974,
+              "diffuse,opacity,uvTransform,map"
+            ],
+            [
+              1974,
+              "uReveal,uCells,uFade"
+            ],
+            [
+              1976,
+              "depth"
+            ],
+            [
+              1977,
+              "depth"
+            ],
+            [
+              12280,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              16978,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              16983,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              16993,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              16997,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17013,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17018,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17029,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17034,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17042,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              20777,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              20781,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20798,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20809,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20832,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20844,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20863,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20876,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20880,
+              "diffuse,emissive,roughness,metalness"
+            ]
+          ],
+          "contexts": 4,
+          "scriptBytes": 0,
+          "modelBytes": 0,
+          "imageBytes": 1800,
+          "milestones": {
+            "warm:textures": 20771,
+            "warm:programs": 20775,
+            "warm:offscreen": 20889,
+            "warm:frame": 20913,
+            "warm:gpu": 20943,
+            "warm:done": 20953,
+            "stage:stack:static": 853,
+            "stage:about:static": 853,
+            "stage:stack:idle": 879,
+            "stage:about:idle": 879,
+            "stage:main:static": 1121,
+            "stage:main:idle": 1207,
+            "desk-ready": 2107,
+            "stage:main:loading": 11778,
+            "stage:main:live": 12345,
+            "stage:about:loading": 20366,
+            "stage:about:live": 20962
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": [
+            {
+              "start": 656,
+              "duration": 61,
+              "render": 3,
+              "layout": 0,
+              "top": "https://onurerguden.dev/_next/static/immutable/chunks/3l2igi_7b1eup.js (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 809,
+              "duration": 60,
+              "render": 12,
+              "layout": 1,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 905,
+              "duration": 102,
+              "render": 1,
+              "layout": 0,
+              "top": "https://onurerguden.dev/_next/static/immutable/chunks/0lp7webz7ghwa.js (0lp7webz7ghwa.js)"
+            },
+            {
+              "start": 1026,
+              "duration": 80,
+              "render": 63,
+              "layout": 9,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 1109,
+              "duration": 74,
+              "render": 60,
+              "layout": 6,
+              "top": "FrameRequestCallback (2els2hcoyfn7x.js)"
+            },
+            {
+              "start": 1302,
+              "duration": 57,
+              "render": 30,
+              "layout": 4,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 1486,
+              "duration": 74,
+              "render": 2,
+              "layout": 1,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 1603,
+              "duration": 57,
+              "render": 38,
+              "layout": 37,
+              "top": "TimerHandler:setTimeout ()"
+            },
+            {
+              "start": 1661,
+              "duration": 55,
+              "render": 44,
+              "layout": 1,
+              "top": "MessagePort.onmessage (0lp7webz7ghwa.js)"
+            },
+            {
+              "start": 12139,
+              "duration": 80,
+              "render": 10,
+              "layout": 2,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 16900,
+              "duration": 87,
+              "render": 2,
+              "layout": 1,
+              "top": "MessagePort.onmessage (0lp7webz7ghwa.js)"
+            },
+            {
+              "start": 20728,
+              "duration": 60,
+              "render": 3,
+              "layout": 0,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            }
+          ]
+        },
+        {
+          "refresh": 60,
+          "ttfb": 57,
+          "fcp": 448,
+          "lcp": 648,
+          "deskReady": 2085,
+          "maxLoaf": 179,
+          "maxLoafAt": 1002,
+          "maxLoafSource": "MessagePort.onmessage (3l2igi_7b1eup.js)",
+          "loafsOver100": 2,
+          "loafsOver50": 10,
+          "scrollLoafsOver50": 3,
+          "scrollFrames": 2080,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollP99": 33,
+          "scrollOver50": 1,
+          "slowShare": 1.68,
+          "gaps": [
+            [
+              17079,
+              83
+            ]
+          ],
+          "regions": {
+            "opening": {
+              "frames": 200,
+              "p50": 17,
+              "p95": 17,
+              "p99": 33,
+              "slowShare": 1,
+              "slowStreak": 1,
+              "drew": {
+                "desk": 103
+              },
+              "gpu": {
+                "desk": [
+                  2.53,
+                  4.55
+                ]
+              }
+            },
+            "monitor": {
+              "frames": 518,
+              "p50": 17,
+              "p95": 17,
+              "p99": 33,
+              "slowShare": 1.35,
+              "slowStreak": 2,
+              "drew": {
+                "desk": 63,
+                "balls": 106
+              },
+              "gpu": {
+                "desk": [
+                  4.14,
+                  9.27
+                ],
+                "balls": [
+                  1.81,
+                  4.74
+                ]
+              }
+            },
+            "macbook": {
+              "frames": 166,
+              "p50": 17,
+              "p95": 17,
+              "p99": 33,
+              "slowShare": 3.01,
+              "slowStreak": 3,
+              "drew": {},
+              "gpu": {}
+            },
+            "room": {
+              "frames": 305,
+              "p50": 17,
+              "p95": 17,
+              "p99": 33,
+              "slowShare": 2.3,
+              "slowStreak": 2,
+              "drew": {
+                "desk": 79,
+                "about": 84
+              },
+              "gpu": {
+                "desk": [
+                  5.12,
+                  6.98
+                ],
+                "about": [
+                  1.6,
+                  2.2
+                ]
+              }
+            },
+            "about": {
+              "frames": 146,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.68,
+              "slowStreak": 1,
+              "drew": {
+                "about": 122,
+                "desk": 6
+              },
+              "gpu": {
+                "desk": [
+                  5.52,
+                  10.8
+                ],
+                "about": [
+                  1.88,
+                  2.2
+                ]
+              }
+            },
+            "flow": {
+              "frames": 745,
+              "p50": 17,
+              "p95": 17,
+              "p99": 33,
+              "slowShare": 1.74,
+              "slowStreak": 1,
+              "drew": {
+                "about": 96
+              },
+              "gpu": {
+                "about": [
+                  1.84,
+                  2.17
+                ]
+              }
+            }
+          },
+          "gpu": {
+            "desk": [
+              4.17,
+              7.52
+            ],
+            "balls": [
+              1.81,
+              4.74
+            ],
+            "about": [
+              1.86,
+              2.2
+            ]
+          },
+          "deskGpuP95": 7.52,
+          "aboutGpuP95": 2.2,
+          "aboutFramesInRoom": 84,
+          "cameraStepP50": 0.015300000000000001,
+          "cameraStepMax": 0.0751,
+          "programmaticScrolls": 0,
+          "tinyScrolls": 0,
+          "scrollCalls": [],
+          "dirtyStyleShare": 55.35,
+          "dprReduced": 0,
+          "glBlocking": 33,
+          "glBlockingAfterReady": 0,
+          "glCalls": [],
+          "programs": 41,
+          "programAt": [
+            1530,
+            1535,
+            1536,
+            1536,
+            1848,
+            1860,
+            1865,
+            1874,
+            1879,
+            1884,
+            1891,
+            1902,
+            1918,
+            1936,
+            1938,
+            1949,
+            1949,
+            1951,
+            1951,
+            1952,
+            1955,
+            1955,
+            12213,
+            17159,
+            17169,
+            17176,
+            17188,
+            17201,
+            17207,
+            17221,
+            17225,
+            17234,
+            21006,
+            21010,
+            21024,
+            21036,
+            21042,
+            21055,
+            21071,
+            21087,
+            21091
+          ],
+          "shaders": [
+            [
+              1532,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1536,
+              "CubemapToCubeUV"
+            ],
+            [
+              1536,
+              "CubemapToCubeUV"
+            ],
+            [
+              1537,
+              "PMREMGGXConvolution"
+            ],
+            [
+              1853,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              1863,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              1869,
+              "Woven"
+            ],
+            [
+              1877,
+              "Satin"
+            ],
+            [
+              1882,
+              "Expanded"
+            ],
+            [
+              1887,
+              "Expanded"
+            ],
+            [
+              1895,
+              "Keycap"
+            ],
+            [
+              1905,
+              "Barracuda"
+            ],
+            [
+              1922,
+              "Inactive"
+            ],
+            [
+              1937,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1939,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1949,
+              "?"
+            ],
+            [
+              1951,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1951,
+              "?"
+            ],
+            [
+              1952,
+              "diffuse,opacity,uvTransform,map"
+            ],
+            [
+              1952,
+              "uReveal,uCells,uFade"
+            ],
+            [
+              1955,
+              "depth"
+            ],
+            [
+              1956,
+              "depth"
+            ],
+            [
+              12224,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17162,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17173,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17178,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17191,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17205,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17211,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17224,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17228,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17236,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              21008,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              21014,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21029,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21039,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21045,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21059,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21073,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21090,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              21094,
+              "diffuse,emissive,roughness,metalness"
+            ]
+          ],
+          "contexts": 4,
+          "scriptBytes": 0,
+          "modelBytes": 0,
+          "imageBytes": 1800,
+          "milestones": {
+            "warm:textures": 20993,
+            "warm:programs": 20999,
+            "warm:offscreen": 21102,
+            "warm:frame": 21127,
+            "warm:gpu": 21153,
+            "warm:done": 21165,
+            "stage:stack:static": 809,
+            "stage:about:static": 809,
+            "stage:stack:idle": 833,
+            "stage:about:idle": 833,
+            "stage:main:static": 1118,
+            "stage:main:idle": 1208,
+            "desk-ready": 2085,
+            "stage:main:loading": 11760,
+            "stage:main:live": 12286,
+            "stage:about:loading": 20577,
+            "stage:about:live": 21174
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": [
+            {
+              "start": 615,
+              "duration": 61,
+              "render": 2,
+              "layout": 1,
+              "top": "https://onurerguden.dev/_next/static/immutable/chunks/3l2igi_7b1eup.js (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 771,
+              "duration": 54,
+              "render": 12,
+              "layout": 1,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 866,
+              "duration": 104,
+              "render": 1,
+              "layout": 0,
+              "top": "https://onurerguden.dev/_next/static/immutable/chunks/0lp7webz7ghwa.js (0lp7webz7ghwa.js)"
+            },
+            {
+              "start": 1002,
+              "duration": 179,
+              "render": 63,
+              "layout": 10,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 1447,
+              "duration": 95,
+              "render": 1,
+              "layout": 0,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 1583,
+              "duration": 58,
+              "render": 37,
+              "layout": 36,
+              "top": "TimerHandler:setTimeout ()"
+            },
+            {
+              "start": 1643,
+              "duration": 55,
+              "render": 45,
+              "layout": 0,
+              "top": "MessagePort.onmessage (0lp7webz7ghwa.js)"
+            },
+            {
+              "start": 12120,
+              "duration": 51,
+              "render": 3,
+              "layout": 0,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 17080,
+              "duration": 86,
+              "render": 1,
+              "layout": 0,
+              "top": "MessagePort.onmessage (0lp7webz7ghwa.js)"
+            },
+            {
+              "start": 20937,
+              "duration": 66,
+              "render": 1,
+              "layout": 0,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            }
+          ]
+        },
+        {
+          "refresh": 60,
+          "ttfb": 67,
+          "fcp": 460,
+          "lcp": 648,
+          "deskReady": 2136,
+          "maxLoaf": 179,
+          "maxLoafAt": 1035,
+          "maxLoafSource": "MessagePort.onmessage (3l2igi_7b1eup.js)",
+          "loafsOver100": 3,
+          "loafsOver50": 10,
+          "scrollLoafsOver50": 3,
+          "scrollFrames": 2062,
+          "scrollP50": 17,
+          "scrollP95": 17,
+          "scrollP99": 33,
+          "scrollOver50": 1,
+          "slowShare": 1.84,
+          "gaps": [
+            [
+              17059,
+              100
+            ]
+          ],
+          "regions": {
+            "opening": {
+              "frames": 190,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0.53,
+              "slowStreak": 1,
+              "drew": {
+                "desk": 98
+              },
+              "gpu": {
+                "desk": [
+                  2.46,
+                  4.93
+                ]
+              }
+            },
+            "monitor": {
+              "frames": 519,
+              "p50": 17,
+              "p95": 17,
+              "p99": 33,
+              "slowShare": 1.35,
+              "slowStreak": 2,
+              "drew": {
+                "desk": 72,
+                "balls": 103
+              },
+              "gpu": {
+                "desk": [
+                  4.05,
+                  9.84
+                ],
+                "balls": [
+                  1.81,
+                  5.12
+                ]
+              }
+            },
+            "macbook": {
+              "frames": 159,
+              "p50": 17,
+              "p95": 17,
+              "p99": 33,
+              "slowShare": 1.89,
+              "slowStreak": 1,
+              "drew": {},
+              "gpu": {}
+            },
+            "room": {
+              "frames": 290,
+              "p50": 17,
+              "p95": 17,
+              "p99": 33,
+              "slowShare": 2.07,
+              "slowStreak": 2,
+              "drew": {
+                "desk": 80,
+                "about": 78
+              },
+              "gpu": {
+                "desk": [
+                  5.11,
+                  7.3
+                ],
+                "about": [
+                  1.66,
+                  2.24
+                ]
+              }
+            },
+            "about": {
+              "frames": 133,
+              "p50": 17,
+              "p95": 17,
+              "p99": 17,
+              "slowShare": 0,
+              "slowStreak": 0,
+              "drew": {
+                "about": 113,
+                "desk": 5
+              },
+              "gpu": {
+                "desk": [
+                  5.28,
+                  10.79
+                ],
+                "about": [
+                  1.88,
+                  2.22
+                ]
+              }
+            },
+            "flow": {
+              "frames": 771,
+              "p50": 17,
+              "p95": 17,
+              "p99": 33,
+              "slowShare": 2.72,
+              "slowStreak": 1,
+              "drew": {
+                "about": 98
+              },
+              "gpu": {
+                "about": [
+                  1.87,
+                  2.18
+                ]
+              }
+            }
+          },
+          "gpu": {
+            "desk": [
+              4.16,
+              8.33
+            ],
+            "balls": [
+              1.81,
+              5.12
+            ],
+            "about": [
+              1.87,
+              2.21
+            ]
+          },
+          "deskGpuP95": 8.33,
+          "aboutGpuP95": 2.21,
+          "aboutFramesInRoom": 78,
+          "cameraStepP50": 0.0155,
+          "cameraStepMax": 0.086,
+          "programmaticScrolls": 0,
+          "tinyScrolls": 0,
+          "scrollCalls": [],
+          "dirtyStyleShare": 54.69,
+          "dprReduced": 0,
+          "glBlocking": 31,
+          "glBlockingAfterReady": 0,
+          "glCalls": [],
+          "programs": 41,
+          "programAt": [
+            1569,
+            1574,
+            1575,
+            1575,
+            1884,
+            1898,
+            1904,
+            1915,
+            1920,
+            1925,
+            1933,
+            1949,
+            1965,
+            1985,
+            1986,
+            1999,
+            1999,
+            2001,
+            2001,
+            2002,
+            2004,
+            2005,
+            12077,
+            17132,
+            17141,
+            17147,
+            17170,
+            17175,
+            17187,
+            17211,
+            17232,
+            17237,
+            20633,
+            20644,
+            20649,
+            20661,
+            20666,
+            20682,
+            20702,
+            20716,
+            20720
+          ],
+          "shaders": [
+            [
+              1571,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1574,
+              "CubemapToCubeUV"
+            ],
+            [
+              1575,
+              "CubemapToCubeUV"
+            ],
+            [
+              1575,
+              "PMREMGGXConvolution"
+            ],
+            [
+              1889,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              1901,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              1908,
+              "Woven"
+            ],
+            [
+              1917,
+              "Satin"
+            ],
+            [
+              1922,
+              "Expanded"
+            ],
+            [
+              1928,
+              "Expanded"
+            ],
+            [
+              1936,
+              "Keycap"
+            ],
+            [
+              1952,
+              "Barracuda"
+            ],
+            [
+              1968,
+              "Inactive"
+            ],
+            [
+              1986,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1987,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              1999,
+              "?"
+            ],
+            [
+              2000,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              2001,
+              "?"
+            ],
+            [
+              2002,
+              "diffuse,opacity,uvTransform,map"
+            ],
+            [
+              2002,
+              "uReveal,uCells,uFade"
+            ],
+            [
+              2004,
+              "depth"
+            ],
+            [
+              2005,
+              "depth"
+            ],
+            [
+              12080,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17135,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17145,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17149,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17173,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17177,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17190,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17215,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17234,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              17237,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              20635,
+              "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
+            ],
+            [
+              20646,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20652,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20664,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20669,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20685,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20705,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20719,
+              "diffuse,emissive,roughness,metalness"
+            ],
+            [
+              20723,
+              "diffuse,emissive,roughness,metalness"
+            ]
+          ],
+          "contexts": 4,
+          "scriptBytes": 0,
+          "modelBytes": 0,
+          "imageBytes": 1800,
+          "milestones": {
+            "warm:textures": 20627,
+            "warm:programs": 20632,
+            "warm:offscreen": 20734,
+            "warm:frame": 20753,
+            "warm:gpu": 20787,
+            "warm:done": 20796,
+            "stage:stack:static": 841,
+            "stage:about:static": 841,
+            "stage:stack:idle": 866,
+            "stage:about:idle": 866,
+            "stage:main:static": 1154,
+            "stage:main:idle": 1240,
+            "desk-ready": 2136,
+            "stage:main:loading": 11591,
+            "stage:main:live": 12137,
+            "stage:about:loading": 20225,
+            "stage:about:live": 20805
+          },
+          "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+          "parallelCompile": true,
+          "longFrames": [
+            {
+              "start": 617,
+              "duration": 63,
+              "render": 3,
+              "layout": 0,
+              "top": "https://onurerguden.dev/_next/static/immutable/chunks/3l2igi_7b1eup.js (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 801,
+              "duration": 57,
+              "render": 11,
+              "layout": 1,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 886,
+              "duration": 112,
+              "render": 1,
+              "layout": 1,
+              "top": "https://onurerguden.dev/_next/static/immutable/chunks/0lp7webz7ghwa.js (0lp7webz7ghwa.js)"
+            },
+            {
+              "start": 1035,
+              "duration": 179,
+              "render": 60,
+              "layout": 9,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 1479,
+              "duration": 101,
+              "render": 1,
+              "layout": 0,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 1654,
+              "duration": 58,
+              "render": 38,
+              "layout": 37,
+              "top": "MessagePort.onmessage (0lp7webz7ghwa.js)"
+            },
+            {
+              "start": 1714,
+              "duration": 81,
+              "render": 46,
+              "layout": 0,
+              "top": "Response.arrayBuffer.then (0lp7webz7ghwa.js)"
+            },
+            {
+              "start": 11948,
+              "duration": 73,
+              "render": 8,
+              "layout": 2,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            },
+            {
+              "start": 17058,
+              "duration": 81,
+              "render": 2,
+              "layout": 0,
+              "top": "MessagePort.onmessage (0lp7webz7ghwa.js)"
+            },
+            {
+              "start": 20583,
+              "duration": 56,
+              "render": 2,
+              "layout": 1,
+              "top": "MessagePort.onmessage (3l2igi_7b1eup.js)"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
