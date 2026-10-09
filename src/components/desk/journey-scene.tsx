@@ -550,6 +550,8 @@ function JourneyScene(props: JourneySceneProps) {
     resolutionLevels(
       low ? 1 : coarsePointer() ? 1.25 : 1.5,
       typeof window === "undefined" ? 1 : window.devicePixelRatio || 1,
+      // Integrated graphics may go below one device pixel per CSS pixel.
+      low ? 0.85 : 1,
     ),
   );
   // A computer that settled on a lower level last time starts there.
@@ -605,7 +607,8 @@ function JourneyScene(props: JourneySceneProps) {
           position={[-3, 2.4, 1]}
           intensity={1.65}
           color="#fff8ed"
-          castShadow
+          // Integrated graphics skip the sun's shadow too (src/lib/quality.ts).
+          castShadow={!low}
           shadow-mapSize={[512, 512]}
           shadow-camera-left={-1.5}
           shadow-camera-right={1.5}

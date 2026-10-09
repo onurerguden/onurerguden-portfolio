@@ -111,10 +111,20 @@ export function createResolutionGovernor({
   };
 }
 
-/** The levels a desk capped at `cap` may use on this screen, highest first. */
-export function resolutionLevels(cap: number, devicePixelRatio: number) {
+/**
+ * The levels a desk capped at `cap` may use on this screen, highest first,
+ * down to `lowest`.
+ */
+export function resolutionLevels(
+  cap: number,
+  devicePixelRatio: number,
+  lowest = 1,
+) {
   const top = Math.max(1, Math.min(cap, devicePixelRatio));
-  return [top, ...[1.25, 1].filter((level) => level < top)];
+  return [
+    top,
+    ...[1.25, 1, 0.85].filter((level) => level < top && level >= lowest),
+  ];
 }
 
 /** The display's refresh interval, from the median of a few idle frames. */

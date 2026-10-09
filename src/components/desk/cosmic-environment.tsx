@@ -10,6 +10,7 @@ import {
   Vector2,
 } from "three";
 import { qa } from "@/lib/qa";
+import { quality } from "@/lib/quality";
 import { seededRandom } from "@/lib/random";
 
 export type CosmicPointer = {
@@ -84,6 +85,8 @@ export default function CosmicEnvironment({
   pointer: CosmicPointerRef;
 }) {
   const mobile = useThree((state) => state.size.width < 700);
+  // Integrated graphics bend a grid of half the density.
+  const low = useMemo(() => quality() === "low", []);
   const aspect = useThree((state) => state.size.width / state.size.height);
   // The curtain reaches past the room view's sides at any aspect up to 32:9,
   // so its end never shows. Cells and the side fade keep their size in scene
@@ -149,8 +152,8 @@ export default function CosmicEnvironment({
           args={[
             gridWidth,
             10,
-            Math.ceil(((mobile ? 36 : 48) * gridWidth) / 8),
-            mobile ? 32 : 40,
+            Math.ceil(((mobile ? 36 : low ? 24 : 48) * gridWidth) / 8),
+            mobile ? 32 : low ? 20 : 40,
           ]}
         />
         <shaderMaterial
