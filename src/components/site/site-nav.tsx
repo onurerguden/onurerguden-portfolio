@@ -165,6 +165,39 @@ function SectionsMenu({
 export type JourneyChapter = { id: string; href: string; label: string };
 
 /**
+ * Plays the bar's growth over the desk on the compositor (nav-morph.ts).
+ * Loaded once the page is idle, on fine pointers with motion only, so it
+ * adds nothing to the first load; until then the bar steps between sizes.
+ */
+function useNavMorph(navRef: RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    const nav = navRef.current;
+    if (
+      !nav ||
+      !matchMedia("(hover: hover) and (pointer: fine)").matches ||
+      matchMedia("(prefers-reduced-motion: reduce)").matches
+    )
+      return;
+    let live = true;
+    let stop = () => {};
+    const load = () =>
+      import("./nav-morph").then(({ morphNav }) => {
+        if (live) stop = morphNav(nav);
+      });
+    const idle =
+      typeof requestIdleCallback === "function"
+        ? requestIdleCallback(load, { timeout: 3000 })
+        : window.setTimeout(load, 1000);
+    return () => {
+      live = false;
+      if (typeof cancelIdleCallback === "function") cancelIdleCallback(idle);
+      window.clearTimeout(idle);
+      stop();
+    };
+  }, [navRef]);
+}
+
+/**
  * The bar over the desk journey. The journey drives its `data-hidden`,
  * `data-revealed` and `data-docked` states through `navRef`.
  */
@@ -187,6 +220,7 @@ export function JourneyNav({
   onSkip: (event: MouseEvent<HTMLAnchorElement>) => void;
 }) {
   const en = locale === "en";
+  useNavMorph(navRef);
   return (
     <nav
       ref={navRef}
