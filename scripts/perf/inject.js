@@ -169,7 +169,11 @@
       if (!(target instanceof HTMLElement)) continue;
       if (attributeName === "data-ready" && target.dataset.ready === "true")
         mark("desk-ready");
-      if (attributeName === "data-dpr-reduced")
+      // The desk sets it while drawing below its top resolution.
+      if (
+        attributeName === "data-dpr-reduced" &&
+        target.hasAttribute("data-dpr-reduced")
+      )
         mark(`dpr-reduced:${target.getAttribute("data-dpr-reduced")}`);
       if (attributeName === "data-stage-state")
         mark(
@@ -191,20 +195,21 @@
   // frame to the next frame.
   const timers = new Map();
   const pending = [];
+  const { beginQuery, endQuery, getQueryParameter } = proto;
   const draw = (name) => {
     const original = proto[name];
     proto[name] = function (...args) {
       drawing.add(this.canvas);
       const timer = timers.get(this);
-      if (timer && timer.frame !== frame) {
+      if (timer && !timer.page && timer.frame !== frame) {
         if (timer.query) {
-          this.endQuery(timer.ext.TIME_ELAPSED_EXT);
+          endQuery.call(this, timer.ext.TIME_ELAPSED_EXT);
           pending.push([this, timer.query, timer.started]);
         }
         timer.query = this.createQuery();
         timer.frame = frame;
         timer.started = Math.round(last);
-        this.beginQuery(timer.ext.TIME_ELAPSED_EXT, timer.query);
+        beginQuery.call(this, timer.ext.TIME_ELAPSED_EXT, timer.query);
       }
       return original.apply(this, args);
     };
@@ -217,16 +222,46 @@
     "drawRangeElements",
   ])
     draw(name);
+  // The desk times its own GPU work (src/components/three/gpu-timer.ts), and
+  // only one timer query runs at a time: on a canvas that does, the harness
+  // stops its own and records the page's results instead.
+  const pageQueries = new Map();
+  proto.beginQuery = function (target, query) {
+    const timer = timers.get(this);
+    if (timer && target === timer.ext.TIME_ELAPSED_EXT) {
+      timer.page = true;
+      if (timer.query) {
+        endQuery.call(this, target);
+        pending.push([this, timer.query, timer.started]);
+        timer.query = null;
+      }
+      pageQueries.set(query, Math.round(last));
+    }
+    return beginQuery.call(this, target, query);
+  };
+  proto.getQueryParameter = function (query, name) {
+    const result = getQueryParameter.call(this, query, name);
+    if (name === this.QUERY_RESULT && pageQueries.has(query)) {
+      (perf.gpu[labelOf(this.canvas)] ||= []).push([
+        pageQueries.get(query),
+        Math.round(result / 1e4) / 100,
+      ]);
+      pageQueries.delete(query);
+    }
+    return result;
+  };
   endGpuQueries = () => {
     for (const [context, timer] of timers)
       if (timer.query && timer.frame !== frame) {
-        context.endQuery(timer.ext.TIME_ELAPSED_EXT);
+        endQuery.call(context, timer.ext.TIME_ELAPSED_EXT);
         pending.push([context, timer.query, timer.started]);
         timer.query = null;
       }
     for (let i = pending.length - 1; i >= 0; i--) {
       const [context, query, started] = pending[i];
-      if (!context.getQueryParameter(query, context.QUERY_RESULT_AVAILABLE))
+      if (
+        !getQueryParameter.call(context, query, context.QUERY_RESULT_AVAILABLE)
+      )
         continue;
       pending.splice(i, 1);
       const ext = timers.get(context).ext;
@@ -234,7 +269,7 @@
         (perf.gpu[labelOf(context.canvas)] ||= []).push([
           started,
           Math.round(
-            context.getQueryParameter(query, context.QUERY_RESULT) / 1e4,
+            getQueryParameter.call(context, query, context.QUERY_RESULT) / 1e4,
           ) / 100,
         ]);
       context.deleteQuery(query);
