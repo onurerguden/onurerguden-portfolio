@@ -7,23 +7,28 @@ import styles from "./custom-cursor.module.css";
 const finePointer = "(hover: hover) and (pointer: fine)";
 const reducedMotion = "(prefers-reduced-motion: reduce)";
 
+/** The dot is the system cursor's own image (src/styles/site.css). */
+const dotImages = ["/images/cursor/dot.png", "/images/cursor/dot@2x.png"];
+
 /**
- * A dot that sits on the pointer and a ring that trails it, opening around
- * anything clickable. Mouse only: touch and pens never see it, fields and grab
- * areas keep the system cursor, and the system cursor stays hidden only while
- * the dot is showing. Coordinates never touch React state.
+ * A dot on the pointer and a ring that trails it, opening around anything
+ * clickable. The dot is a cursor image the operating system draws, so it
+ * never waits for the page; only the ring is drawn here. Mouse only: touch
+ * and pens never see it, fields and grab areas keep the system's usual
+ * cursor. Coordinates never touch React state.
  */
 export default function CustomCursor() {
-  const dot = useRef<HTMLDivElement>(null);
   const ring = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const dotNode = dot.current;
     const ringNode = ring.current;
-    if (!dotNode || !ringNode) return;
+    if (!ringNode) return;
     const root = document.documentElement;
     const fine = matchMedia(finePointer);
     const reduced = matchMedia(reducedMotion);
     let enabled = fine.matches;
+    // Loaded before the first move, so the dot never appears late.
+    if (enabled)
+      for (const src of dotImages) Object.assign(new Image(), { src });
     let x = 0;
     let y = 0;
     let ringX = 0;
@@ -40,12 +45,12 @@ export default function CustomCursor() {
       shown = value;
       if (value) root.dataset.customCursor = "on";
       else delete root.dataset.customCursor;
-      dotNode.dataset.shown = ringNode.dataset.shown = String(value);
+      ringNode.dataset.shown = String(value);
     };
     const setLook = (value: CursorLook) => {
       if (look === value) return;
       look = value;
-      dotNode.dataset.look = ringNode.dataset.look = value;
+      ringNode.dataset.look = value;
     };
     const place = (node: HTMLElement, px: number, py: number) => {
       node.style.transform = `translate3d(${px}px, ${py}px, 0)`;
@@ -63,7 +68,6 @@ export default function CustomCursor() {
       const halfLife = reduced.matches ? 0 : 45;
       ringX = follow(ringX, x, dt, halfLife);
       ringY = follow(ringY, y, dt, halfLife);
-      place(dotNode, x, y);
       place(ringNode, ringX, ringY);
       if (caughtUp(x - ringX, y - ringY)) {
         ringX = x;
@@ -103,11 +107,9 @@ export default function CustomCursor() {
       schedule();
     };
     const press = (event: PointerEvent) => {
-      if (event.pointerType === "mouse")
-        dotNode.dataset.pressed = ringNode.dataset.pressed = "true";
+      if (event.pointerType === "mouse") ringNode.dataset.pressed = "true";
     };
     const release = () => {
-      delete dotNode.dataset.pressed;
       delete ringNode.dataset.pressed;
     };
     const leave = (event: MouseEvent) => {
@@ -142,13 +144,8 @@ export default function CustomCursor() {
     };
   }, []);
   return (
-    <>
-      <div ref={ring} className={styles.ring} aria-hidden="true">
-        <span />
-      </div>
-      <div ref={dot} className={styles.dot} aria-hidden="true">
-        <span />
-      </div>
-    </>
+    <div ref={ring} className={styles.ring} aria-hidden="true">
+      <span />
+    </div>
   );
 }
