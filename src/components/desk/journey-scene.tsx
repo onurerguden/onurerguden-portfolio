@@ -17,6 +17,7 @@ import { Canvas, useFrame, useThree, type RootStore } from "@react-three/fiber";
 import { deskEvents } from "./desk-events";
 import { Matrix4, Quaternion, Vector3, PerspectiveCamera } from "three";
 import { Model } from "./model";
+import { offerProgramHost } from "@/components/three/program-host";
 import { createScreenProjection, projectScreen } from "@/lib/desk-projection";
 import { cameraAnchors } from "@/lib/desk-story/anchors";
 import {
@@ -518,6 +519,14 @@ function RenderFrame({
   }, 1);
   return null;
 }
+/** Offers the warm desk's context for compiling scenes ahead (program-host.ts). */
+function ProgramHost() {
+  const gl = useThree((state) => state.gl);
+  const scene = useThree((state) => state.scene);
+  useEffect(() => offerProgramHost(gl, scene), [gl, scene]);
+  return null;
+}
+
 const coarsePointer = () =>
   typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches;
 function JourneyScene(props: JourneySceneProps) {
@@ -622,6 +631,7 @@ function JourneyScene(props: JourneySceneProps) {
           <ScreenDepthPlanes />
         </Suspense>
         <RenderFrame timerRef={timer} />
+        {warm ? <ProgramHost /> : null}
         <AdaptiveResolution
           levels={levels}
           level={dpr}
