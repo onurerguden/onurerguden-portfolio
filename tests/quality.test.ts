@@ -31,6 +31,12 @@ describe("3D quality per computer", () => {
     expect(gpu("", 8, 8)).toBe("high");
     expect(gpu("")).toBe("high");
   });
+  it("tells an Intel Mac from Apple silicon in Safari", () => {
+    // Safari reports every Mac GPU as "Apple GPU"; only Apple's decode ASTC.
+    expect(classifyGpu({ renderer: "Apple GPU", astc: true })).toBe("high");
+    expect(classifyGpu({ renderer: "Apple GPU", astc: false })).toBe("low");
+    expect(classifyGpu({ renderer: "Apple GPU" })).toBe("high");
+  });
   it("reads the plain flow without GPU acceleration", () => {
     for (const renderer of [
       "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",

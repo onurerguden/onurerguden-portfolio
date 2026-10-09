@@ -60,6 +60,12 @@ function dirtyShadows(renderer: WebGLRenderer) {
 }
 
 const lampShadow = typeof window !== "undefined" && quality() !== "low";
+/**
+ * The three small glows (bias light, monitor bar, lamp spill) are point
+ * lights every lit pixel pays for; integrated graphics go without them and
+ * keep the lamp's spot light (butter series, October 9).
+ */
+const glowLights = lampShadow;
 
 export default function InteractionScene({
   model,
@@ -502,33 +508,39 @@ export default function InteractionScene({
           />
         </mesh>
       ))}
-      <pointLight
-        ref={(node) => {
-          lights.current[0] = node;
-        }}
-        position={[-0.72, 0.3, -0.43]}
-        intensity={0.22}
-        distance={1.1}
-        color="#ffbc78"
-      />
-      <pointLight
-        ref={(node) => {
-          lights.current[1] = node;
-        }}
-        position={[0.09, 0.53, -0.24]}
-        intensity={0.35}
-        distance={1.2}
-        color="#ffe1b0"
-      />
-      <pointLight
-        ref={(node) => {
-          lights.current[2] = node;
-        }}
-        position={[0.08, 0.2, -0.36]}
-        intensity={0.65}
-        distance={0.9}
-        color="#ffb774"
-      />
+      {glowLights ? (
+        <pointLight
+          ref={(node) => {
+            lights.current[0] = node;
+          }}
+          position={[-0.72, 0.3, -0.43]}
+          intensity={0.22}
+          distance={1.1}
+          color="#ffbc78"
+        />
+      ) : null}
+      {glowLights ? (
+        <pointLight
+          ref={(node) => {
+            lights.current[1] = node;
+          }}
+          position={[0.09, 0.53, -0.24]}
+          intensity={0.35}
+          distance={1.2}
+          color="#ffe1b0"
+        />
+      ) : null}
+      {glowLights ? (
+        <pointLight
+          ref={(node) => {
+            lights.current[2] = node;
+          }}
+          position={[0.08, 0.2, -0.36]}
+          intensity={0.65}
+          distance={0.9}
+          color="#ffb774"
+        />
+      ) : null}
       <sprite ref={glow} position={[0.673, 0.12, -0.33]} scale={[0.3, 0.38, 1]}>
         <spriteMaterial
           map={glowMap}

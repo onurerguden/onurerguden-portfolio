@@ -90,7 +90,9 @@ export default function SectionCanvas({
     <Canvas
       className={className}
       style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
-      dpr={low ? 1 : coarse ? [1, 1.25] : [1, 1.5]}
+      // At 1.25 on dense screens: the balls and About are soft shapes, and a
+      // 120 Hz screen leaves them half the time (butter series, October 9).
+      dpr={low ? 1 : [1, 1.25]}
       // The prop too, not only setFrameloop: R3F reapplies it whenever the
       // Canvas re-renders (a resize, say), which would restart a paused scene.
       frameloop={running ? "demand" : "never"}

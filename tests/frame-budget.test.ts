@@ -37,6 +37,8 @@ describe("desk resolution levels", () => {
     expect(resolutionLevels(1.25, 3)).toEqual([1.25, 1]);
     expect(resolutionLevels(1.5, 1)).toEqual([1]);
     expect(resolutionLevels(1, 2)).toEqual([1]);
+    // Integrated graphics may go below one device pixel per CSS pixel.
+    expect(resolutionLevels(1, 2, 0.85)).toEqual([1, 0.85]);
   });
 });
 
