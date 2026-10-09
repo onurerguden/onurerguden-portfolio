@@ -25,7 +25,10 @@ export type WarmUpStep =
  *
  * - Work runs in slices of a few milliseconds, one slice per frame, so the
  *   page keeps painting (and scrolling) at its own pace meanwhile.
- * - Textures upload one at a time.
+ * - Whatever the scene asked to wait for (its environment, see
+ *   `delayWarmUp`) comes first: compiling without it would build programs
+ *   the first frame cannot use.
+ * - Textures upload one at a time, the environment's too.
  * - Programs compile with `compileAsync`, a slice's worth at a time: where
  *   KHR_parallel_shader_compile is available the browser links them in the
  *   background, so a first visit (no shader cache anywhere) costs seconds of
@@ -63,9 +66,18 @@ export async function warmUp({
     performance.mark(`portfolio:warm:${name}`);
     onStep?.(name);
   };
+  const waitFor = before.get(scene);
+  if (waitFor) {
+    await waitFor.catch(() => {});
+    if (cancelled()) return false;
+  }
   const slice = frameSlices();
   step("textures");
-  for (const texture of textures(scene)) {
+  const uploads = textures(scene);
+  const environment = scene.environment;
+  if (environment && !environment.isRenderTargetTexture)
+    uploads.push(environment);
+  for (const texture of uploads) {
     await slice();
     if (cancelled()) return false;
     gl.initTexture(texture);
@@ -118,6 +130,21 @@ export async function warmUp({
   await gpuIdle(gl.getContext(), cancelled);
   performance.mark("portfolio:warm:done");
   return !cancelled();
+}
+
+const before = new WeakMap<Scene, Promise<unknown>>();
+
+/**
+ * Holds a scene's warm-up until `until` settles: something every program
+ * depends on, such as the environment map (see desk/studio.ts), is still
+ * being made. The latest call wins.
+ */
+export function delayWarmUp(scene: Scene, until: Promise<unknown>) {
+  before.set(scene, until);
+  const clear = () => {
+    if (before.get(scene) === until) before.delete(scene);
+  };
+  until.then(clear, clear);
 }
 
 const nextFrame = () =>
