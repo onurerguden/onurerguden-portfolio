@@ -225,35 +225,47 @@ function Driver({
       if (!dampingFrame)
         dampingFrame = window.requestAnimationFrame(keepRendering);
     };
+    // Draws only for a change the frame would show: below the threshold the
+    // damping above settles at, a frame would look the same. Most moves over
+    // a control, or along a still part of the view, change nothing.
+    const aim = (x: number, y: number, influence: number, snap = false) => {
+      const p = pointer.current;
+      if (
+        Math.abs(x - p.x) <= 0.002 &&
+        Math.abs(y - p.y) <= 0.002 &&
+        Math.abs(influence - p.targetInfluence) <= 0.002 &&
+        !(snap && Math.abs(influence - p.influence) > 0.002)
+      )
+        return;
+      p.x = x;
+      p.y = y;
+      p.targetInfluence = influence;
+      if (snap) p.influence = influence;
+      wake();
+    };
     const move = (event: PointerEvent) => {
       const target = event.target instanceof Element ? event.target : null;
       const excluded = target?.closest(
         'a, button, summary, [data-screen], [data-cosmic-exclusion="true"]',
       );
       if (excluded) {
-        pointer.current.x = pointer.current.y = 0;
-        pointer.current.targetInfluence = 0;
-        pointer.current.influence = 0;
-        wake();
+        aim(0, 0, 0, true);
         return;
       }
       const rect = node.getBoundingClientRect();
-      pointer.current.x = Math.max(
-        -1,
-        Math.min(1, ((event.clientX - rect.left) / rect.width) * 2 - 1),
+      aim(
+        Math.max(
+          -1,
+          Math.min(1, ((event.clientX - rect.left) / rect.width) * 2 - 1),
+        ),
+        Math.max(
+          -1,
+          Math.min(1, ((event.clientY - rect.top) / rect.height) * 2 - 1),
+        ),
+        1,
       );
-      pointer.current.y = Math.max(
-        -1,
-        Math.min(1, ((event.clientY - rect.top) / rect.height) * 2 - 1),
-      );
-      pointer.current.targetInfluence = 1;
-      wake();
     };
-    const leave = () => {
-      pointer.current.x = pointer.current.y = 0;
-      pointer.current.targetInfluence = 0;
-      wake();
-    };
+    const leave = () => aim(0, 0, 0);
     node.addEventListener("pointermove", move, { passive: true });
     node.addEventListener("pointerleave", leave);
     return () => {
