@@ -156,6 +156,11 @@ export default function InteractionScene({
   >({});
   const nextMouse = useRef(0);
   const drawerStart = useRef<number | null>(null);
+  // True once a frame has applied the final state of every transition and
+  // motion: the desk's other frames (the camera travelling, the pointer)
+  // then skip that work, uploads included, as it would set the same values
+  // again. Anything that starts a change clears it.
+  const settled = useRef(false);
   const color = useRef(new Color(lampColors[1]));
   const transition = useRef({
     start: 0,
@@ -246,6 +251,7 @@ export default function InteractionScene({
         if (drawerStart.current === null) {
           drawerStart.current = performance.now();
           gl.domElement.setAttribute("data-drawer-peak", "0.000");
+          settled.current = false;
           requestAnimation(drawerWave.duration);
           invalidate();
         }
@@ -258,6 +264,7 @@ export default function InteractionScene({
         start: performance.now(),
         variant: id === "mouse" ? nextMouse.current++ % 5 : 0,
       };
+      settled.current = false;
       requestAnimation(animationDuration[key]);
       if (id === "mouse" && ring.current) {
         const pivot = contract.targets.mouse.position;
@@ -297,15 +304,28 @@ export default function InteractionScene({
     },
     [gl],
   );
+  useEffect(() => {
+    settled.current = false;
+  }, [
+    nodes,
+    origins,
+    targetColor,
+    lampMaterials,
+    taskMaterials,
+    controls.lights,
+    controls.reduced,
+    controls.active,
+  ]);
   useFrame(() => {
     if (!controls.active) return;
-    const writeQa = qa();
     const movingCasters =
       drawerStart.current !== null ||
       animated.some((id) => running.current[id]);
     if (movingCasters) dirtyShadows(gl);
     // A final clean frame also makes idle metrics exclude the last depth update.
     if (gl.shadowMap.needsUpdate) invalidate();
+    if (settled.current) return;
+    const writeQa = qa();
     const now = performance.now();
     const elapsed = now - transition.current.start;
     const ct = controls.reduced ? 1 : Math.min(1, elapsed / 350);
@@ -436,6 +456,7 @@ export default function InteractionScene({
       );
     }
     if (busy) invalidate();
+    settled.current = !busy;
   });
   const click = (event: ThreeEvent<MouseEvent>, id?: DeskAction) => {
     event.stopPropagation();
