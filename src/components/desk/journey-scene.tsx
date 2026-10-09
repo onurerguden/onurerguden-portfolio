@@ -27,6 +27,7 @@ import {
 } from "@/lib/desk-story/camera";
 import { createFrameBudget } from "@/lib/desk-story/frame-budget";
 import { quality } from "@/lib/quality";
+import { qa } from "@/lib/qa";
 import { storyAt, type StoryState } from "@/lib/desk-story/timeline";
 import type { Signal } from "@/lib/desk-story/signal";
 import { shadeOf, type PanelRefs } from "./screen-panels";
@@ -179,7 +180,7 @@ function Driver({
       if (!sameView(drawn, step)) {
         drawn = step;
         invalidate();
-      } else {
+      } else if (qa()) {
         // The desk already shows this distance; record it for QA.
         gl.domElement.setAttribute("data-distance", String(step.distance));
       }
@@ -382,10 +383,12 @@ function Driver({
       );
     });
 
-    const canvas = gl.domElement;
-    canvas.setAttribute("data-frames", String(++frames.current));
-    canvas.setAttribute("data-distance", String(step.distance));
-    canvas.setAttribute("data-camera", camera.position.toArray().join(","));
+    if (qa()) {
+      const canvas = gl.domElement;
+      canvas.setAttribute("data-frames", String(++frames.current));
+      canvas.setAttribute("data-distance", String(step.distance));
+      canvas.setAttribute("data-camera", camera.position.toArray().join(","));
+    }
   }, -1);
   return <CosmicEnvironment pointer={pointer} />;
 }
@@ -419,6 +422,7 @@ function RenderFrame() {
   useFrame(({ scene, camera, gl }) => {
     if (gl.domElement.dataset.active === "false") return;
     gl.render(scene, camera);
+    if (!qa()) return;
     const canvas = gl.domElement;
     canvas.setAttribute("data-draw-calls", String(gl.info.render.calls));
     canvas.setAttribute("data-triangles", String(gl.info.render.triangles));

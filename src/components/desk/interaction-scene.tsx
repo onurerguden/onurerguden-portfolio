@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { quality } from "@/lib/quality";
+import { qa } from "@/lib/qa";
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import {
   Color,
@@ -280,6 +281,7 @@ export default function InteractionScene({
   );
   useFrame(() => {
     if (!controls.active) return;
+    const writeQa = qa();
     const movingCasters =
       drawerStart.current !== null ||
       animated.some((id) => running.current[id]);
@@ -331,26 +333,30 @@ export default function InteractionScene({
         ? drawerWave.duration
         : now - drawerStart.current;
     const drawersMoving = drawerElapsed < drawerWave.duration;
-    const offsets = drawerIds.map((id, index) => {
-      const offset = drawerOffset(drawerElapsed, index);
-      nodes[id].position.z = origins[id].position.z + offset;
-      return offset.toFixed(3);
+    drawerIds.forEach((id, index) => {
+      nodes[id].position.z =
+        origins[id].position.z + drawerOffset(drawerElapsed, index);
     });
-    gl.domElement.setAttribute("data-drawer-offsets", offsets.join(","));
-    // For QA: the wave's largest offset, so a slow renderer that draws few
-    // frames cannot hide the movement between samples.
-    if (drawersMoving)
-      gl.domElement.setAttribute(
-        "data-drawer-peak",
-        Math.max(
-          Number(gl.domElement.dataset.drawerPeak || 0),
-          ...offsets.map(Number),
-        ).toFixed(3),
+    if (writeQa) {
+      const offsets = drawerIds.map((_, index) =>
+        drawerOffset(drawerElapsed, index).toFixed(3),
       );
-    gl.domElement.setAttribute(
-      "data-drawers-motion",
-      drawersMoving ? "running" : "idle",
-    );
+      gl.domElement.setAttribute("data-drawer-offsets", offsets.join(","));
+      // The wave's largest offset, so a slow renderer that draws few frames
+      // cannot hide the movement between samples.
+      if (drawersMoving)
+        gl.domElement.setAttribute(
+          "data-drawer-peak",
+          Math.max(
+            Number(gl.domElement.dataset.drawerPeak || 0),
+            ...offsets.map(Number),
+          ).toFixed(3),
+        );
+      gl.domElement.setAttribute(
+        "data-drawers-motion",
+        drawersMoving ? "running" : "idle",
+      );
+    }
     if (drawersMoving) busy = true;
     else drawerStart.current = null;
     for (const [index, id] of animated.entries()) {
@@ -394,17 +400,23 @@ export default function InteractionScene({
       }
       if (job && t < 1) busy = true;
       else delete running.current[id];
+      if (writeQa)
+        gl.domElement.setAttribute(
+          `data-${id}-motion`,
+          job && t < 1 ? "running" : "idle",
+        );
+    }
+    if (writeQa) {
+      gl.domElement.setAttribute("data-lights", light.toFixed(3));
       gl.domElement.setAttribute(
-        `data-${id}-motion`,
-        job && t < 1 ? "running" : "idle",
+        "data-lamp-color",
+        color.current.getHexString(),
+      );
+      gl.domElement.setAttribute(
+        "data-mouse-variant",
+        String((nextMouse.current + 4) % 5),
       );
     }
-    gl.domElement.setAttribute("data-lights", light.toFixed(3));
-    gl.domElement.setAttribute("data-lamp-color", color.current.getHexString());
-    gl.domElement.setAttribute(
-      "data-mouse-variant",
-      String((nextMouse.current + 4) % 5),
-    );
     if (busy) invalidate();
   });
   const click = (event: ThreeEvent<MouseEvent>, id?: DeskAction) => {
