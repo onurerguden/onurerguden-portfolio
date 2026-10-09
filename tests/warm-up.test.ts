@@ -13,6 +13,7 @@ import {
   type WebGLRenderer,
 } from "three";
 import {
+  delayWarmUp,
   shadowCasters,
   textures,
   warmUp,
@@ -104,6 +105,53 @@ describe("scene warm-up", () => {
     cancelled = true;
     expect(await pending).toBe(false);
     expect(calls).not.toContain("render");
+  });
+
+  it("waits for what the scene asked for, then uploads its environment too", async () => {
+    const { gl, calls } = fakeRenderer();
+    const root = scene();
+    let resolve = () => {};
+    delayWarmUp(root, new Promise<void>((done) => (resolve = done)));
+    const pending = warmUp({
+      gl,
+      scene: root,
+      camera: new PerspectiveCamera(),
+      render: () => calls.push("render"),
+      cancelled: () => false,
+    });
+    await new Promise((done) => setTimeout(done, 5));
+    expect(calls).toEqual([]);
+    root.environment = new Texture();
+    calls.push("environment");
+    resolve();
+    expect(await pending).toBe(true);
+    expect(calls.slice(0, 4)).toEqual([
+      "environment",
+      "texture",
+      "texture",
+      "compile",
+    ]);
+  });
+
+  it("gives up while waiting once cancelled", async () => {
+    const { gl, calls } = fakeRenderer();
+    const root = scene();
+    let cancelled = false;
+    delayWarmUp(
+      root,
+      new Promise<void>((done) => setTimeout(done, 5)).then(() => {
+        cancelled = true;
+      }),
+    );
+    const ready = await warmUp({
+      gl,
+      scene: root,
+      camera: new PerspectiveCamera(),
+      render: () => calls.push("render"),
+      cancelled: () => cancelled,
+    });
+    expect(ready).toBe(false);
+    expect(calls).toEqual([]);
   });
 
   it("finds each texture once", () => {
