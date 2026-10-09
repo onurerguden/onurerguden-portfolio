@@ -5,9 +5,12 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { Mesh } from "three";
 import { deskModelSrc, deskDecoderPath } from "@/lib/desk-asset-urls";
-import InteractionScene from "./interaction-scene";
+import InteractionScene, { actionFor } from "./interaction-scene";
 import { warmUp } from "@/components/three/warm-up";
+import { createOccluders } from "@/lib/ray-occluders";
 import type { DeskInteractions } from "./interactions";
+
+const skipRaycast = () => {};
 
 // One decoder for every load: its workers outlive a released scene.
 let draco: DRACOLoader | null = null;
@@ -38,8 +41,9 @@ export function Model({
   const root = useThree((state) => state.scene);
   const { scene } = useLoader(GLTFLoader, deskModelSrc, withDraco);
   // useGLTF caches the source. Each mounted view owns transforms and materials.
-  const model = useMemo(() => {
+  const { model, occluders } = useMemo(() => {
     const clone = scene.clone(true);
+    const still: Mesh[] = [];
     clone.traverse((object) => {
       if (object instanceof Mesh) {
         object.material = Array.isArray(object.material)
@@ -48,9 +52,18 @@ export function Model({
         object.castShadow = object.userData.interaction !== "lamp";
         object.receiveShadow = true;
         if (object.userData.interaction === "backdrop") object.visible = false;
+        // The pointer looks for objects that do something (and for the
+        // interaction targets, outside the model). The rest, the static
+        // batches above all, hold half the desk's triangles and span all of
+        // it: raycasting them made every pointer move cost a millisecond.
+        // They still hide what is behind them; see InteractionScene.
+        if (!actionFor(object)) {
+          object.raycast = skipRaycast;
+          still.push(object);
+        }
       }
     });
-    return clone;
+    return { model: clone, occluders: createOccluders(still) };
   }, [scene]);
   useEffect(() => {
     // Compile every shader, upload every texture and draw one hidden frame
@@ -88,5 +101,7 @@ export function Model({
     },
     [model],
   );
-  return <InteractionScene model={model} controls={controls} />;
+  return (
+    <InteractionScene model={model} occluders={occluders} controls={controls} />
+  );
 }

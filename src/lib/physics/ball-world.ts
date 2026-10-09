@@ -89,6 +89,16 @@ export function createBallWorld(options: BallWorldOptions) {
   const restTime = new Float32Array(count);
   const touching = new Uint8Array(count);
   for (let i = 0; i < count; i++) q[i * 4 + 3] = 1;
+  // Where the balls were before the last step, for drawing between steps
+  // (see alpha).
+  const previousX = new Float32Array(count);
+  const previousY = new Float32Array(count);
+  const previousQ = q.slice();
+  const keepPrevious = () => {
+    previousX.set(px);
+    previousY.set(py);
+    previousQ.set(q);
+  };
 
   const random = seededRandom(options.seed ?? 0x5eed);
   const restitution = options.restitution ?? {
@@ -475,6 +485,19 @@ export function createBallWorld(options: BallWorldOptions) {
       walls = { ...walls, ...next };
       wakeAll();
     },
+    previousX,
+    previousY,
+    previousQ,
+    /**
+     * How far real time has run past the last step, as a fraction of a
+     * step. The step is fixed (1/120 s) and a display's frames are not: at
+     * 120 Hz a frame takes zero or two steps, at 144 Hz every sixth takes
+     * none. Drawn at previous + (current - previous) × alpha, every frame
+     * moves by its own share of time.
+     */
+    get alpha() {
+      return accumulator / step;
+    },
     /** Rescales positions proportionally so a resize keeps the composition. */
     resize(nextWidth: number, nextHeight: number) {
       if (nextWidth <= 0 || nextHeight <= 0) return;
@@ -487,6 +510,8 @@ export function createBallWorld(options: BallWorldOptions) {
       }
       width = nextWidth;
       height = nextHeight;
+      // A jump, not a motion: nothing to draw in between.
+      keepPrevious();
       wakeAll();
     },
     /** Places every ball above the stage in a loose, seeded column stack. */
@@ -510,6 +535,7 @@ export function createBallWorld(options: BallWorldOptions) {
         wz[i] = 0;
       }
       accumulator = 0;
+      keepPrevious();
       wakeAll();
     },
     /** Adds the same kick to every ball, with seeded spread and tumble. */
@@ -596,6 +622,7 @@ export function createBallWorld(options: BallWorldOptions) {
       accumulator += Math.min(Math.max(dt, 0), 1 / 30);
       let steps = 0;
       while (accumulator >= step && steps < maxSubsteps) {
+        keepPrevious();
         integrate(step);
         accumulator -= step;
         steps++;

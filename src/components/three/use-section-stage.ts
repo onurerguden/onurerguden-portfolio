@@ -7,6 +7,7 @@ import {
   type RefObject,
 } from "react";
 import { allowsStages, useMotionPreference } from "@/lib/motion-preference";
+import { probeWebGL } from "@/lib/quality";
 import { onScrollPause } from "@/lib/scroll-pause";
 import { stageRegistry } from "@/lib/stage-registry";
 
@@ -18,29 +19,20 @@ const softwareRenderer = /swiftshader|llvmpipe|softpipe|software/i;
 
 let webgl2: boolean | null = null;
 /**
- * Probes once with a detached canvas so page locators never see it. Section
- * scenes are decorative, so a software renderer (no GPU acceleration) gets
- * the static poster instead of a main thread spent on shading.
+ * Reads the visit's one WebGL probe (src/lib/quality.ts). Section scenes are
+ * decorative, so a software renderer (no GPU acceleration) gets the static
+ * poster instead of a main thread spent on shading.
  */
 export function supportsWebGL2() {
   if (webgl2 !== null) return webgl2;
+  const probe = probeWebGL();
+  let forced = false;
   try {
-    const context = document.createElement("canvas").getContext("webgl2");
-    const info = context?.getExtension("WEBGL_debug_renderer_info");
-    const renderer = info
-      ? String(context?.getParameter(info.UNMASKED_RENDERER_WEBGL))
-      : "";
-    let forced = false;
-    try {
-      forced = localStorage.getItem(force3dKey) === "1";
-    } catch {
-      // Storage can be blocked; the default stands.
-    }
-    webgl2 = Boolean(context) && (forced || !softwareRenderer.test(renderer));
-    context?.getExtension("WEBGL_lose_context")?.loseContext();
+    forced = localStorage.getItem(force3dKey) === "1";
   } catch {
-    webgl2 = false;
+    // Storage can be blocked; the default stands.
   }
+  webgl2 = probe.webgl2 && (forced || !softwareRenderer.test(probe.renderer));
   return webgl2;
 }
 

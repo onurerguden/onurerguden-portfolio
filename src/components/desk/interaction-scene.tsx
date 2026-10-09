@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { quality } from "@/lib/quality";
+import { qa } from "@/lib/qa";
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import {
   Color,
@@ -20,6 +21,7 @@ import {
   type WebGLRenderer,
 } from "three";
 import contract from "@/lib/desk-interactions.json";
+import type { Occluders } from "@/lib/ray-occluders";
 import {
   accessoryPose,
   drawerIds,
@@ -40,7 +42,7 @@ const actions = new Set<string>([
   "drawers",
 ]);
 const animated = ["headphones", "mouse", "tablet"] as const;
-function actionFor(object: Object3D): DeskAction | undefined {
+export function actionFor(object: Object3D): DeskAction | undefined {
   const id = object.userData.interaction;
   if (drawerIds.includes(id)) return "drawers";
   return actions.has(id) ? (id as DeskAction) : undefined;
@@ -61,12 +63,29 @@ const lampShadow = typeof window !== "undefined" && quality() !== "low";
 
 export default function InteractionScene({
   model,
+  occluders,
   controls,
 }: {
   model: Group;
+  /** The model's objects that do nothing but still hide what is behind. */
+  occluders: Occluders;
   controls: DeskInteractions;
 }) {
   const { gl, invalidate } = useThree();
+  const setEvents = useThree((state) => state.setEvents);
+  useEffect(() => {
+    // Only the nearest object under the pointer counts (each handler stops
+    // propagation). Objects without an action are not raycast, so check
+    // that none of them sits in front of the nearest hit: a click on the
+    // MacBook must not reach the dial behind it.
+    setEvents({
+      filter: (hits, state) =>
+        hits.length && occluders.occludes(state.raycaster.ray, hits[0].distance)
+          ? []
+          : hits,
+    });
+    return () => setEvents({ filter: undefined });
+  }, [setEvents, occluders]);
   const { active, reduced, registerMotion } = controls;
   const animationFrame = useRef<number | null>(null);
   const animateUntil = useRef(0);
@@ -137,6 +156,11 @@ export default function InteractionScene({
   >({});
   const nextMouse = useRef(0);
   const drawerStart = useRef<number | null>(null);
+  // True once a frame has applied the final state of every transition and
+  // motion: the desk's other frames (the camera travelling, the pointer)
+  // then skip that work, uploads included, as it would set the same values
+  // again. Anything that starts a change clears it.
+  const settled = useRef(false);
   const color = useRef(new Color(lampColors[1]));
   const transition = useRef({
     start: 0,
@@ -227,6 +251,7 @@ export default function InteractionScene({
         if (drawerStart.current === null) {
           drawerStart.current = performance.now();
           gl.domElement.setAttribute("data-drawer-peak", "0.000");
+          settled.current = false;
           requestAnimation(drawerWave.duration);
           invalidate();
         }
@@ -239,6 +264,7 @@ export default function InteractionScene({
         start: performance.now(),
         variant: id === "mouse" ? nextMouse.current++ % 5 : 0,
       };
+      settled.current = false;
       requestAnimation(animationDuration[key]);
       if (id === "mouse" && ring.current) {
         const pivot = contract.targets.mouse.position;
@@ -278,6 +304,18 @@ export default function InteractionScene({
     },
     [gl],
   );
+  useEffect(() => {
+    settled.current = false;
+  }, [
+    nodes,
+    origins,
+    targetColor,
+    lampMaterials,
+    taskMaterials,
+    controls.lights,
+    controls.reduced,
+    controls.active,
+  ]);
   useFrame(() => {
     if (!controls.active) return;
     const movingCasters =
@@ -286,6 +324,8 @@ export default function InteractionScene({
     if (movingCasters) dirtyShadows(gl);
     // A final clean frame also makes idle metrics exclude the last depth update.
     if (gl.shadowMap.needsUpdate) invalidate();
+    if (settled.current) return;
+    const writeQa = qa();
     const now = performance.now();
     const elapsed = now - transition.current.start;
     const ct = controls.reduced ? 1 : Math.min(1, elapsed / 350);
@@ -331,26 +371,30 @@ export default function InteractionScene({
         ? drawerWave.duration
         : now - drawerStart.current;
     const drawersMoving = drawerElapsed < drawerWave.duration;
-    const offsets = drawerIds.map((id, index) => {
-      const offset = drawerOffset(drawerElapsed, index);
-      nodes[id].position.z = origins[id].position.z + offset;
-      return offset.toFixed(3);
+    drawerIds.forEach((id, index) => {
+      nodes[id].position.z =
+        origins[id].position.z + drawerOffset(drawerElapsed, index);
     });
-    gl.domElement.setAttribute("data-drawer-offsets", offsets.join(","));
-    // For QA: the wave's largest offset, so a slow renderer that draws few
-    // frames cannot hide the movement between samples.
-    if (drawersMoving)
-      gl.domElement.setAttribute(
-        "data-drawer-peak",
-        Math.max(
-          Number(gl.domElement.dataset.drawerPeak || 0),
-          ...offsets.map(Number),
-        ).toFixed(3),
+    if (writeQa) {
+      const offsets = drawerIds.map((_, index) =>
+        drawerOffset(drawerElapsed, index).toFixed(3),
       );
-    gl.domElement.setAttribute(
-      "data-drawers-motion",
-      drawersMoving ? "running" : "idle",
-    );
+      gl.domElement.setAttribute("data-drawer-offsets", offsets.join(","));
+      // The wave's largest offset, so a slow renderer that draws few frames
+      // cannot hide the movement between samples.
+      if (drawersMoving)
+        gl.domElement.setAttribute(
+          "data-drawer-peak",
+          Math.max(
+            Number(gl.domElement.dataset.drawerPeak || 0),
+            ...offsets.map(Number),
+          ).toFixed(3),
+        );
+      gl.domElement.setAttribute(
+        "data-drawers-motion",
+        drawersMoving ? "running" : "idle",
+      );
+    }
     if (drawersMoving) busy = true;
     else drawerStart.current = null;
     for (const [index, id] of animated.entries()) {
@@ -394,18 +438,25 @@ export default function InteractionScene({
       }
       if (job && t < 1) busy = true;
       else delete running.current[id];
+      if (writeQa)
+        gl.domElement.setAttribute(
+          `data-${id}-motion`,
+          job && t < 1 ? "running" : "idle",
+        );
+    }
+    if (writeQa) {
+      gl.domElement.setAttribute("data-lights", light.toFixed(3));
       gl.domElement.setAttribute(
-        `data-${id}-motion`,
-        job && t < 1 ? "running" : "idle",
+        "data-lamp-color",
+        color.current.getHexString(),
+      );
+      gl.domElement.setAttribute(
+        "data-mouse-variant",
+        String((nextMouse.current + 4) % 5),
       );
     }
-    gl.domElement.setAttribute("data-lights", light.toFixed(3));
-    gl.domElement.setAttribute("data-lamp-color", color.current.getHexString());
-    gl.domElement.setAttribute(
-      "data-mouse-variant",
-      String((nextMouse.current + 4) % 5),
-    );
     if (busy) invalidate();
+    settled.current = !busy;
   });
   const click = (event: ThreeEvent<MouseEvent>, id?: DeskAction) => {
     event.stopPropagation();
