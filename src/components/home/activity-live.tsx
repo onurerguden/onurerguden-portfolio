@@ -18,6 +18,16 @@ import ContributionGrid from "./contribution-grid";
 import styles from "./activity.module.css";
 
 const POLL = 3 * 60_000;
+
+/** Pauses the sync pulse while it is out of view; it loops forever. */
+function restWhenHidden(node: HTMLElement | null) {
+  if (!node) return;
+  const observer = new IntersectionObserver(([entry]) => {
+    node.dataset.offscreen = String(!entry.isIntersecting);
+  });
+  observer.observe(node);
+  return () => observer.disconnect();
+}
 /** Failed polls wait twice as long each time, up to 15 minutes. */
 const backoff = (delay: number) =>
   Math.min(15 * 60_000, Math.max(POLL, delay * 2));
@@ -271,7 +281,11 @@ export default function ActivityLive({
   return (
     <div className={styles.live}>
       <p className={styles.synced}>
-        <span className={styles.pulse} aria-hidden="true" />
+        <span
+          ref={restWhenHidden}
+          className={styles.pulse}
+          aria-hidden="true"
+        />
         {en ? "Synced with GitHub " : "GitHub ile eşitlendi: "}
         {now === null ? (
           <time dateTime={snapshot.syncedAt}>

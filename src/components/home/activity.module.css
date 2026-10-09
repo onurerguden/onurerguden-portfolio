@@ -101,20 +101,42 @@
   color: var(--text-muted);
   font-size: 14px;
 }
+/*
+ * The ring is a copy of the dot that grows and fades on the compositor: as
+ * a growing box-shadow it repainted the page's whole layer about 50 times a
+ * second. 29/9 is the old shadow's reach (9 px plus 10 px a side), 0.4 its
+ * starting alpha (#…66). It rests while out of view (activity-live.tsx).
+ */
 .pulse {
+  position: relative;
   width: 9px;
   height: 9px;
   border-radius: 50%;
   background: #1f9d55;
-  box-shadow: 0 0 0 0 #1f9d5566;
+}
+.pulse::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #1f9d55;
+  opacity: 0;
   animation: pulse 2.4s ease-out infinite;
 }
 @keyframes pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.4;
+  }
   to {
-    box-shadow: 0 0 0 10px #1f9d5500;
+    transform: scale(3.222222);
+    opacity: 0;
   }
 }
-:global(html[data-motion-paused="true"]) .pulse {
+.pulse[data-offscreen="true"]::after {
+  animation-play-state: paused;
+}
+:global(html[data-motion-paused="true"]) .pulse::after {
   animation: none;
 }
 .fresh {
