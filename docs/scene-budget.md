@@ -73,3 +73,25 @@ Measured with `npm run perf` (`docs/qa/perf/`): headless Chromium on an M1 Pro G
 With the warm-up alone, the remaining first-visit frame was the reflective floor (its blur pass and one reflection variant compiled inside the hidden frame). Without the live mirror the desk shows with no long frame; the first-visit maximum is now About's scene mounting (about 9 s in). Final view: 55 draw calls / 101,287 triangles, peak 136 during the one-off setup; 36 shader programs.
 
 The lighter model does not move main-thread numbers (its cost was never the main thread); it cuts the download from 497 to 311 KB and the final view's submitted triangles from 101,287 to 54,769, which matters on integrated GPUs.
+
+## October 9 butter series
+
+The page no longer froze after the performance series, but it did not flow. Three experts (graphics, browser runtime, motion) found the remaining cost was feel, not speed: the camera followed a mouse wheel's notches one-to-one, R3F raycast the whole desk on every wheel event, section scenes were prepared while the visitor scrolled, About drew beneath the closed curtain, and the desk lowered its resolution on computers with GPU time to spare. Merged as #95–#106; measured on the live site (`docs/qa/perf/butter-final.md`, before: `butter-baseline.md` on main's build):
+
+| Trackpad scrolling, M1 Pro, 60 Hz (medians of 3)          | Before (9 Oct)    | After             |
+| --------------------------------------------------------- | ----------------- | ----------------- |
+| Longest frame: first visit / returning / 4× CPU           | 512 / 83 / 211 ms | 258 / 59 / 179 ms |
+| Frames over 50 ms while scrolling, desk ready (returning) | 2                 | 1                 |
+| Slow scroll frames: first visit / returning / 4× CPU      | 3.1 / 3.0 / 4.8 % | 1.2 / 0.5 / 1.7 % |
+| Slow frames reading the MacBook's Explorer list           | 18–24 %           | 0–3 %             |
+| Desk GPU time per frame, p95                              | 7.7–8.9 ms        | 6.8–7.5 ms        |
+| About GPU time per frame, p95                             | 3.6–4.7 ms        | 2.2–2.4 ms        |
+| Desk lowered its resolution on an M1 Pro                  | every visit       | never             |
+| Camera's largest step in a frame, notched wheel           | 0.30 m            | about 0.1 m       |
+
+- **Per frame:** no wheel raycast; raycasts only where the pointer can act; pointer moves redraw only for a visible change; one story state per scroll; QA attributes only with `portfolio:qa`.
+- **Section scenes:** prepared on a scroll pause, a frame at a time; the studio environment built once per page; About draws only once the curtain opens; balls and About at 1.25 device pixels on dense screens.
+- **Desk resolution:** judged by the desk's own GPU time against the display's refresh rate, changed only while the desk is still, remembered for a week.
+- **Motion:** the story clock (`src/lib/desk-story/clock.ts`), travels paced by what the visitor sees, no stop at the desktop waypoint, the cursor's dot drawn by the system.
+- **Low tier:** no sun shadow or glow lights, half-density grid, down to 0.85 device pixels; Intel Macs in Safari count as low.
+- **Phones:** the remaining hitch is evaluating three.js once (about 160 ms at 4× CPU), which now lands in a scroll pause; a three-free balls renderer was judged not worth it.

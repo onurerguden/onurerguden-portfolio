@@ -55,3 +55,7 @@ The live site measured the same day (cold HTTP cache, TTFB 320–415 ms from fra
 ## Butter baseline (9 October 2026)
 
 `butter-baseline.md`, production build of main (ce63d36) with trackpad input. The page no longer freezes for long, but it does not flow: every visit lowered the desk's resolution on an M1 Pro, About drew about 230 frames while the curtain still covered it, a notch moved the camera nearly four times as far as the median frame step, and the MacBook's Explorer list dropped about one frame in five while it scrolled (a single 33 ms frame each time, with the main thread mostly idle).
+
+## Butter final (9 October 2026)
+
+`butter-final.md`, the live site after the butter series (#95–#106), trackpad input. See `docs/scene-budget.md` ("October 9 butter series") for before and after. `tests/perf/budgets.json` now holds these numbers with some headroom, so `npm run perf:check` fails if a change gives them back.
