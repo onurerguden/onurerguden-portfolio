@@ -60,6 +60,27 @@ describe("desk story timeline", () => {
     expect(timeline.length - roomDistance(timeline)).toBeCloseTo(holds.room);
   });
 
+  it("builds one state per distance and shares it with every reader", () => {
+    // The journey, the desk's scroll listener and its frame read the same
+    // distance in one scroll frame.
+    const d = readDistance(timeline, portrait, 0.4);
+    const shared = storyAt(timeline, d);
+    expect(storyAt(timeline, d)).toBe(shared);
+    expect(storyAt(timeline, d)).toBe(shared);
+    // A new distance or a re-measured story builds a new state, and the
+    // shared one is left as it was.
+    const copy = structuredClone(shared);
+    const next = storyAt(timeline, d + 0.01);
+    expect(next).not.toBe(shared);
+    expect(next.reading[portrait]).toBeGreaterThan(shared.reading[portrait]);
+    expect(shared).toEqual(copy);
+    const longer = buildTimeline({ portrait: 2.5, macbook: 1 });
+    const remeasured = storyAt(longer, d);
+    expect(remeasured).not.toBe(shared);
+    expect(remeasured.reading[portrait]).toBeCloseTo((0.4 * 1.7) / 2.5);
+    expect(storyAt(timeline, d)).toEqual(copy);
+  });
+
   it("opens the monitor's window while the camera arrives", () => {
     const arrive = arrivalDistance(timeline, portrait);
     expect(storyAt(timeline, 0).arrival[portrait]).toBe(0);

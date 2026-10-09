@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { classifyGpu } from "../src/lib/quality";
 
 const gpu = (renderer: string, memory?: number, cores?: number) =>
@@ -38,5 +38,38 @@ describe("3D quality per computer", () => {
       "ANGLE (Microsoft, Microsoft Basic Render Driver Direct3D11 vs_5_0 ps_5_0, D3D11)",
     ])
       expect(gpu(renderer, 16, 16), renderer).toBe("static");
+  });
+});
+
+describe("the WebGL probe", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+  it("creates one context for the quality tier and the section stages", async () => {
+    const lose = vi.fn();
+    const context = {
+      getExtension: (name: string) =>
+        name === "WEBGL_debug_renderer_info"
+          ? { UNMASKED_RENDERER_WEBGL: 0x9246 }
+          : { loseContext: lose },
+      getParameter: () => "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro)",
+    };
+    const createElement = vi.fn(() => ({ getContext: () => context }));
+    vi.stubGlobal("window", {});
+    vi.stubGlobal("document", {
+      createElement,
+      documentElement: { dataset: {} },
+    });
+    vi.stubGlobal("localStorage", { getItem: () => null });
+    vi.stubGlobal("navigator", { hardwareConcurrency: 8, deviceMemory: 8 });
+    vi.resetModules();
+    const { quality } = await import("../src/lib/quality");
+    const { supportsWebGL2 } =
+      await import("../src/components/three/use-section-stage");
+    expect(quality()).toBe("high");
+    expect(supportsWebGL2()).toBe(true);
+    expect(createElement).toHaveBeenCalledTimes(1);
+    expect(lose).toHaveBeenCalledTimes(1);
   });
 });

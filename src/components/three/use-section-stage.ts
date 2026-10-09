@@ -7,6 +7,8 @@ import {
   type RefObject,
 } from "react";
 import { allowsStages, useMotionPreference } from "@/lib/motion-preference";
+import { probeWebGL } from "@/lib/quality";
+import { onScrollPause } from "@/lib/scroll-pause";
 import { stageRegistry } from "@/lib/stage-registry";
 
 export type StageState = "static" | "idle" | "loading" | "live" | "failed";
@@ -17,33 +19,22 @@ const softwareRenderer = /swiftshader|llvmpipe|softpipe|software/i;
 
 let webgl2: boolean | null = null;
 /**
- * Probes once with a detached canvas so page locators never see it. Section
- * scenes are decorative, so a software renderer (no GPU acceleration) gets
- * the static poster instead of a main thread spent on shading.
+ * Reads the visit's one WebGL probe (src/lib/quality.ts). Section scenes are
+ * decorative, so a software renderer (no GPU acceleration) gets the static
+ * poster instead of a main thread spent on shading.
  */
 export function supportsWebGL2() {
   if (webgl2 !== null) return webgl2;
+  const probe = probeWebGL();
+  let forced = false;
   try {
-    const context = document.createElement("canvas").getContext("webgl2");
-    const info = context?.getExtension("WEBGL_debug_renderer_info");
-    const renderer = info
-      ? String(context?.getParameter(info.UNMASKED_RENDERER_WEBGL))
-      : "";
-    let forced = false;
-    try {
-      forced = localStorage.getItem(force3dKey) === "1";
-    } catch {
-      // Storage can be blocked; the default stands.
-    }
-    webgl2 = Boolean(context) && (forced || !softwareRenderer.test(renderer));
-    context?.getExtension("WEBGL_lose_context")?.loseContext();
+    forced = localStorage.getItem(force3dKey) === "1";
   } catch {
-    webgl2 = false;
+    // Storage can be blocked; the default stands.
   }
+  webgl2 = probe.webgl2 && (forced || !softwareRenderer.test(probe.renderer));
   return webgl2;
 }
-
-const hasIdleCallback = () => typeof window.requestIdleCallback === "function";
 
 /** A stage that failed stays static for the rest of the visit. */
 const failedStages = new Set<string>();
@@ -70,7 +61,8 @@ type Options = {
 };
 
 /**
- * Gates a section's WebGL scene: it mounts at idle once the section is near,
+ * Gates a section's WebGL scene: it mounts once the section is near and the
+ * visitor pauses scrolling,
  * only while the page-wide registry grants it a context, and never without
  * WebGL2 or (unless `evenWhenReduced`) under reduced motion. It unmounts again when far offscreen.
  */
@@ -91,7 +83,7 @@ export function useSectionStage(
   const [supported, setSupported] = useState(false);
   const [visible, setVisible] = useState(false);
   const [wanted, setWanted] = useState(false);
-  const [idleDone, setIdleDone] = useState(false);
+  const [settled, setSettled] = useState(false);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [pageVisible, setPageVisible] = useState(true);
@@ -176,36 +168,33 @@ export function useSectionStage(
     () => false,
   );
 
-  // Mount after the current frame and at idle so the chunk never competes
-  // with the scroll that brought the section into view.
+  // Mount after the current frame and on a pause in scrolling: creating a
+  // context and its scene costs a few long frames, which an idle callback
+  // would still drop between the frames of the scroll that brought the
+  // section into view. The poster stands in meanwhile.
   useEffect(() => {
-    let idle = 0;
     let settle = 0;
+    let cancelPause = () => {};
     const frame = requestAnimationFrame(() => {
       if (!live) {
-        setIdleDone(false);
+        setSettled(false);
         setReady(false);
         return;
       }
-      const done = () => setIdleDone(true);
       // Only a slot held for a moment mounts, so jump-scrolling past a
-      // section never creates and destroys its scene. Safari has no
-      // requestIdleCallback; a short timeout plays the same role.
+      // section never creates and destroys its scene.
       settle = window.setTimeout(() => {
-        idle = hasIdleCallback()
-          ? window.requestIdleCallback(done, { timeout: 1800 })
-          : window.setTimeout(done, 250);
+        cancelPause = onScrollPause(() => setSettled(true));
       }, 300);
     });
     return () => {
       cancelAnimationFrame(frame);
       window.clearTimeout(settle);
-      if (hasIdleCallback()) window.cancelIdleCallback(idle);
-      else window.clearTimeout(idle);
+      cancelPause();
     };
   }, [live]);
 
-  const mount = eligible && live && idleDone;
+  const mount = eligible && live && settled;
   const active = mount && (visibleOverride ?? visible) && pageVisible;
   const state: StageState = failed
     ? "failed"

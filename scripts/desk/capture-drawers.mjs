@@ -7,7 +7,8 @@ try {
     viewport: { width: 1440, height: 1000 },
   });
   await page.clock.install();
-  await page.goto(`${base}/tr/lab/desk`);
+  // ?qa: the canvas writes the QA attributes this script waits on.
+  await page.goto(`${base}/tr/lab/desk?qa`);
   await page.getByRole("button", { name: "3D olarak incele" }).click();
   const canvas = page.locator("canvas");
   await page.waitForFunction(
@@ -46,7 +47,7 @@ try {
     isMobile: true,
     hasTouch: true,
   });
-  await mobile.goto(`${base}/tr/lab/desk/journey`);
+  await mobile.goto(`${base}/tr/lab/desk/journey?qa`);
   await mobile.waitForFunction(
     () => document.querySelector("canvas")?.dataset.lights === "1.000",
   );

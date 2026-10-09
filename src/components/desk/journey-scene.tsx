@@ -13,9 +13,11 @@ import DeskPlatform from "./platform";
 import CosmicEnvironment, { type CosmicPointer } from "./cosmic-environment";
 import DeskLighting from "./lighting";
 import { DeskObjectControls, useDeskInteractions } from "./interactions";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useThree, type RootStore } from "@react-three/fiber";
+import { deskEvents } from "./desk-events";
 import { Matrix4, Quaternion, Vector3, PerspectiveCamera } from "three";
 import { Model } from "./model";
+import { offerProgramHost } from "@/components/three/program-host";
 import { createScreenProjection, projectScreen } from "@/lib/desk-projection";
 import { cameraAnchors } from "@/lib/desk-story/anchors";
 import {
@@ -25,8 +27,17 @@ import {
   screens,
   type CameraStop,
 } from "@/lib/desk-story/camera";
-import { createFrameBudget } from "@/lib/desk-story/frame-budget";
+import {
+  createResolutionGovernor,
+  measureFrameInterval,
+  rememberLevel,
+  rememberedLevel,
+  resolutionLevels,
+  type ResolutionGovernor,
+} from "@/lib/desk-story/frame-budget";
+import { createGpuTimer, type GpuTimer } from "@/components/three/gpu-timer";
 import { quality } from "@/lib/quality";
+import { qa } from "@/lib/qa";
 import { storyAt, type StoryState } from "@/lib/desk-story/timeline";
 import type { Signal } from "@/lib/desk-story/signal";
 import { shadeOf, type PanelRefs } from "./screen-panels";
@@ -71,6 +82,10 @@ const depthFragmentShader = `
  * These planes punch the physical display surfaces out of the transparent
  * WebGL canvas while still writing depth. Screen DOM stays in one shared layer
  * beneath the canvas, so real desk geometry naturally remains in front.
+ *
+ * Drawn first: each plane sits just in front of its screen's glass, so the
+ * glass behind it then fails the depth test instead of being shaded and
+ * overwritten. Anything nearer than a plane still draws over it.
  */
 function ScreenDepthPlanes() {
   return screens.map((screen, index) => {
@@ -78,6 +93,7 @@ function ScreenDepthPlanes() {
     return (
       <mesh
         key={screenIds[index]}
+        renderOrder={-1}
         position={transform.position}
         quaternion={transform.quaternion}
         scale={[screen.width, screen.height, 1]}
@@ -95,16 +111,31 @@ function ScreenDepthPlanes() {
   });
 }
 
-/** Everything the desk's frame depends on; equal keys draw equal frames. */
-function cameraKey(step: StoryState) {
-  return [
-    step.from,
-    step.to,
-    step.travel,
-    step.active,
-    ...step.dive.map((dive) => (dive >= 1 ? 2 : dive > 0 ? 1 : 0)),
-  ].join();
+const diveStage = (dive: number) => (dive >= 1 ? 2 : dive > 0 ? 1 : 0);
+/** Everything the desk's frame depends on; equal views draw equal frames. */
+function sameView(a: StoryState | null, b: StoryState) {
+  if (
+    !a ||
+    a.from !== b.from ||
+    a.to !== b.to ||
+    a.travel !== b.travel ||
+    a.active !== b.active
+  )
+    return false;
+  for (let i = 0; i < b.dive.length; i++)
+    if (diveStage(a.dive[i]) !== diveStage(b.dive[i])) return false;
+  return true;
 }
+
+/** How far the pointer turns the camera at each stop. */
+const pointerStrength = (stop: CameraStop) =>
+  stop === "opening"
+    ? 0
+    : stop === "room"
+      ? 1
+      : stop === "desktop"
+        ? 0.6
+        : 0.08;
 
 function Driver({
   distance,
@@ -119,7 +150,9 @@ function Driver({
   // One projection per screen and panel width; a diving screen's panel
   // changes width with the viewport.
   const projections = useRef(
-    new Map<string, ReturnType<typeof createScreenProjection>>(),
+    screens.map(
+      () => new Map<number, ReturnType<typeof createScreenProjection>>(),
+    ),
   );
   const frames = useRef(0);
   const pointer = useRef<CosmicPointer>({
@@ -155,15 +188,14 @@ function Driver({
   useEffect(() => {
     // Scrolling through a reading stop leaves the camera where it is; the
     // frame would be identical, so only a moving camera redraws the desk.
-    let key = "";
+    let drawn: StoryState | null = null;
     return distance.on((d) => {
       if (!active) return;
       const step = storyAt(layout.current.timeline, d);
-      const next = cameraKey(step);
-      if (next !== key) {
-        key = next;
+      if (!sameView(drawn, step)) {
+        drawn = step;
         invalidate();
-      } else {
+      } else if (qa()) {
         // The desk already shows this distance; record it for QA.
         gl.domElement.setAttribute("data-distance", String(step.distance));
       }
@@ -207,35 +239,47 @@ function Driver({
       if (!dampingFrame)
         dampingFrame = window.requestAnimationFrame(keepRendering);
     };
+    // Draws only for a change the frame would show: below the threshold the
+    // damping above settles at, a frame would look the same. Most moves over
+    // a control, or along a still part of the view, change nothing.
+    const aim = (x: number, y: number, influence: number, snap = false) => {
+      const p = pointer.current;
+      if (
+        Math.abs(x - p.x) <= 0.002 &&
+        Math.abs(y - p.y) <= 0.002 &&
+        Math.abs(influence - p.targetInfluence) <= 0.002 &&
+        !(snap && Math.abs(influence - p.influence) > 0.002)
+      )
+        return;
+      p.x = x;
+      p.y = y;
+      p.targetInfluence = influence;
+      if (snap) p.influence = influence;
+      wake();
+    };
     const move = (event: PointerEvent) => {
       const target = event.target instanceof Element ? event.target : null;
       const excluded = target?.closest(
         'a, button, summary, [data-screen], [data-cosmic-exclusion="true"]',
       );
       if (excluded) {
-        pointer.current.x = pointer.current.y = 0;
-        pointer.current.targetInfluence = 0;
-        pointer.current.influence = 0;
-        wake();
+        aim(0, 0, 0, true);
         return;
       }
       const rect = node.getBoundingClientRect();
-      pointer.current.x = Math.max(
-        -1,
-        Math.min(1, ((event.clientX - rect.left) / rect.width) * 2 - 1),
+      aim(
+        Math.max(
+          -1,
+          Math.min(1, ((event.clientX - rect.left) / rect.width) * 2 - 1),
+        ),
+        Math.max(
+          -1,
+          Math.min(1, ((event.clientY - rect.top) / rect.height) * 2 - 1),
+        ),
+        1,
       );
-      pointer.current.y = Math.max(
-        -1,
-        Math.min(1, ((event.clientY - rect.top) / rect.height) * 2 - 1),
-      );
-      pointer.current.targetInfluence = 1;
-      wake();
     };
-    const leave = () => {
-      pointer.current.x = pointer.current.y = 0;
-      pointer.current.targetInfluence = 0;
-      wake();
-    };
+    const leave = () => aim(0, 0, 0);
     node.addEventListener("pointermove", move, { passive: true });
     node.addEventListener("pointerleave", leave);
     return () => {
@@ -303,16 +347,9 @@ function Driver({
     if (Math.abs(p.y - p.currentY) < 0.005) p.currentY = p.y;
     if (Math.abs(p.targetInfluence - p.influence) < 0.03)
       p.influence = p.targetInfluence;
-    const strength = (stop: CameraStop) =>
-      stop === "opening"
-        ? 0
-        : stop === "room"
-          ? 1
-          : stop === "desktop"
-            ? 0.6
-            : 0.08;
     const amount =
-      strength(step.from) + (strength(step.to) - strength(step.from)) * t;
+      pointerStrength(step.from) +
+      (pointerStrength(step.to) - pointerStrength(step.from)) * t;
     camera.rotateY((-p.currentX * amount * Math.PI) / 90);
     camera.rotateX((-p.currentY * amount * Math.PI) / 180);
     camera.updateProjectionMatrix();
@@ -339,11 +376,10 @@ function Driver({
           )
         : panelWidth;
       const offsetX = (panelWidth - crop) / 2;
-      const key = `${index}:${crop}`;
-      let projection = projections.current.get(key);
+      let projection = projections.current[index].get(crop);
       if (!projection) {
         projection = createScreenProjection(screens[index], crop);
-        projections.current.set(key, projection);
+        projections.current[index].set(crop, projection);
       }
       const matrix = projectScreen(projection, camera, size.width, size.height);
       // Hidden by opacity, not visibility, so a panel behind the camera
@@ -374,43 +410,100 @@ function Driver({
       );
     });
 
-    const canvas = gl.domElement;
-    canvas.setAttribute("data-frames", String(++frames.current));
-    canvas.setAttribute("data-distance", String(step.distance));
-    canvas.setAttribute("data-camera", camera.position.toArray().join(","));
+    if (qa()) {
+      const canvas = gl.domElement;
+      canvas.setAttribute("data-frames", String(++frames.current));
+      canvas.setAttribute("data-distance", String(step.distance));
+      canvas.setAttribute("data-camera", camera.position.toArray().join(","));
+    }
   }, -1);
   return <CosmicEnvironment pointer={pointer} />;
 }
 /**
- * Lowers the desk's resolution while its moving frames run below about
- * 50 fps (an integrated GPU against a dense screen): first to 1.25 device
- * pixels per CSS pixel, then, if that is still slow, to 1. It only ever steps
- * down, so the image does not pump while scrolling.
+ * Keeps the desk's resolution where its moving frames fit this display
+ * (src/lib/desk-story/frame-budget.ts): lower when they don't, back up when
+ * the GPU has room again. A change reallocates the drawing buffer and
+ * changes the image's sharpness, so it waits until the desk has been still
+ * for a moment instead of landing mid-move.
  */
-function AdaptiveResolution({ onStep }: { onStep: (dpr: number) => void }) {
-  const budget = useRef(createFrameBudget());
-  useFrame(({ gl }) => {
-    if (!budget.current.record(performance.now())) return;
-    const next = [1.25, 1].find((dpr) => dpr < gl.getPixelRatio());
-    if (next === undefined) return;
-    // Through the Canvas's dpr prop: R3F re-applies that prop whenever the
-    // Canvas renders, which would undo a setDpr made from inside.
-    onStep(next);
-    // Judge the new resolution on its own frames.
-    budget.current = createFrameBudget();
-    gl.domElement.setAttribute("data-dpr-reduced", String(next));
+function AdaptiveResolution({
+  levels,
+  level,
+  onStep,
+  timerRef,
+}: {
+  levels: number[];
+  level: number;
+  onStep: (dpr: number) => void;
+  timerRef: RefObject<GpuTimer | null | undefined>;
+}) {
+  const governor = useRef<ResolutionGovernor | null>(null);
+  const still = useRef(0);
+  const gl = useThree((state) => state.gl);
+  useEffect(() => {
+    let cancelled = false;
+    void measureFrameInterval().then((frameMs) => {
+      if (cancelled || levels.length < 2) return;
+      governor.current = createResolutionGovernor({
+        levels,
+        level,
+        frameMs,
+        now: performance.now(),
+      });
+    });
+    return () => {
+      cancelled = true;
+      window.clearTimeout(still.current);
+    };
+    // One governor per mount: it follows the levels it proposes itself.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [levels]);
+  useFrame(() => {
+    const judge = governor.current;
+    if (!judge) return;
+    const now = performance.now();
+    judge.record(now);
+    for (const ms of timerRef.current?.poll() ?? []) judge.recordGpu(ms, now);
+    window.clearTimeout(still.current);
+    still.current = window.setTimeout(() => {
+      const at = performance.now();
+      for (const ms of timerRef.current?.poll() ?? []) judge.recordGpu(ms, at);
+      const next = judge.proposal();
+      if (next === null) return;
+      // Through the Canvas's dpr prop: R3F re-applies that prop whenever the
+      // Canvas renders, which would undo a setDpr made from inside.
+      onStep(next);
+      judge.applied(next, at);
+      rememberLevel(next);
+      if (next < levels[0])
+        gl.domElement.setAttribute("data-dpr-reduced", String(next));
+      else gl.domElement.removeAttribute("data-dpr-reduced");
+    }, 250);
   });
   return null;
 }
 /** Include reflection and shadow passes in the reported per-frame cost. */
-function RenderFrame() {
+function RenderFrame({
+  timerRef,
+}: {
+  timerRef: RefObject<GpuTimer | null | undefined>;
+}) {
+  useEffect(() => () => timerRef.current?.dispose(), [timerRef]);
   useFrame(({ gl }) => {
     gl.info.autoReset = false;
     gl.info.reset();
   }, -2);
   useFrame(({ scene, camera, gl }) => {
     if (gl.domElement.dataset.active === "false") return;
+    // The desk's own GPU time per frame decides its resolution.
+    if (timerRef.current === undefined)
+      timerRef.current = createGpuTimer(
+        gl.getContext() as WebGL2RenderingContext,
+      );
+    timerRef.current?.begin();
     gl.render(scene, camera);
+    timerRef.current?.end();
+    if (!qa()) return;
     const canvas = gl.domElement;
     canvas.setAttribute("data-draw-calls", String(gl.info.render.calls));
     canvas.setAttribute("data-triangles", String(gl.info.render.triangles));
@@ -426,6 +519,14 @@ function RenderFrame() {
   }, 1);
   return null;
 }
+/** Offers the warm desk's context for compiling scenes ahead (program-host.ts). */
+function ProgramHost() {
+  const gl = useThree((state) => state.gl);
+  const scene = useThree((state) => state.scene);
+  useEffect(() => offerProgramHost(gl, scene), [gl, scene]);
+  return null;
+}
+
 const coarsePointer = () =>
   typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches;
 function JourneyScene(props: JourneySceneProps) {
@@ -441,18 +542,36 @@ function JourneyScene(props: JourneySceneProps) {
     readyCallback();
   }, [readyCallback]);
   // Phones and tablets already have dense screens; the extra pixels cost
-  // battery for no visible gain. AdaptiveResolution lowers it on slow frames.
-  // Integrated graphics start at one device pixel per CSS pixel, without
-  // multisampling or the lamp's shadow (src/lib/quality.ts).
+  // battery for no visible gain. AdaptiveResolution moves between the levels
+  // as frames allow. Integrated graphics start at one device pixel per CSS
+  // pixel, without multisampling or the lamp's shadow (src/lib/quality.ts).
   const [low] = useState(() => quality() === "low");
-  const [dpr, setDpr] = useState<number | [number, number]>(() =>
-    low ? 1 : coarsePointer() ? [1, 1.25] : [1, 1.5],
+  const [levels] = useState(() =>
+    resolutionLevels(
+      low ? 1 : coarsePointer() ? 1.25 : 1.5,
+      typeof window === "undefined" ? 1 : window.devicePixelRatio || 1,
+    ),
   );
+  // A computer that settled on a lower level last time starts there.
+  const [dpr, setDpr] = useState(() => rememberedLevel(levels) ?? levels[0]);
+  const timer = useRef<GpuTimer | null | undefined>(undefined);
   const running = warm && controls.active;
+  const { distance, layout } = props;
+  // While the camera travels the desk slides under the pointer by itself;
+  // hover waits for it to stop rather than raycasting every move.
+  const events = useCallback(
+    (store: RootStore) =>
+      deskEvents(store, () => {
+        const step = storyAt(layout.current.timeline, distance.get());
+        return step.from !== step.to;
+      }),
+    [distance, layout],
+  );
   return (
     <>
       <Canvas
         eventSource={props.wrapper as RefObject<HTMLElement>}
+        events={events}
         style={{
           position: "absolute",
           inset: 0,
@@ -511,8 +630,14 @@ function JourneyScene(props: JourneySceneProps) {
           <Model onReady={onReady} controls={controls} />
           <ScreenDepthPlanes />
         </Suspense>
-        <RenderFrame />
-        <AdaptiveResolution onStep={setDpr} />
+        <RenderFrame timerRef={timer} />
+        {warm ? <ProgramHost /> : null}
+        <AdaptiveResolution
+          levels={levels}
+          level={dpr}
+          onStep={setDpr}
+          timerRef={timer}
+        />
         <Driver {...props} active={controls.active} running={running} />
       </Canvas>
       {!props.poster ? (
