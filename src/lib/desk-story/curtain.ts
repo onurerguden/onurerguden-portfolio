@@ -13,3 +13,11 @@ export const curtainQuery =
  * loop. 1 whenever there is no curtain, so About rests in place.
  */
 export const curtainProgress = signal(1);
+
+/**
+ * How much of the page beneath the desk shows, 0–1: 0 while the desk covers
+ * the whole view, 1 without a curtain. About sits beneath the desk for the
+ * curtain's last views and draws only once this is above 0; until then its
+ * frames would never be seen.
+ */
+export const curtainOpening = signal(1);

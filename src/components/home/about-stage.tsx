@@ -1,8 +1,9 @@
 "use client";
 import dynamic from "next/dynamic";
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useRef, useSyncExternalStore, type RefObject } from "react";
 import SceneBoundary from "@/components/three/scene-boundary";
 import { useSectionStage } from "@/components/three/use-section-stage";
+import { curtainOpening } from "@/lib/desk-story/curtain";
 import { laptopPhase } from "@/lib/desk-story/store";
 import styles from "./about.module.css";
 
@@ -66,6 +67,14 @@ export default function AboutStage({
     wanted,
     visible,
   });
+  // Beneath the closed curtain About is in view as far as an observer can
+  // tell, but the desk covers it: it mounts and warms up as before and
+  // draws once the curtain opens.
+  const exposed = useSyncExternalStore(
+    curtainOpening.on,
+    () => curtainOpening.get() > 0,
+    () => true,
+  );
   return (
     <div
       ref={stage}
@@ -76,7 +85,7 @@ export default function AboutStage({
       {mount ? (
         <SceneBoundary label="About scene" onFailure={onFailure}>
           <AboutScene
-            active={active}
+            active={active && exposed}
             paused={paused}
             logos={logos}
             sectionRef={section as RefObject<HTMLElement | null>}
