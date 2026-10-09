@@ -299,7 +299,7 @@ function Driver({
       temp.position.copy(a.position);
       temp.target.copy(a.target);
     } else {
-      // A forward-facing arc clears the desk and adds parallax; zero endpoint velocity.
+      // A forward-facing arc clears the desk and adds parallax.
       temp.a.copy(a.position);
       temp.b
         .copy(a.position)
@@ -310,6 +310,21 @@ function Driver({
         .lerp(b.position, 0.7)
         .add(temp.arc.set(step.to === "room" ? 0.13 : -0.045, 0.045, 0.15));
       temp.d.copy(b.position);
+      if (step.to === "desktop") {
+        // The opening's move passes through the desktop without stopping:
+        // its last handle mirrors the next travel's first, so the camera
+        // keeps its direction there (the next travel's handle as built
+        // below, from the desktop towards the portrait).
+        const next = anchors.portrait.position;
+        temp.arc
+          .copy(b.position)
+          .lerp(next, 0.3)
+          .add(temp.a.set(-0.2, 0.1, 0.25))
+          .sub(b.position);
+        const reach = temp.c.distanceTo(b.position) / temp.arc.length();
+        temp.c.copy(b.position).addScaledVector(temp.arc, -reach);
+        temp.a.copy(a.position);
+      }
       const u = 1 - t;
       temp.position
         .copy(temp.a)
@@ -323,7 +338,13 @@ function Driver({
       const fov =
         a.fov +
         (b.fov - a.fov) * t +
-        (step.from !== step.to ? 3 * Math.sin(Math.PI * t) : 0);
+        (step.from === step.to
+          ? 0
+          : // Through the desktop the zoom's swell eases out and back in, so
+            // it never turns back sharply there.
+            step.to === "desktop" || step.from === "desktop"
+            ? 3 * Math.sin(Math.PI * t) ** 2
+            : 3 * Math.sin(Math.PI * t));
       camera.setFocalLength(
         camera.getFilmHeight() / (2 * Math.tan((fov * Math.PI) / 360)),
       );

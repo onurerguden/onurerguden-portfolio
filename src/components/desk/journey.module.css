@@ -42,6 +42,14 @@
   contain: paint;
   transition: opacity 0.25s;
 }
+/*
+ * A visitor already past the opening: the scene is there at once beneath
+ * the opening, which fades alone. Two layers fading together let the
+ * stage's navy show through between them.
+ */
+.journey[data-arrived-late="true"] .scene {
+  transition: none;
+}
 
 .foot button {
   font: 500 12px/1.3 var(--font-sans);

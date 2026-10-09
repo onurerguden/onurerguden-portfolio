@@ -107,7 +107,9 @@ function chapterAt(measure: StoryMeasure, story: StoryState): number {
 function phaseAt(measure: StoryMeasure, story: StoryState): LaptopPhase {
   const [start, end] = readRange(measure.timeline, 0);
   if (story.distance < (start + end) / 2) return "away";
-  if (story.arrival[2] < 1) return "near";
+  // The balls start falling as the camera settles on the MacBook, so they
+  // land with it rather than after it.
+  if (story.arrival[2] < 0.7) return "near";
   if (story.rise[2] <= 0) return "desk";
   return story.rise[2] < 1 ? "rise" : "gone";
 }
