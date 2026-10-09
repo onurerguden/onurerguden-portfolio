@@ -73,6 +73,10 @@ const depthFragmentShader = `
  * These planes punch the physical display surfaces out of the transparent
  * WebGL canvas while still writing depth. Screen DOM stays in one shared layer
  * beneath the canvas, so real desk geometry naturally remains in front.
+ *
+ * Drawn first: each plane sits just in front of its screen's glass, so the
+ * glass behind it then fails the depth test instead of being shaded and
+ * overwritten. Anything nearer than a plane still draws over it.
  */
 function ScreenDepthPlanes() {
   return screens.map((screen, index) => {
@@ -80,6 +84,7 @@ function ScreenDepthPlanes() {
     return (
       <mesh
         key={screenIds[index]}
+        renderOrder={-1}
         position={transform.position}
         quaternion={transform.quaternion}
         scale={[screen.width, screen.height, 1]}
