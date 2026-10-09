@@ -2,7 +2,9 @@ import { createBallWorld, type BallWorld } from "@/lib/physics/ball-world";
 import { floorInStage } from "@/lib/bliss-geometry";
 import type { LaptopPhase } from "@/lib/desk-story/store";
 
-export const GRAVITY = 2600;
+// Brisk enough that the pile has landed while the camera settles on the
+// MacBook, even after a quick flick of the trackpad.
+export const GRAVITY = 3400;
 const SEED = 0x7ec5;
 
 /**
@@ -84,7 +86,7 @@ export function drop(scatter: boolean) {
   if (!world) return;
   world.setWalls({ top: false });
   world.setGravity(GRAVITY);
-  world.spawnAbove(scatter ? 1.6 : 1);
+  world.spawnAbove(1);
   if (scatter) world.impulse(0, 0, 900, 8);
   sim.mode = "dropping";
   sim.selected = -1;

@@ -39,8 +39,10 @@ export type StoryLayout = {
 
 export const holds = {
   opening: 0.15,
-  desktop: 0.1,
-  read: 0.2,
+  // The desktop is a waypoint with nothing to read: the camera slows there
+  // instead of stopping (see travelEasing).
+  desktop: 0,
+  read: 0.12,
   desktopXp: 0.5,
   room: 0.35,
 };
@@ -68,6 +70,49 @@ export const clamp = (n: number, low = 0, high = 1) =>
 export const ease = (n: number) => {
   const t = clamp(n);
   return t * t * (3 - 2 * t);
+};
+
+/** A CSS-style cubic-bezier timing function from (0, 0) to (1, 1). */
+export function cubicBezier(x1: number, y1: number, x2: number, y2: number) {
+  const at = (a: number, b: number, t: number) =>
+    3 * a * (1 - t) * (1 - t) * t + 3 * b * (1 - t) * t * t + t * t * t;
+  const slope = (a: number, b: number, t: number) =>
+    3 * a * (1 - t) * (1 - t) + 6 * (b - a) * (1 - t) * t + 3 * (1 - b) * t * t;
+  return (n: number) => {
+    const x = clamp(n);
+    if (x === 0 || x === 1) return x;
+    // Newton's method, then bisection where the curve is too flat for it.
+    let t = x;
+    for (let i = 0; i < 6; i++) {
+      const d = slope(x1, x2, t);
+      if (Math.abs(d) < 1e-6) break;
+      t -= (at(x1, x2, t) - x) / d;
+    }
+    if (Math.abs(at(x1, x2, t) - x) > 1e-5) {
+      let low = 0;
+      let high = 1;
+      t = x;
+      for (let i = 0; i < 30; i++) {
+        if (at(x1, x2, t) < x) low = t;
+        else high = t;
+        t = (low + high) / 2;
+      }
+    }
+    return at(y1, y2, t);
+  };
+}
+
+/**
+ * Each travel's pace, fitted so the picture moves evenly as the visitor
+ * scrolls (October 9, butter series). Smoothstep paced the camera's path
+ * instead: pull-backs lunged, then crawled, and every travel stopped dead at
+ * both ends. The first two meet at the desktop moving, so the opening's
+ * move reads as one; the others keep smoothstep's soft stops.
+ */
+export const travelEasing: Partial<Record<string, (t: number) => number>> = {
+  "opening>desktop": cubicBezier(0.85, 0.1, 0.8, 0.95),
+  "desktop>portrait": cubicBezier(0.25, 0.1, 0.35, 0.9),
+  "macbook>room": cubicBezier(0.8, 0, 0.85, 0.85),
 };
 
 type Step = [SegmentKind, CameraStop, CameraStop, number, number];
@@ -111,11 +156,13 @@ export function buildTimeline(layout: StoryLayout = defaultLayout): Timeline {
       : []),
   ];
   let start = 0;
-  const segments = plan.map(([kind, from, to, length, screen]) => {
-    const segment = { kind, from, to, screen, start, end: start + length };
-    start = segment.end;
-    return segment;
-  });
+  const segments = plan
+    .filter(([, , , length]) => length > 0)
+    .map(([kind, from, to, length, screen]) => {
+      const segment = { kind, from, to, screen, start, end: start + length };
+      start = segment.end;
+      return segment;
+    });
   return { length: start, segments };
 }
 
@@ -192,7 +239,10 @@ function computeStory(timeline: Timeline, distance: number): StoryState {
       if (from >= 0) departure[from] = Math.max(departure[from], progress);
     }
   });
-  const travel = current.kind === "travel" ? ease(local) : 0;
+  const travel =
+    current.kind === "travel"
+      ? (travelEasing[`${current.from}>${current.to}`] ?? ease)(local)
+      : 0;
   const exit = current.kind === "exit" ? ease(local) : 0;
   for (let i = 0; i < screenStops.length; i++) {
     rise[i] = ease(rise[i]);

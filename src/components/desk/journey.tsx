@@ -45,6 +45,12 @@ import { laptopPhase, type LaptopPhase } from "@/lib/desk-story/store";
 import { quality } from "@/lib/quality";
 import { signal } from "@/lib/desk-story/signal";
 import { onScrollFrame } from "@/lib/scroll-frame";
+import {
+  createScrollInput,
+  createStoryClock,
+  halfLives,
+  rawStory,
+} from "@/lib/desk-story/clock";
 import { onScrollPause } from "@/lib/scroll-pause";
 import SceneBoundary from "@/components/three/scene-boundary";
 import { JourneyNav, plainClick } from "@/components/site/site-nav";
@@ -101,7 +107,9 @@ function chapterAt(measure: StoryMeasure, story: StoryState): number {
 function phaseAt(measure: StoryMeasure, story: StoryState): LaptopPhase {
   const [start, end] = readRange(measure.timeline, 0);
   if (story.distance < (start + end) / 2) return "away";
-  if (story.arrival[2] < 1) return "near";
+  // The balls start falling as the camera settles on the MacBook, so they
+  // land with it rather than after it.
+  if (story.arrival[2] < 0.7) return "near";
   if (story.rise[2] <= 0) return "desk";
   return story.rise[2] < 1 ? "rise" : "gone";
 }
@@ -217,6 +225,21 @@ export default function DeskJourney({
   const finalViewRef = useRef(false);
   const coverRef = useRef({ covered: false, diving: false });
   const [distance] = useState(() => signal(0));
+  // What the story shows follows the page's distance through a clock that
+  // eases wheel and keyboard scrolling (src/lib/desk-story/clock.ts).
+  const writeStory = useRef<() => void>(() => {});
+  const [clock] = useState(() =>
+    createStoryClock({
+      apply(d, settled) {
+        distance.set(d);
+        writeStory.current();
+        const node = section.current;
+        if (node) node.dataset.settled = String(settled);
+      },
+    }),
+  );
+  const [scrollInput] = useState(() => createScrollInput());
+  const rawFollow = useRef(false);
   // The visitor's own "turn 3D off", kept for this visit.
   const chosenStatic = useStaticDesk();
   const still = staticMode || failed || chosenStatic;
@@ -343,22 +366,43 @@ export default function DeskJourney({
       0,
       measure.timeline.length,
     );
-    return () => {
-      distance.set(d);
-      write();
-    };
-  }, [distance, layout, write]);
+    return () =>
+      clock.to(d, rawFollow.current ? 0 : halfLives[scrollInput.current()]);
+  }, [clock, layout, scrollInput]);
   const update = useCallback(() => read()?.(), [read]);
   useEffect(() => {
-    // Scroll events arrive at most once per frame, so the story follows the
-    // page without its own animation loop.
+    writeStory.current = write;
+  }, [write]);
+  useEffect(() => {
+    // Scroll events arrive at most once per frame; the clock eases between
+    // them only while a wheel or the keyboard is scrolling.
     const off = onScrollFrame(read);
     window.addEventListener("resize", update);
+    let stored: string | null = null;
+    try {
+      stored = localStorage.getItem("portfolio:story");
+    } catch {
+      // Storage can be blocked; the address can still ask.
+    }
+    rawFollow.current = rawStory(stored, location.search);
+    const capture = { passive: true, capture: true } as const;
+    const wheel = (event: WheelEvent) => scrollInput.wheel(event);
+    const key = (event: KeyboardEvent) => scrollInput.key(event);
+    const other = () => scrollInput.other();
+    window.addEventListener("wheel", wheel, capture);
+    window.addEventListener("keydown", key, capture);
+    window.addEventListener("touchstart", other, capture);
+    window.addEventListener("pointerdown", other, capture);
     return () => {
       off();
+      clock.stop();
       window.removeEventListener("resize", update);
+      window.removeEventListener("wheel", wheel, capture);
+      window.removeEventListener("keydown", key, capture);
+      window.removeEventListener("touchstart", other, capture);
+      window.removeEventListener("pointerdown", other, capture);
     };
-  }, [read, update]);
+  }, [read, update, clock, scrollInput]);
   useEffect(() => {
     const motion = matchMedia(staticQuery);
     // A computer without GPU acceleration reads the plain flow too.
@@ -707,6 +751,7 @@ export default function DeskJourney({
       }
     }
     if (!enhanced) {
+      clock.stop();
       currentSection.set(null);
       laptopPhase.set("away");
       curtainProgress.set(1);
@@ -720,7 +765,7 @@ export default function DeskJourney({
         0,
       );
     }
-  }, [enhanced]);
+  }, [enhanced, clock]);
   useEffect(() => {
     if (!enhanced || ready || released) return;
     // A first visit compiles every shader before the desk shows; on a slow
@@ -770,7 +815,8 @@ export default function DeskJourney({
           requestAnimationFrame(hold);
         });
       };
-      const story = storyAt(measure.timeline, distance.get());
+      // Where the page is heading, not the distance the clock shows yet.
+      const story = storyAt(measure.timeline, clock.target);
       const screen = Number(panel.dataset.screen);
       const { timeline } = measure;
       if (screen === 0) {
@@ -823,7 +869,7 @@ export default function DeskJourney({
         }
       }
     },
-    [distance, jumpTo, layout],
+    [clock, jumpTo, layout],
   );
   const chapterLabels = homeSections
     .filter((s) => s.place !== "flow")
@@ -886,7 +932,7 @@ export default function DeskJourney({
             // Focus in a desk being drawn aside brings the whole desk back.
             const measure = layout.current;
             if (
-              storyAt(measure.timeline, distance.get()).exit > 0 &&
+              storyAt(measure.timeline, clock.target).exit > 0 &&
               event.target !== event.currentTarget
             )
               jumpTo(roomDistance(measure.timeline) + holds.room / 2);

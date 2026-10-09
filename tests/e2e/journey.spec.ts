@@ -348,7 +348,9 @@ test("the MacBook's Bliss layers wait for the visitor to move", async ({
   await page.waitForTimeout(1000);
   expect(bliss.filter((url) => !url.includes("original"))).toEqual([]);
   await page.mouse.move(700, 400);
-  await page.mouse.wheel(0, 400);
+  // Far enough into the opening's move that the MacBook comes into view
+  // (lazy images load once near it); the move starts slowly by design.
+  await page.mouse.wheel(0, 900);
   await expect
     .poll(() => bliss.length, { timeout: ci(10000) })
     .toBeGreaterThan(0);

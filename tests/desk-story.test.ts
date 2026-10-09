@@ -8,6 +8,8 @@ import {
 import {
   arrivalDistance,
   buildTimeline,
+  cubicBezier,
+  travelEasing,
   lengths,
   holds,
   readDistance,
@@ -236,5 +238,35 @@ describe("paper curtain", () => {
     expect(timeline.length - roomDistance(timeline)).toBeCloseTo(holds.room);
     expect(curtain.landing).toBeCloseTo(holds.room + lengths.exit);
     expect(curtain.lead).toBeCloseTo(curtain.landing + 1);
+  });
+});
+
+describe("travel pacing", () => {
+  it("keeps every easing between its ends and never turning back", () => {
+    for (const curve of Object.values(travelEasing)) {
+      let previous = 0;
+      for (let i = 0; i <= 100; i++) {
+        const value = curve!(i / 100);
+        expect(value).toBeGreaterThanOrEqual(previous - 1e-9);
+        previous = value;
+      }
+      expect(curve!(0)).toBe(0);
+      expect(curve!(1)).toBe(1);
+    }
+  });
+  it("matches CSS cubic-bezier at a known point", () => {
+    // ease-in-out's midpoint is 0.5 by symmetry.
+    expect(cubicBezier(0.42, 0, 0.58, 1)(0.5)).toBeCloseTo(0.5, 5);
+  });
+  it("passes through the desktop moving instead of stopping", () => {
+    const timeline = buildTimeline();
+    expect(
+      timeline.segments.some((s) => s.kind === "hold" && s.from === "desktop"),
+    ).toBe(false);
+    const into = travelEasing["opening>desktop"]!;
+    const out = travelEasing["desktop>portrait"]!;
+    // Both still move at the join: a slope well above zero on each side.
+    expect((1 - into(0.98)) / 0.02).toBeGreaterThan(0.2);
+    expect(out(0.02) / 0.02).toBeGreaterThan(0.2);
   });
 });
