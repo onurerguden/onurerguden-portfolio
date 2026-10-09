@@ -95,16 +95,31 @@ function ScreenDepthPlanes() {
   });
 }
 
-/** Everything the desk's frame depends on; equal keys draw equal frames. */
-function cameraKey(step: StoryState) {
-  return [
-    step.from,
-    step.to,
-    step.travel,
-    step.active,
-    ...step.dive.map((dive) => (dive >= 1 ? 2 : dive > 0 ? 1 : 0)),
-  ].join();
+const diveStage = (dive: number) => (dive >= 1 ? 2 : dive > 0 ? 1 : 0);
+/** Everything the desk's frame depends on; equal views draw equal frames. */
+function sameView(a: StoryState | null, b: StoryState) {
+  if (
+    !a ||
+    a.from !== b.from ||
+    a.to !== b.to ||
+    a.travel !== b.travel ||
+    a.active !== b.active
+  )
+    return false;
+  for (let i = 0; i < b.dive.length; i++)
+    if (diveStage(a.dive[i]) !== diveStage(b.dive[i])) return false;
+  return true;
 }
+
+/** How far the pointer turns the camera at each stop. */
+const pointerStrength = (stop: CameraStop) =>
+  stop === "opening"
+    ? 0
+    : stop === "room"
+      ? 1
+      : stop === "desktop"
+        ? 0.6
+        : 0.08;
 
 function Driver({
   distance,
@@ -119,7 +134,9 @@ function Driver({
   // One projection per screen and panel width; a diving screen's panel
   // changes width with the viewport.
   const projections = useRef(
-    new Map<string, ReturnType<typeof createScreenProjection>>(),
+    screens.map(
+      () => new Map<number, ReturnType<typeof createScreenProjection>>(),
+    ),
   );
   const frames = useRef(0);
   const pointer = useRef<CosmicPointer>({
@@ -155,13 +172,12 @@ function Driver({
   useEffect(() => {
     // Scrolling through a reading stop leaves the camera where it is; the
     // frame would be identical, so only a moving camera redraws the desk.
-    let key = "";
+    let drawn: StoryState | null = null;
     return distance.on((d) => {
       if (!active) return;
       const step = storyAt(layout.current.timeline, d);
-      const next = cameraKey(step);
-      if (next !== key) {
-        key = next;
+      if (!sameView(drawn, step)) {
+        drawn = step;
         invalidate();
       } else {
         // The desk already shows this distance; record it for QA.
@@ -303,16 +319,9 @@ function Driver({
     if (Math.abs(p.y - p.currentY) < 0.005) p.currentY = p.y;
     if (Math.abs(p.targetInfluence - p.influence) < 0.03)
       p.influence = p.targetInfluence;
-    const strength = (stop: CameraStop) =>
-      stop === "opening"
-        ? 0
-        : stop === "room"
-          ? 1
-          : stop === "desktop"
-            ? 0.6
-            : 0.08;
     const amount =
-      strength(step.from) + (strength(step.to) - strength(step.from)) * t;
+      pointerStrength(step.from) +
+      (pointerStrength(step.to) - pointerStrength(step.from)) * t;
     camera.rotateY((-p.currentX * amount * Math.PI) / 90);
     camera.rotateX((-p.currentY * amount * Math.PI) / 180);
     camera.updateProjectionMatrix();
@@ -339,11 +348,10 @@ function Driver({
           )
         : panelWidth;
       const offsetX = (panelWidth - crop) / 2;
-      const key = `${index}:${crop}`;
-      let projection = projections.current.get(key);
+      let projection = projections.current[index].get(crop);
       if (!projection) {
         projection = createScreenProjection(screens[index], crop);
-        projections.current.set(key, projection);
+        projections.current[index].set(crop, projection);
       }
       const matrix = projectScreen(projection, camera, size.width, size.height);
       // Hidden by opacity, not visibility, so a panel behind the camera
