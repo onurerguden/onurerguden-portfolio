@@ -87,6 +87,33 @@
 :global([data-enhanced="true"][data-arrived-late="true"]) .opening {
   transition: opacity 0.4s ease-out;
 }
+/*
+ * Where the browser has scroll timelines, the fade runs on the compositor
+ * instead of the journey's scroll handler, so start-up work never freezes
+ * it: over the first 0.15 stage heights of the journey (its view timeline,
+ * journey.module.css), on the same smoothstep the script uses, which this
+ * cubic-bezier draws exactly (x = t, y = 3t² − 2t³).
+ */
+@supports (animation-timeline: view()) {
+  :global([data-enhanced="true"][data-ready="true"]) .opening {
+    animation: opening-fade cubic-bezier(0.333333, 0, 0.666667, 1) both;
+    animation-timeline: --desk-journey;
+    animation-range: exit-crossing 0px exit-crossing
+      calc(0.15 * var(--stage-height));
+  }
+  /* A visitor already past the opening sees it fade rather than cut. */
+  :global([data-enhanced="true"][data-arrived-late="true"]) .opening {
+    animation: opening-fade 0.4s ease-out both;
+  }
+}
+@keyframes opening-fade {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
 .openingScreen {
   position: absolute;
   width: max(108.696%, 253.748svh);

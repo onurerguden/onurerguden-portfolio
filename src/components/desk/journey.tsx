@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { preload } from "react-dom";
 import Image from "next/image";
 import {
+  startTransition,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -43,6 +44,8 @@ import { curtainOpening, curtainProgress } from "@/lib/desk-story/curtain";
 import { laptopPhase, type LaptopPhase } from "@/lib/desk-story/store";
 import { quality } from "@/lib/quality";
 import { signal } from "@/lib/desk-story/signal";
+import { onScrollFrame } from "@/lib/scroll-frame";
+import { onScrollPause } from "@/lib/scroll-pause";
 import SceneBoundary from "@/components/three/scene-boundary";
 import { JourneyNav, plainClick } from "@/components/site/site-nav";
 import monitorStyles from "@/components/sections/monitor.module.css";
@@ -107,7 +110,8 @@ function phaseAt(measure: StoryMeasure, story: StoryState): LaptopPhase {
  * Draws the paper curtain: the stage clipped by `side`% from each side, the
  * desk scaled back and dimmed by `exit`, and the paper edges placed on the
  * clip. Inline styles on a handful of elements, never a custom property
- * on an ancestor, so a scroll frame restyles only them.
+ * on an ancestor, so a scroll frame restyles only them. The edges move by
+ * transform (`width` is the stage's), so placing them never lays out.
  */
 function paintCurtain(
   stage: HTMLElement | null,
@@ -116,18 +120,56 @@ function paintCurtain(
   dim: HTMLElement | null,
   side: number,
   exit: number,
+  width = 0,
 ) {
   if (!stage) return;
   stage.style.clipPath = side > 0 ? `inset(0 ${side}% 0 ${side}%)` : "";
   if (dim) dim.style.opacity = String(0.55 * exit);
   if (scene)
     scene.style.transform = exit > 0 ? `scale(${1 - 0.06 * exit})` : "";
+  const offset = (side / 100) * width;
   edges.forEach((edge, i) => {
     if (!edge) return;
     edge.style.display = side > 0 ? "block" : "";
-    edge.style.setProperty(i ? "right" : "left", `${side}%`);
+    edge.style.transform =
+      side > 0 ? `translateX(${i ? -offset : offset}px)` : "";
   });
 }
+
+/** `top` as the page can scroll to it. */
+function withinPage(top: number) {
+  const root = document.documentElement;
+  return Math.min(Math.max(0, top), root.scrollHeight - root.clientHeight);
+}
+
+/**
+ * Lands on `target` unless it is already there. A scroll of under half a
+ * pixel moves nothing but still cancels a smooth wheel or keyboard scroll
+ * under way, so corrections that come to nothing are skipped. Where a link
+ * lands: under the page's scroll padding, after the target's scroll margin.
+ */
+function landOn(target: HTMLElement) {
+  const rest =
+    (parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) ||
+      0) + (parseFloat(getComputedStyle(target).scrollMarginTop) || 0);
+  const top = withinPage(
+    window.scrollY + target.getBoundingClientRect().top - rest,
+  );
+  if (Math.abs(top - window.scrollY) < 0.5) return;
+  target.scrollIntoView({ behavior: "instant", block: "start" });
+}
+
+/** Scrolls the page to `top` unless it is there already (see landOn). */
+function scrollToTop(top: number) {
+  if (Math.abs(withinPage(top) - window.scrollY) < 0.5) return;
+  window.scrollTo({ top, behavior: "instant" });
+}
+
+/** The opening fades on a scroll timeline where the browser has them. */
+let timelines: boolean | undefined;
+const scrollTimelines = () =>
+  (timelines ??=
+    typeof CSS !== "undefined" && CSS.supports("animation-timeline", "view()"));
 
 export default function DeskJourney({
   locale,
@@ -189,29 +231,30 @@ export default function DeskJourney({
   }
   const { layout, measured } = useStoryLayout(enhanced, stage, panels);
   const targets = useMemo(() => chapterDistances(measured), [measured]);
-  const update = useCallback(() => {
+  // The story at its distance: every DOM write a scroll makes, after the one
+  // layout read in `read` below (see scroll-frame).
+  const write = useCallback(() => {
     const node = section.current;
-    if (node?.dataset.enhanced !== "true") return;
+    if (!node) return;
     const measure = layout.current;
-    const height = measure.stage.height || node.offsetHeight;
-    const d = clamp(
-      -node.getBoundingClientRect().top / height,
-      0,
-      measure.timeline.length,
-    );
-    distance.set(d);
+    const d = distance.get();
     // For QA: the desk stops drawing behind a takeover, so the scene's own
     // counters can lag; the story's distance never does.
     node.dataset.distance = d.toFixed(3);
-    // Complete the poster handoff while the opening camera is still stationary.
-    const openingProgress = Math.min(1, d / 0.15);
-    const openingOpacity =
-      1 - openingProgress * openingProgress * (3 - 2 * openingProgress);
-    // On the poster itself: on the section, every change would restyle the
-    // whole desk, screens and all.
-    stage.current
-      ?.querySelector<HTMLElement>("[data-opening-poster]")
-      ?.style.setProperty("--opening-opacity", String(openingOpacity));
+    // Complete the poster handoff while the opening camera is still
+    // stationary. Where the browser has scroll timelines the poster fades on
+    // the compositor instead (portrait.module.css), the same curve, and
+    // never waits on this thread.
+    if (!scrollTimelines()) {
+      const openingProgress = Math.min(1, d / 0.15);
+      const openingOpacity =
+        1 - openingProgress * openingProgress * (3 - 2 * openingProgress);
+      // On the poster itself: on the section, every change would restyle
+      // the whole desk, screens and all.
+      stage.current
+        ?.querySelector<HTMLElement>("[data-opening-poster]")
+        ?.style.setProperty("--opening-opacity", String(openingOpacity));
+    }
     node.dataset.travelled = String(d > 0.15);
     // Over the desk the bar gets out of the way; below it, the scroll
     // direction decides (see the docking listener).
@@ -246,6 +289,7 @@ export default function DeskJourney({
       dim.current,
       side,
       state.exit,
+      side > 0 ? measure.stage.width || (stage.current?.offsetWidth ?? 0) : 0,
     );
     curtainProgress.set(exit ? state.exit : 1);
     // The clip leaves `side`% on each side to the page; 50 is all of it.
@@ -289,32 +333,76 @@ export default function DeskJourney({
       setAround([previous, next]);
     }
   }, [distance, layout]);
+  const read = useCallback(() => {
+    const node = section.current;
+    if (node?.dataset.enhanced !== "true") return;
+    const measure = layout.current;
+    const height = measure.stage.height || node.offsetHeight;
+    const d = clamp(
+      -node.getBoundingClientRect().top / height,
+      0,
+      measure.timeline.length,
+    );
+    return () => {
+      distance.set(d);
+      write();
+    };
+  }, [distance, layout, write]);
+  const update = useCallback(() => read()?.(), [read]);
   useEffect(() => {
     // Scroll events arrive at most once per frame, so the story follows the
     // page without its own animation loop.
-    window.addEventListener("scroll", update, { passive: true });
+    const off = onScrollFrame(read);
     window.addEventListener("resize", update);
     return () => {
-      window.removeEventListener("scroll", update);
+      off();
       window.removeEventListener("resize", update);
     };
-  }, [update]);
+  }, [read, update]);
   useEffect(() => {
     const motion = matchMedia(staticQuery);
     // A computer without GPU acceleration reads the plain flow too.
     const plain = () => motion.matches || quality() === "static";
+    // Turning the desk on moves the screens' sections into it and measures
+    // them: a few hundred milliseconds on a slow phone-class CPU. It waits
+    // for a pause in the visitor's scrolling (at most 1.5 s) and renders as
+    // a transition, so their first scroll never waits on it.
+    let cancelPause: (() => void) | null = null;
+    const enhance = () => {
+      if (cancelPause) return;
+      cancelPause = onScrollPause(
+        () => startTransition(() => setEnabled(true)),
+        { quiet: 150, cap: 1500 },
+      );
+    };
     const refresh = () => {
       setStaticMode(plain());
-      setEnabled(!plain());
+      if (plain()) {
+        cancelPause?.();
+        cancelPause = null;
+        setEnabled(false);
+      } else enhance();
     };
     refresh();
+    // The desk's code meanwhile downloads (and runs) while the page is idle.
+    const prefetch = () => void import("./journey-scene");
+    let cancelPrefetch = () => {};
+    if (!plain() && typeof requestIdleCallback === "function") {
+      const id = requestIdleCallback(prefetch, { timeout: 1500 });
+      cancelPrefetch = () => cancelIdleCallback(id);
+    } else if (!plain()) {
+      const id = window.setTimeout(prefetch, 300);
+      cancelPrefetch = () => window.clearTimeout(id);
+    }
     motion.addEventListener("change", refresh);
     const observer = new IntersectionObserver(([entry]) => {
       setActive(entry.isIntersecting);
-      if (entry.isIntersecting && !plain()) setEnabled(true);
+      if (entry.isIntersecting && !plain()) enhance();
     });
     if (stage.current) observer.observe(stage.current);
     return () => {
+      cancelPause?.();
+      cancelPrefetch();
       observer.disconnect();
       motion.removeEventListener("change", refresh);
     };
@@ -324,40 +412,68 @@ export default function DeskJourney({
     // hides while scrolling down, returning when scrolling up. The section in
     // view is reported so a language switch lands on it.
     const flow = homeSections.filter((s) => s.place === "flow");
+    // Which flow sections' tops have passed 40% of the view, kept by an
+    // observer rather than measured on every scroll.
+    const passed = new Map<string, boolean>();
+    let docked = false;
+    const reading = () => flow.findLast(({ id }) => passed.get(id))?.id ?? null;
+    const sections = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries)
+          passed.set(
+            entry.target.id,
+            entry.isIntersecting ||
+              entry.boundingClientRect.top < (entry.rootBounds?.top ?? 0),
+          );
+        if (docked) currentSection.set(reading());
+      },
+      { rootMargin: "0px 0px -60% 0px" },
+    );
+    const observed = new Set<string>();
+    // Any section not in the page yet is picked up once it is.
+    const observe = () => {
+      for (const { id } of flow) {
+        const target = observed.has(id) ? null : document.getElementById(id);
+        if (!target) continue;
+        observed.add(id);
+        sections.observe(target);
+      }
+    };
+    observe();
     let lastY = window.scrollY;
-    const sync = () => {
+    const read = () => {
       const node = nav.current;
       const content = document.getElementById("journey-content");
       if (!node || !content) return;
-      // With the curtain, About is already in place once the journey has one
-      // view left to scroll; without it, once the journey has gone.
-      const curtained = section.current?.dataset.journeyCurtain === "on";
-      const docked =
-        content.getBoundingClientRect().top < (curtained ? innerHeight + 1 : 0);
-      node.dataset.docked = String(docked);
+      const top = content.getBoundingClientRect().top;
       const y = window.scrollY;
-      if (Math.abs(y - lastY) > 8) {
-        const down = docked && y > lastY;
-        node.dataset.scrollHidden = String(down);
-        if (docked && hideNavOnScroll.current)
-          node.dataset.hidden = String(
-            down && node.dataset.revealed !== "true",
-          );
-        lastY = y;
-      }
-      if (!docked) return;
-      // The last section whose top has passed 40% of the view.
-      let reading: string | null = null;
-      for (const { id } of flow) {
-        const target = document.getElementById(id);
-        if (target && target.getBoundingClientRect().top < innerHeight * 0.4)
-          reading = id;
-      }
-      currentSection.set(reading);
+      return () => {
+        // With the curtain, About is already in place once the journey has
+        // one view left to scroll; without it, once the journey has gone.
+        const curtained = section.current?.dataset.journeyCurtain === "on";
+        docked = top < (curtained ? innerHeight + 1 : 0);
+        node.dataset.docked = String(docked);
+        if (Math.abs(y - lastY) > 8) {
+          const down = docked && y > lastY;
+          node.dataset.scrollHidden = String(down);
+          if (docked && hideNavOnScroll.current)
+            node.dataset.hidden = String(
+              down && node.dataset.revealed !== "true",
+            );
+          lastY = y;
+        }
+        if (!docked) return;
+        if (observed.size < flow.length) observe();
+        // The last section whose top has passed 40% of the view.
+        currentSection.set(reading());
+      };
     };
-    sync();
-    window.addEventListener("scroll", sync, { passive: true });
-    return () => window.removeEventListener("scroll", sync);
+    read()?.();
+    const off = onScrollFrame(read);
+    return () => {
+      off();
+      sections.disconnect();
+    };
   }, []);
   useEffect(() => {
     // Remember the section a link or the first load is heading for, so a
@@ -404,7 +520,8 @@ export default function DeskJourney({
       const top = target.getBoundingClientRect().top + window.scrollY;
       if (Math.abs(top - pending.top) < 2) return;
       pending.top = top;
-      target.scrollIntoView({ behavior: "instant", block: "start" });
+      // Scroll anchoring may already have kept it in place.
+      landOn(target);
     });
     if (main) resized.observe(main);
     return () => {
@@ -535,13 +652,13 @@ export default function DeskJourney({
     if (!enhanced || !node || previous === measured.timeline) return;
     const height = measured.stage.height;
     const d = -node.getBoundingClientRect().top / height;
+    // Often the line stays where it was; scrolling by nothing would still
+    // stop a smooth scroll under way (see landOn).
     if (!pendingHash.current && d > 0 && d < previous.length)
-      window.scrollTo({
-        top:
-          window.scrollY +
+      scrollToTop(
+        window.scrollY +
           (remapDistance(previous, measured.timeline, d) - d) * height,
-        behavior: "instant",
-      });
+      );
     update();
   }, [enhanced, measured, update]);
   // The journey grows to its pinned height after hydration and again once it
@@ -555,7 +672,7 @@ export default function DeskJourney({
     // Nothing moved: let a smooth scroll that is under way finish itself.
     if (Math.abs(top - pending.top) < 2) return;
     pending.top = top;
-    target.scrollIntoView({ behavior: "instant", block: "start" });
+    landOn(target);
     // A smooth scroll already in flight can carry past the jump; hold the
     // target for a few frames unless the visitor scrolls themselves.
     // Where the target rests: the page's scroll padding plus its own scroll
@@ -568,7 +685,7 @@ export default function DeskJourney({
     let frame = requestAnimationFrame(function hold() {
       if (pendingHash.current !== pending || ++frames > 40) return;
       if (Math.abs(target.getBoundingClientRect().top - padding) > 4)
-        target.scrollIntoView({ behavior: "instant", block: "start" });
+        landOn(target);
       frame = requestAnimationFrame(hold);
     });
     return () => cancelAnimationFrame(frame);
@@ -584,7 +701,7 @@ export default function DeskJourney({
     if (!enhanced) {
       if (fallbackTarget.current) {
         const target = document.getElementById(fallbackTarget.current);
-        target?.scrollIntoView({ behavior: "instant", block: "start" });
+        if (target) landOn(target);
         target?.focus({ preventScroll: true });
         fallbackTarget.current = null;
       }
@@ -615,13 +732,11 @@ export default function DeskJourney({
     (d: number) => {
       const node = section.current;
       if (!enhanced || !node) return;
-      window.scrollTo({
-        top:
-          node.getBoundingClientRect().top +
+      scrollToTop(
+        node.getBoundingClientRect().top +
           window.scrollY +
           d * layout.current.stage.height,
-        behavior: "instant",
-      });
+      );
       update();
     },
     [enhanced, layout, update],
@@ -929,7 +1044,7 @@ export default function DeskJourney({
           event.preventDefault();
           history.pushState(null, "", "#about");
           const target = document.getElementById("about");
-          target?.scrollIntoView({ behavior: "instant", block: "start" });
+          if (target) landOn(target);
           target?.focus({ preventScroll: true });
           // Treat it as a link: the journey keeps About in place if it is
           // still measuring and grows.

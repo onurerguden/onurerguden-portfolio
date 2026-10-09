@@ -10,6 +10,14 @@
 .journey[data-enhanced="true"] {
   height: var(--journey-height);
 }
+/* The opening portrait fades on the journey's own scroll position
+   (portrait.module.css); no inset, so it starts at the very top. */
+@supports (animation-timeline: view()) {
+  .journey[data-enhanced="true"] {
+    view-timeline: --desk-journey block;
+    view-timeline-inset: 0px;
+  }
+}
 .stage {
   position: relative;
   height: var(--stage-height);
@@ -325,10 +333,13 @@
   width: 28px;
   pointer-events: none;
 }
+/* Placed on the clip by a transform from their own side (paintCurtain). */
 .curtainEdge[data-side="left"] {
+  left: 0;
   background: linear-gradient(90deg, #02050d8c, transparent);
 }
 .curtainEdge[data-side="right"] {
+  right: 0;
   background: linear-gradient(270deg, #02050d8c, transparent);
 }
 .curtainEdge::before {
