@@ -4,6 +4,7 @@ import { useEffect, useRef, type RefObject } from "react";
 import SceneBoundary from "@/components/three/scene-boundary";
 import { useSectionStage } from "@/components/three/use-section-stage";
 import { laptopPhase } from "@/lib/desk-story/store";
+import { onScrollPause } from "@/lib/scroll-pause";
 import styles from "./about.module.css";
 
 const loadScene = () => import("./about-scene");
@@ -38,26 +39,25 @@ export default function AboutStage({
   useEffect(() => {
     // Once the desk reaches the MacBook, the About scene is next: fetch its
     // code so it is ready before the page arrives.
-    let idle = 0;
+    let cancelPause = () => {};
+    let cancelled = false;
     const warm = () => {
       const phase = laptopPhase.get();
       if (phase !== "rise" && phase !== "gone") return;
       unsubscribe();
-      // Then build its geometry a part at a time, so mounting it has
-      // nothing left to build.
-      idle = window.setTimeout(
-        () =>
-          void loadScene().then((scene) =>
-            scene.prepareAbout(logoList.current),
-          ),
-        200,
-      );
+      // Then, on a pause in scrolling, build its geometry a slice at a
+      // time, so mounting it has nothing left to build.
+      cancelPause = onScrollPause(async () => {
+        const scene = await loadScene();
+        await scene.prepareAbout(logoList.current, () => cancelled);
+      });
     };
     const unsubscribe = laptopPhase.subscribe(warm);
     warm();
     return () => {
+      cancelled = true;
       unsubscribe();
-      window.clearTimeout(idle);
+      cancelPause();
     };
   }, []);
   const { mount, active, paused, onReady, onFailure } = useSectionStage(stage, {
