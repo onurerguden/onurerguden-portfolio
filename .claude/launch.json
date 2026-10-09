@@ -1,0 +1,27 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "portfolio-dev",
+      "runtimeExecutable": "/Users/onurerguden/.nvm/versions/node/v24.21.0/bin/node",
+      "runtimeArgs": [
+        "node_modules/next/dist/bin/next",
+        "dev",
+        "--port",
+        "3100"
+      ],
+      "port": 3100
+    },
+    {
+      "name": "portfolio-prod",
+      "runtimeExecutable": "/Users/onurerguden/.nvm/versions/node/v24.21.0/bin/node",
+      "runtimeArgs": [
+        "node_modules/next/dist/bin/next",
+        "start",
+        "--port",
+        "3400"
+      ],
+      "port": 3400
+    }
+  ]
+}
