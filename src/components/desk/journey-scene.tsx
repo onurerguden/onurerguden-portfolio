@@ -13,7 +13,8 @@ import DeskPlatform from "./platform";
 import CosmicEnvironment, { type CosmicPointer } from "./cosmic-environment";
 import DeskLighting from "./lighting";
 import { DeskObjectControls, useDeskInteractions } from "./interactions";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useThree, type RootStore } from "@react-three/fiber";
+import { deskEvents } from "./desk-events";
 import { Matrix4, Quaternion, Vector3, PerspectiveCamera } from "three";
 import { Model } from "./model";
 import { createScreenProjection, projectScreen } from "@/lib/desk-projection";
@@ -27,6 +28,7 @@ import {
 } from "@/lib/desk-story/camera";
 import { createFrameBudget } from "@/lib/desk-story/frame-budget";
 import { quality } from "@/lib/quality";
+import { qa } from "@/lib/qa";
 import { storyAt, type StoryState } from "@/lib/desk-story/timeline";
 import type { Signal } from "@/lib/desk-story/signal";
 import { shadeOf, type PanelRefs } from "./screen-panels";
@@ -71,6 +73,10 @@ const depthFragmentShader = `
  * These planes punch the physical display surfaces out of the transparent
  * WebGL canvas while still writing depth. Screen DOM stays in one shared layer
  * beneath the canvas, so real desk geometry naturally remains in front.
+ *
+ * Drawn first: each plane sits just in front of its screen's glass, so the
+ * glass behind it then fails the depth test instead of being shaded and
+ * overwritten. Anything nearer than a plane still draws over it.
  */
 function ScreenDepthPlanes() {
   return screens.map((screen, index) => {
@@ -78,6 +84,7 @@ function ScreenDepthPlanes() {
     return (
       <mesh
         key={screenIds[index]}
+        renderOrder={-1}
         position={transform.position}
         quaternion={transform.quaternion}
         scale={[screen.width, screen.height, 1]}
@@ -95,16 +102,31 @@ function ScreenDepthPlanes() {
   });
 }
 
-/** Everything the desk's frame depends on; equal keys draw equal frames. */
-function cameraKey(step: StoryState) {
-  return [
-    step.from,
-    step.to,
-    step.travel,
-    step.active,
-    ...step.dive.map((dive) => (dive >= 1 ? 2 : dive > 0 ? 1 : 0)),
-  ].join();
+const diveStage = (dive: number) => (dive >= 1 ? 2 : dive > 0 ? 1 : 0);
+/** Everything the desk's frame depends on; equal views draw equal frames. */
+function sameView(a: StoryState | null, b: StoryState) {
+  if (
+    !a ||
+    a.from !== b.from ||
+    a.to !== b.to ||
+    a.travel !== b.travel ||
+    a.active !== b.active
+  )
+    return false;
+  for (let i = 0; i < b.dive.length; i++)
+    if (diveStage(a.dive[i]) !== diveStage(b.dive[i])) return false;
+  return true;
 }
+
+/** How far the pointer turns the camera at each stop. */
+const pointerStrength = (stop: CameraStop) =>
+  stop === "opening"
+    ? 0
+    : stop === "room"
+      ? 1
+      : stop === "desktop"
+        ? 0.6
+        : 0.08;
 
 function Driver({
   distance,
@@ -119,7 +141,9 @@ function Driver({
   // One projection per screen and panel width; a diving screen's panel
   // changes width with the viewport.
   const projections = useRef(
-    new Map<string, ReturnType<typeof createScreenProjection>>(),
+    screens.map(
+      () => new Map<number, ReturnType<typeof createScreenProjection>>(),
+    ),
   );
   const frames = useRef(0);
   const pointer = useRef<CosmicPointer>({
@@ -155,15 +179,14 @@ function Driver({
   useEffect(() => {
     // Scrolling through a reading stop leaves the camera where it is; the
     // frame would be identical, so only a moving camera redraws the desk.
-    let key = "";
+    let drawn: StoryState | null = null;
     return distance.on((d) => {
       if (!active) return;
       const step = storyAt(layout.current.timeline, d);
-      const next = cameraKey(step);
-      if (next !== key) {
-        key = next;
+      if (!sameView(drawn, step)) {
+        drawn = step;
         invalidate();
-      } else {
+      } else if (qa()) {
         // The desk already shows this distance; record it for QA.
         gl.domElement.setAttribute("data-distance", String(step.distance));
       }
@@ -207,35 +230,47 @@ function Driver({
       if (!dampingFrame)
         dampingFrame = window.requestAnimationFrame(keepRendering);
     };
+    // Draws only for a change the frame would show: below the threshold the
+    // damping above settles at, a frame would look the same. Most moves over
+    // a control, or along a still part of the view, change nothing.
+    const aim = (x: number, y: number, influence: number, snap = false) => {
+      const p = pointer.current;
+      if (
+        Math.abs(x - p.x) <= 0.002 &&
+        Math.abs(y - p.y) <= 0.002 &&
+        Math.abs(influence - p.targetInfluence) <= 0.002 &&
+        !(snap && Math.abs(influence - p.influence) > 0.002)
+      )
+        return;
+      p.x = x;
+      p.y = y;
+      p.targetInfluence = influence;
+      if (snap) p.influence = influence;
+      wake();
+    };
     const move = (event: PointerEvent) => {
       const target = event.target instanceof Element ? event.target : null;
       const excluded = target?.closest(
         'a, button, summary, [data-screen], [data-cosmic-exclusion="true"]',
       );
       if (excluded) {
-        pointer.current.x = pointer.current.y = 0;
-        pointer.current.targetInfluence = 0;
-        pointer.current.influence = 0;
-        wake();
+        aim(0, 0, 0, true);
         return;
       }
       const rect = node.getBoundingClientRect();
-      pointer.current.x = Math.max(
-        -1,
-        Math.min(1, ((event.clientX - rect.left) / rect.width) * 2 - 1),
+      aim(
+        Math.max(
+          -1,
+          Math.min(1, ((event.clientX - rect.left) / rect.width) * 2 - 1),
+        ),
+        Math.max(
+          -1,
+          Math.min(1, ((event.clientY - rect.top) / rect.height) * 2 - 1),
+        ),
+        1,
       );
-      pointer.current.y = Math.max(
-        -1,
-        Math.min(1, ((event.clientY - rect.top) / rect.height) * 2 - 1),
-      );
-      pointer.current.targetInfluence = 1;
-      wake();
     };
-    const leave = () => {
-      pointer.current.x = pointer.current.y = 0;
-      pointer.current.targetInfluence = 0;
-      wake();
-    };
+    const leave = () => aim(0, 0, 0);
     node.addEventListener("pointermove", move, { passive: true });
     node.addEventListener("pointerleave", leave);
     return () => {
@@ -303,16 +338,9 @@ function Driver({
     if (Math.abs(p.y - p.currentY) < 0.005) p.currentY = p.y;
     if (Math.abs(p.targetInfluence - p.influence) < 0.03)
       p.influence = p.targetInfluence;
-    const strength = (stop: CameraStop) =>
-      stop === "opening"
-        ? 0
-        : stop === "room"
-          ? 1
-          : stop === "desktop"
-            ? 0.6
-            : 0.08;
     const amount =
-      strength(step.from) + (strength(step.to) - strength(step.from)) * t;
+      pointerStrength(step.from) +
+      (pointerStrength(step.to) - pointerStrength(step.from)) * t;
     camera.rotateY((-p.currentX * amount * Math.PI) / 90);
     camera.rotateX((-p.currentY * amount * Math.PI) / 180);
     camera.updateProjectionMatrix();
@@ -339,11 +367,10 @@ function Driver({
           )
         : panelWidth;
       const offsetX = (panelWidth - crop) / 2;
-      const key = `${index}:${crop}`;
-      let projection = projections.current.get(key);
+      let projection = projections.current[index].get(crop);
       if (!projection) {
         projection = createScreenProjection(screens[index], crop);
-        projections.current.set(key, projection);
+        projections.current[index].set(crop, projection);
       }
       const matrix = projectScreen(projection, camera, size.width, size.height);
       // Hidden by opacity, not visibility, so a panel behind the camera
@@ -374,10 +401,12 @@ function Driver({
       );
     });
 
-    const canvas = gl.domElement;
-    canvas.setAttribute("data-frames", String(++frames.current));
-    canvas.setAttribute("data-distance", String(step.distance));
-    canvas.setAttribute("data-camera", camera.position.toArray().join(","));
+    if (qa()) {
+      const canvas = gl.domElement;
+      canvas.setAttribute("data-frames", String(++frames.current));
+      canvas.setAttribute("data-distance", String(step.distance));
+      canvas.setAttribute("data-camera", camera.position.toArray().join(","));
+    }
   }, -1);
   return <CosmicEnvironment pointer={pointer} />;
 }
@@ -411,6 +440,7 @@ function RenderFrame() {
   useFrame(({ scene, camera, gl }) => {
     if (gl.domElement.dataset.active === "false") return;
     gl.render(scene, camera);
+    if (!qa()) return;
     const canvas = gl.domElement;
     canvas.setAttribute("data-draw-calls", String(gl.info.render.calls));
     canvas.setAttribute("data-triangles", String(gl.info.render.triangles));
@@ -449,10 +479,22 @@ function JourneyScene(props: JourneySceneProps) {
     low ? 1 : coarsePointer() ? [1, 1.25] : [1, 1.5],
   );
   const running = warm && controls.active;
+  const { distance, layout } = props;
+  // While the camera travels the desk slides under the pointer by itself;
+  // hover waits for it to stop rather than raycasting every move.
+  const events = useCallback(
+    (store: RootStore) =>
+      deskEvents(store, () => {
+        const step = storyAt(layout.current.timeline, distance.get());
+        return step.from !== step.to;
+      }),
+    [distance, layout],
+  );
   return (
     <>
       <Canvas
         eventSource={props.wrapper as RefObject<HTMLElement>}
+        events={events}
         style={{
           position: "absolute",
           inset: 0,

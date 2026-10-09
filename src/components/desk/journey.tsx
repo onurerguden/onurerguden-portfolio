@@ -39,7 +39,7 @@ import { stageRegistry } from "@/lib/stage-registry";
 import { homeSections, type SectionLink } from "@/lib/home-sections";
 import { currentSection } from "@/lib/current-section";
 import { deskMode, useStaticDesk } from "@/lib/desk-mode";
-import { curtainProgress } from "@/lib/desk-story/curtain";
+import { curtainOpening, curtainProgress } from "@/lib/desk-story/curtain";
 import { laptopPhase, type LaptopPhase } from "@/lib/desk-story/store";
 import { quality } from "@/lib/quality";
 import { signal } from "@/lib/desk-story/signal";
@@ -248,6 +248,8 @@ export default function DeskJourney({
       state.exit,
     );
     curtainProgress.set(exit ? state.exit : 1);
+    // The clip leaves `side`% on each side to the page; 50 is all of it.
+    curtainOpening.set(exit ? side / 50 : 1);
     const nextCover = {
       covered: dive >= 1 || state.exit >= 1,
       diving: dive > 0,
@@ -504,7 +506,14 @@ export default function DeskJourney({
       wanted: nearStage,
     });
   }, [enhanced, active, nearStage]);
-  useEffect(() => () => stageRegistry.remove("journey"), []);
+  useEffect(
+    () => () => {
+      stageRegistry.remove("journey");
+      // Without the journey nothing covers the page.
+      curtainOpening.set(1);
+    },
+    [],
+  );
   const live = useSyncExternalStore(
     stageRegistry.subscribe,
     () => stageRegistry.isLive("journey"),
@@ -584,6 +593,7 @@ export default function DeskJourney({
       currentSection.set(null);
       laptopPhase.set("away");
       curtainProgress.set(1);
+      curtainOpening.set(1);
       paintCurtain(
         stage.current,
         wrapper.current,

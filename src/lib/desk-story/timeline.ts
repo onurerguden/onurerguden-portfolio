@@ -126,15 +126,15 @@ export type StoryState = {
   /** Eased camera progress from `from` to `to`. */
   travel: number;
   /** Per screen: how far its reading segment has advanced (0–1). */
-  reading: number[];
+  reading: readonly number[];
   /** Per screen: how far the camera has arrived at its stop (0–1). */
-  arrival: number[];
+  arrival: readonly number[];
   /** Per screen: how far the camera has left its stop again (0–1). */
-  departure: number[];
+  departure: readonly number[];
   /** Per screen: how far its window has risen (the MacBook's Explorer). */
-  rise: number[];
+  rise: readonly number[];
   /** Per screen: how far it fills the view instead of the desk (0–1). */
-  dive: number[];
+  dive: readonly number[];
   /** The screen the camera rests on, or -1 while travelling or elsewhere. */
   active: number;
   /** The kind of segment at this distance. */
@@ -143,7 +143,27 @@ export type StoryState = {
   exit: number;
 };
 
+// The state storyAt computed last, and what for.
+let lastTimeline: Timeline | null = null;
+let lastDistance = NaN;
+let lastState: StoryState | null = null;
+
+/**
+ * The story at `distance`. The journey, the desk's scroll listener and the
+ * desk's frame all ask for the same distance within one scroll frame, so the
+ * last state is handed out again rather than rebuilt: it is shared and must
+ * never be changed by its readers.
+ */
 export function storyAt(timeline: Timeline, distance: number): StoryState {
+  if (lastState && timeline === lastTimeline && distance === lastDistance)
+    return lastState;
+  lastTimeline = timeline;
+  lastDistance = distance;
+  lastState = computeStory(timeline, distance);
+  return lastState;
+}
+
+function computeStory(timeline: Timeline, distance: number): StoryState {
   const d = clamp(distance, 0, timeline.length);
   const { segments } = timeline;
   let index = segments.findIndex((segment) => d < segment.end);
@@ -174,6 +194,10 @@ export function storyAt(timeline: Timeline, distance: number): StoryState {
   });
   const travel = current.kind === "travel" ? ease(local) : 0;
   const exit = current.kind === "exit" ? ease(local) : 0;
+  for (let i = 0; i < screenStops.length; i++) {
+    rise[i] = ease(rise[i]);
+    dive[i] = ease(dive[i]);
+  }
   return {
     distance: d,
     from: current.from,
@@ -182,8 +206,8 @@ export function storyAt(timeline: Timeline, distance: number): StoryState {
     reading,
     arrival,
     departure,
-    rise: rise.map(ease),
-    dive: dive.map(ease),
+    rise,
+    dive,
     active: current.kind === "travel" ? -1 : current.screen,
     segment: current.kind,
     exit,

@@ -1,6 +1,13 @@
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { ci, go, journeyCanvas, story } from "./helpers";
+import {
+  ci,
+  forceSectionScenes,
+  go,
+  journeyCanvas,
+  stageCanvas,
+  story,
+} from "./helpers";
 
 /** What the visitor would click at each point across the middle row. */
 async function hits(page: Page, xs: number[]) {
@@ -66,6 +73,36 @@ test.describe("the paper curtain", () => {
       .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
       .analyze();
     expect(audit.violations).toEqual([]);
+  });
+
+  test("About draws only once the curtain opens", async ({ page }) => {
+    await forceSectionScenes(page);
+    await page.goto("/en");
+    await expect(page.locator("[data-ready]")).toHaveAttribute(
+      "data-ready",
+      "true",
+      { timeout: ci(20000) },
+    );
+    const s = await story(page);
+    // Approaching the final view, About is already in place beneath the
+    // desk: it mounts and warms up, but nothing of it shows.
+    await go(page, s.room - 0.3);
+    const about = stageCanvas(page, "about");
+    await expect(page.locator("[data-about-stage]")).toHaveAttribute(
+      "data-stage-state",
+      "live",
+      { timeout: ci(30000) },
+    );
+    await expect(about).toHaveAttribute("data-stage-active", "false");
+    const frames = Number(await about.getAttribute("data-stage-frames"));
+    await page.waitForTimeout(500);
+    expect(Number(await about.getAttribute("data-stage-frames"))).toBe(frames);
+    // The final hold draws the desk's sides back onto About.
+    await go(page, s.exit![0]);
+    await expect(about).toHaveAttribute("data-stage-active", "true");
+    await expect
+      .poll(async () => Number(await about.getAttribute("data-stage-frames")))
+      .toBeGreaterThan(frames);
   });
 
   for (const locale of ["en", "tr"]) {

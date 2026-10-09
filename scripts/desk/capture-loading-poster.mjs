@@ -11,7 +11,8 @@ try {
     viewport: { width: 1280, height: 960 },
     deviceScaleFactor: 1,
   });
-  await page.goto(`${base}/en/lab/desk/journey`);
+  // ?qa: the canvas writes the QA attributes this script waits on.
+  await page.goto(`${base}/en/lab/desk/journey?qa`);
   await page.waitForSelector('[data-ready="true"]');
   await page.evaluate(() => {
     const section = document.querySelector("[data-enhanced]");
