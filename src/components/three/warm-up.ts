@@ -13,7 +13,7 @@ import {
   type Object3D,
   type WebGLRenderer,
 } from "three";
-import { yieldToMain } from "@/lib/yield";
+import { frameSlices, yieldToFrame } from "@/lib/yield";
 
 export type WarmUpStep =
   "textures" | "programs" | "offscreen" | "frame" | "gpu";
@@ -23,8 +23,13 @@ export type WarmUpStep =
  * compile or upload, without blocking the page. Run it while the canvas is
  * hidden and draws nothing else; it resolves once the scene can show.
  *
- * - Textures upload one at a time, between turns for the page.
- * - Programs compile with `compileAsync`, a few objects per task: where
+ * - Work runs in slices of a few milliseconds, one slice per frame, so the
+ *   page keeps painting (and scrolling) at its own pace meanwhile.
+ * - Whatever the scene asked to wait for (its environment, see
+ *   `delayWarmUp`) comes first: compiling without it would build programs
+ *   the first frame cannot use.
+ * - Textures upload one at a time, the environment's too.
+ * - Programs compile with `compileAsync`, a slice's worth at a time: where
  *   KHR_parallel_shader_compile is available the browser links them in the
  *   background, so a first visit (no shader cache anywhere) costs seconds of
  *   waiting rather than seconds of a frozen page. That includes the shadow
@@ -61,9 +66,19 @@ export async function warmUp({
     performance.mark(`portfolio:warm:${name}`);
     onStep?.(name);
   };
+  const waitFor = before.get(scene);
+  if (waitFor) {
+    await waitFor.catch(() => {});
+    if (cancelled()) return false;
+  }
+  const slice = frameSlices();
   step("textures");
-  for (const texture of textures(scene)) {
-    await yieldToMain();
+  const uploads = textures(scene);
+  const environment = scene.environment;
+  if (environment && !environment.isRenderTargetTexture)
+    uploads.push(environment);
+  for (const texture of uploads) {
+    await slice();
     if (cancelled()) return false;
     gl.initTexture(texture);
   }
@@ -74,14 +89,13 @@ export async function warmUp({
     if ("material" in object && "geometry" in object) drawn.push(object);
   });
   const linking: Promise<unknown>[] = [];
-  for (let i = 0; i < drawn.length; i += 4) {
-    await yieldToMain();
+  for (const object of drawn) {
+    await slice();
     if (cancelled()) return false;
-    for (const object of drawn.slice(i, i + 4))
-      linking.push(gl.compileAsync(object, camera, scene));
+    linking.push(gl.compileAsync(object, camera, scene));
   }
   step("offscreen");
-  await yieldToMain();
+  await slice();
   if (cancelled()) return false;
   const shadows = gl.shadowMap.enabled ? shadowCasters(drawn) : null;
   if (shadows || offscreen) {
@@ -97,13 +111,14 @@ export async function warmUp({
   }
   await Promise.all(linking);
   for (const program of gl.info.programs ?? []) {
-    await yieldToMain();
+    await slice();
     if (cancelled()) break;
     program.getUniforms();
     program.getAttributes();
   }
   step("frame");
-  await yieldToMain();
+  // The hidden frame starts a slice of its own.
+  await yieldToFrame();
   if (!cancelled()) render();
   // Only now: a program whose last material is disposed is deleted, and the
   // shadow pass has just taken its own reference to these.
@@ -115,6 +130,21 @@ export async function warmUp({
   await gpuIdle(gl.getContext(), cancelled);
   performance.mark("portfolio:warm:done");
   return !cancelled();
+}
+
+const before = new WeakMap<Scene, Promise<unknown>>();
+
+/**
+ * Holds a scene's warm-up until `until` settles: something every program
+ * depends on, such as the environment map (see desk/studio.ts), is still
+ * being made. The latest call wins.
+ */
+export function delayWarmUp(scene: Scene, until: Promise<unknown>) {
+  before.set(scene, until);
+  const clear = () => {
+    if (before.get(scene) === until) before.delete(scene);
+  };
+  until.then(clear, clear);
 }
 
 const nextFrame = () =>

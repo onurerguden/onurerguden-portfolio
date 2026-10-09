@@ -42,8 +42,8 @@ function Balls({
     () => items.map((item) => radius * (item.priority === 1 ? 1.08 : 0.94)),
     [items, radius],
   );
-  const { geometry, material, atlas } = useMemo(() => {
-    const { texture, grid } = buildAtlas(items);
+  const { geometry, material, atlas, painted, stopPainting } = useMemo(() => {
+    const { texture, grid, ready, stop } = buildAtlas(items);
     const ballMaterial = new MeshPhysicalMaterial({
       roughness: 0.28,
       clearcoat: 1,
@@ -102,15 +102,22 @@ function Balls({
       "aSelected",
       new InstancedBufferAttribute(new Float32Array(items.length), 1),
     );
-    return { geometry: sphere, material: ballMaterial, atlas: texture };
+    return {
+      geometry: sphere,
+      material: ballMaterial,
+      atlas: texture,
+      painted: ready,
+      stopPainting: stop,
+    };
   }, [items, narrow]);
   useEffect(
     () => () => {
+      stopPainting();
       geometry.dispose();
       material.dispose();
       atlas.dispose();
     },
-    [geometry, material, atlas],
+    [geometry, material, atlas, stopPainting],
   );
   const meshRef = useRef<InstancedMesh>(null);
   useLayoutEffect(() => {
@@ -130,6 +137,7 @@ function Balls({
     scale: new Vector3(),
     position: new Vector3(),
     rotation: new Quaternion(),
+    previous: new Quaternion(),
     grow: new Float32Array(64).fill(1),
   });
 
@@ -160,7 +168,8 @@ function Balls({
 
   // The clearcoat shader and the logo atlas are ready before the first ball
   // is drawn (see warm-up.ts); prepared on first draw, they would freeze the
-  // drop's opening frames. The balls wait above the screen.
+  // drop's opening frames. The balls wait above the screen. The atlas is
+  // painted first, so its upload is the finished one.
   const [compiled, setCompiled] = useState(false);
   const warm = useStageWarm();
   useEffect(() => {
@@ -171,17 +180,20 @@ function Balls({
       warm();
       invalidate();
     };
-    warmUp({
-      gl,
-      scene,
-      camera,
-      render: () => gl.render(scene, camera),
-      cancelled: () => cancelled,
-    }).then(done, done);
+    void painted.then((complete) => {
+      if (!complete || cancelled) return;
+      warmUp({
+        gl,
+        scene,
+        camera,
+        render: () => gl.render(scene, camera),
+        cancelled: () => cancelled,
+      }).then(done, done);
+    });
     return () => {
       cancelled = true;
     };
-  }, [gl, scene, camera, material, invalidate, warm]);
+  }, [gl, scene, camera, material, painted, invalidate, warm]);
 
   useEffect(() => {
     if (!compiled) return;
@@ -207,7 +219,13 @@ function Balls({
         moving = visible;
       }
     }
-    const { matrix, scale, position, rotation, grow } = scratch.current;
+    const { matrix, scale, position, rotation, previous, grow } =
+      scratch.current;
+    // Moving balls are drawn between their last two physics steps by the
+    // time since (see BallWorld.alpha), so every frame advances them by its
+    // own share of time; resting ones exactly where they lie.
+    const alpha = moving ? world.alpha : 1;
+    const { px, py, previousX, previousY } = world;
     const selection = mesh.geometry.getAttribute(
       "aSelected",
     ) as InstancedBufferAttribute;
@@ -221,11 +239,15 @@ function Balls({
       else moving = true;
       selection.setX(i, selected === i ? 1 : 0);
       position.set(
-        world.px[i] - size.width / 2,
-        size.height / 2 - world.py[i],
+        previousX[i] + (px[i] - previousX[i]) * alpha - size.width / 2,
+        size.height / 2 - (previousY[i] + (py[i] - previousY[i]) * alpha),
         0,
       );
       rotation.fromArray(world.q, i * 4);
+      if (alpha < 1)
+        rotation.copy(
+          previous.fromArray(world.previousQ, i * 4).slerp(rotation, alpha),
+        );
       scale.setScalar(world.radii[i] * grow[i]);
       matrix.compose(position, rotation, scale);
       mesh.setMatrixAt(i, matrix);

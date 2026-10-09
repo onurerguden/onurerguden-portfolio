@@ -40,12 +40,12 @@ import { stageRegistry } from "@/lib/stage-registry";
 import { homeSections, type SectionLink } from "@/lib/home-sections";
 import { currentSection } from "@/lib/current-section";
 import { deskMode, useStaticDesk } from "@/lib/desk-mode";
-import { curtainProgress } from "@/lib/desk-story/curtain";
+import { curtainOpening, curtainProgress } from "@/lib/desk-story/curtain";
 import { laptopPhase, type LaptopPhase } from "@/lib/desk-story/store";
 import { quality } from "@/lib/quality";
 import { signal } from "@/lib/desk-story/signal";
 import { onScrollFrame } from "@/lib/scroll-frame";
-import { afterScrollPause } from "@/lib/scroll-pause";
+import { onScrollPause } from "@/lib/scroll-pause";
 import SceneBoundary from "@/components/three/scene-boundary";
 import { JourneyNav, plainClick } from "@/components/site/site-nav";
 import monitorStyles from "@/components/sections/monitor.module.css";
@@ -292,6 +292,8 @@ export default function DeskJourney({
       side > 0 ? measure.stage.width || (stage.current?.offsetWidth ?? 0) : 0,
     );
     curtainProgress.set(exit ? state.exit : 1);
+    // The clip leaves `side`% on each side to the page; 50 is all of it.
+    curtainOpening.set(exit ? side / 50 : 1);
     const nextCover = {
       covered: dive >= 1 || state.exit >= 1,
       diving: dive > 0,
@@ -365,19 +367,19 @@ export default function DeskJourney({
     // them: a few hundred milliseconds on a slow phone-class CPU. It waits
     // for a pause in the visitor's scrolling (at most 1.5 s) and renders as
     // a transition, so their first scroll never waits on it.
-    let pause: AbortController | null = null;
+    let cancelPause: (() => void) | null = null;
     const enhance = () => {
-      if (pause) return;
-      const controller = (pause = new AbortController());
-      afterScrollPause(150, 1500, controller.signal).then(() =>
-        startTransition(() => setEnabled(true)),
+      if (cancelPause) return;
+      cancelPause = onScrollPause(
+        () => startTransition(() => setEnabled(true)),
+        { quiet: 150, cap: 1500 },
       );
     };
     const refresh = () => {
       setStaticMode(plain());
       if (plain()) {
-        pause?.abort();
-        pause = null;
+        cancelPause?.();
+        cancelPause = null;
         setEnabled(false);
       } else enhance();
     };
@@ -399,7 +401,7 @@ export default function DeskJourney({
     });
     if (stage.current) observer.observe(stage.current);
     return () => {
-      pause?.abort();
+      cancelPause?.();
       cancelPrefetch();
       observer.disconnect();
       motion.removeEventListener("change", refresh);
@@ -621,7 +623,14 @@ export default function DeskJourney({
       wanted: nearStage,
     });
   }, [enhanced, active, nearStage]);
-  useEffect(() => () => stageRegistry.remove("journey"), []);
+  useEffect(
+    () => () => {
+      stageRegistry.remove("journey");
+      // Without the journey nothing covers the page.
+      curtainOpening.set(1);
+    },
+    [],
+  );
   const live = useSyncExternalStore(
     stageRegistry.subscribe,
     () => stageRegistry.isLive("journey"),
@@ -701,6 +710,7 @@ export default function DeskJourney({
       currentSection.set(null);
       laptopPhase.set("away");
       curtainProgress.set(1);
+      curtainOpening.set(1);
       paintCurtain(
         stage.current,
         wrapper.current,

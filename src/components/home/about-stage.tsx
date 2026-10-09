@@ -1,9 +1,11 @@
 "use client";
 import dynamic from "next/dynamic";
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useRef, useSyncExternalStore, type RefObject } from "react";
 import SceneBoundary from "@/components/three/scene-boundary";
 import { useSectionStage } from "@/components/three/use-section-stage";
+import { curtainOpening } from "@/lib/desk-story/curtain";
 import { laptopPhase } from "@/lib/desk-story/store";
+import { onScrollPause } from "@/lib/scroll-pause";
 import styles from "./about.module.css";
 
 const loadScene = () => import("./about-scene");
@@ -38,26 +40,29 @@ export default function AboutStage({
   useEffect(() => {
     // Once the desk reaches the MacBook, the About scene is next: fetch its
     // code so it is ready before the page arrives.
-    let idle = 0;
+    let cancelPause = () => {};
+    let cancelled = false;
     const warm = () => {
       const phase = laptopPhase.get();
       if (phase !== "rise" && phase !== "gone") return;
       unsubscribe();
-      // Then build its geometry a part at a time, so mounting it has
-      // nothing left to build.
-      idle = window.setTimeout(
-        () =>
-          void loadScene().then((scene) =>
-            scene.prepareAbout(logoList.current),
-          ),
-        200,
-      );
+      // Then, on a pause in scrolling, build its geometry a slice at a
+      // time, so mounting it has nothing left to build, and link its
+      // programs in the desk's warm context, so that its own links them
+      // from the browser's cache.
+      cancelPause = onScrollPause(async () => {
+        const scene = await loadScene();
+        const stop = () => cancelled;
+        if (await scene.prepareAbout(logoList.current, stop))
+          await scene.precompileAbout(logoList.current, stop);
+      });
     };
     const unsubscribe = laptopPhase.subscribe(warm);
     warm();
     return () => {
+      cancelled = true;
       unsubscribe();
-      window.clearTimeout(idle);
+      cancelPause();
     };
   }, []);
   const { mount, active, paused, onReady, onFailure } = useSectionStage(stage, {
@@ -66,6 +71,14 @@ export default function AboutStage({
     wanted,
     visible,
   });
+  // Beneath the closed curtain About is in view as far as an observer can
+  // tell, but the desk covers it: it mounts and warms up as before and
+  // draws once the curtain opens.
+  const exposed = useSyncExternalStore(
+    curtainOpening.on,
+    () => curtainOpening.get() > 0,
+    () => true,
+  );
   return (
     <div
       ref={stage}
@@ -76,7 +89,7 @@ export default function AboutStage({
       {mount ? (
         <SceneBoundary label="About scene" onFailure={onFailure}>
           <AboutScene
-            active={active}
+            active={active && exposed}
             paused={paused}
             logos={logos}
             sectionRef={section as RefObject<HTMLElement | null>}

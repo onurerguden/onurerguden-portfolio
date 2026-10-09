@@ -20,7 +20,8 @@ try {
       viewport: { width: 1440, height: 830 },
       deviceScaleFactor: 1,
     });
-    await page.goto(`${base}/${locale}/lab/desk/room`);
+    // ?qa: the canvas writes the QA attributes this script waits on.
+    await page.goto(`${base}/${locale}/lab/desk/room?qa`);
     const canvas = page.locator("canvas:not([data-stage-canvas])");
     await page.waitForFunction(() => {
       const node = document.querySelector("canvas:not([data-stage-canvas])");

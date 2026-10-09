@@ -254,4 +254,46 @@ describe("tech-stack ball physics", () => {
     expect(w.settled()).toBe(true);
     expect(w.nudge(1, 1)).toBe(false);
   });
+
+  it("is drawn between steps, so every frame moves at any display rate", () => {
+    for (const hz of [60, 120, 144]) {
+      const w = createBallWorld({ width: W, height: H, radii: [40] });
+      w.spawnAbove();
+      const drawn = () => w.previousY[0] + (w.py[0] - w.previousY[0]) * w.alpha;
+      // Drawing trails the physics by under a step, so the first frame
+      // can still show the spawn.
+      w.advance(1 / hz);
+      let last = drawn();
+      let stalled = 0;
+      for (let frame = 0; frame < hz / 4; frame++) {
+        const before = w.py[0];
+        const { steps } = w.advance(1 / hz);
+        if (steps === 0) {
+          stalled++;
+          expect(w.py[0]).toBe(before);
+        }
+        expect(w.alpha).toBeGreaterThanOrEqual(0);
+        expect(w.alpha).toBeLessThan(1);
+        // A falling ball is drawn lower on every frame, stepped or not.
+        const y = drawn();
+        expect(y, `${hz} Hz frame ${frame}`).toBeGreaterThan(last);
+        last = y;
+      }
+      // At 144 Hz the physics alone would hold the ball still now and then.
+      if (hz === 144) expect(stalled).toBeGreaterThan(0);
+    }
+  });
+
+  it("draws a jump where it lands, not on the way there", () => {
+    const w = world();
+    run(w, 1);
+    w.advance(1 / 144);
+    w.resize(390, 844);
+    expect([...w.previousX]).toEqual([...w.px]);
+    expect([...w.previousY]).toEqual([...w.py]);
+    w.advance(1 / 144);
+    w.spawnAbove();
+    expect([...w.previousY]).toEqual([...w.py]);
+    expect([...w.previousQ]).toEqual([...w.q]);
+  });
 });

@@ -43,13 +43,17 @@ export default defineConfig({
     baseURL: `http://localhost:${port}`,
     trace: "retain-on-failure",
     // CI renders WebGL in software, which the site gives the plain flow
-    // (src/lib/quality.ts); the desk's tests ask for the full desk.
+    // (src/lib/quality.ts); the desk's tests ask for the full desk. They
+    // also read the canvases' per-frame QA attributes (src/lib/qa.ts).
     storageState: {
       cookies: [],
       origins: [
         {
           origin: `http://localhost:${port}`,
-          localStorage: [{ name: "portfolio:quality", value: "high" }],
+          localStorage: [
+            { name: "portfolio:quality", value: "high" },
+            { name: "portfolio:qa", value: "1" },
+          ],
         },
       ],
     },

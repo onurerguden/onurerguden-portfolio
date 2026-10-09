@@ -10,6 +10,7 @@ import { createScreenOcclusion, screenMaskImage } from "@/lib/desk-occlusion";
 import styles from "./review.module.css";
 import DeskLighting from "./lighting";
 import { Model } from "./model";
+import { deskEvents } from "./desk-events";
 import { DeskObjectControls, useDeskInteractions } from "./interactions";
 
 type Props = {
@@ -215,6 +216,8 @@ export default function DeskScene(props: Props) {
         // R3F from marking the cached shadow maps dirty on every render.
         shadows="percentage"
         dpr={[1, 1.5]}
+        // Pointer events without the wheel, which nothing here listens for.
+        events={deskEvents}
         // Nothing draws until the model is warm (see warm-up.ts), as on the
         // home page; the warm-up draws its own hidden frame.
         frameloop={props.revealed && props.active ? "demand" : "never"}

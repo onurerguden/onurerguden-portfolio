@@ -9,6 +9,7 @@ import {
   ShaderMaterial,
   Vector2,
 } from "three";
+import { qa } from "@/lib/qa";
 import { seededRandom } from "@/lib/random";
 
 export type CosmicPointer = {
@@ -120,6 +121,7 @@ export default function CosmicEnvironment({
     material.uniforms.uFade.value = 1.28 / gridWidth;
     material.uniforms.uReveal.value = 1;
     points.opacity = 0.54;
+    if (!qa()) return;
     gl.domElement.dataset.gridInfluence = influence.toFixed(3);
     gl.domElement.dataset.cosmicReveal = "1.000";
   });
