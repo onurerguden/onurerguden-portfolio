@@ -31,6 +31,7 @@
 
 - [x] Onur approved the desk-story plan and its copy (`docs/content-review.md`), and asked for each PR to be merged once checked (2 October 2026).
 - [x] The AVIF opening portrait passed its gate (PSNR 43.28 dB at the same 1254 px) and replaced the WebP for browsers that support it; the WebP stays as the fallback.
+- [x] The opening portrait comes in two widths (review 02, 11 October 2026): 1080 px for 1x desktops and phones up to 2.6x, 1254 px for 3x phones and 2x desktops, AVIF with a lossy WebP fallback (1,076,728 → 233,608 bytes). The lossless master moved to `assets/avatar/`. Each file keeps at least 42 dB as seen over the page background; captures of the opening differ from before by 47 dB at 1440 × 900 and 375 × 812. A 640 px file was tried and dropped: resized ahead, it looked softer on a 1x desktop than the browser's own reduction.
 - [ ] Physical iPhone Safari pass for the desk story: monitor reading, MacBook takeover, balls, two contexts, context loss, LinkedIn in-app browser.
 
 ## Final polish (October 2026)
@@ -83,6 +84,8 @@
 - [x] Sync failures name their step and HTTP status in the function log; missing settings are named, never printed (PR 01).
 - [x] A failed Redis read after the build no longer publishes an empty archive: Next.js keeps the last good page (PR 01).
 - [x] `/api/github/health` and the daily sync monitor (PR 01).
+- [x] The portrait, the About posters and the display fonts carry content revisions and are cached as immutable (review 02); `npm run assets:revisions` records them and a unit test fails when one is stale.
+- [ ] Mobile Lighthouse: LCP ≤ 2.5 s and performance ≥ 95. Review 02 cut the portrait from 152 to 106 KB on most phones, but the simulated LCP did not move measurably (local medians 3.46 s on main, 3.76 s with the change, within run-to-run noise); the rest of the time is the 72 KB HTML (icon paths inline twice), about 200 KB of scripts and four render-blocking stylesheets.
 
 ## PR order
 
