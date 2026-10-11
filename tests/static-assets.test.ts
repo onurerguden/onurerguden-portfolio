@@ -6,7 +6,7 @@ import { staticAsset, staticSrcSet } from "../src/lib/static-asset-urls";
 
 // These files are cached as immutable, so a stale revision would keep an old
 // file in browsers for a year. Run `npm run assets:revisions` to fix.
-const folders = ["images/avatar", "images/about", "fonts"];
+const folders = ["images/avatar", "images/about", "images/tech", "fonts"];
 const revision = (file: string) =>
   createHash("sha256")
     .update(readFileSync(`public/${file}`))

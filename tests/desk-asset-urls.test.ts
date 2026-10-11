@@ -54,11 +54,12 @@ describe("desk asset URLs", () => {
       "/:icon(favicon\\.ico|icon\\.svg|apple-touch-icon\\.png|icon-192\\.png|icon-512\\.png|icon-maskable-512\\.png)",
       "/images/avatar/:path*",
       "/images/about/:path*",
+      "/images/tech/:path*",
       "/fonts/:path*",
       "/images/bliss/:path*",
       "/decoders/draco/:release(three-[^/]+)/:file*",
     ]);
-    for (const rule of rules.slice(0, 7))
+    for (const rule of rules.slice(0, 8))
       expect(rule.has).toEqual([{ type: "query", key: "v" }]);
     expect(nextConfig.poweredByHeader).toBe(false);
   });
