@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, it, expect } from "vitest";
 import { readTechStack } from "../src/lib/home-content";
 import techIcons from "../src/lib/tech-icons.generated.json";
@@ -18,6 +19,17 @@ describe("technology icons", () => {
       // Kotlin's mark is a single 20-character path.
       expect(icon.path.length).toBeGreaterThanOrEqual(16);
     }
+  });
+  it("draws the Explorer's sprite from exactly the same paths", () => {
+    const sprite = readFileSync("public/images/tech/icons.svg", "utf8");
+    const symbols = [
+      ...sprite.matchAll(
+        /<symbol id="([^"]+)" viewBox="0 0 24 24"><path d="([^"]+)"\/><\/symbol>/g,
+      ),
+    ].map(([, slug, path]) => [slug, path]);
+    expect(symbols).toEqual(
+      Object.entries(techIcons.icons).map(([slug, icon]) => [slug, icon.path]),
+    );
   });
   it("uses short lettering where no official icon exists", () => {
     const monograms = items.flatMap((item) =>
