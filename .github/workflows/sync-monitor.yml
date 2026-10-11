@@ -1,0 +1,39 @@
+name: Sync monitor
+# The GitHub sync once stopped for five days without anyone noticing. This
+# checks production two hours after the 03:00 UTC reconciliation; a failed
+# scheduled run emails the repository owner, so no monitoring account is needed.
+on:
+  schedule:
+    - cron: "7 5 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  freshness:
+    name: GitHub data is fresh in production
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check /api/github/health
+        env:
+          HEALTH_URL: https://onurerguden.dev/api/github/health
+          MAX_AGE_HOURS: "36"
+        run: |
+          body="$(curl -fsS --retry 3 --retry-all-errors --max-time 20 "$HEALTH_URL")" || {
+            echo "::error::$HEALTH_URL did not answer 200"
+            exit 1
+          }
+          node -e '
+            const body = JSON.parse(process.argv[1]);
+            const limit = Number(process.env.MAX_AGE_HOURS) * 3600_000;
+            let stale = false;
+            for (const key of ["reposSyncedAt", "activitySyncedAt"]) {
+              const at = Date.parse(body[key] ?? "");
+              const hours = (Date.now() - at) / 3600_000;
+              if (!Number.isFinite(at) || Date.now() - at > limit) {
+                stale = true;
+                console.log(`::error::${key} is ${body[key] ?? "missing"} (${Number.isFinite(hours) ? hours.toFixed(1) + " h old" : "no time"})`);
+              } else console.log(`${key}: ${body[key]} (${hours.toFixed(1)} h old)`);
+            }
+            process.exit(stale ? 1 : 0);
+          ' "$body"

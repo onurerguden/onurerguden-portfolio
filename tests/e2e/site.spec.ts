@@ -212,6 +212,9 @@ test("API endpoints fail closed without credentials", async ({ request }) => {
   expect(activity.status()).toBe(503);
   expect(activity.headers()["cache-control"]).toBe("no-store");
   expect(await activity.json()).toEqual({ available: false });
+  const health = await request.get("/api/github/health");
+  expect(health.status()).toBe(503);
+  expect(health.headers()["cache-control"]).toBe("no-store");
 });
 
 for (const locale of ["en", "tr"])
