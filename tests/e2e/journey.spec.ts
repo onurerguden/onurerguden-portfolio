@@ -716,13 +716,14 @@ test("the journey bar offers Projects and Contact from the first screen", async 
 });
 
 test("Projects and Contact in the bar jump past the desk", async ({ page }) => {
-  await page.goto("/en");
   const navigation = page.getByRole("navigation", { name: "Journey sections" });
   for (const [name, id] of [
     ["Projects", "work"],
     ["Contact", "contact"],
   ]) {
-    await page.evaluate(() => scrollTo({ top: 0, behavior: "instant" }));
+    // From the first screen each time: once past the desk the bar docks, and
+    // on touch screens its second row gives way to the Sections menu.
+    await page.goto("/en");
     await navigation.getByRole("link", { name, exact: true }).click();
     await expect(page).toHaveURL(new RegExp(`#${id}$`));
     // Headless Chromium draws the desk with software WebGL, so the smooth
