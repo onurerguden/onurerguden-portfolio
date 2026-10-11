@@ -24,11 +24,6 @@ export type ActivityEvent = {
       action: "opened" | "merged" | "closed" | "reopened";
       number: number;
     }
-  | {
-      kind: "create";
-      ref: "repository" | "branch" | "tag";
-      name: string | null;
-    }
   | { kind: "release"; tag: string | null }
 );
 export type ActivitySnapshot = {
