@@ -22,10 +22,14 @@ export default function CopyEmail({
       <button
         type="button"
         className={className}
-        onClick={async () => {
+        onClick={async (event) => {
+          const button = event.currentTarget;
           try {
             await navigator.clipboard.writeText(email);
             setCopied(true);
+            import("@/lib/event-beacon").then(({ locationOf, track }) =>
+              track({ name: "email_copy", location: locationOf(button) }),
+            );
             window.setTimeout(() => setCopied(false), 2500);
           } catch {
             setCopied(false);

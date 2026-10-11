@@ -5,6 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { PageNav } from "@/components/site/site-nav";
 import SiteFooter from "@/components/site/site-footer";
 import CustomCursor from "@/components/site/custom-cursor";
+import SiteEvents from "@/components/site/site-events";
 import { isLocale, locales } from "@/lib/content";
 import { pageIcons } from "@/lib/icons";
 import { siteOrigin } from "@/lib/site";
@@ -73,6 +74,9 @@ export default async function LocaleLayout({
         <SiteFooter locale={locale} />
         <CustomCursor />
         {process.env.VERCEL ? <SpeedInsights /> : null}
+        {/* Page views from production only; previews and local builds would
+            only add noise. */}
+        <SiteEvents pageViews={process.env.VERCEL_ENV === "production"} />
       </body>
     </html>
   );
