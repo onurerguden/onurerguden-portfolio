@@ -49,11 +49,6 @@ function isEvent(value: unknown): value is ActivityEvent {
           value.action as string,
         ) && isCount(value.number)
       );
-    case "create":
-      return (
-        ["repository", "branch", "tag"].includes(value.ref as string) &&
-        isText(value.name)
-      );
     case "release":
       return isText(value.tag);
     default:
@@ -153,26 +148,12 @@ export function describeEvent(event: ActivityEvent, locale: "en" | "tr") {
         ? `${verb} pull request #${event.number} in ${repo}`
         : `${repo} deposunda #${event.number} numaralı PR'ı ${verb}`;
     }
-    case "create": {
-      if (event.ref === "repository")
-        return en ? `Created ${repo}` : `${repo} deposunu oluşturdum`;
-      const tag = event.ref === "tag";
-      if (!event.name)
-        return en
-          ? `Created a ${event.ref} in ${repo}`
-          : `${repo} deposunda yeni bir ${tag ? "etiket" : "dal"} oluşturdum`;
-      return en
-        ? `Created ${event.ref} ${event.name} in ${repo}`
-        : `${repo} deposunda ${event.name} ${tag ? "etiketini" : "dalını"} oluşturdum`;
-    }
     case "release":
       return en
         ? `Released ${event.tag ?? "a version"} of ${repo}`
         : `${repo} için ${event.tag ?? "yeni bir sürüm"} yayımladım`;
   }
 }
-
-export type RecentActivityEvent = Exclude<ActivityEvent, { kind: "create" }>;
 
 /** The newest three meaningful updates, including older cached snapshots. */
 /**
@@ -184,10 +165,10 @@ export function recentEvents(
   events: readonly ActivityEvent[],
   quiet = "onurerguden/onurerguden-portfolio",
 ) {
-  const sorted = events
-    .filter((event): event is RecentActivityEvent => event.kind !== "create")
-    .sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
-  const picked: RecentActivityEvent[] = [];
+  const sorted = [...events].sort(
+    (a, b) => Date.parse(b.at) - Date.parse(a.at),
+  );
+  const picked: ActivityEvent[] = [];
   const seen = new Set<string>();
   for (const event of sorted)
     if (event.repo !== quiet && !seen.has(event.repo) && picked.length < 3) {
@@ -205,10 +186,7 @@ export function topLanguages(languages: ActivitySnapshot["languages"]) {
 }
 
 /** Compact visual wording; the link retains describeEvent's full name. */
-export function shortEventAction(
-  event: RecentActivityEvent,
-  locale: "en" | "tr",
-) {
+export function shortEventAction(event: ActivityEvent, locale: "en" | "tr") {
   const en = locale === "en";
   switch (event.kind) {
     case "push":

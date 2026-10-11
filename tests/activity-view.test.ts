@@ -25,18 +25,6 @@ describe("activity wording", () => {
   const both = (event: ActivityEvent) =>
     [describeEvent(event, "en"), describeEvent(event, "tr")] as const;
 
-  it("names branches and tags only when GitHub gives the name", () => {
-    expect(
-      both({ ...base, kind: "create", ref: "branch", name: "feat/x" }),
-    ).toEqual([
-      "Created branch feat/x in portfolio",
-      "portfolio deposunda feat/x dalını oluşturdum",
-    ]);
-    expect(both({ ...base, kind: "create", ref: "tag", name: null })).toEqual([
-      "Created a tag in portfolio",
-      "portfolio deposunda yeni bir etiket oluşturdum",
-    ]);
-  });
   it("leaves out unknown commit counts and pull request numbers", () => {
     expect(
       both({ ...base, kind: "push", commits: null, branch: null }),
@@ -73,14 +61,6 @@ describe("compact public activity", () => {
         kind: "push",
         commits: 1,
         branch: null,
-      },
-      {
-        ...base,
-        id: "branch",
-        at: "2026-01-04T09:00:00Z",
-        kind: "create",
-        ref: "branch",
-        name: "feature",
       },
       { ...base, id: "pr", kind: "pull_request", action: "merged", number: 7 },
       {
@@ -148,11 +128,6 @@ describe("compact public activity", () => {
       "second",
     ]);
     expect(recentEvents([])).toEqual([]);
-    expect(
-      recentEvents([
-        { ...base, id: "tag", kind: "create", ref: "tag", name: "v2" },
-      ]),
-    ).toEqual([]);
   });
 
   it("keeps the actual top language shares without renormalizing or mutating them", () => {
@@ -291,6 +266,22 @@ describe("new contributions since the visitor arrived", () => {
 describe("activity snapshots from the network", () => {
   it("accepts a well-formed snapshot", () => {
     expect(parseSnapshot(snapshot())).toEqual(snapshot());
+  });
+  it("drops event kinds it no longer shows, such as an old snapshot's branch creations", () => {
+    const old = {
+      ...snapshot(),
+      events: [
+        {
+          id: "branch",
+          repo: "onurerguden/portfolio",
+          at: "2026-01-04T09:00:00Z",
+          kind: "create",
+          ref: "branch",
+          name: "feature",
+        },
+      ],
+    };
+    expect(parseSnapshot(old)?.events).toEqual([]);
   });
   it("rejects other versions and broken shapes", () => {
     expect(parseSnapshot(null)).toBeNull();
