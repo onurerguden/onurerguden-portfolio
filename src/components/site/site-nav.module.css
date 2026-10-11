@@ -237,6 +237,12 @@
   background: var(--surface-2);
   color: var(--text);
 }
+/* The desk chapter on screen. */
+.menuPanel a[aria-current="location"] {
+  background: var(--surface-2);
+  color: var(--text);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
 /* Motion: pause the moving scenes, or turn the desk's 3D off. */
 .menuGroup {
   display: grid;
@@ -412,7 +418,8 @@
   .menuPanel {
     right: -52px;
   }
-  /* Docked after the journey, the desk chapters give way to one compact row. */
+  /* Docked after the journey, the second row gives way to one compact row;
+     the Sections menu still lists Projects and Contact. */
   .nav[data-docked="true"] .links {
     display: none;
   }

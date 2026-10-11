@@ -89,9 +89,12 @@ function DeskToggle({ locale }: { locale: "en" | "tr" }) {
 function SectionsMenu({
   locale,
   sections,
+  current,
 }: {
   locale: "en" | "tr";
   sections: SectionLink[];
+  /** The desk chapter on screen, marked as the reader's place. */
+  current?: string;
 }) {
   const en = locale === "en";
   const [open, setOpen] = useState(false);
@@ -142,7 +145,11 @@ function SectionsMenu({
         <ul>
           {sections.map((section) => (
             <li key={section.id}>
-              <a href={`#${section.id}`} onClick={() => setOpen(false)}>
+              <a
+                href={`#${section.id}`}
+                aria-current={section.id === current ? "location" : undefined}
+                onClick={() => setOpen(false)}
+              >
                 {section.label}
               </a>
             </li>
@@ -197,16 +204,20 @@ function useNavMorph(navRef: RefObject<HTMLElement | null>) {
   }, [navRef]);
 }
 
+/** Always in the bar: where visitors go next, whatever is on screen. */
+const barSections = ["work", "contact"];
+
 /**
  * The bar over the desk journey. The journey drives its `data-hidden`,
- * `data-revealed` and `data-docked` states through `navRef`.
+ * `data-revealed` and `data-docked` states through `navRef`. Projects and
+ * Contact stay in the bar from the first screen; the desk's chapters live in
+ * the Sections menu, which marks the one on screen.
  */
 export function JourneyNav({
   locale,
   navRef,
   chapters,
   current,
-  onChapter,
   sections,
   onSkip,
 }: {
@@ -215,7 +226,6 @@ export function JourneyNav({
   chapters: JourneyChapter[];
   /** Index of the chapter on screen, or -1. */
   current: number;
-  onChapter?: (event: MouseEvent<HTMLAnchorElement>, index: number) => void;
   sections: SectionLink[];
   onSkip: (event: MouseEvent<HTMLAnchorElement>) => void;
 }) {
@@ -234,19 +244,20 @@ export function JourneyNav({
       </a>
       <Brand locale={locale} />
       <div className={styles.links}>
-        {chapters.map((chapter, index) => (
-          <a
-            href={chapter.href}
-            key={chapter.id}
-            aria-current={current === index ? "location" : undefined}
-            onClick={onChapter && ((event) => onChapter(event, index))}
-          >
-            {chapter.label}
-          </a>
-        ))}
+        {sections
+          .filter((section) => barSections.includes(section.id))
+          .map((section) => (
+            <a href={`#${section.id}`} key={section.id}>
+              {section.label}
+            </a>
+          ))}
       </div>
       {sections.length ? (
-        <SectionsMenu locale={locale} sections={sections} />
+        <SectionsMenu
+          locale={locale}
+          sections={sections}
+          current={chapters[current]?.id}
+        />
       ) : null}
       <LanguageLink locale={locale} className={styles.language} />
     </nav>

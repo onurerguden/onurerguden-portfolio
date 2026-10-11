@@ -691,6 +691,46 @@ test("cosmic grid remains active through close-ups and returns to demand-rendere
     .toBeLessThan(0.02);
 });
 
+test("the journey bar offers Projects and Contact from the first screen", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const [locale, projects, contact] of [
+    ["en", "Projects", "Contact"],
+    ["tr", "Projeler", "İletişim"],
+  ]) {
+    await page.goto(`/${locale}`);
+    const navigation = page.getByRole("navigation", {
+      name: locale === "en" ? "Journey sections" : "Yolculuk bölümleri",
+    });
+    // The Sections menu is closed, so these are the bar's own links.
+    for (const [name, href] of [
+      [projects, "#work"],
+      [contact, "#contact"],
+    ]) {
+      const link = navigation.getByRole("link", { name, exact: true });
+      await expect(link).toBeVisible();
+      await expect(link).toHaveAttribute("href", href);
+    }
+  }
+});
+
+test("Projects and Contact in the bar jump past the desk", async ({ page }) => {
+  await page.goto("/en");
+  const navigation = page.getByRole("navigation", { name: "Journey sections" });
+  for (const [name, id] of [
+    ["Projects", "work"],
+    ["Contact", "contact"],
+  ]) {
+    await page.evaluate(() => scrollTo({ top: 0, behavior: "instant" }));
+    await navigation.getByRole("link", { name, exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`#${id}$`));
+    // Headless Chromium draws the desk with software WebGL, so the smooth
+    // scroll past it can stall frames for a couple of seconds.
+    await expect(page.locator(`#${id}`)).toBeInViewport({ timeout: ci(15000) });
+  }
+});
+
 test("home uses one localized journey bar", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/en");
@@ -890,12 +930,10 @@ for (const id of ["services", "experience"])
       )
       .toBeCloseTo(s.chapters[id as "services"], 1);
     await expect(page.locator(`#${id}-title`)).toBeInViewport();
+    // The bar keeps Projects and Contact; the Sections menu (closed, and
+    // the bar hidden while the story plays) marks the chapter on screen.
     await expect(
-      page
-        .getByRole("navigation", { name: "Journey sections" })
-        .getByRole("link", {
-          name: id === "services" ? "What I do" : "Experience",
-        }),
+      page.locator(`#journey-sections-menu a[href="#${id}"]`),
     ).toHaveAttribute("aria-current", "location");
   });
 
