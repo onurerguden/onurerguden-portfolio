@@ -370,3 +370,23 @@ test("phones and tablets read the static flow without the desk", async ({
   });
   expect(overlaps).toEqual([]);
 });
+
+test("content pages link to Projects and Contact in both languages", async ({
+  page,
+}) => {
+  for (const [locale, label, projects, contact] of [
+    ["en", "Main navigation", "Projects", "Contact"],
+    ["tr", "Ana gezinme", "Projeler", "İletişim"],
+  ]) {
+    await page.goto(`/${locale}/research`);
+    const navigation = page.getByRole("navigation", { name: label });
+    for (const [name, href] of [
+      [projects, `/${locale}#work`],
+      [contact, `/${locale}#contact`],
+    ]) {
+      const link = navigation.getByRole("link", { name, exact: true });
+      await expect(link).toBeVisible();
+      await expect(link).toHaveAttribute("href", href);
+    }
+  }
+});
