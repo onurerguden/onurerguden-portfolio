@@ -1,5 +1,16 @@
 import "server-only";
 
+/** Deletes a lock only if this worker still owns it (KEYS[1], ARGV[1] nonce). */
+export const RELEASE_LOCK =
+  "if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) end return 0";
+
+/**
+ * Moves a backoff time (KEYS[1]) forward to ARGV[1], never back, expiring it
+ * then; ARGV[2] is now. Both in epoch milliseconds.
+ */
+export const RAISE_BACKOFF =
+  "local n=tonumber(redis.call('GET',KEYS[1]) or '0'); if tonumber(ARGV[1])>n then redis.call('SET',KEYS[1],ARGV[1],'PX',math.max(1000,tonumber(ARGV[1])-tonumber(ARGV[2]))) end return 1";
+
 export type RedisCommand = <T>(...args: (string | number)[]) => Promise<T>;
 
 /**
