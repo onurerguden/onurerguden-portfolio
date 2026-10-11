@@ -84,6 +84,7 @@
 - [x] Sync failures name their step and HTTP status in the function log; missing settings are named, never printed (PR 01).
 - [x] A failed Redis read after the build no longer publishes an empty archive: Next.js keeps the last good page (PR 01).
 - [x] `/api/github/health` and the daily sync monitor (PR 01).
+- [ ] On phones the Explorer opens with three technologies per group and "Show all 48" (review 06, visual and copy gate: `docs/qa/site-review/stack/`).
 - [x] The portrait, the About posters and the display fonts carry content revisions and are cached as immutable (review 02); `npm run assets:revisions` records them and a unit test fails when one is stale.
 - [ ] Mobile Lighthouse: LCP ≤ 2.5 s and performance ≥ 95. Review 02 cut the portrait from 152 to 106 KB on most phones, but the simulated LCP did not move measurably (local medians 3.46 s on main, 3.76 s with the change, within run-to-run noise); the rest of the time is the 72 KB HTML (icon paths inline twice), about 200 KB of scripts and four render-blocking stylesheets.
 
