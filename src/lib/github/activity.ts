@@ -8,6 +8,7 @@ import {
   type ActivityStore,
 } from "./activity-core";
 import { createActivityStore } from "./activity-store";
+import { failureReason } from "./failure";
 import { localPreviewEnabled, readPreviewActivity } from "./local-preview-core";
 
 export type ActivityResult =
@@ -55,8 +56,10 @@ export async function getActivity(): Promise<ActivityResult> {
         try {
           if ((await refreshActivity({ store, token })) === "committed")
             snapshot.clear();
-        } catch {
-          console.error("GitHub activity refresh failed; snapshot retained.");
+        } catch (error) {
+          console.error(
+            `GitHub activity refresh failed (${failureReason(error)}); snapshot retained.`,
+          );
         } finally {
           refreshing = false;
         }
@@ -65,8 +68,10 @@ export async function getActivity(): Promise<ActivityResult> {
     return state.snapshot
       ? { status: "live", activity: state.snapshot, revision: state.revision }
       : { status: "unavailable" };
-  } catch {
-    // No provider errors, tokens or payloads reach the browser.
+  } catch (error) {
+    // No provider errors, tokens or payloads reach the browser; the log gets
+    // the short reason.
+    console.error(`GitHub activity read failed (${failureReason(error)}).`);
     return { status: "unavailable" };
   }
 }
