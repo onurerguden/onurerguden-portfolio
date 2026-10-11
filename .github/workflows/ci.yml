@@ -23,21 +23,47 @@ jobs:
       - run: npm ci
       - run: npm run format:check
       - run: npm run check
+      # The browser jobs test this build rather than building it again.
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: next-build
+          path: |
+            .next/
+            !.next/cache/
+          include-hidden-files: true
+          retention-days: 1
 
   browser:
-    name: Browser tests (${{ matrix.project }})
+    name: Browser tests (${{ matrix.name }})
+    needs: quality
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
+        # desktop-chromium holds most of the suite on one serial worker
+        # (playwright.config.ts), so it runs as three shards in parallel.
         include:
-          - project: desktop-chromium
+          - name: desktop-chromium 1/3
+            project: desktop-chromium
             browser: chromium
-          - project: mobile-chromium
+            shard: 1/3
+          - name: desktop-chromium 2/3
+            project: desktop-chromium
             browser: chromium
-          - project: mobile-webkit
+            shard: 2/3
+          - name: desktop-chromium 3/3
+            project: desktop-chromium
+            browser: chromium
+            shard: 3/3
+          - name: mobile-chromium
+            project: mobile-chromium
+            browser: chromium
+            shard: 1/1
+          - name: mobile-webkit
+            project: mobile-webkit
             browser: webkit
+            shard: 1/1
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -45,14 +71,29 @@ jobs:
           node-version: "24"
           cache: npm
       - run: npm ci
-      - run: npm run build
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: next-build
+          path: .next
       - run: npx playwright install --with-deps ${{ matrix.browser }}
-      - run: npx playwright test --project=${{ matrix.project }}
+      - run: npx playwright test --project=${{ matrix.project }} --shard=${{ matrix.shard }}
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()
         with:
-          name: playwright-report-${{ matrix.project }}
+          name: playwright-report-${{ matrix.project }}-${{ strategy.job-index }}
           path: |
             playwright-report/
             test-results/
           retention-days: 14
+
+  # Branch protection requires a check with this name; it passes only when
+  # every shard above did (and the mobile projects, which report their own
+  # names too).
+  desktop:
+    name: Browser tests (desktop-chromium)
+    needs: browser
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: test "${{ needs.browser.result }}" = success

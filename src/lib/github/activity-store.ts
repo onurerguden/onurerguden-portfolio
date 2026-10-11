@@ -1,6 +1,6 @@
 import "server-only";
 import type { ActivitySnapshot, ActivityStore } from "./activity-core";
-import { createRedis } from "./redis";
+import { createRedis, RAISE_BACKOFF, RELEASE_LOCK } from "./redis";
 
 const PREFIX = "portfolio:github:activity:v1:";
 const keys = {
@@ -61,13 +61,7 @@ export function createActivityStore(timeout = 2500): ActivityStore | null {
       return (await command("SET", keys.lock, nonce, "NX", "EX", 60)) === "OK";
     },
     async release(nonce) {
-      await command(
-        "EVAL",
-        "if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) end return 0",
-        1,
-        keys.lock,
-        nonce,
-      );
+      await command("EVAL", RELEASE_LOCK, 1, keys.lock, nonce);
     },
     async cooldown() {
       return (
@@ -93,7 +87,7 @@ export function createActivityStore(timeout = 2500): ActivityStore | null {
       if (until)
         await command(
           "EVAL",
-          "local n=tonumber(redis.call('GET',KEYS[1]) or '0'); if tonumber(ARGV[1])>n then redis.call('SET',KEYS[1],ARGV[1],'PX',math.max(1000,tonumber(ARGV[1])-tonumber(ARGV[2]))) end return 1",
+          RAISE_BACKOFF,
           1,
           keys.backoff,
           until,
