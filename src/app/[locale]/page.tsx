@@ -26,8 +26,8 @@ export async function generateMetadata({
       ? "Onur Ergüden — AI Engineer"
       : "Onur Ergüden — AI Mühendisi",
     locale === "en"
-      ? "Onur Ergüden is an AI engineer at Future Is Now, building LLM applications end to end: retrieval, LangGraph and MCP agents, and applied ML research."
-      : "Onur Ergüden, Future Is Now’da AI mühendisi. Uçtan uca LLM uygulamaları geliştiriyor: bilgi erişimi, LangGraph ve MCP ajanları, uygulamalı ML araştırması.",
+      ? "Onur Ergüden is an AI engineer building LLM applications end to end: retrieval, LangGraph and MCP agents, and applied ML research."
+      : "Onur Ergüden, yapay zekâ (AI) mühendisi. Uçtan uca LLM uygulamaları geliştiriyor: bilgi erişimi, LangGraph ve MCP ajanları, uygulamalı ML araştırması.",
     { absolute: true },
   );
 }

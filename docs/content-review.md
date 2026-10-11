@@ -153,3 +153,18 @@ The Kuyumcum team approved publishing their AI report workflow chart (Onur, 5 Oc
 | Manifest | Name "Onur Ergüden — AI Engineer", short name "Onur Ergüden", the site's description. | (One manifest for both languages, as the root metadata.) |
 
 Source for the chart text: the chart (`kuyumcum_ai_workflow_chart.png`, 1800 × 2800). No metric is added.
+
+## Site review (October 11)
+
+Onur approved all of the copy below on 11 October 2026. The employer is named in the Experience section and in the structured data (`worksFor`) only; everywhere else he is "an AI engineer". Nothing is added beyond the existing sources.
+
+| Block                          | Before                                                                                                 | After (EN / TR)                                                                                                      |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| About, opening                 | "I’m Onur, an AI engineer at Future Is Now." / "Ben Onur, Future Is Now’da AI mühendisiyim."           | "I’m Onur, an AI engineer." / "Ben Onur, AI mühendisiyim."                                                           |
+| Home meta description          | "…is an AI engineer at Future Is Now, building…" / "Onur Ergüden, Future Is Now’da AI mühendisi."      | "…is an AI engineer building…" / "Onur Ergüden, yapay zekâ (AI) mühendisi." (the visible title stays "AI Mühendisi") |
+| llms.txt summary               | "…is an AI engineer at Future Is Now."                                                                 | "…is an AI engineer." (its Experience section is unchanged)                                                          |
+| Research status                | "Independent study · not submitted for peer review" / "Bağımsız çalışma · hakemli yayına gönderilmedi" | "Course project · not submitted for peer review" / "Ders projesi · hakemli yayına gönderilmedi"                      |
+| Research team line             | "Three-person CE 477 course project" / "Üç kişilik CE 477 ders projesi"                                | "Three-person team, CE 477" / "Üç kişilik ekip, CE 477" (the status line already says course project)                |
+| Home bar (PR #111)             | What I do · Experience · Tech stack / Ne yapıyorum · Deneyim · Teknolojiler                            | Projects · Contact / Projeler · İletişim (the existing section labels)                                               |
+| Content-page bar (PR #111)     | Work / Projeler                                                                                        | Projects · Contact / Projeler · İletişim                                                                             |
+| Tech stack on phones (PR #116) | (full list)                                                                                            | "Show all 48" ↔ "Show fewer" / "Tümünü göster (48)" ↔ "Daha az göster"                                               |

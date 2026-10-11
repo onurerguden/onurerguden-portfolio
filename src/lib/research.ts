@@ -16,14 +16,12 @@ export function getResearch(locale: Locale) {
      */
     study: {
       status: en
-        ? "Independent study · not submitted for peer review"
-        : "Bağımsız çalışma · hakemli yayına gönderilmedi",
+        ? "Course project · not submitted for peer review"
+        : "Ders projesi · hakemli yayına gönderilmedi",
       title: en
         ? "Clustering and forecasting public transport ridership in İzmir"
         : "İzmir’de toplu taşıma yolculuklarının kümelenmesi ve tahmini",
-      team: en
-        ? "Three-person CE 477 course project"
-        : "Üç kişilik CE 477 ders projesi",
+      team: en ? "Three-person team, CE 477" : "Üç kişilik ekip, CE 477",
       data: en
         ? "25,775 daily İzmirim Kart ridership rows by operator and fare type, January 2021 – April 2025."
         : "Ocak 2021 – Nisan 2025 arasında işletme ve tarife türüne göre 25.775 günlük İzmirim Kart yolcu kaydı.",
