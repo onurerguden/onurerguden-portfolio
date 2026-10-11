@@ -84,6 +84,7 @@
 - [x] Sync failures name their step and HTTP status in the function log; missing settings are named, never printed (PR 01).
 - [x] A failed Redis read after the build no longer publishes an empty archive: Next.js keeps the last good page (PR 01).
 - [x] `/api/github/health` and the daily sync monitor (PR 01).
+- [ ] On phones the Explorer opens with three technologies per group and "Show all 48" (review 06, visual and copy gate: `docs/qa/site-review/stack/`).
 - [x] Privacy-friendly analytics (review 05): Vercel Web Analytics page views on production and a first-party conversion counter (`docs/analytics.md`). No cookies, no third-party host, nothing sent under Global Privacy Control or Do Not Track.
 - [ ] Onur enables Web Analytics for the project in the Vercel dashboard (Analytics tab → Enable); until then the page-view script answers 404 and nothing is counted. The conversion counter needs nothing more.
 - [x] The Explorer's technology icons come from one cached SVG sprite (`public/images/tech/icons.svg`, 18.8 KB gzip) instead of 39 paths inline twice, in the HTML and the RSC payload (review 07). The home page's HTML drops from 71.4 to 32.5 KB gzip (TR 72.7 → 33.7 KB); captures of the Explorer are pixel-identical. Local mobile Lighthouse medians: FCP 1.69 → 1.53 s, LCP unchanged at 3.32 s.
