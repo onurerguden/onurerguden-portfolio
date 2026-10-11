@@ -86,6 +86,7 @@
 - [x] `/api/github/health` and the daily sync monitor (PR 01).
 - [x] The portrait, the About posters and the display fonts carry content revisions and are cached as immutable (review 02); `npm run assets:revisions` records them and a unit test fails when one is stale.
 - [ ] Mobile Lighthouse: LCP ≤ 2.5 s and performance ≥ 95. Review 02 cut the portrait from 152 to 106 KB on most phones, but the simulated LCP did not move measurably (local medians 3.46 s on main, 3.76 s with the change, within run-to-run noise); the rest of the time is the 72 KB HTML (icon paths inline twice), about 200 KB of scripts and four render-blocking stylesheets.
+- [ ] Projects and Contact in the bar from the first screen; the desk chapters move to the Sections menu, which marks the one on screen. Content pages say Projects instead of Work and link to Contact (review 04, visual gate: `docs/qa/site-review/navigation/`).
 
 ## PR order
 
