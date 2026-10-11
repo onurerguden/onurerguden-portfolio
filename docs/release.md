@@ -75,6 +75,14 @@
 - `/.well-known/security.txt` (RFC 9116) names the public email; its expiry is a year after each deploy, so a year without deploys lets it lapse.
 - After each production deploy, `.github/workflows/indexnow.yml` submits the sitemap's pages to IndexNow (Bing, Yandex and others). The key in `public/<key>.txt` is public by design; to rotate it, replace the file.
 - Dependabot opens one grouped npm pull request a week and one for the GitHub Actions each month; CI decides whether they merge.
+- `.github/workflows/sync-monitor.yml` checks `/api/github/health` every day at 05:07 UTC and fails when the archive or the activity is older than 36 hours; GitHub emails the failure. Run it by hand from the Actions tab after fixing a sync.
+
+## Site review (October 2026)
+
+- [ ] GitHub sync restored in production. It stopped on 6 October 2026 at 20:59 UTC and went unnoticed for five days (activity 2026 total 1,259 against GitHub's 1,507).
+- [x] Sync failures name their step and HTTP status in the function log; missing settings are named, never printed (PR 01).
+- [x] A failed Redis read after the build no longer publishes an empty archive: Next.js keeps the last good page (PR 01).
+- [x] `/api/github/health` and the daily sync monitor (PR 01).
 
 ## PR order
 
