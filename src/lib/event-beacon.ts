@@ -52,7 +52,7 @@ export function eventFor(link: HTMLAnchorElement): SiteEvent | null {
   } catch {
     return null;
   }
-  if (url.hostname.endsWith("linkedin.com"))
+  if (url.hostname === "linkedin.com" || url.hostname.endsWith(".linkedin.com"))
     return { name: "linkedin_click", location: locationOf(link) };
   if (url.hostname !== "github.com") return null;
   const [owner, repo] = url.pathname.split("/").filter(Boolean);
