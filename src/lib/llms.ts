@@ -21,11 +21,11 @@ const absolute = (href: string) =>
 
 function intro() {
   const origin = siteOrigin();
-  const { education, work } = sharedFacts;
+  const { education } = sharedFacts;
   return [
     `# ${sharedFacts.name}`,
     "",
-    `> ${sharedFacts.name} is an AI engineer at ${work.company}. He builds LLM applications end to end: retrieval, tool-calling agents with LangGraph and MCP, and applied machine learning research. ${education.degree}, ${education.university}.`,
+    `> ${sharedFacts.name} is an AI engineer. He builds LLM applications end to end: retrieval, tool-calling agents with LangGraph and MCP, and applied machine learning research. ${education.degree}, ${education.university}.`,
     "",
     `This is his portfolio, in English (${origin}/en) and Turkish (${origin}/tr). Contact: ${sharedFacts.email}. GitHub: ${sharedFacts.github}. LinkedIn: ${sharedFacts.linkedin}. The site is written in his own words, so the sections below speak in the first person.`,
   ];

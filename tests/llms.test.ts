@@ -18,6 +18,14 @@ describe("llms.txt", () => {
     expect(index).toContain("(https://onurerguden.dev/llms-full.txt)");
   });
 
+  it("names the employer in the experience, not the summary", () => {
+    const summary = llmsIndex()
+      .split("\n")
+      .find((line) => line.startsWith("> "));
+    expect(summary).toContain("is an AI engineer.");
+    expect(summary).not.toContain(sharedFacts.work.company);
+  });
+
   it("carries the case studies without their components", () => {
     const full = llmsFull();
     const kuyumcum = getProject("en", "kuyumcum");
