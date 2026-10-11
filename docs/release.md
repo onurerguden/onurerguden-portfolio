@@ -84,6 +84,8 @@
 - [x] Sync failures name their step and HTTP status in the function log; missing settings are named, never printed (PR 01).
 - [x] A failed Redis read after the build no longer publishes an empty archive: Next.js keeps the last good page (PR 01).
 - [x] `/api/github/health` and the daily sync monitor (PR 01).
+- [x] The Explorer's technology icons come from one cached SVG sprite (`public/images/tech/icons.svg`, 18.8 KB gzip) instead of 39 paths inline twice, in the HTML and the RSC payload (review 07). The home page's HTML drops from 71.4 to 32.5 KB gzip (TR 72.7 → 33.7 KB); captures of the Explorer are pixel-identical. Local mobile Lighthouse medians: FCP 1.69 → 1.53 s, LCP unchanged at 3.32 s.
+- [ ] The About scene and the balls' texture atlas each bundle the 46 KB icon JSON (22 and 24 KB gzip lazy chunks), so a desktop visit downloads it twice. Sharing it means loading it asynchronously in the About scene; left for a later change.
 - [x] The portrait, the About posters and the display fonts carry content revisions and are cached as immutable (review 02); `npm run assets:revisions` records them and a unit test fails when one is stale.
 - [ ] Mobile Lighthouse: LCP ≤ 2.5 s and performance ≥ 95. Review 02 cut the portrait from 152 to 106 KB on most phones, but the simulated LCP did not move measurably (local medians 3.46 s on main, 3.76 s with the change, within run-to-run noise); the rest of the time is the 72 KB HTML (icon paths inline twice), about 200 KB of scripts and four render-blocking stylesheets.
 
