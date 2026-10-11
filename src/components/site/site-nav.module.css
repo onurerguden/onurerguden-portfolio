@@ -237,6 +237,12 @@
   background: var(--surface-2);
   color: var(--text);
 }
+/* The desk chapter on screen. */
+.menuPanel a[aria-current="location"] {
+  background: var(--surface-2);
+  color: var(--text);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
 /* Motion: pause the moving scenes, or turn the desk's 3D off. */
 .menuGroup {
   display: grid;
@@ -385,9 +391,10 @@
     padding: 10px 9px;
     font-size: 10.5px;
   }
+  /* Projects, Research and Contact do not fit beside the name on a phone,
+     so they take a second row, as on the home page's bar. */
   .page .links {
-    grid-column: 2;
-    grid-row: 1;
+    grid-row: 2;
   }
   .page .links a.secondary {
     display: none;
@@ -412,7 +419,8 @@
   .menuPanel {
     right: -52px;
   }
-  /* Docked after the journey, the desk chapters give way to one compact row. */
+  /* Docked after the journey, the second row gives way to one compact row;
+     the Sections menu still lists Projects and Contact. */
   .nav[data-docked="true"] .links {
     display: none;
   }
