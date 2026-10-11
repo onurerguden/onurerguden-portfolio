@@ -6,11 +6,7 @@ import { mkdir } from "node:fs/promises";
 
 const thumbs = [
   // The opening's head illustration, for the home card.
-  [
-    "public/images/avatar/onur-head-v4.webp",
-    "assets/og/head.png",
-    { width: 440 },
-  ],
+  ["assets/avatar/onur-head-v4.webp", "assets/og/head.png", { width: 440 }],
   // Kuyumcum's approved map screen.
   [
     "public/images/kuyumcum/map.webp",

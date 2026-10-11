@@ -26,16 +26,20 @@ test("opening portrait stays sharp until scroll and returns on reverse", async (
   const image = opening.locator("img");
   await expect(image).toHaveAttribute(
     "src",
-    "/images/avatar/onur-head-v4.webp",
+    /^\/images\/avatar\/onur-head-v4-1254\.webp\?v=[0-9a-f]{12}$/,
   );
+  // The browser picks a width from the srcset; it must cover the drawn
+  // size in device pixels (up to the master's 1254), so it is never upscaled.
   const resolution = await image.evaluate((element) => {
     const portrait = element as HTMLImageElement;
     return {
-      natural: portrait.naturalWidth,
-      displayed: portrait.getBoundingClientRect().width,
+      file: Number(/-(\d+)\.(?:avif|webp)\?/.exec(portrait.currentSrc)![1]),
+      needed: portrait.getBoundingClientRect().width * window.devicePixelRatio,
     };
   });
-  expect(resolution.natural).toBeGreaterThanOrEqual(resolution.displayed);
+  expect(resolution.file).toBeGreaterThanOrEqual(
+    Math.min(1254, Math.floor(resolution.needed)),
+  );
   const alignment = await page.evaluate(() => {
     const opening = document.querySelector("[data-opening-poster]");
     const projected = document.querySelector('[data-screen="1"]');

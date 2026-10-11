@@ -69,7 +69,7 @@ function person(locale: Locale): Node {
       ? "AI engineer building LLM applications end to end: retrieval, tool-calling agents with LangGraph and MCP, and the product around them."
       : "Uçtan uca LLM uygulamaları geliştiren AI mühendisi: bilgi erişimi, LangGraph ve MCP ile araç kullanan ajanlar ve bunların etrafındaki ürün.",
     url: `${origin}/${locale}`,
-    image: `${origin}/images/avatar/onur-head-v4.webp`,
+    image: `${origin}/images/avatar/onur-head-v4-1254.webp`,
     email: `mailto:${sharedFacts.email}`,
     sameAs: [sharedFacts.github, sharedFacts.linkedin],
     worksFor: { "@type": "Organization", name: sharedFacts.work.company },
