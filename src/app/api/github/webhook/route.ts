@@ -5,6 +5,7 @@ import { parseEvent, synchronize, verifySignature } from "@/lib/github/core";
 import { createStore } from "@/lib/github/store";
 import { recordPush } from "@/lib/github/activity-core";
 import { createActivityStore } from "@/lib/github/activity-store";
+import { failureReason, missingConfig } from "@/lib/github/failure";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -37,8 +38,15 @@ export async function POST(request: Request) {
   const secret = process.env.GITHUB_WEBHOOK_SECRET;
   const token = process.env.GITHUB_TOKEN;
   const store = createStore();
-  if (!secret || !token || !store)
+  if (!secret || !token || !store) {
+    const absent = missingConfig({
+      GITHUB_WEBHOOK_SECRET: secret,
+      GITHUB_TOKEN: token,
+      Redis: store,
+    });
+    console.error(`GitHub webhook unavailable: ${absent} not configured.`);
     return Response.json({ error: "Integration unavailable" }, { status: 503 });
+  }
   let body: string;
   try {
     body = await readBody(request);
@@ -68,7 +76,8 @@ export async function POST(request: Request) {
       await store.remove(event.id);
       // The built archive page must drop it now, not at its next refresh.
       revalidateTag(reposTag, { expire: 0 });
-    } catch {
+    } catch (error) {
+      console.error(`GitHub removal failed (${failureReason(error)}).`);
       return Response.json(
         { error: "Integration unavailable" },
         { status: 503 },
@@ -85,9 +94,9 @@ export async function POST(request: Request) {
         event.remove ? event.id : undefined,
       );
       if (result === "updated") revalidateTag(reposTag, "max");
-    } catch {
+    } catch (error) {
       console.error(
-        "GitHub sync failed; redeliver webhook or run reconciliation.",
+        `GitHub sync failed (${failureReason(error)}); redeliver webhook or run reconciliation.`,
       );
     }
 
@@ -99,8 +108,10 @@ export async function POST(request: Request) {
     if (!activity) return;
     try {
       await recordPush({ store: activity, token, delivery });
-    } catch {
-      console.error("GitHub activity refresh failed; snapshot retained.");
+    } catch (error) {
+      console.error(
+        `GitHub activity refresh failed (${failureReason(error)}); snapshot retained.`,
+      );
     }
   });
   return Response.json({ accepted: true }, { status: 202 });

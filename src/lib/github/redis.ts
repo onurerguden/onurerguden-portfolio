@@ -23,9 +23,13 @@ export function createRedis(timeout = 2500): RedisCommand | null {
       cache: "no-store",
       signal: AbortSignal.timeout(timeout),
     });
-    if (!response.ok) throw new Error("Snapshot storage unavailable");
+    if (!response.ok)
+      throw new Error(`Snapshot storage unavailable: HTTP ${response.status}`);
     const data = (await response.json()) as { result: T; error?: string };
-    if (data.error) throw new Error("Snapshot storage failed");
+    // Upstash's error text names the failure (a quota, a script error), never
+    // the credentials or the stored values.
+    if (data.error)
+      throw new Error(`Snapshot storage failed: ${data.error.slice(0, 100)}`);
     return data.result;
   };
 }

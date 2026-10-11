@@ -6,11 +6,15 @@ import { createStore } from "@/lib/github/store";
 import { refreshActivity } from "@/lib/github/activity-core";
 import { createActivityStore } from "@/lib/github/activity-store";
 import { cronStatus, pingHeartbeat } from "@/lib/github/cron";
+import { failureReason, missingConfig } from "@/lib/github/failure";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
+  // Vercel's cron is the only caller; without the secret every run is a 401.
+  if (!secret)
+    console.error("GitHub reconciliation refused: CRON_SECRET is not set.");
   const actual = Buffer.from(request.headers.get("authorization") ?? "");
   const expected = Buffer.from(`Bearer ${secret ?? ""}`);
   if (
@@ -21,15 +25,21 @@ export async function GET(request: Request) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   const store = createStore();
   const token = process.env.GITHUB_TOKEN;
-  if (!store || !token)
+  if (!store || !token) {
+    console.error(
+      `GitHub reconciliation unavailable: ${missingConfig({ Redis: store, GITHUB_TOKEN: token })} not configured.`,
+    );
     return Response.json({ error: "Integration unavailable" }, { status: 503 });
+  }
   let repos: Parameters<typeof cronStatus>[0] = "failed";
   let activity: Parameters<typeof cronStatus>[1] = "unconfigured";
   try {
     repos = await synchronize(store, token, `cron-${crypto.randomUUID()}`);
     if (repos === "updated") revalidateTag(reposTag, "max");
-  } catch {
-    console.error("GitHub reconciliation failed; prior snapshot retained.");
+  } catch (error) {
+    console.error(
+      `GitHub reconciliation failed (${failureReason(error)}); prior snapshot retained.`,
+    );
   }
   // The daily full refresh also recovers any missed webhook or background work.
   const activityStore = createActivityStore();
@@ -41,10 +51,10 @@ export async function GET(request: Request) {
         full: true,
         force: true,
       });
-    } catch {
+    } catch (error) {
       activity = "failed";
       console.error(
-        "GitHub activity reconciliation failed; snapshot retained.",
+        `GitHub activity reconciliation failed (${failureReason(error)}); snapshot retained.`,
       );
     }
   // Without Redis for activity there is no full success to report.
@@ -55,8 +65,10 @@ export async function GET(request: Request) {
       lastSuccess = new Date().toISOString();
       await store.markSuccess(lastSuccess);
     } else lastSuccess = await store.lastSuccess();
-  } catch {
-    console.error("Could not record the reconciliation time.");
+  } catch (error) {
+    console.error(
+      `Could not record the reconciliation time (${failureReason(error)}).`,
+    );
   }
   // Only a full success tells the uptime monitor all is well.
   if (status === "ok") await pingHeartbeat(process.env.CRON_HEARTBEAT_URL);

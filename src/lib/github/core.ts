@@ -132,9 +132,10 @@ export async function fetchPublicRepos(
           Number.isFinite(reset) ? reset : 0,
         ),
       );
-      throw new Error("GitHub rate limited");
+      throw new Error(`GitHub rate limited: HTTP ${response.status}`);
     }
-    if (!response.ok) throw new Error("GitHub request failed");
+    if (!response.ok)
+      throw new Error(`GitHub request failed: HTTP ${response.status}`);
     const batch = z.array(repoSchema).parse(await response.json());
     for (const repo of batch) {
       if (

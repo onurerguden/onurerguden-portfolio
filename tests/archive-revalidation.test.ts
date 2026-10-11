@@ -45,3 +45,33 @@ describe("the built archive page", () => {
     expect(revalidateTag).not.toHaveBeenCalled();
   });
 });
+
+describe("the daily reconciliation's log", () => {
+  beforeEach(() => {
+    vi.stubEnv("CRON_SECRET", "secret");
+    vi.stubEnv("GITHUB_TOKEN", "github_pat_secret");
+    synchronize.mockReset();
+  });
+  it("names the failed step and status, never the token", async () => {
+    const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+    synchronize.mockRejectedValue(new Error("GitHub request failed: HTTP 401"));
+    const { GET } = await import("../src/app/api/cron/github/route");
+    await GET(request());
+    const lines = errors.mock.calls.map(([line]) => String(line));
+    expect(lines).toContain(
+      "GitHub reconciliation failed (GitHub request failed: HTTP 401); prior snapshot retained.",
+    );
+    expect(lines.join("\n")).not.toContain("github_pat_secret");
+    errors.mockRestore();
+  });
+  it("says when CRON_SECRET is missing", async () => {
+    vi.stubEnv("CRON_SECRET", "");
+    const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { GET } = await import("../src/app/api/cron/github/route");
+    expect((await GET(request())).status).toBe(401);
+    expect(errors).toHaveBeenCalledWith(
+      "GitHub reconciliation refused: CRON_SECRET is not set.",
+    );
+    errors.mockRestore();
+  });
+});

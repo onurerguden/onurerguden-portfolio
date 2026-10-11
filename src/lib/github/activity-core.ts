@@ -150,7 +150,10 @@ async function graphql(
     signal: AbortSignal.timeout(8000),
   });
   rateLimit(response);
-  if (!response.ok) throw new ActivityError("GitHub activity unavailable");
+  if (!response.ok)
+    throw new ActivityError(
+      `GitHub activity unavailable: HTTP ${response.status}`,
+    );
   const body = (await response.json()) as {
     data?: { user?: Record<string, unknown> | null };
     errors?: unknown[];
@@ -172,7 +175,7 @@ function rateLimit(response: Response) {
         ? reset * 1000
         : Date.now() + 60_000;
     throw new ActivityError(
-      "GitHub rate limit",
+      `GitHub rate limit: HTTP ${response.status}`,
       Math.max(retryAt, Date.now() + 60_000),
     );
   }
@@ -345,7 +348,10 @@ async function fetchEvents(
   // Unchanged events cost nothing against the rate limit.
   if (response.status === 304) return { events: null, etag };
   rateLimit(response);
-  if (!response.ok) throw new ActivityError("GitHub events unavailable");
+  if (!response.ok)
+    throw new ActivityError(
+      `GitHub events unavailable: HTTP ${response.status}`,
+    );
   return {
     events: mapEvents(await response.json()),
     etag: response.headers.get("etag"),
