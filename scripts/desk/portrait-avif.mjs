@@ -1,18 +1,31 @@
-// Encodes the opening portrait as AVIF and checks it against the WebP it
-// replaces: same 1254 px, PSNR of at least 42 dB over RGB and alpha, plus a
-// side-by-side for a visual check. node scripts/desk/portrait-avif.mjs
+// Encodes the opening portrait at the widths its devices draw it at, as AVIF
+// and a lossy WebP fallback, from the lossless master in assets/. Every file
+// must keep a PSNR of at least 42 dB, the gate the approved AVIF passed, against the master resized to the same
+// width, both as seen: over the opening's #f5f6f8. Lossy WebP drops the colour
+// of fully transparent pixels, which nobody sees but an RGBA comparison
+// counts. node scripts/desk/portrait-avif.mjs
+//
+// Widths: the portrait is 28% (desktop) or 19% (≤ 1250 px) of a screen that
+// is max(108.696vw, 253.748vh) wide (portrait.module.css), so about 640 CSS
+// px on a 1440 × 900 desktop and 390–400 on phones. 1080 serves 1x desktops
+// and 2–2.6x phones, 1254 (the master's width) 3x phones and 2x desktops.
+// No smaller file: resized ahead, a 640 px portrait looks softer on a 1x
+// desktop than the browser's own reduction of a larger one, which is what
+// visitors saw before.
 import sharp from "sharp";
 import { statSync } from "node:fs";
-import { writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 
-const source = "public/images/avatar/onur-head-v4.webp";
-const target = "public/images/avatar/onur-head-v4.avif";
+const source = "assets/avatar/onur-head-v4.webp";
+const out = "public/images/avatar";
 const report = "docs/qa/desk-story/portrait-avif";
+const widths = [1080, 1254];
 const minimum = 42;
 
-async function raw(file) {
-  const { data, info } = await sharp(file)
-    .ensureAlpha()
+async function raw(input, width) {
+  const { data, info } = await sharp(input)
+    .resize(width)
+    .flatten({ background: "#f5f6f8" })
     .raw()
     .toBuffer({ resolveWithObject: true });
   return { data, info };
@@ -28,55 +41,48 @@ function psnr(a, b) {
   return mse === 0 ? Infinity : 10 * Math.log10((255 * 255) / mse);
 }
 
-let quality = 70;
-let result;
-for (;;) {
-  await sharp(source).avif({ quality, effort: 9 }).toFile(target);
-  const [a, b] = await Promise.all([raw(source), raw(target)]);
-  if (a.info.width !== b.info.width || a.info.height !== b.info.height)
-    throw new Error("Size changed");
-  result = { quality, psnr: psnr(a.data, b.data), width: a.info.width };
-  if (result.psnr >= minimum || quality >= 90) break;
-  quality += 5;
+// The lowest quality that clears the gate, so each file is as small as the
+// gate allows. Candidates are measured in memory: sharp caches files by path,
+// so re-reading a file it just wrote would measure the first attempt again.
+async function encode(width, format, start) {
+  const reference = await raw(source, width);
+  for (let quality = start; ; quality += 2) {
+    const pipeline = sharp(source).resize(width);
+    const bytes = await (
+      format === "avif"
+        ? pipeline.avif({ quality, effort: 9 })
+        : pipeline.webp({ quality, alphaQuality: 100, effort: 6 })
+    ).toBuffer();
+    const value = psnr(reference.data, (await raw(bytes, width)).data);
+    if (value >= minimum || quality >= 96) {
+      const file = `${out}/onur-head-v4-${width}.${format}`;
+      await writeFile(file, bytes);
+      return {
+        file,
+        width,
+        quality,
+        psnr: Number(value.toFixed(2)),
+        bytes: bytes.length,
+      };
+    }
+  }
 }
-const [webp, avif] = await Promise.all([
-  sharp(source).metadata(),
-  sharp(target).metadata(),
-]);
+
+await mkdir(out, { recursive: true });
+const files = [];
+for (const width of widths) {
+  files.push(await encode(width, "avif", 60));
+  files.push(await encode(width, "webp", 80));
+}
 const summary = {
   source,
-  target,
-  width: result.width,
-  height: avif.height,
-  quality: result.quality,
-  psnr: Number(result.psnr.toFixed(2)),
+  sourceBytes: statSync(source).size,
   minimumPsnr: minimum,
-  webpBytes: statSync(source).size,
-  avifBytes: statSync(target).size,
-  format: { webp: webp.format, avif: avif.format },
+  files,
 };
 await writeFile(
   `${report}/report.json`,
   JSON.stringify(summary, null, 2) + "\n",
 );
-// Side by side at half size on the page background: WebP left, AVIF right.
-const half = Math.round(result.width / 2);
-const [left, right] = await Promise.all(
-  [source, target].map((file) => sharp(file).resize(half).png().toBuffer()),
-);
-await sharp({
-  create: {
-    width: half * 2 + 24,
-    height: half,
-    channels: 4,
-    background: "#f5f6f8",
-  },
-})
-  .composite([
-    { input: left, left: 0, top: 0 },
-    { input: right, left: half + 24, top: 0 },
-  ])
-  .webp({ quality: 88 })
-  .toFile(`${report}/side-by-side.webp`);
 console.log(summary);
-if (summary.psnr < minimum) process.exit(1);
+if (files.some((file) => file.psnr < minimum)) process.exit(1);

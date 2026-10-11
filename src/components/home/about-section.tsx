@@ -1,6 +1,7 @@
 import GiantTitle from "@/components/giant-title";
 import MotionToggle from "@/components/motion-toggle";
 import { sharedFacts, type Locale } from "@/lib/content";
+import { staticAsset } from "@/lib/static-asset-urls";
 import { cvLink } from "@/lib/site";
 import { getAbout, readTechStack } from "@/lib/home-content";
 import AboutStage from "./about-stage";
@@ -19,16 +20,19 @@ function AboutPoster() {
       <source
         media={narrow}
         type="image/avif"
-        srcSet="/images/about/poster-narrow.avif"
+        srcSet={staticAsset("images/about/poster-narrow.avif")}
       />
       <source
         media={narrow}
         type="image/webp"
-        srcSet="/images/about/poster-narrow.webp"
+        srcSet={staticAsset("images/about/poster-narrow.webp")}
       />
-      <source type="image/avif" srcSet="/images/about/poster-wide.avif" />
+      <source
+        type="image/avif"
+        srcSet={staticAsset("images/about/poster-wide.avif")}
+      />
       <img
-        src="/images/about/poster-wide.webp"
+        src={staticAsset("images/about/poster-wide.webp")}
         alt=""
         width={1440}
         height={900}

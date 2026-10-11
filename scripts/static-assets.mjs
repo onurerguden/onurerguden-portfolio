@@ -1,0 +1,30 @@
+// Records a content revision for the hand-referenced public files that are
+// cached as immutable (next.config.ts): the opening portrait, the About
+// posters and the display fonts. Writes src/lib/static-assets.json and the
+// font URLs in src/styles/site.css. Run after changing any of these files:
+// node scripts/static-assets.mjs (tests/static-assets.test.ts fails until then).
+import { createHash } from "node:crypto";
+import { readdir, readFile, writeFile } from "node:fs/promises";
+
+const folders = ["images/avatar", "images/about", "fonts"];
+const manifest = "src/lib/static-assets.json";
+const stylesheet = "src/styles/site.css";
+
+const revision = (bytes) =>
+  createHash("sha256").update(bytes).digest("hex").slice(0, 12);
+
+const revisions = {};
+for (const folder of folders)
+  for (const name of (await readdir(`public/${folder}`)).sort())
+    revisions[`${folder}/${name}`] = revision(
+      await readFile(`public/${folder}/${name}`),
+    );
+await writeFile(manifest, JSON.stringify(revisions, null, 2) + "\n");
+
+// CSS cannot import the manifest, so its font URLs carry the revision inline.
+const css = (await readFile(stylesheet, "utf8")).replace(
+  /url\("\/(fonts\/[^"?]+)(?:\?v=[0-9a-f]+)?"\)/g,
+  (_, file) => `url("/${file}?v=${revisions[file]}")`,
+);
+await writeFile(stylesheet, css);
+console.log(`${Object.keys(revisions).length} files versioned.`);

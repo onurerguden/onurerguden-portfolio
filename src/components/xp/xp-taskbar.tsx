@@ -100,7 +100,7 @@ export default function XpTaskbar({
         <div className={styles.startHeader} aria-hidden="true">
           <Image
             className={styles.avatar}
-            src="/images/avatar/onur-head-v4.webp"
+            src="/images/avatar/onur-head-v4-1080.webp"
             alt=""
             width={48}
             height={48}

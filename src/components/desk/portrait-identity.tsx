@@ -3,8 +3,19 @@
 import { follow } from "@/lib/cursor";
 import { useEffect, useRef } from "react";
 import type { JourneyContent } from "@/lib/desk-story/content";
+import { staticAsset, staticSrcSet } from "@/lib/static-asset-urls";
 import styles from "./portrait.module.css";
 import hintStyles from "./scroll-hint.module.css";
+
+const portraitSrcSet = (format: "avif" | "webp") =>
+  staticSrcSet([
+    [1080, `images/avatar/onur-head-v4-1080.${format}`],
+    [1254, `images/avatar/onur-head-v4-1254.${format}`],
+  ]);
+// The portrait's width in portrait.module.css: 19% (28% above 1250 px) of a
+// screen max(108.696vw, 253.748svh) wide. vh stands in for svh, erring large.
+const portraitSizes =
+  "(max-width: 1250px) calc(0.19 * max(108.696vw, 253.748vh)), calc(0.28 * max(108.696vw, 253.748vh))";
 
 export default function PortraitIdentity({
   content,
@@ -120,12 +131,18 @@ export default function PortraitIdentity({
         {content.role}
       </span>
       <div className={styles.head} data-portrait-poster>
-        {/* AVIF at the same 1254 px, 152 KB instead of the WebP's 1.08 MB
-            (PSNR 43.3 dB; docs/qa/desk-story/portrait-avif). */}
+        {/* Phones up to 2.6x and 1x desktops get 1080 px, the rest 1254, AVIF
+            with a lossy WebP fallback (scripts/desk/portrait-avif.mjs). */}
         <picture>
-          <source type="image/avif" srcSet="/images/avatar/onur-head-v4.avif" />
+          <source
+            type="image/avif"
+            srcSet={portraitSrcSet("avif")}
+            sizes={portraitSizes}
+          />
           <img
-            src="/images/avatar/onur-head-v4.webp"
+            src={staticAsset("images/avatar/onur-head-v4-1254.webp")}
+            srcSet={portraitSrcSet("webp")}
+            sizes={portraitSizes}
             alt=""
             width={1254}
             height={1254}

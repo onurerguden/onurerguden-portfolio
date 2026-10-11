@@ -1,15 +1,35 @@
 {
-  "source": "public/images/avatar/onur-head-v4.webp",
-  "target": "public/images/avatar/onur-head-v4.avif",
-  "width": 1254,
-  "height": 1254,
-  "quality": 70,
-  "psnr": 43.28,
+  "source": "assets/avatar/onur-head-v4.webp",
+  "sourceBytes": 1076728,
   "minimumPsnr": 42,
-  "webpBytes": 1076728,
-  "avifBytes": 151986,
-  "format": {
-    "webp": "webp",
-    "avif": "heif"
-  }
+  "files": [
+    {
+      "file": "public/images/avatar/onur-head-v4-1080.avif",
+      "width": 1080,
+      "quality": 68,
+      "psnr": 42.66,
+      "bytes": 106337
+    },
+    {
+      "file": "public/images/avatar/onur-head-v4-1080.webp",
+      "width": 1080,
+      "quality": 88,
+      "psnr": 42.47,
+      "bytes": 180508
+    },
+    {
+      "file": "public/images/avatar/onur-head-v4-1254.avif",
+      "width": 1254,
+      "quality": 68,
+      "psnr": 42.46,
+      "bytes": 146143
+    },
+    {
+      "file": "public/images/avatar/onur-head-v4-1254.webp",
+      "width": 1254,
+      "quality": 86,
+      "psnr": 42.02,
+      "bytes": 233608
+    }
+  ]
 }

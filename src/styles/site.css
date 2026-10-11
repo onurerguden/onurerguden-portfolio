@@ -4,7 +4,8 @@
   font-style: normal;
   font-weight: 800 900;
   font-display: swap;
-  src: url("/fonts/portfolio-display-latin.woff2") format("woff2");
+  src: url("/fonts/portfolio-display-latin.woff2?v=c07887dfa2ba")
+    format("woff2");
   unicode-range:
     U+0020-007E, U+00B7, U+00C2, U+00C7, U+00CE, U+00D6, U+00DB, U+00DC,
     U+2013-2014, U+2019;
@@ -14,7 +15,8 @@
   font-style: normal;
   font-weight: 800 900;
   font-display: swap;
-  src: url("/fonts/portfolio-display-latin-ext.woff2") format("woff2");
+  src: url("/fonts/portfolio-display-latin-ext.woff2?v=50bf6f31d35e")
+    format("woff2");
   unicode-range: U+011E, U+0130, U+015E;
 }
 :root {
