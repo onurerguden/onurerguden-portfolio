@@ -744,7 +744,30 @@
     font-size: calc(14 * var(--u));
   }
 }
+/* "Show all", for phones only (explorer-more.tsx). */
+.more {
+  display: none;
+}
 @media (max-width: 700px) {
+  .page .more {
+    display: block;
+    width: calc(100% - 28px);
+    min-height: 44px;
+    margin: 0 14px 16px;
+    border: 1px solid #003c74;
+    border-radius: 3px;
+    background: linear-gradient(#fff, #ece9d8);
+    color: #000;
+    font: inherit;
+    font-weight: 650;
+  }
+  .page .more:focus-visible {
+    outline: 2px solid #0b4ccf;
+    outline-offset: 2px;
+  }
+  .page .explorer[data-collapsed] [data-rest] {
+    display: none;
+  }
   .page .columns,
   .page .entry {
     grid-template-columns: 24px minmax(0, 1fr);

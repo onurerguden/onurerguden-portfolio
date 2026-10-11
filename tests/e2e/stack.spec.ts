@@ -104,3 +104,37 @@ test("every technology is listed in text with where it was used", async ({
     explorer.locator("li", { hasText: "Figma" }).locator("a"),
   ).toHaveCount(0);
 });
+
+test("phones open the Explorer with a few technologies per group", async ({
+  page,
+  isMobile,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const [locale, more, fewer] of [
+    ["en", "Show all 48", "Show fewer"],
+    ["tr", "Tümünü göster (48)", "Daha az göster"],
+  ]) {
+    await page.goto(`/${locale}`);
+    await hydrated(page);
+    const explorer = page.locator("[data-explorer]");
+    const rows = explorer.locator("li:visible");
+    const button = explorer.getByRole("button", { name: more });
+    if (!isMobile) {
+      // Wider screens list everything and offer no button.
+      await expect(button).toBeHidden();
+      await expect(rows).toHaveCount(48);
+      continue;
+    }
+    await explorer.scrollIntoViewIfNeeded();
+    await expect(rows).toHaveCount(12);
+    await expect(button).toHaveAttribute("aria-expanded", "false");
+    await button.click();
+    await expect(rows).toHaveCount(48);
+    const less = explorer.getByRole("button", { name: fewer });
+    await expect(less).toHaveAttribute("aria-expanded", "true");
+    await expect(less).toBeFocused();
+    await less.click();
+    await expect(rows).toHaveCount(12);
+    await expect(button).toBeInViewport();
+  }
+});

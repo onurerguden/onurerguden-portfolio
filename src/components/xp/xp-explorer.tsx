@@ -1,6 +1,10 @@
 import type { getTechStack } from "@/lib/home-content";
+import ExplorerMore from "./explorer-more";
 import TechIcon from "./tech-icon";
 import styles from "./xp.module.css";
+
+/** Technologies per group a phone shows before "Show all". */
+const FIRST = 3;
 
 /**
  * "All technologies" as an XP Explorer window in Details view, grouped by
@@ -36,7 +40,11 @@ export default function XpExplorer({
         </span>
       </div>
       <div className={styles.explorerBody} data-explorer-body>
-        <div className={styles.explorerList} data-explorer-list>
+        <div
+          id={`explorer-list-${locale}`}
+          className={styles.explorerList}
+          data-explorer-list
+        >
           <div className={styles.columns} aria-hidden="true">
             <span>{en ? "Name" : "Ad"}</span>
             <span>{en ? "Used in" : "Kullanıldığı yer"}</span>
@@ -45,8 +53,12 @@ export default function XpExplorer({
             <div className={styles.group} key={category.id}>
               <h4>{category.label}</h4>
               <ul>
-                {category.items.map((item) => (
-                  <li key={item.id} className={styles.entry}>
+                {category.items.map((item, index) => (
+                  <li
+                    key={item.id}
+                    className={styles.entry}
+                    data-rest={index >= FIRST || undefined}
+                  >
                     <span className={styles.entryIcon}>
                       <TechIcon item={item} />
                     </span>
@@ -75,6 +87,11 @@ export default function XpExplorer({
             </div>
           ))}
         </div>
+        <ExplorerMore
+          locale={locale}
+          count={count}
+          list={`explorer-list-${locale}`}
+        />
       </div>
       <div className={styles.status} aria-hidden="true">
         {en ? `${count} objects` : `${count} nesne`}
