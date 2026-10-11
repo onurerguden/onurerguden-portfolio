@@ -1,12 +1,12 @@
 // Records a content revision for the hand-referenced public files that are
 // cached as immutable (next.config.ts): the opening portrait, the About
-// posters and the display fonts. Writes src/lib/static-assets.json and the
+// posters, the technology icon sprite and the display fonts. Writes src/lib/static-assets.json and the
 // font URLs in src/styles/site.css. Run after changing any of these files:
 // node scripts/static-assets.mjs (tests/static-assets.test.ts fails until then).
 import { createHash } from "node:crypto";
 import { readdir, readFile, writeFile } from "node:fs/promises";
 
-const folders = ["images/avatar", "images/about", "fonts"];
+const folders = ["images/avatar", "images/about", "images/tech", "fonts"];
 const manifest = "src/lib/static-assets.json";
 const stylesheet = "src/styles/site.css";
 

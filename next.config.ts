@@ -96,10 +96,11 @@ const nextConfig: NextConfig = {
         has: versioned,
         headers: immutable,
       },
-      // And the portrait, the About posters and the display fonts
+      // And the portrait, the About posters, the icon sprite and the fonts
       // (src/lib/static-asset-urls.ts, scripts/static-assets.mjs).
       { source: "/images/avatar/:path*", has: versioned, headers: immutable },
       { source: "/images/about/:path*", has: versioned, headers: immutable },
+      { source: "/images/tech/:path*", has: versioned, headers: immutable },
       { source: "/fonts/:path*", has: versioned, headers: immutable },
       // So do the Bliss layers (src/lib/bliss-geometry.ts).
       { source: "/images/bliss/:path*", has: versioned, headers: immutable },
