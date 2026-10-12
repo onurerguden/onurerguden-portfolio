@@ -2,6 +2,7 @@ import { getCertificates } from "./home-content";
 import { sharedFacts, type Locale, type Project } from "./content";
 import { siteOrigin } from "./site";
 import { getIdentity } from "./identity";
+import { editorialModified } from "./editorial";
 
 /**
  * Schema.org data for search engines and AI answer engines. Every page
@@ -134,6 +135,9 @@ function webPage(
     inLanguage: locale,
     isPartOf: { "@id": website },
     author: { "@id": person },
+    ...(editorialModified(path)
+      ? { dateModified: editorialModified(path) }
+      : {}),
     ...extra,
   };
 }

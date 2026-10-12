@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getProjects } from "@/lib/content";
 import { siteOrigin } from "@/lib/site";
+import { editorialModified } from "@/lib/editorial";
 export default function sitemap(): MetadataRoute.Sitemap {
   const origin = siteOrigin();
   // Every case study has a page; archive entries live on /projects.
@@ -11,6 +12,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return paths.flatMap((path) =>
     ["en", "tr"].map((locale) => ({
       url: `${origin}/${locale}${path}`,
+      ...(editorialModified(path)
+        ? { lastModified: editorialModified(path) }
+        : {}),
       alternates: {
         languages: {
           en: `${origin}/en${path}`,

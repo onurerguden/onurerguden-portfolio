@@ -1,0 +1,20 @@
+/**
+ * The last significant editorial review of each portfolio page, shared by its
+ * English and Turkish versions. Update a value only when that page's profile,
+ * copy, evidence or metadata changes, never for a build, activity sync or deploy.
+ * Unknown dates are omitted; these are page dates, not project/paper dates.
+ */
+const changes: Readonly<Record<string, string>> = Object.freeze({
+  "": "2026-10-12T20:19:55Z",
+  "/projects": "2026-10-12T20:19:55Z",
+  "/research": "2026-10-12T20:19:55Z",
+  "/projects/course-intelligence": "2026-10-12T20:19:55Z",
+  "/projects/gymrap-ai-coach": "2026-10-12T20:19:55Z",
+  "/projects/kuyumcum": "2026-10-12T20:19:55Z",
+  "/projects/water-safety": "2026-10-12T20:19:55Z",
+});
+
+/** A recorded ISO 8601 DateTime, or no date when the edit is unknown. */
+export function editorialModified(path: string): string | undefined {
+  return Object.hasOwn(changes, path) ? changes[path] : undefined;
+}
