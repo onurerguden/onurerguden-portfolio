@@ -119,6 +119,15 @@ describe("crawler HTML semantics", () => {
     );
   });
   it("checks public city semantics without requiring a private address", () => {
+    expect(
+      audit(
+        html(
+          graph.map((entry, index) =>
+            index === 2 ? { ...person, homeLocation: undefined } : entry,
+          ),
+        ),
+      ),
+    ).toContain("Person is missing its verified homeLocation");
     const wrong = graph.map((node, index) =>
       index === 2
         ? {
@@ -136,6 +145,19 @@ describe("crawler HTML semantics", () => {
     expect(audit(html())).toEqual([]);
   });
   it("detects crawler editorial differences and ignores non-editorial transport changes", () => {
+    expect(editorialSignature(html())).not.toEqual(
+      editorialSignature(
+        html().replace("<p>LLM systems &amp; evaluation</p>", ""),
+      ),
+    );
+    expect(editorialSignature(html())).not.toEqual(
+      editorialSignature(
+        html().replace(
+          "</main>",
+          '<a href="/tr/projects/course-intelligence">Evidence</a></main>',
+        ),
+      ),
+    );
     expect(editorialSignature(html())).toEqual(
       editorialSignature(
         html().replace("</body>", "<script>activity=1456</script></body>"),
@@ -149,6 +171,21 @@ describe("crawler HTML semantics", () => {
         ),
       ),
     );
+  });
+  it("rejects page-wide snippet and grounding exclusions in HTML and HTTP", () => {
+    for (const directive of [
+      "nosnippet",
+      "max-snippet: 0",
+      "noarchive",
+      "nocache",
+    ]) {
+      expect(
+        audit(html(), { "x-robots-tag": `bingbot: ${directive}` }),
+      ).toContain("page restricts search snippets or AI grounding");
+      expect(
+        audit(html().replace("index, follow", `index, follow, ${directive}`)),
+      ).toContain("page restricts search snippets or AI grounding");
+    }
   });
 });
 
@@ -197,6 +234,10 @@ it("checks scholarly authors and publisher links against the HTML content", () =
       { "@type": "Person", name: "Example Coauthor" },
     ],
     url: "https://publisher.example/record",
+    isPartOf: {
+      "@type": "Periodical",
+      url: "https://publisher.example/journal",
+    },
   };
   const nodes = [
     { ...graph[0], "@type": "CollectionPage", mainEntity: undefined },
@@ -204,7 +245,7 @@ it("checks scholarly authors and publisher links against the HTML content", () =
   ];
   const document = html(nodes).replace(
     "<main>",
-    '<main><p>Verified water research · Example Coauthor</p><a href="https://publisher.example/record">Publisher</a>',
+    '<main><p>Verified water research · Example Coauthor</p><a href="https://publisher.example/record">Publisher</a><a href="https://publisher.example/journal">Accepted listing</a>',
   );
   expect(audit(document)).toEqual([]);
   expect(audit(document.replace(" · Example Coauthor", ""))).toContain(
@@ -218,4 +259,12 @@ it("checks scholarly authors and publisher links against the HTML content", () =
       ),
     ),
   ).toContain("paper publisher record is missing from HTML links");
+  expect(
+    audit(
+      document.replace(
+        '<a href="https://publisher.example/journal">Accepted listing</a>',
+        "",
+      ),
+    ),
+  ).toContain("paper publisher listing is missing from HTML links");
 });

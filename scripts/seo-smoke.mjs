@@ -127,7 +127,7 @@ for (const path of ["/en", "/tr", ...(casePath ? [casePath] : [])]) {
       if (JSON.stringify(editorialSignature(html)) !== JSON.stringify(baseline))
         fail(
           `${agent} ${path}`,
-          "editorial metadata or graph differs from the normal response",
+          "editorial metadata, graph or content differs from the normal response",
         );
     }),
   );

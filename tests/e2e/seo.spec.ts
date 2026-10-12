@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { sharedFacts } from "../../src/lib/content";
 import { getIdentity } from "../../src/lib/identity";
+import { getServices } from "../../src/lib/home-content";
 import { siteOrigin } from "../../src/lib/site";
 import {
   auditPage,
@@ -78,9 +79,37 @@ for (const locale of ["en", "tr"] as const) {
           address: { addressLocality: "İzmir", addressCountry: "TR" },
         },
       });
+      // Native keyboard activation must work without application scripts.
+      const proof = getServices(locale).find(
+        (service) => service.id === "agents",
+      )!.supportingProof!;
+      const source = noJs.getByRole("link", { name: proof.label, exact: true });
+      await source.focus();
+      await expect(source).toBeFocused();
+      await source.press("Enter");
+      await expect(noJs).toHaveURL(
+        new URL(proof.href, testInfo.project.use.baseURL).href,
+      );
     } finally {
       await context.close();
     }
+  });
+  test(`${locale}: the supporting LangGraph evidence has its own clickable target`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto(`/${locale}`);
+    const proof = getServices(locale).find(
+      (service) => service.id === "agents",
+    )!.supportingProof!;
+    const source = page.getByRole("link", { name: proof.label, exact: true });
+    await source.scrollIntoViewIfNeeded();
+    await source.focus();
+    await expect(source).toBeFocused();
+    await source.click();
+    await expect(page).toHaveURL(
+      new RegExp(`${proof.href.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`),
+    );
   });
 }
 

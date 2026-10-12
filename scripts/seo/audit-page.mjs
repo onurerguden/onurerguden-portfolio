@@ -123,6 +123,15 @@ export function auditPage(html, url, headers = {}, { indexable = true } = {}) {
   );
   if (indexable && blocked)
     failures.push("page is noindex in HTML or HTTP headers");
+  if (
+    indexable &&
+    [...page.robots, headerRobots].some((value) =>
+      /\b(?:nosnippet|noarchive|nocache)\b|\bmax-snippet\s*:\s*0\b/i.test(
+        value,
+      ),
+    )
+  )
+    failures.push("page restricts search snippets or AI grounding");
   if (!indexable && !blocked) failures.push("preview page is not noindex");
   if (page.invalidJsonLd || !page.graph.length)
     failures.push("no valid JSON-LD graph");
@@ -156,7 +165,9 @@ export function auditPage(html, url, headers = {}, { indexable = true } = {}) {
       if (typeof profile !== "string" || !page.contentLinks.includes(profile))
         failures.push("Person public profile is missing from HTML links");
     }
-    if (person?.homeLocation) {
+    if (!person?.homeLocation)
+      failures.push("Person is missing its verified homeLocation");
+    else {
       const place = person.homeLocation;
       if (
         !hasType(place, "Place") ||
@@ -210,16 +221,39 @@ export function auditPage(html, url, headers = {}, { indexable = true } = {}) {
       !page.contentLinks.includes(article.url)
     )
       failures.push("paper publisher record is missing from HTML links");
+    if (
+      typeof article.isPartOf?.url === "string" &&
+      !page.contentLinks.includes(article.isPartOf.url)
+    )
+      failures.push("paper publisher listing is missing from HTML links");
   }
   return { failures, page };
 }
 
-// A stable semantic signature for UA parity. Live activity, share-card hashes,
-// bytes and rendering details may change independently of editorial facts.
+// Compare server-rendered main prose and links too: matching metadata alone
+// cannot catch a bot-specific response that removes capabilities or evidence.
+// Client-fetched activity, scripts and transport details are not main prose.
 export function editorialSignature(html) {
-  const { canonical, alternates, title, description, h1Count, graph } =
-    inspectPage(html);
-  return { canonical, alternates, title, description, h1Count, graph };
+  const {
+    canonical,
+    alternates,
+    title,
+    description,
+    h1Count,
+    graph,
+    mainText,
+    contentLinks,
+  } = inspectPage(html);
+  return {
+    canonical,
+    alternates,
+    title,
+    description,
+    h1Count,
+    graph,
+    mainText,
+    contentLinks,
+  };
 }
 
 export const crawlerAgents = [
