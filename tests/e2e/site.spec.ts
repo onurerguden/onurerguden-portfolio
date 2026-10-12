@@ -273,12 +273,30 @@ test("browsers, crawlers and home screens find the icons and the manifest", asyn
       ]),
     ),
   );
-  // Each address carries its icon's revision, so a new icon replaces the
-  // one browsers keep.
+  // Browser addresses carry a revision. Search gets a stable 96 px raster
+  // URL, which revalidates when the logo changes.
   expect(head.icon).toEqual([
     expect.stringMatching(/^\/favicon\.ico\?v=[0-9a-f]{12}$/),
+    "/favicon-96.png",
     expect.stringMatching(/^\/icon\.svg\?v=[0-9a-f]{12}$/),
   ]);
+  await expect(
+    page.locator('link[rel="icon"][type="image/png"]'),
+  ).toHaveAttribute("sizes", "96x96");
+  const raster = await request.get("/favicon-96.png");
+  const png = await raster.body();
+  expect(png.subarray(0, 8)).toEqual(
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+  );
+  expect(png.readUInt32BE(16)).toBe(96);
+  expect(png.readUInt32BE(20)).toBe(96);
+  expect(raster.headers()["cache-control"]).not.toContain("immutable");
+  const ico = await (await request.get("/favicon.ico")).body();
+  const sizes = Array.from(
+    { length: ico.readUInt16LE(4) },
+    (_, i) => ico.readUInt8(6 + i * 16) || 256,
+  );
+  expect(sizes).toContain(96);
   expect(head["apple-touch-icon"]).toEqual([
     expect.stringMatching(/^\/apple-touch-icon\.png\?v=[0-9a-f]{12}$/),
   ]);

@@ -20,11 +20,19 @@ export function iconUrl(file: string) {
   return `/${file}?v=${revision}`;
 }
 
-/** Icons for every page's head: the SVG, the ICO for the rest, iOS's PNG. */
+/**
+ * Search gets a stable raster URL larger than 48 px. Browsers keep the SVG
+ * and versioned ICO; the ICO declares every embedded size, not just 32 px.
+ */
 export const pageIcons = () => ({
   icon: [
-    { url: iconUrl("favicon.ico"), sizes: "32x32" },
-    { url: iconUrl("icon.svg"), type: "image/svg+xml" },
+    {
+      url: iconUrl("favicon.ico"),
+      type: "image/x-icon",
+      sizes: "16x16 32x32 48x48 96x96",
+    },
+    { url: "/favicon-96.png", type: "image/png", sizes: "96x96" },
+    { url: iconUrl("icon.svg"), type: "image/svg+xml", sizes: "any" },
   ],
   apple: iconUrl("apple-touch-icon.png"),
 });
