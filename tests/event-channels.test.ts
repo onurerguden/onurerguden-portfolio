@@ -120,6 +120,27 @@ describe("entry capture and one anonymous conversion beacon", () => {
       "internal",
     );
   });
+  it("uses the initial navigation when history changed before the module loaded", async () => {
+    location.href = `${entry}?utm_source=bing`;
+    vi.stubGlobal("window", {
+      location,
+      performance: {
+        getEntriesByType: () => [
+          { name: `${entry}?utm_source=chatgpt.com&private=do-not-send` },
+        ],
+      },
+    });
+    const { track } = await import("../src/lib/event-beacon");
+    track({ name: "email_copy", location: "contact" });
+    expect(navigator.sendBeacon).toHaveBeenCalledExactlyOnceWith(
+      "/api/event",
+      JSON.stringify({
+        name: "email_copy",
+        location: "contact",
+        channel: "chatgpt",
+      }),
+    );
+  });
   it.each(["globalPrivacyControl", "doNotTrack"] as const)(
     "sends no early copy event with %s",
     async (signal) => {

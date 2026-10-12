@@ -204,8 +204,8 @@ test("entry is captured before an early copy imports the beacon, with no extra b
   });
   const sent = beacons(page);
   await page.goto("/en?utm_source=chatgpt.com&private=do-not-send");
-  // No scroll or key has loaded the deferred counter. Changing the URL must
-  // not rewrite the document entry captured by the lightweight eager module.
+  // Navigation Timing still identifies the original document entry even if
+  // the eager module loaded after the history replacement.
   await page.evaluate(() =>
     history.replaceState(null, "", "/en?utm_source=bing"),
   );
