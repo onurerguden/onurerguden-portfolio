@@ -1,3 +1,10 @@
+import {
+  auditPage,
+  crawlerAgents,
+  editorialSignature,
+  expectedAlternates,
+} from "./seo/audit-page.mjs";
+
 // Checks the live site the way a crawler sees it: every sitemap page answers
 // 200 with its own canonical, hreflang alternates, a description, structured
 // data and a share card that loads. Runs after each production deploy
@@ -19,12 +26,16 @@ const home = await get("/");
 if (home.status !== 308 || home.headers.get("location") !== "/en")
   fail("/", `expected 308 to /en, got ${home.status}`);
 
-const robots = await (await get("/robots.txt")).text();
+const robotsResponse = await get("/robots.txt");
+if (robotsResponse.status !== 200)
+  fail("/robots.txt", `answered ${robotsResponse.status}`);
+const robots = await robotsResponse.text();
 if (!robots.includes(`Sitemap: ${origin}/sitemap.xml`))
   fail("/robots.txt", "no Sitemap line for this origin");
 if (/^Disallow: \/$/m.test(robots)) fail("/robots.txt", "disallows everything");
 
 const sitemap = await get("/sitemap.xml");
+if (sitemap.status !== 200) fail("/sitemap.xml", `answered ${sitemap.status}`);
 const pages = [
   ...new Set(
     [...(await sitemap.text()).matchAll(/<loc>([^<]+)<\/loc>/g)].map(
@@ -34,6 +45,7 @@ const pages = [
 ];
 if (!pages.length) fail("/sitemap.xml", "lists no pages");
 
+const editorial = new Map();
 const cards = new Set();
 const icons = new Set(["/favicon.ico"]);
 for (const url of pages) {
@@ -41,6 +53,10 @@ for (const url of pages) {
   if (new URL(url).origin !== origin) {
     fail(path, `sitemap URL on another origin: ${url}`);
     continue;
+  }
+  for (const alternate of Object.values(expectedAlternates(url))) {
+    if (!pages.includes(alternate))
+      fail(path, `language alternate missing from sitemap: ${alternate}`);
   }
   const response = await get(path);
   if (response.status !== 200) {
@@ -69,29 +85,56 @@ for (const url of pages) {
     fail(path, "unexpected Content-Security-Policy");
   if (!/public|s-maxage/.test(response.headers.get("cache-control") ?? ""))
     fail(path, "not cacheable at the CDN");
-  const robotsMeta = attr(html, /<meta name="robots" content="([^"]*)"/);
-  if (robotsMeta?.includes("noindex")) fail(path, "is noindex");
-  if (attr(html, /<link rel="canonical" href="([^"]*)"/) !== url)
-    fail(path, "canonical is not the page's own URL");
-  for (const lang of ["en", "tr", "x-default"])
-    if (!html.includes(`hrefLang="${lang}"`)) fail(path, `no hreflang ${lang}`);
-  if (!attr(html, /<title>([^<]+)<\/title>/)) fail(path, "no title");
-  if (!attr(html, /<meta name="description" content="([^"]+)"/))
-    fail(path, "no description");
-  const ld = attr(
+  const { failures: semanticFailures } = auditPage(
     html,
-    /<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/,
+    url,
+    Object.fromEntries(response.headers),
   );
-  try {
-    if (!JSON.parse(ld ?? "")["@graph"]?.length) throw new Error();
-  } catch {
-    fail(path, "no JSON-LD graph");
-  }
+  for (const problem of semanticFailures) fail(path, problem);
+  editorial.set(path, editorialSignature(html));
   const card = attr(html, /<meta property="og:image" content="([^"]+)"/);
   if (!card?.includes("/opengraph-image/card")) fail(path, "no share card");
   else cards.add(card);
   if (!attr(html, /<meta property="og:image:alt" content="([^"]+)"/))
     fail(path, "share card has no alt");
+}
+
+// Representative fetches, never IP verification: a successful UA response
+// cannot prove that a provider's real crawler has visited or passed the WAF.
+const casePath = [...editorial.keys()].find((path) =>
+  /^\/en\/projects\/[^/]+$/.test(path),
+);
+for (const path of ["/en", "/tr", ...(casePath ? [casePath] : [])]) {
+  const baseline = editorial.get(path);
+  if (!baseline) {
+    fail(path, "missing representative crawler page");
+    continue;
+  }
+  const checks = await Promise.allSettled(
+    crawlerAgents.map(async (agent) => {
+      const response = await get(path, { headers: { "User-Agent": agent } });
+      if (response.status !== 200) {
+        fail(`${agent} ${path}`, `answered ${response.status}`);
+        return;
+      }
+      const html = await response.text();
+      for (const problem of auditPage(
+        html,
+        `${origin}${path}`,
+        Object.fromEntries(response.headers),
+      ).failures)
+        fail(`${agent} ${path}`, problem);
+      if (JSON.stringify(editorialSignature(html)) !== JSON.stringify(baseline))
+        fail(
+          `${agent} ${path}`,
+          "editorial metadata or graph differs from the normal response",
+        );
+    }),
+  );
+  checks.forEach((result, index) => {
+    if (result.status === "rejected")
+      fail(`${crawlerAgents[index]} ${path}`, "crawler request failed");
+  });
 }
 
 for (const icon of icons) {
@@ -103,7 +146,7 @@ for (const icon of icons) {
     fail(icon, `favicon answered ${response.status} or is not an image`);
     continue;
   }
-  if (response.headers.get("x-robots-tag")?.includes("noindex"))
+  if (/\b(?:noindex|none)\b/i.test(response.headers.get("x-robots-tag") ?? ""))
     fail(icon, "favicon is noindex");
   if (icon === "/favicon-96.png") {
     const bytes = new DataView(await response.arrayBuffer());
@@ -143,6 +186,15 @@ if (missing.status !== 404)
 
 for (const path of ["/llms.txt", "/llms-full.txt", "/.well-known/security.txt"])
   if ((await get(path)).status !== 200) fail(path, "is missing");
+
+for (const path of ["/en/lab/desk", "/tr/lab/desk"]) {
+  const response = await get(path);
+  if (
+    response.status !== 404 ||
+    !/\bnoindex\b/i.test(response.headers.get("x-robots-tag") ?? "")
+  )
+    fail(path, "production lab must be 404 and HTTP noindex");
+}
 
 if (failures.length) {
   console.error(failures.join("\n"));
