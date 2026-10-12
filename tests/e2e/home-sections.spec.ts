@@ -35,7 +35,10 @@ test("the Sections menu opens, navigates and closes from the keyboard", async ({
 }) => {
   await page.goto("/en");
   const button = page.getByRole("button", { name: "Sections" });
-  await button.click();
+  // Start with keyboard activation: touch-style clicks in WebKit don't focus
+  // buttons, and Escape correctly returns focus only from inside this menu.
+  await button.focus();
+  await button.press("Enter");
   await expect(button).toHaveAttribute("aria-expanded", "true");
   const menu = page.locator("#journey-sections-menu");
   await expect(menu.getByRole("link", { name: "What I do" })).toBeVisible();
