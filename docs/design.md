@@ -14,6 +14,10 @@ Onur is an AI engineer who develops products and evaluates models. The homepage 
 
 Four detailed cases: Kuyumcum, water safety, course intelligence and GymRap AI Coach (since October 4). Five shorter archive entries: CarbonPilot AI, urban mobility, TaskFoo, VoiceOps and PAM. No fake screenshots, team counts, baselines, dates or DOI. Missing supplied media does not become a fabricated product UI. See release checklist for unavailable inputs.
 
+### October 12: identity and evidence for search
+
+The approved location is İzmir, Türkiye, with national and international remote job and project opportunities. Keep the compact opening role in both languages and add İzmir without changing the desk composition; About carries the fuller identity. Shared facts drive the visible copy and search metadata. First person and sentence case remain intentional. Service rows prioritize RAG/LLM/agents, then AI product engineering and applied research, with a distinct keyboard-accessible CarbonPilot link supporting LangGraph. The current Experience treatment stays intact. Research displays every verified author in order and links to the publisher, while clearly retaining accepted/publication-pending status. See `docs/seo/README.md` for the scope and evidence policy.
+
 ## September 11: room entrance
 
 The approved room entrance supersedes the original two-column schematic hero. The initial viewport is the blank ultrawide surface with a small localized scroll cue. A native scroll-controlled perspective camera reveals the tabletop, visits the portrait screen and MacBook, then withdraws into a smoke-gray room with a reflective pale marble floor. A final viewport of scroll allows desk-object interactions before normal HTML resumes. The original title, introduction and CV action follow the scene; research is retained in HTML. Fine-pointer parallax is bounded to 2° horizontally / 1° vertically, absent in the opening and reduced at reading stops. Mobile uses fitted camera positions; reduced motion uses the room poster and HTML. See `docs/qa/room/README.md` for timing, measurements and limitations.
