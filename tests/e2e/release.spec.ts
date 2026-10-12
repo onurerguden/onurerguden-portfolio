@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import budget from "./budgets.json";
+import { getIdentity } from "../../src/lib/identity";
 
 test("each locale has its own share card", async ({ request }) => {
   for (const locale of ["en", "tr"]) {
@@ -12,7 +13,7 @@ test("each locale has its own share card", async ({ request }) => {
 
 test("share cards are described in the page's language", async ({ page }) => {
   for (const [path, alt] of [
-    ["/tr", "Onur Ergüden, AI mühendisi"],
+    ["/tr", getIdentity("tr").title],
     ["/en/projects/kuyumcum", "Kuyumcum: a case study by Onur Ergüden"],
     ["/tr/projects/kuyumcum", "Kuyumcum: Onur Ergüden’in vaka çalışması"],
   ]) {
@@ -41,7 +42,7 @@ test("the home page describes me as a Person with my profiles", async ({
   const person = data["@graph"].find((node) => node["@type"] === "Person");
   expect(person).toMatchObject({
     name: "Onur Ergüden",
-    jobTitle: "AI Mühendisi",
+    jobTitle: getIdentity("tr").role,
     sameAs: [
       "https://github.com/onurerguden",
       "https://www.linkedin.com/in/onurerguden/",

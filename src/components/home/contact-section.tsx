@@ -2,11 +2,13 @@ import GiantTitle from "@/components/giant-title";
 import { sharedFacts, type Locale } from "@/lib/content";
 import { cvLink } from "@/lib/site";
 import CopyEmail from "./copy-email";
+import { getIdentity } from "@/lib/identity";
 import styles from "./contact.module.css";
 
 export default function ContactSection({ locale }: { locale: Locale }) {
   const en = locale === "en";
   const cv = cvLink(locale, sharedFacts.email);
+  const identity = getIdentity(locale);
   return (
     <section
       className={`${styles.section} bleed`}
@@ -24,6 +26,7 @@ export default function ContactSection({ locale }: { locale: Locale }) {
           locale={locale}
           fill={88}
         />
+        <p className={styles.availability}>{identity.availability}</p>
         <div className={styles.mailRow}>
           <a className={styles.mail} href={`mailto:${sharedFacts.email}`}>
             {sharedFacts.email}

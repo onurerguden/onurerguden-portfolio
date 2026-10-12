@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { isLocale } from "@/lib/content";
+import { getIdentity } from "@/lib/identity";
 import {
   ogBackground,
   ogColors,
@@ -22,10 +23,7 @@ export function generateImageMetadata({
   return [
     {
       id: "card",
-      alt:
-        params.locale === "tr"
-          ? "Onur Ergüden, AI mühendisi"
-          : "Onur Ergüden, AI engineer",
+      alt: getIdentity(params.locale === "tr" ? "tr" : "en").title,
       size: ogSize,
       contentType: "image/png",
     },
@@ -40,6 +38,7 @@ export default async function Image({
 }) {
   const { locale } = await params;
   const tr = isLocale(locale) && locale === "tr";
+  const identity = getIdentity(tr ? "tr" : "en");
   const head = await ogPicture("head");
   return new ImageResponse(
     <div
@@ -68,10 +67,10 @@ export default async function Image({
           <span>ERGÜDEN</span>
         </div>
         <div style={{ marginTop: 34, fontSize: 40, color: ogColors.accent }}>
-          {upper(tr ? "AI mühendisi" : "AI engineer", tr)}
+          {upper(identity.role, tr)}
         </div>
         <div style={{ marginTop: 14, fontSize: 24, color: ogColors.muted }}>
-          {upper("RAG · agents · ML · full-stack", tr)}
+          {identity.location}
         </div>
       </div>
       <img src={head} width={400} height={400} alt="" />

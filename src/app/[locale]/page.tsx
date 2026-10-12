@@ -11,6 +11,7 @@ import XpDesktop from "@/components/xp/xp-desktop";
 import HomeContinuation from "@/components/home-continuation";
 import { homeSectionLinks } from "@/lib/home-sections";
 import { getCertificates } from "@/lib/home-content";
+import { getIdentity } from "@/lib/identity";
 
 export async function generateMetadata({
   params,
@@ -19,17 +20,10 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  return pageMetadata(
-    locale,
-    "",
-    locale === "en"
-      ? "Onur Ergüden — AI Engineer"
-      : "Onur Ergüden — AI Mühendisi",
-    locale === "en"
-      ? "Onur Ergüden is an AI engineer building LLM applications end to end: retrieval, LangGraph and MCP agents, and applied ML research."
-      : "Onur Ergüden, yapay zekâ (AI) mühendisi. Uçtan uca LLM uygulamaları geliştiriyor: bilgi erişimi, LangGraph ve MCP ajanları, uygulamalı ML araştırması.",
-    { absolute: true },
-  );
+  const identity = getIdentity(locale);
+  return pageMetadata(locale, "", identity.title, identity.description, {
+    absolute: true,
+  });
 }
 export default async function Home({
   params,

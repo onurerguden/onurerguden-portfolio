@@ -5,6 +5,7 @@ import { getProjects, locales, type Locale, type Project } from "./content";
 import { homeSectionIds } from "./home-sections";
 import { siteRepository } from "./site";
 import techIcons from "./tech-icons.generated.json";
+import { getIdentity } from "./identity";
 
 /**
  * Home-page sections beyond the projects: technologies, services, experience
@@ -206,6 +207,8 @@ const serviceSchema = z
   .object({
     id,
     proof: proofSchema,
+    /** A second source when a capability spans more than one project. */
+    supportingProof: proofSchema.optional(),
     tech: z.array(id).min(1),
   })
   .strict();
@@ -214,6 +217,7 @@ const serviceCopySchema = z
     title: z.string().min(1),
     description: z.string().min(1),
     proofLabel: z.string().min(1),
+    supportingProofLabel: z.string().min(1).optional(),
   })
   .strict();
 
@@ -224,6 +228,7 @@ export type Service = {
   proofLabel: string;
   href: string;
   tech: string[];
+  supportingProof?: { href: string; label: string };
 };
 
 export function getServices(locale: Locale, root = defaultRoot()): Service[] {
@@ -244,15 +249,34 @@ export function getServices(locale: Locale, root = defaultRoot()): Service[] {
   const tech = techNames(root);
   return services.map((service) => {
     let href: string;
+    let supportingHref: string | undefined;
     try {
       href = resolveProof(service.proof, context).href;
+      if (service.supportingProof)
+        supportingHref = resolveProof(service.supportingProof, context).href;
     } catch {
       throw new Error(`Unknown service proof: ${service.id}`);
     }
+    const localized = copy[service.id];
+    if (
+      Boolean(service.supportingProof) !==
+      Boolean(localized.supportingProofLabel)
+    )
+      throw new Error(
+        `Service supporting proof needs its label: ${service.id}`,
+      );
     return {
       id: service.id,
-      ...copy[service.id],
+      ...localized,
       href,
+      ...(supportingHref
+        ? {
+            supportingProof: {
+              href: supportingHref,
+              label: localized.supportingProofLabel!,
+            },
+          }
+        : {}),
       tech: service.tech.map((techId) => {
         const name = tech.get(techId);
         if (!name) throw new Error(`Unknown service technology: ${techId}`);
@@ -445,7 +469,10 @@ export function validateHomeContent(root?: string): void {
 
 const aboutSchema = z
   .object({ paragraphs: z.array(z.string().min(1)).min(1).max(4) })
-  .strict();
+  .strict()
+  .refine((about) => about.paragraphs[0] === "[[identity:bio]]", {
+    message: "About starts with the shared identity bio",
+  });
 
 export function getAbout(locale: Locale, root = defaultRoot()) {
   const about = aboutSchema.parse(read(root, locale, "about.json"));
@@ -454,5 +481,10 @@ export function getAbout(locale: Locale, root = defaultRoot()) {
   );
   if (about.paragraphs.length !== other.paragraphs.length)
     throw new Error(`About parity failed: ${locale}`);
-  return about;
+  const identity = getIdentity(locale);
+  return {
+    paragraphs: about.paragraphs.map((paragraph) =>
+      paragraph === "[[identity:bio]]" ? identity.bio : paragraph,
+    ),
+  };
 }

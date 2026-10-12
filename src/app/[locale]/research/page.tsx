@@ -57,15 +57,26 @@ export default async function ResearchPage({
           {publication.authors.map((author, i) => (
             <span key={author}>
               {i ? ", " : null}
-              {author === "O. Ergüden" ? <strong>{author}</strong> : author}
+              {author === sharedFacts.name ? <strong>{author}</strong> : author}
             </span>
           ))}
         </p>
         <p className={styles.summary}>{research.publicationSummary}</p>
-        <Link className={styles.link} href={`/${locale}/projects/water-safety`}>
-          {en ? "Read the research project" : "Araştırma projesini oku"}
-          <span aria-hidden="true"> →</span>
-        </Link>
+        <p className={styles.studyLinks}>
+          <Link
+            className={styles.link}
+            href={`/${locale}/projects/water-safety`}
+          >
+            {en ? "Read the research project" : "Araştırma projesini oku"}
+            <span aria-hidden="true"> →</span>
+          </Link>
+          <a className={styles.link} href={publication.sourceUrl}>
+            {en
+              ? "Publisher’s accepted-paper listing"
+              : "Yayıncıda kabul edilen makaleler"}
+            <span aria-hidden="true"> ↗</span>
+          </a>
+        </p>
       </section>
       <section
         className={`${styles.paper} ${styles.study}`}

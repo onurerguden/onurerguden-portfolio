@@ -22,7 +22,7 @@ export default function PortraitIdentity({
   opening = false,
   interactive = true,
 }: {
-  content: Pick<JourneyContent, "name" | "role">;
+  content: Pick<JourneyContent, "name" | "role" | "city">;
   opening?: boolean;
   interactive?: boolean;
 }) {
@@ -118,7 +118,11 @@ export default function PortraitIdentity({
         className={styles.name}
         data-portrait-name
         // The name is drawn as two stacked words; say it as one, with my role.
-        aria-label={opening ? `${content.name}, ${content.role}` : undefined}
+        aria-label={
+          opening
+            ? `${content.name}, ${content.role}, ${content.city}`
+            : undefined
+        }
       >
         <span>{words[0]}</span>
         <span>{words.slice(1).join(" ")}</span>
@@ -129,6 +133,9 @@ export default function PortraitIdentity({
         aria-hidden={opening ? true : undefined}
       >
         {content.role}
+        <span className={styles.location} data-portrait-location>
+          {content.city}
+        </span>
       </span>
       <div className={styles.head} data-portrait-poster>
         {/* Phones up to 2.6x and 1x desktops get 1080 px, the rest 1254, AVIF

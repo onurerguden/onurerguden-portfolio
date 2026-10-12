@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { getProjects, sharedFacts } from "../src/lib/content";
+import { getIdentity } from "../src/lib/identity";
 import {
   caseStudyStructuredData,
   homeStructuredData,
@@ -18,16 +19,28 @@ describe("structured data", () => {
   it("describes the home page as my profile, in both languages", () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://onurerguden.dev");
     for (const locale of ["en", "tr"] as const) {
+      const identity = getIdentity(locale);
       const graph = homeStructuredData(locale) as Graph;
       expect(node(graph, "ProfilePage")).toMatchObject({
         url: `https://onurerguden.dev/${locale}`,
+        name: identity.title,
         mainEntity: { "@id": "https://onurerguden.dev/#person" },
       });
       expect(node(graph, "Person")).toMatchObject({
         "@id": "https://onurerguden.dev/#person",
         name: sharedFacts.name,
         sameAs: [sharedFacts.github, sharedFacts.linkedin],
-        jobTitle: locale === "en" ? "AI Engineer" : "AI Mühendisi",
+        jobTitle: identity.role,
+        description: identity.description,
+        homeLocation: {
+          "@type": "Place",
+          name: identity.location,
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: sharedFacts.location.city,
+            addressCountry: sharedFacts.location.countryCode,
+          },
+        },
       });
     }
   });
@@ -63,6 +76,19 @@ describe("structured data", () => {
     const authors = node(research, "ScholarlyArticle")?.author as unknown[];
     expect(authors).toHaveLength(sharedFacts.publication.authors.length);
     expect(authors[0]).toEqual({ "@id": expect.stringMatching(/#person$/) });
+    expect(authors.slice(1)).toEqual(
+      sharedFacts.publication.authors
+        .slice(1)
+        .map((name) => ({ "@type": "Person", name })),
+    );
+    expect(node(research, "ScholarlyArticle")).toMatchObject({
+      creativeWorkStatus: "Accepted",
+      isPartOf: { url: sharedFacts.publication.sourceUrl },
+    });
+    expect(node(research, "ScholarlyArticle")).not.toHaveProperty(
+      "datePublished",
+    );
+    expect(node(research, "ScholarlyArticle")).not.toHaveProperty("doi");
   });
 
   it("cannot close its script tag", () => {

@@ -38,7 +38,7 @@ export async function generateMetadata({
     ? pageMetadata(
         locale,
         `/projects/${slug}`,
-        project.title,
+        project.searchTitle ?? project.title,
         project.description ?? project.summary,
       )
     : {};

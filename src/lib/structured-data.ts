@@ -1,6 +1,7 @@
 import { getCertificates } from "./home-content";
 import { sharedFacts, type Locale, type Project } from "./content";
 import { siteOrigin } from "./site";
+import { getIdentity } from "./identity";
 
 /**
  * Schema.org data for search engines and AI answer engines. Every page
@@ -19,11 +20,6 @@ const ids = () => {
   };
 };
 
-const pageName = (locale: Locale) =>
-  locale === "en"
-    ? "Onur Ergüden — AI Engineer"
-    : "Onur Ergüden — AI Mühendisi";
-
 /** The site in both languages, published by me. */
 function website(): Node {
   const { origin, person, website } = ids();
@@ -41,6 +37,7 @@ function website(): Node {
 function person(locale: Locale): Node {
   const { origin, person } = ids();
   const en = locale === "en";
+  const identity = getIdentity(locale);
   const university = {
     "@type": "CollegeOrUniversity",
     name: sharedFacts.education.university,
@@ -64,10 +61,17 @@ function person(locale: Locale): Node {
     alternateName: "Onur Erguden",
     givenName: "Onur",
     familyName: "Ergüden",
-    jobTitle: en ? "AI Engineer" : "AI Mühendisi",
-    description: en
-      ? "AI engineer building LLM applications end to end: retrieval, tool-calling agents with LangGraph and MCP, and the product around them."
-      : "Uçtan uca LLM uygulamaları geliştiren AI mühendisi: bilgi erişimi, LangGraph ve MCP ile araç kullanan ajanlar ve bunların etrafındaki ürün.",
+    jobTitle: identity.role,
+    description: identity.description,
+    homeLocation: {
+      "@type": "Place",
+      name: identity.location,
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: sharedFacts.location.city,
+        addressCountry: sharedFacts.location.countryCode,
+      },
+    },
     url: `${origin}/${locale}`,
     image: `${origin}/images/avatar/onur-head-v4-1254.webp`,
     email: `mailto:${sharedFacts.email}`,
@@ -142,7 +146,7 @@ const graph = (...nodes: Node[]) => ({
 /** The home page is my profile page. */
 export function homeStructuredData(locale: Locale) {
   return graph(
-    webPage(locale, "", "ProfilePage", pageName(locale), {
+    webPage(locale, "", "ProfilePage", getIdentity(locale).title, {
       mainEntity: { "@id": ids().person },
     }),
     website(),
@@ -226,9 +230,13 @@ export function researchStructuredData(locale: Locale) {
     name: publication.title,
     inLanguage: "en",
     creativeWorkStatus: "Accepted",
-    isPartOf: { "@type": "Periodical", name: publication.journal },
+    isPartOf: {
+      "@type": "Periodical",
+      name: publication.journal,
+      url: publication.sourceUrl,
+    },
     author: publication.authors.map((author) =>
-      author === "O. Ergüden"
+      author === sharedFacts.name
         ? { "@id": person }
         : { "@type": "Person", name: author },
     ),

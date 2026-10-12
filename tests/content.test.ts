@@ -124,10 +124,34 @@ describe("home section content", () => {
     expect(getServices("en").map((s) => s.href)).toEqual([
       "/en/projects/course-intelligence",
       "/en/projects/gymrap-ai-coach",
-      "/en/projects/water-safety",
       "/en/projects#taskfoo",
       "/en/projects/kuyumcum",
+      "/en/projects/water-safety",
     ]);
+  });
+  it("ties LangGraph and MCP to separate project evidence", () => {
+    for (const locale of ["en", "tr"] as const) {
+      const agents = getServices(locale).find(
+        (service) => service.id === "agents",
+      );
+      expect(agents?.href).toBe(`/${locale}/projects/gymrap-ai-coach`);
+      expect(agents?.supportingProof).toEqual({
+        href: `/${locale}/projects#carbonpilot`,
+        label:
+          locale === "en"
+            ? "LangGraph in CarbonPilot"
+            : "CarbonPilot’ta LangGraph",
+      });
+    }
+    const root = fixture();
+    editJson(
+      root,
+      "tr/services.json",
+      (value) => delete value.agents.supportingProofLabel,
+    );
+    expect(() => validateHomeContent(root)).toThrow(
+      "supporting proof needs its label",
+    );
   });
   it("fails when a translated service is missing", () => {
     const root = fixture();
@@ -283,6 +307,25 @@ describe("technology evidence", () => {
 });
 
 describe("case studies", () => {
+  it("describes each case's engineering topic in search without renaming its product", () => {
+    for (const locale of ["en", "tr"] as const) {
+      for (const project of getProjects(locale).filter(
+        (entry) => entry.featured,
+      )) {
+        expect(project.searchTitle).toMatch(new RegExp(`^${project.title} — `));
+        expect(project.description!.length).toBeLessThanOrEqual(160);
+      }
+    }
+    const root = fixture();
+    editJson(
+      root,
+      "tr/projects.json",
+      (value) => delete value.kuyumcum.searchTitle,
+    );
+    expect(() => validateContent(root)).toThrow(
+      "Search title belongs to case studies",
+    );
+  });
   it("state my role on case studies only", () => {
     for (const locale of ["en", "tr"] as const)
       for (const project of getProjects(locale))

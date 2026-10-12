@@ -35,6 +35,11 @@
     sans-serif;
   color: #536171;
 }
+.location {
+  display: block;
+  margin-top: 0.2em;
+  font-size: 0.8em;
+}
 .head {
   position: absolute;
   z-index: 1;
@@ -138,6 +143,14 @@
     transform: translateX(-50%);
     font-size: 1.45cqw;
     white-space: nowrap;
+  }
+  .location {
+    display: inline;
+    margin-top: 0;
+    font-size: inherit;
+  }
+  .location::before {
+    content: " · ";
   }
   .head {
     top: 44%;

@@ -7,7 +7,8 @@
   "agents": {
     "title": "Araç çağıran ajanlar",
     "description": "LangGraph ve MCP üzerinden gerçek araçları çağıran ajanlar: korumalı döngüler, her yazmada şema doğrulaması ve gereken yerde insan onayı.",
-    "proofLabel": "GymRap AI Coach’a bak"
+    "proofLabel": "GymRap AI Coach’a bak",
+    "supportingProofLabel": "CarbonPilot’ta LangGraph"
   },
   "ml": {
     "title": "ML modelleri ve değerlendirme",

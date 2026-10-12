@@ -3,6 +3,7 @@ import { getProject, getProjects, sharedFacts } from "../src/lib/content";
 import { llmsFull, llmsIndex } from "../src/lib/llms";
 import { reportWorkflow } from "../src/lib/report-workflow";
 import { getResearch } from "../src/lib/research";
+import { getIdentity } from "../src/lib/identity";
 
 afterEach(() => vi.unstubAllEnvs());
 
@@ -22,7 +23,9 @@ describe("llms.txt", () => {
     const summary = llmsIndex()
       .split("\n")
       .find((line) => line.startsWith("> "));
-    expect(summary).toContain("is an AI engineer.");
+    expect(summary).toContain(
+      `is an AI engineer based in ${getIdentity("en").location}.`,
+    );
     expect(summary).not.toContain(sharedFacts.work.company);
   });
 
@@ -54,5 +57,9 @@ describe("llms.txt", () => {
       research.interests,
     ])
       expect(full).toContain(text);
+    expect(full).toContain(sharedFacts.publication.authors.join(", "));
+    expect(full).toContain(sharedFacts.publication.sourceUrl);
+    expect(full).toContain("LangGraph in CarbonPilot:");
+    expect(full).toContain("/en/projects#carbonpilot");
   });
 });

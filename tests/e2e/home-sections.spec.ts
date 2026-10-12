@@ -1,3 +1,4 @@
+import { getIdentity } from "../../src/lib/identity";
 import { test, expect } from "@playwright/test";
 import { ci } from "./helpers";
 import AxeBuilder from "@axe-core/playwright";
@@ -243,7 +244,12 @@ test("research, education and the name read before any 3D", async ({
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/en");
   await expect(
-    page.getByRole("heading", { level: 1, name: "Onur Ergüden, AI engineer" }),
+    page.getByRole("heading", {
+      level: 1,
+      name: new RegExp(
+        `^Onur Ergüden, ${getIdentity("en").role}(?:, ${getIdentity("en").city})?$`,
+      ),
+    }),
   ).toHaveCount(1);
   const research = page.locator("#research");
   await expect(
@@ -251,7 +257,7 @@ test("research, education and the name read before any 3D", async ({
   ).toBeVisible();
   await expect(research.locator("ol li")).toHaveCount(3);
   await expect(
-    research.locator("strong", { hasText: "O. Ergüden" }),
+    research.locator("strong", { hasText: "Onur Ergüden" }),
   ).toHaveCount(1);
   const facts = page.locator("#about dl");
   await expect(facts).toContainText("BSc Software Engineering");

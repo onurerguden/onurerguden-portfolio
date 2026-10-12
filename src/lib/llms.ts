@@ -8,6 +8,7 @@ import {
 import { reportWorkflow } from "./report-workflow";
 import { getResearch } from "./research";
 import { siteOrigin } from "./site";
+import { getIdentity } from "./identity";
 
 /**
  * /llms.txt and /llms-full.txt (llmstxt.org): the site as Markdown for AI
@@ -22,10 +23,13 @@ const absolute = (href: string) =>
 function intro() {
   const origin = siteOrigin();
   const { education } = sharedFacts;
+  const identity = getIdentity(locale);
   return [
     `# ${sharedFacts.name}`,
     "",
-    `> ${sharedFacts.name} is an AI engineer. He builds LLM applications end to end: retrieval, tool-calling agents with LangGraph and MCP, and applied machine learning research. ${education.degree}, ${education.university}.`,
+    `> ${sharedFacts.name} is an ${identity.occupation} based in ${identity.location}. He builds LLM applications end to end: retrieval, tool-calling agents with LangGraph and MCP, and full-stack products. ${education.degree}, ${education.university}.`,
+    "",
+    identity.availability,
     "",
     `This is his portfolio, in English (${origin}/en) and Turkish (${origin}/tr). Contact: ${sharedFacts.email}. GitHub: ${sharedFacts.github}. LinkedIn: ${sharedFacts.linkedin}. The site is written in his own words, so the sections below speak in the first person.`,
   ];
@@ -103,7 +107,7 @@ export function llmsFull() {
     "## What I do",
     "",
     ...getServices(locale).flatMap((service) => [
-      `- **${service.title}**: ${service.description} (${service.tech.join(", ")}; proof: ${absolute(service.href)})`,
+      `- **${service.title}**: ${service.description} (${service.tech.join(", ")}; proof: ${absolute(service.href)}${service.supportingProof ? `; ${service.supportingProof.label}: ${absolute(service.supportingProof.href)}` : ""})`,
     ]),
     "",
     "## Experience",
@@ -119,7 +123,7 @@ export function llmsFull() {
     "",
     research.approach,
     "",
-    `- **${publication.title}**. ${publication.authors.join(", ")}. ${publication.journal}. ${publication.statusLabel.en}. ${research.publicationSummary}`,
+    `- **${publication.title}**. ${publication.authors.join(", ")}. ${publication.journal}. ${publication.statusLabel.en}. ${research.publicationSummary} Publisher’s accepted-paper listing: ${publication.sourceUrl}`,
     "",
     `- **${research.study.title}**. ${research.study.status}. ${research.study.team}. ${research.study.data} ${research.study.method} Source: ${research.study.repoUrl}`,
     "",

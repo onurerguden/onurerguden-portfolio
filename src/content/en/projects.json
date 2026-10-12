@@ -1,16 +1,18 @@
 {
   "kuyumcum": {
     "title": "Kuyumcum",
+    "searchTitle": "Kuyumcum — Flutter and applied AI",
     "summary": "A mobile ecosystem connecting precious-metal holdings, portfolio insight and local merchants. I co-developed the product and engineered its AI features.",
-    "description": "A mobile app connecting precious-metal holdings, portfolio insight and local jewelers: how I co-developed the product and engineered its AI features.",
+    "description": "How I co-developed a Flutter product for precious metals and engineered on-device recognition and multi-agent reports.",
     "category": "Product engineering · applied AI",
     "role": "Co-developer · AI features",
     "mediaAlt": ["Kuyumcum jeweler discovery map", "Kuyumcum AI report list"]
   },
   "water-safety": {
     "title": "HealthFactor-AI",
-    "summary": "Two layers of water-safety intelligence: detecting contamination now and forecasting how safety may change next.",
-    "description": "A two-layered AI system for drinking-water safety: detecting contamination now and forecasting how safety may change next. Accepted research.",
+    "searchTitle": "HealthFactor-AI — water-safety ML research",
+    "summary": "My two-layer machine-learning research on İzmir’s public water-quality data: current contamination detection and safety-trend forecasting, with real and synthetic evaluation kept distinct.",
+    "description": "My two-layer water-safety ML research on İzmir open data: chronological evaluation, synthetic-data limits and an accepted IJEA paper.",
     "category": "Machine learning · research",
     "role": "Two-layer framework, data pipeline and models",
     "metricLabel": "water-quality measurements from 76 sampling points, August 2025 – July 2026",
@@ -21,8 +23,9 @@
   },
   "course-intelligence": {
     "title": "Course Intelligence RAG",
-    "summary": "A departmental knowledge assistant combining local language models, semantic retrieval and deliberately constrained answers.",
-    "description": "A departmental knowledge assistant built with local language models, semantic retrieval and deliberately constrained answers.",
+    "searchTitle": "Course Intelligence RAG — local LLM retrieval",
+    "summary": "I built a local RAG assistant for departmental knowledge with Llama 3.1, SBERT and FAISS: semantic retrieval, traceable context and deliberately constrained answers.",
+    "description": "How I built a local RAG assistant with Llama 3.1, SBERT and FAISS: retrieval, constrained answers and evaluation limits.",
     "category": "Retrieval · LLM systems",
     "role": "Retrieval and LLM orchestration architecture"
   },
@@ -46,8 +49,9 @@
   },
   "gymrap-ai-coach": {
     "title": "GymRap AI Coach",
-    "summary": "A personal strength coach on Health Connect, Cloudflare and an OAuth-protected MCP server. Tested, deterministic analysis runs on the server; ChatGPT reads it through MCP and writes the coaching.",
-    "description": "A personal strength coach on Health Connect, Cloudflare and an OAuth-protected MCP server; ChatGPT reads the server's analysis and writes the coaching.",
+    "searchTitle": "GymRap AI Coach — authenticated MCP tools",
+    "summary": "I built a personal strength coach end to end on Health Connect, Cloudflare and an OAuth-protected MCP server. Tested, deterministic analysis runs on the server; ChatGPT reads it through MCP and writes the coaching.",
+    "description": "How I built an OAuth-protected MCP coach with Health Connect and deterministic server-side analysis; ChatGPT interprets the results.",
     "category": "MCP · agent tooling",
     "role": "Design and implementation, end to end",
     "mediaAlt": [

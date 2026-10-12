@@ -1,16 +1,18 @@
 {
   "kuyumcum": {
     "title": "Kuyumcum",
+    "searchTitle": "Kuyumcum — Flutter ve uygulamalı yapay zekâ",
     "summary": "Değerli metal varlıklarını, portföy analizini ve yerel kuyumcuları bir araya getiren mobil ekosistem. Ürünü birlikte geliştirdim ve yapay zekâ özellikleri üzerinde çalıştım.",
-    "description": "Değerli metal varlıklarını, portföy analizini ve yerel kuyumcuları buluşturan mobil uygulama: ürünü birlikte nasıl geliştirdiğim ve yapay zekâ özellikleri.",
+    "description": "Değerli metaller için Flutter ürününü birlikte nasıl geliştirdim: cihaz üzerinde nesne tanıma ve çok ajanlı rapor özellikleri.",
     "category": "Ürün geliştirme · uygulamalı yapay zekâ",
     "role": "Ortak geliştirici · AI özellikleri",
     "mediaAlt": ["Kuyumcum kuyumcu keşif haritası", "Kuyumcum AI rapor listesi"]
   },
   "water-safety": {
     "title": "HealthFactor-AI",
-    "summary": "Su güvenliğini iki katmanda ele alan sistem: mevcut kirliliği tespit etmek ve güvenlik eğilimini öngörmek.",
-    "description": "İçme suyu güvenliği için iki katmanlı yapay zekâ sistemi: mevcut kirliliği tespit ediyor, güvenliğin nasıl değişeceğini öngörüyor. Kabul edilmiş araştırma.",
+    "searchTitle": "HealthFactor-AI — su güvenliği için ML araştırması",
+    "summary": "İzmir’in açık su kalitesi verisi üzerinde iki katmanlı makine öğrenmesi araştırmam: mevcut kirliliğin tespiti ve güvenlik eğiliminin tahmini; gerçek ve sentetik değerlendirme ayrı tutuluyor.",
+    "description": "İzmir açık verisinde iki katmanlı su güvenliği ML araştırmam: kronolojik değerlendirme, sentetik veri sınırları ve kabul edilen IJEA makalesi.",
     "category": "Makine öğrenmesi · araştırma",
     "role": "İki katmanlı çerçeve, veri hattı ve modeller",
     "metricLabel": "76 örnekleme noktasından su kalitesi ölçümü, Ağustos 2025 – Temmuz 2026",
@@ -21,8 +23,9 @@
   },
   "course-intelligence": {
     "title": "Course Intelligence RAG",
-    "summary": "Yerel dil modellerini, anlamsal aramayı ve yanıt sınırlarını birleştiren, farklı bölümlerin bilgilerine erişim sağlayan asistan.",
-    "description": "Yerel dil modelleri, anlamsal arama ve bilinçli olarak sınırlandırılmış yanıtlarla çalışan, bölüm bilgilerine erişim sağlayan asistan.",
+    "searchTitle": "Course Intelligence RAG — yerel LLM ve bilgi erişimi",
+    "summary": "Llama 3.1, SBERT ve FAISS ile bölüm bilgilerine erişim sağlayan yerel bir RAG asistanı geliştirdim: anlamsal arama, izlenebilir bağlam ve bilinçli olarak sınırlandırılmış yanıtlar.",
+    "description": "Llama 3.1, SBERT ve FAISS ile yerel RAG asistanını nasıl geliştirdim: bilgi erişimi, sınırlandırılmış yanıtlar ve değerlendirme.",
     "category": "Bilgi getirme · LLM sistemleri",
     "role": "Bilgi getirme ve LLM orkestrasyon mimarisi"
   },
@@ -46,8 +49,9 @@
   },
   "gymrap-ai-coach": {
     "title": "GymRap AI Coach",
-    "summary": "Health Connect, Cloudflare ve OAuth korumalı bir MCP sunucusu üzerinde çalışan kişisel kuvvet koçu. Test edilmiş, deterministik analiz sunucuda yapılıyor; ChatGPT bunu MCP üzerinden okuyup koçluk yorumunu yazıyor.",
-    "description": "Health Connect, Cloudflare ve OAuth korumalı bir MCP sunucusu üzerinde kişisel kuvvet koçu; ChatGPT sunucunun analizini okuyup koçluk yorumunu yazıyor.",
+    "searchTitle": "GymRap AI Coach — OAuth korumalı MCP araçları",
+    "summary": "Health Connect, Cloudflare ve OAuth korumalı bir MCP sunucusu üzerinde kişisel kuvvet koçunu uçtan uca geliştirdim. Test edilmiş, deterministik analiz sunucuda yapılıyor; ChatGPT bunu MCP üzerinden okuyup koçluk yorumunu yazıyor.",
+    "description": "Health Connect ve deterministik sunucu analiziyle OAuth korumalı MCP koçunu nasıl geliştirdim; ChatGPT sonuçları yorumluyor.",
     "category": "MCP · ajan araçları",
     "role": "Uçtan uca tasarım ve geliştirme",
     "mediaAlt": [

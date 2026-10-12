@@ -11,6 +11,8 @@ export const isLocale = (value: string): value is Locale =>
 const projectSchema = z.object({
   slug: z.string().min(1),
   title: z.string().min(1),
+  /** Search title can explain the engineering topic without renaming a product. */
+  searchTitle: z.string().min(1).optional(),
   summary: z.string().min(1),
   /** A case study's search-result description, short enough not to be cut. */
   description: z.string().min(50).max(160).optional(),
@@ -49,6 +51,7 @@ export const sharedFacts = {
   github: "https://github.com/onurerguden",
   githubLogin: "onurerguden",
   linkedin: "https://www.linkedin.com/in/onurerguden/",
+  location: { city: "İzmir", country: "Türkiye", countryCode: "TR" },
   work: { company: "Future Is Now", since: "2026-07" },
   academy: {
     name: "Google AI & Technology Academy",
@@ -65,14 +68,15 @@ export const sharedFacts = {
     title:
       "Two-layered Artificial Intelligence System to Assess and Forecast the Safety Level of Drinking Water Resources",
     authors: [
-      "O. Ergüden",
-      "B. Ceylani",
-      "A. Şengül",
-      "S. Yılmaz",
-      "E. Yılmaz",
-      "M. Y. Kalkan",
-      "D. E. Fawzy",
+      "Onur Ergüden",
+      "Cem Başar Ceylani",
+      "Efe Ayhan Şengül",
+      "Sıla Yılmaz",
+      "Ege Yılmaz",
+      "Diaa Gadelmavla",
+      "Mirkan Yusuf Kalkan",
     ],
+    sourceUrl: "https://dergipark.org.tr/en/pub/ijea",
     journal: "International Journal of Engineering Approaches (IJEA)",
     status: "accepted" as const,
     statusLabel: {
@@ -269,6 +273,7 @@ const projects: SharedProject[] = [
 const translationSchema = z
   .object({
     title: z.string().min(1),
+    searchTitle: z.string().min(1).optional(),
     summary: z.string().min(1),
     description: z.string().min(50).max(160).optional(),
     category: z.string().min(1),
@@ -325,9 +330,14 @@ export function getProjects(
       throw new Error(
         `Search description belongs to case studies only: ${locale}/${shared.slug}`,
       );
+    if (shared.featured !== Boolean(copy.searchTitle))
+      throw new Error(
+        `Search title belongs to case studies only: ${locale}/${shared.slug}`,
+      );
     return projectSchema.parse({
       ...shared,
       title: copy.title,
+      searchTitle: copy.searchTitle,
       summary: copy.summary,
       description: copy.description,
       category: copy.category,

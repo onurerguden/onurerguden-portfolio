@@ -237,6 +237,23 @@
   white-space: nowrap;
   text-decoration: none;
 }
+.supportingProof {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  min-height: calc(44 * var(--u));
+  margin-top: calc(8 * var(--u));
+  color: var(--row-accent);
+  font-size: var(--chip-size);
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.supportingProof:focus-visible {
+  outline: calc(3 * var(--u)) solid var(--focus);
+  outline-offset: calc(4 * var(--u));
+}
 .proof span {
   display: inline-block;
   transition: transform var(--dur-hover) var(--ease-out);

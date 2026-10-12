@@ -65,6 +65,15 @@ export default function ServiceRows({ locale }: { locale: Locale }) {
                     <li key={name}>{name}</li>
                   ))}
                 </ul>
+                {service.supportingProof ? (
+                  <Link
+                    className={styles.supportingProof}
+                    href={service.supportingProof.href}
+                  >
+                    {service.supportingProof.label}
+                    <span aria-hidden="true"> →</span>
+                  </Link>
+                ) : null}
               </div>
               <span className={styles.proof} id={`service-proof-${service.id}`}>
                 {service.proofLabel} <span aria-hidden="true">→</span>

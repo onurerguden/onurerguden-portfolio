@@ -1,3 +1,4 @@
+import { getIdentity } from "../../src/lib/identity";
 import { test, expect, type Page } from "@playwright/test";
 import {
   forceSectionScenes,
@@ -91,7 +92,12 @@ test("reduced motion keeps the HTML explanation without WebGL", async ({
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/en");
   await expect(
-    page.getByRole("heading", { level: 1, name: "Onur Ergüden, AI engineer" }),
+    page.getByRole("heading", {
+      level: 1,
+      name: new RegExp(
+        `^Onur Ergüden, ${getIdentity("en").role}(?:, ${getIdentity("en").city})?$`,
+      ),
+    }),
   ).toBeVisible();
   await page.waitForTimeout(2200);
   await expect(page.locator("canvas")).toHaveCount(0);
@@ -180,7 +186,12 @@ test("3D canvas is decorative, within budget and safely loses context", async ({
   );
   await expect(journeyCanvas(page)).toHaveCount(0);
   await expect(
-    page.getByRole("heading", { level: 1, name: "Onur Ergüden, AI engineer" }),
+    page.getByRole("heading", {
+      level: 1,
+      name: new RegExp(
+        `^Onur Ergüden, ${getIdentity("en").role}(?:, ${getIdentity("en").city})?$`,
+      ),
+    }),
   ).toBeVisible();
 });
 test("all internal navigation resolves without broken links", async ({

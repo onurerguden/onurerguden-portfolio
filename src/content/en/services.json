@@ -7,7 +7,8 @@
   "agents": {
     "title": "Tool-calling agents",
     "description": "Agents that call real tools through LangGraph and MCP: guarded loops, schemas on every write and a person in the loop where it matters.",
-    "proofLabel": "See GymRap AI Coach"
+    "proofLabel": "See GymRap AI Coach",
+    "supportingProofLabel": "LangGraph in CarbonPilot"
   },
   "ml": {
     "title": "ML models & evaluation",

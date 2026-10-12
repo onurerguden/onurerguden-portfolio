@@ -31,7 +31,7 @@ export default function ScreenPanels({
   interactive,
 }: {
   panels: PanelRefs;
-  content: Pick<JourneyContent, "name" | "role">;
+  content: Pick<JourneyContent, "name" | "role" | "city">;
   /** What I do and Experience, rendered once on the portrait monitor. */
   monitor?: ReactNode;
   /** The XP desktop with my tech stack, on the MacBook. */

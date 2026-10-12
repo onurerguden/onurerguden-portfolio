@@ -35,7 +35,11 @@ export default function ResearchTeaser({ locale }: { locale: Locale }) {
               {publication.authors.map((author, i) => (
                 <span key={author}>
                   {i ? ", " : null}
-                  {author === "O. Ergüden" ? <strong>{author}</strong> : author}
+                  {author === sharedFacts.name ? (
+                    <strong>{author}</strong>
+                  ) : (
+                    author
+                  )}
                 </span>
               ))}
             </p>
@@ -74,6 +78,12 @@ export default function ResearchTeaser({ locale }: { locale: Locale }) {
             {en ? "Research details" : "Araştırma ayrıntıları"}
             <span aria-hidden="true"> →</span>
           </Link>
+          <a href={publication.sourceUrl}>
+            {en
+              ? "Publisher’s accepted-paper listing"
+              : "Yayıncıda kabul edilen makaleler"}
+            <span aria-hidden="true"> ↗</span>
+          </a>
         </div>
       </div>
     </section>
