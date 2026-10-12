@@ -30,12 +30,14 @@ async function main() {
   const [year, monthIndex] = month.split("-").map(Number);
   const days = new Date(Date.UTC(year, monthIndex, 0)).getUTCDate();
   const totals = new Map<string, number[]>();
+  let firstObservedDate: string | undefined;
   for (let day = 1; day <= days; day++) {
     const date = `${month}-${String(day).padStart(2, "0")}`;
     const fields = await command<string[]>(
       "HGETALL",
       eventReportKey(date, channels),
     );
+    if (channels && fields.length) firstObservedDate ??= date;
     const week = Math.min(3, Math.floor((day - 1) / 7));
     for (let i = 0; i < fields.length; i += 2) {
       const row = totals.get(fields[i]) ?? [0, 0, 0, 0];
@@ -57,6 +59,12 @@ async function main() {
   console.log(
     `${channels ? "Conversion event channels" : "Conversion events"}, ${month} (UTC days)`,
   );
+  if (channels)
+    console.log(
+      firstObservedDate
+        ? `First channel counts in this requested month: ${firstObservedDate} (UTC). Historical totals are not backfilled.`
+        : "No channel data in this requested month; historical totals have no source breakdown.",
+    );
   if (rows.length) console.table(rows);
   else console.log("No events counted.");
 }

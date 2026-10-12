@@ -1,5 +1,6 @@
 "use client";
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { optedOut } from "@/lib/privacy";
 // Capture entry before the first interaction imports the conversion counter.
 import "@/lib/event-entry";
@@ -15,6 +16,7 @@ const firstUse = ["pointerdown", "keydown", "touchstart", "scroll"] as const;
  * it arrives. Both load apart from the first-load bundle.
  */
 export default function SiteEvents({ pageViews }: { pageViews: boolean }) {
+  const pathname = usePathname();
   useEffect(() => {
     if (!pageViews) return;
     import("@vercel/analytics").then(({ inject }) =>
@@ -51,6 +53,8 @@ export default function SiteEvents({ pageViews }: { pageViews: boolean }) {
       document.removeEventListener("click", remember, { capture: true });
       stop();
     };
-  }, []);
+    // Layouts survive client navigation. Rebind the case-read observer to
+    // the new article, while the entry channel stays in document memory.
+  }, [pathname]);
   return null;
 }

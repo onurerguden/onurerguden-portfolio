@@ -59,4 +59,6 @@ The existing command still reads legacy totals only. Request the separate channe
 npm run events -- 2026-10 --channels
 ```
 
-This report has separate `event` and `channel` columns and reads only the channel hashes. Do not add its totals to the legacy report: they overlap for events accepted after this change. On deployment day the channel total may be lower, because earlier counts remain legacy-only. Comparing by channel is useful after enough real actions accumulate; a small or missing count is not evidence of an SEO penalty.
+This report has separate `event` and `channel` columns and reads only the channel hashes. It labels the first day with channel counts in the requested month, or explicitly states that no channel data exists for that month. This is observed data availability, not an inferred global launch date. Do not add its totals to the legacy report: they overlap for events accepted after this change. On deployment day the channel total may be lower, because earlier counts remain legacy-only. Comparing by channel is useful after enough real actions accumulate; a small or missing count is not evidence of an SEO penalty.
+
+Client route changes rebind the case-read observer to the new article; returning to the same paragraph within that page does not count it again. The document's entry channel remains unchanged during these navigations.

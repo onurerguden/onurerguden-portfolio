@@ -80,6 +80,39 @@ test("reaching the end of a case study counts one read", async ({ page }) => {
   expect(sent).toHaveLength(1);
 });
 
+test("client navigation installs each case-read observer without losing the entry channel", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const sent = beacons(page);
+  await page.goto("/en?utm_source=chatgpt");
+  await page.locator('#work a[href="/en/projects/kuyumcum"]').first().click();
+  await expect(page).toHaveURL(/\/en\/projects\/kuyumcum$/);
+  const reads: unknown[] = [];
+  for (const project of ["kuyumcum", "course-intelligence"]) {
+    if (project === "course-intelligence") {
+      await page.locator(`a[href="/en/projects/${project}"]`).first().click();
+      await expect(page).toHaveURL(/\/en\/projects\/course-intelligence$/);
+    }
+    const end = page.locator("main article > :last-child");
+    await end.scrollIntoViewIfNeeded();
+    reads.push({ name: "case_study_read", project, channel: "chatgpt" });
+    const recordedReads = () =>
+      sent.filter(
+        (event) =>
+          typeof event === "object" &&
+          event !== null &&
+          "name" in event &&
+          event.name === "case_study_read",
+      );
+    await expect.poll(recordedReads).toEqual(reads);
+    await page.evaluate(() => scrollTo(0, 0));
+    await end.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(350);
+    expect(recordedReads()).toEqual(reads);
+  }
+});
+
 test("nothing is sent without a counted action or under Global Privacy Control", async ({
   page,
 }) => {
