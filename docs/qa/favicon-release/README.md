@@ -38,6 +38,10 @@ all favicon responses, the PNG signature and dimensions, and its cache policy.
   report after Google updates it; the live sitemap pages all respond 200.
 - Production's public GitHub health endpoint returned fresh archive and
   activity timestamps on 12 October.
+- LinkedIn Post Inspector successfully re-scraped both the bare origin and
+  `/en`, showing the current portrait share card and title. It followed the
+  origin's 308 redirect to `/en`. An initial Inspector error cleared on retry.
+  Page and card also answered 200 to a request using the LinkedInBot agent.
 
 ## Validation
 
