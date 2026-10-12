@@ -35,6 +35,7 @@ const pages = [
 if (!pages.length) fail("/sitemap.xml", "lists no pages");
 
 const cards = new Set();
+const icons = new Set(["/favicon.ico"]);
 for (const url of pages) {
   const path = new URL(url).pathname;
   if (new URL(url).origin !== origin) {
@@ -47,6 +48,20 @@ for (const url of pages) {
     continue;
   }
   const html = await response.text();
+  const iconLinks = html.match(/<link\b[^>]*\brel="icon"[^>]*>/g) ?? [];
+  if (
+    !iconLinks.some(
+      (link) =>
+        link.includes('href="/favicon-96.png"') &&
+        link.includes('type="image/png"') &&
+        link.includes('sizes="96x96"'),
+    )
+  )
+    fail(path, "no stable 96x96 PNG favicon for search");
+  for (const link of iconLinks) {
+    const href = attr(link, /href="([^"]+)"/);
+    if (href) icons.add(href.replaceAll("&amp;", "&"));
+  }
   // One policy for every response, so pages come from the CDN
   // (src/lib/security.ts): scripts from this origin only.
   const policy = response.headers.get("content-security-policy") ?? "";
@@ -79,6 +94,32 @@ for (const url of pages) {
     fail(path, "share card has no alt");
 }
 
+for (const icon of icons) {
+  const response = await get(icon);
+  if (
+    response.status !== 200 ||
+    !response.headers.get("content-type")?.startsWith("image/")
+  ) {
+    fail(icon, `favicon answered ${response.status} or is not an image`);
+    continue;
+  }
+  if (response.headers.get("x-robots-tag")?.includes("noindex"))
+    fail(icon, "favicon is noindex");
+  if (icon === "/favicon-96.png") {
+    const bytes = new DataView(await response.arrayBuffer());
+    if (
+      bytes.byteLength < 24 ||
+      bytes.getUint32(0) !== 0x89504e47 ||
+      bytes.getUint32(4) !== 0x0d0a1a0a ||
+      bytes.getUint32(16) !== 96 ||
+      bytes.getUint32(20) !== 96
+    )
+      fail(icon, "favicon is not a 96x96 PNG");
+    if (response.headers.get("cache-control")?.includes("immutable"))
+      fail(icon, "stable favicon must revalidate");
+  }
+}
+
 for (const card of cards) {
   const url = new URL(card);
   const response = await get(url.pathname + url.search);
@@ -108,5 +149,5 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(
-  `SEO smoke passed: ${pages.length} pages, ${cards.size} share cards.`,
+  `SEO smoke passed: ${pages.length} pages, ${cards.size} share cards, ${icons.size} favicon URLs.`,
 );

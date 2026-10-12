@@ -1,5 +1,6 @@
 // Renders the raster icons from public/icon.svg: favicon.ico for browsers and
-// crawlers that ask for it, the Apple touch icon and the manifest icons.
+// crawlers that ask for it, a 96 px PNG for search, the Apple touch icon and
+// the manifest icons.
 // The touch and maskable icons are full-bleed squares: iOS and Android cut
 // their own shape, so rounded corners would show as dark slivers.
 // node scripts/icons/build.mjs
@@ -45,9 +46,10 @@ function ico(images) {
 }
 
 const favicon = await Promise.all(
-  [16, 32, 48].map(async (size) => ({ size, data: await png(svg, size) })),
+  [16, 32, 48, 96].map(async (size) => ({ size, data: await png(svg, size) })),
 );
 await writeFile("public/favicon.ico", ico(favicon));
+await writeFile("public/favicon-96.png", await png(svg, 96));
 await writeFile(
   "public/apple-touch-icon.png",
   await png(square, 180, { opaque: true }),
@@ -59,5 +61,5 @@ await writeFile(
   await png(maskable, 512, { opaque: true }),
 );
 console.log(
-  "Wrote favicon.ico, apple-touch-icon.png and three manifest icons.",
+  "Wrote favicon.ico, favicon-96.png, apple-touch-icon.png and three manifest icons.",
 );
