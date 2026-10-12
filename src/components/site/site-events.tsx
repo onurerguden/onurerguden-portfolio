@@ -1,6 +1,8 @@
 "use client";
 import { useEffect } from "react";
 import { optedOut } from "@/lib/privacy";
+// Capture entry before the first interaction imports the conversion counter.
+import "@/lib/event-entry";
 
 const firstUse = ["pointerdown", "keydown", "touchstart", "scroll"] as const;
 

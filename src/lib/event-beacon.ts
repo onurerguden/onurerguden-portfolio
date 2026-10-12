@@ -1,6 +1,7 @@
 import type { EventLocation, SiteEvent } from "./events";
 import { homeSectionIds } from "./home-sections";
 import { optedOut } from "./privacy";
+import { entryEventChannel } from "./event-entry";
 
 /**
  * Counts the site's conversion events (src/lib/events.ts) with one anonymous
@@ -10,7 +11,10 @@ import { optedOut } from "./privacy";
 export function track(event: SiteEvent) {
   if (optedOut()) return;
   // A plain-text body needs no preflight and survives the page unloading.
-  navigator.sendBeacon?.("/api/event", JSON.stringify(event));
+  navigator.sendBeacon?.(
+    "/api/event",
+    JSON.stringify({ ...event, channel: entryEventChannel() }),
+  );
 }
 
 const casePath = /^\/(?:en|tr)\/projects\/([^/]+)\/?$/;

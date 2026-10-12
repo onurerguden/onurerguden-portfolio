@@ -1,10 +1,13 @@
 // Prints a month of conversion counts from the production store, one row per
 // event and value, one column per week. Needs the Redis REST credentials in
 // the environment (`vercel env pull`, then load .env.local):
-// npm run events [-- 2026-10]
-const month = process.argv[2] ?? new Date().toISOString().slice(0, 7);
-if (!/^\d{4}-\d{2}$/.test(month))
-  throw new Error("Usage: npm run events -- YYYY-MM");
+// npm run events -- 2026-10 [--channels]
+import { eventReportKey, eventReportOptions } from "./event-report";
+
+const { month, channels } = eventReportOptions(
+  process.argv.slice(2),
+  new Date().toISOString().slice(0, 7),
+);
 const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
 const token =
   process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
@@ -31,7 +34,7 @@ async function main() {
     const date = `${month}-${String(day).padStart(2, "0")}`;
     const fields = await command<string[]>(
       "HGETALL",
-      `portfolio:events:v1:day:${date}`,
+      eventReportKey(date, channels),
     );
     const week = Math.min(3, Math.floor((day - 1) / 7));
     for (let i = 0; i < fields.length; i += 2) {
@@ -42,7 +45,8 @@ async function main() {
   }
   const rows = [...totals]
     .map(([event, weeks]) => ({
-      event,
+      event: channels ? event.slice(0, event.lastIndexOf(":")) : event,
+      ...(channels ? { channel: event.slice(event.lastIndexOf(":") + 1) } : {}),
       "1–7": weeks[0],
       "8–14": weeks[1],
       "15–21": weeks[2],
@@ -50,7 +54,9 @@ async function main() {
       total: weeks.reduce((a, b) => a + b, 0),
     }))
     .sort((a, b) => b.total - a.total || a.event.localeCompare(b.event));
-  console.log(`Conversion events, ${month} (UTC days)`);
+  console.log(
+    `${channels ? "Conversion event channels" : "Conversion events"}, ${month} (UTC days)`,
+  );
   if (rows.length) console.table(rows);
   else console.log("No events counted.");
 }

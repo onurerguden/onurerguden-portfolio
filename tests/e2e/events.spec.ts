@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 
-// The conversion counter (src/lib/event-beacon.ts) loads once the page is
-// idle and sends one beacon per counted action to /api/event.
+// The conversion counter loads on the first interaction and sends one
+// beacon per counted action to /api/event.
 function beacons(page: Page) {
   const sent: unknown[] = [];
   page.on("request", (request) => {
@@ -28,22 +28,33 @@ test("contact links count once each, with where they were used", async ({
   const contact = page.locator("#contact");
   await contact.scrollIntoViewIfNeeded();
   const linkedin = contact.getByRole("link", { name: "LinkedIn" });
-  // The counter arrives at idle; click until it has.
-  await expect(async () => {
-    await linkedin.click();
-    expect(sent).toContainEqual({
-      name: "linkedin_click",
-      location: "contact",
-    });
-  }).toPass({ timeout: 10000 });
+  // A click that lands while the deferred module loads must replay only once.
+  await linkedin.click();
+  await expect
+    .poll(() => sent)
+    .toEqual([
+      {
+        name: "linkedin_click",
+        location: "contact",
+        channel: "direct_or_unknown",
+      },
+    ]);
   sent.length = 0;
   await contact.getByRole("link", { name: "GitHub" }).click();
   await page.locator("footer").getByRole("link", { name: "LinkedIn" }).click();
   await expect
     .poll(() => sent)
     .toEqual([
-      { name: "github_click", location: "contact" },
-      { name: "linkedin_click", location: "footer" },
+      {
+        name: "github_click",
+        location: "contact",
+        channel: "direct_or_unknown",
+      },
+      {
+        name: "linkedin_click",
+        location: "footer",
+        channel: "direct_or_unknown",
+      },
     ]);
 });
 
@@ -56,7 +67,13 @@ test("reaching the end of a case study counts one read", async ({ page }) => {
   await page.locator("main article > :last-child").scrollIntoViewIfNeeded();
   await expect
     .poll(() => sent)
-    .toEqual([{ name: "case_study_read", project: "kuyumcum" }]);
+    .toEqual([
+      {
+        name: "case_study_read",
+        project: "kuyumcum",
+        channel: "direct_or_unknown",
+      },
+    ]);
   await page.evaluate(() => scrollTo(0, 0));
   await page.locator("main article > :last-child").scrollIntoViewIfNeeded();
   await page.waitForTimeout(500);
@@ -95,3 +112,154 @@ test("nothing is sent without a counted action or under Global Privacy Control",
   await page.waitForTimeout(500);
   expect(sent).toEqual([]);
 });
+
+for (const { referrer, query, channel } of [
+  {
+    referrer: "https://chatgpt.com/c/private-conversation",
+    query: "?utm_source=bing",
+    channel: "chatgpt",
+  },
+  { referrer: "https://claude.ai/", query: "", channel: "claude" },
+  {
+    referrer: "https://www.google.com.tr/search?q=private-question",
+    query: "",
+    channel: "google",
+  },
+  {
+    referrer: "https://chatgpt.com.evil.test/private",
+    query: "",
+    channel: "other_referral",
+  },
+  {
+    referrer: "",
+    query: "?utm_source=perplexity&private=do-not-send",
+    channel: "perplexity",
+  },
+]) {
+  test(`contact conversion classifies ${channel} without sending source details (${referrer || "campaign"})`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    const sent = beacons(page);
+    await page.goto(
+      `/en${query}`,
+      referrer ? { referer: referrer } : undefined,
+    );
+    await stayOnPage(page);
+    await page
+      .locator("#contact")
+      .getByRole("link", { name: "GitHub" })
+      .click();
+    await expect
+      .poll(() => sent)
+      .toEqual([{ name: "github_click", location: "contact", channel }]);
+    expect(JSON.stringify(sent)).not.toMatch(
+      /https:|private|utm_|referrer|visitor/,
+    );
+  });
+}
+
+test("entry is captured before an early copy imports the beacon, with no extra beacon", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: async () => {} },
+      configurable: true,
+    });
+  });
+  const sent = beacons(page);
+  await page.goto("/en?utm_source=chatgpt.com&private=do-not-send");
+  // No scroll or key has loaded the deferred counter. Changing the URL must
+  // not rewrite the document entry captured by the lightweight eager module.
+  await page.evaluate(() =>
+    history.replaceState(null, "", "/en?utm_source=bing"),
+  );
+  await page
+    .getByRole("button", { name: "Copy address", exact: true })
+    .evaluate((button: HTMLButtonElement) => button.click());
+  await expect(
+    page.getByRole("button", { name: "Copied", exact: true }),
+  ).toBeAttached();
+  await expect
+    .poll(() => sent)
+    .toEqual([{ name: "email_copy", location: "contact", channel: "chatgpt" }]);
+});
+
+test("client navigation preserves the document entry and a language document starts internal", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const sent = beacons(page);
+  await page.goto("/en?utm_source=chatgpt.com");
+  await page.evaluate(() =>
+    Object.defineProperty(window, "analyticsDocumentMarker", { value: true }),
+  );
+  await page.locator('a[href="/en/projects/kuyumcum"]').first().click();
+  await expect(page).toHaveURL(/\/en\/projects\/kuyumcum$/);
+  expect(await page.evaluate(() => "analyticsDocumentMarker" in window)).toBe(
+    true,
+  );
+  await stayOnPage(page);
+  await page.locator("footer").getByRole("link", { name: "LinkedIn" }).click();
+  await expect
+    .poll(() =>
+      sent.filter(
+        (event) => (event as { name: string }).name === "linkedin_click",
+      ),
+    )
+    .toEqual([
+      { name: "linkedin_click", location: "footer", channel: "chatgpt" },
+    ]);
+  // The language link deliberately creates a fresh document with <html lang>.
+  // Remove the test's navigation-cancelling listener by reloading the page.
+  await page.reload();
+  sent.length = 0;
+  await page.getByRole("link", { name: "Türkçeye geç" }).click();
+  await expect(page).toHaveURL(/\/tr\/projects\/kuyumcum/);
+  await stayOnPage(page);
+  await page.locator("footer").getByRole("link", { name: "LinkedIn" }).click();
+  await expect
+    .poll(() =>
+      sent.filter(
+        (event) => (event as { name: string }).name === "linkedin_click",
+      ),
+    )
+    .toEqual([
+      { name: "linkedin_click", location: "footer", channel: "internal" },
+    ]);
+});
+
+for (const signal of ["globalPrivacyControl", "doNotTrack"] as const) {
+  test(`${signal} prevents both early clipboard and link beacons`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.addInitScript((signal) => {
+      Object.defineProperty(Navigator.prototype, signal, {
+        get: () => (signal === "globalPrivacyControl" ? true : "1"),
+        configurable: true,
+      });
+      Object.defineProperty(navigator, "clipboard", {
+        value: { writeText: async () => {} },
+        configurable: true,
+      });
+    }, signal);
+    const sent = beacons(page);
+    await page.goto("/en?utm_source=chatgpt.com");
+    await page
+      .getByRole("button", { name: "Copy address", exact: true })
+      .evaluate((button: HTMLButtonElement) => button.click());
+    await expect(
+      page.getByRole("button", { name: "Copied", exact: true }),
+    ).toBeAttached();
+    await stayOnPage(page);
+    await page
+      .locator("#contact")
+      .getByRole("link", { name: "LinkedIn" })
+      .click();
+    await page.waitForTimeout(500);
+    expect(sent).toEqual([]);
+  });
+}
