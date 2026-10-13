@@ -19,9 +19,10 @@ publication, paid SEO services and new scheduled jobs are outside this release.
 - The publisher's accepted-articles list is the approved authority for the
   paper's authors. Acceptance is not publication; no DOI or publication date is
   inferred from a portfolio edit. [IJEA publisher](https://dergipark.org.tr/en/pub/ijea).
-- AI Search needs accessible, useful, original evidence. Google does not use
-  llms.txt as a ranking boost. Maintain the existing Markdown outputs for tools
-  without promising retrieval or rankings. [Google guidance, updated 10 July 2026](https://developers.google.com/search/docs/fundamentals/ai-optimization-guide).
+- AI Search needs accessible, useful, original evidence. Google's AI features
+  require no special AI text file or schema. Maintain the existing Markdown
+  outputs for tools without promising retrieval or rankings.
+  [Google guidance](https://developers.google.com/search/docs/appearance/ai-features).
 - Search bot access and model training permission are distinct. Preserve the
   current training policy; audit search access against the providers' current
   bot/IP guidance. A spoofed user agent returning 200 is not proof of access
@@ -85,17 +86,26 @@ from search traffic. [Google report](https://support.google.com/webmasters/answe
 [Bing report metrics](https://blogs.bing.com/search/2026/6/New-AI-Visibility-Insights-in-Bing-Webmaster-Tools-Intents-Topics-Citation-Share-Compare/).
 
 `prompts.json` version 1 fixes 12 questions in each language. Run each three
-times in independent new conversations on ChatGPT Search, Claude web search,
-Perplexity and Google AI Mode where available. Turn off memory, use the same
-Türkiye/İzmir location context and record the actual model/surface, locale,
-timestamp and whether search was used. Do not feed the answer, portfolio link
+times in independent new conversations on ChatGPT Search, Perplexity and
+Google AI Mode where available (216 conditions; Claude is excluded from the
+current consumer protocol). On ChatGPT, verify temporary chat, the visible
+unpersonalized state and web search. Where personalization cannot be controlled,
+keep results in a separate diagnostic group. Record the actual location context,
+model/surface, locale, timestamp and whether search was used; an unseen model
+version stays unknown. Do not feed the answer, portfolio link
 or Onur's name into unbranded questions. Do not mix API/model-only results with
 consumer web-search surfaces.
 
 For each response record name mention, appropriate recommendation, portfolio
 citation, citation of independent evidence and fact accuracy separately. Keep
-the source URLs and an answer capture privately so a reviewer can verify the
-scores. Score facts only when a response makes claims about Onur. Unavailable
+the full response, source URLs, screenshot and an answer capture privately so a
+reviewer can verify the scores. Capture every citation group before leaving a
+temporary conversation; distinguish answer citations from related results.
+Report completed responses and complete source-URL captures separately. A
+visible matching citation can establish presence; absence requires complete
+source coverage, otherwise the score is null. Never substitute a new answer
+for missing evidence from an old one. Score facts only when a response makes
+claims about Onur. Unavailable
 surfaces are `unavailable`, not false; pending runs are `pending`, not zero.
 The last two branded controls assess identity accuracy and are excluded from
 unbranded discovery rates. Report successes/eligible measured responses per
@@ -122,3 +132,12 @@ edits. Page dates do not re-date software or the scholarly manuscript. Unknown
 creation/modification times stay absent. Maintain the prompt version when
 questions change, and start a new measurement series instead of comparing
 different question sets as an improvement.
+
+Case studies show the author and exact GitHub account alongside the existing
+contribution statement. RAG and MCP case evidence links pin implementation and
+tests to reviewed commits rather than a moving branch. Course Intelligence's
+60-question English script uses heuristic labels, not annotated-answer accuracy;
+do not turn its existing result labels into a benchmark. A future evaluation
+needs permitted questions, expected source passages, separate retrieval,
+grounding and refusal scoring, and a recorded data/model/commit environment.
+These are evidence and usability changes, not measured recommendation lift.
