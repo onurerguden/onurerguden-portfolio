@@ -77,7 +77,14 @@ export default defineConfig({
     },
     {
       name: "mobile-chromium",
-      use: { ...devices["Pixel 7"], viewport: { width: 390, height: 844 } },
+      use: {
+        ...devices["Pixel 7"],
+        viewport: { width: 390, height: 844 },
+        // Keep our custom device's screen and viewport consistent. Otherwise
+        // Chromium's preload scanner can select an image using the preset's
+        // 412×915 screen before layout selects it for our 390×844 viewport.
+        screen: { width: 390, height: 844 },
+      },
     },
     { name: "mobile-webkit", use: { ...devices["iPhone 13"] } },
   ],
