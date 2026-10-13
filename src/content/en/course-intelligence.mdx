@@ -17,7 +17,7 @@ A PyQt6 desktop interface runs retrieval and generation on a background thread, 
 
 I evaluated the assistant on a quantitative question set and with trap questions that check unsupported answers, using retrieval filtering and strict system prompting.
 
-These checks describe this project's own evaluation. The sample size, question distribution and independent replication are not reported here, so they are not evidence of universal accuracy or a guarantee that hallucinations cannot occur.
+The public evaluation script at commit `7a6f90e` defines 60 English questions: 10 each for a single department, topic-based retrieval, cross-department comparison and quantitative answers, plus 20 hallucination traps. Its automatic labels use text heuristics such as the presence of numbers, course codes and refusal phrases; they do not compare every answer with an annotated reference. I do not treat those labels as an accuracy benchmark. Independently verified retrieval, grounding and refusal scores are not reported here.
 
 ## Design decisions
 
@@ -26,3 +26,11 @@ Separating embeddings, retrieval, context assembly and generation makes the pipe
 ## Limitations
 
 Missing or outdated source material limits answer quality. Retrieval can fail even when the source contains the answer. Broader evaluation should distinguish retrieval failures, grounded-answer quality and refusal behavior rather than collapsing them into one score.
+
+## Inspect the implementation
+
+The links below pin the code to commit `7a6f90e`, so the implementation behind this description stays inspectable as the repository changes.
+
+- [Retrieval, context assembly and Llama generation](https://github.com/onurerguden/IEU-Chat-Bot/blob/7a6f90e40a2c560d4dd0197c46a12e6a17cf91fd/rag/rag_app.py).
+- [The 60-question evaluation and its scoring rules](https://github.com/onurerguden/IEU-Chat-Bot/blob/7a6f90e40a2c560d4dd0197c46a12e6a17cf91fd/evaluation/evaluate_rag.py).
+- [The PyQt6 interface and background worker](https://github.com/onurerguden/IEU-Chat-Bot/blob/7a6f90e40a2c560d4dd0197c46a12e6a17cf91fd/gui_app.py).

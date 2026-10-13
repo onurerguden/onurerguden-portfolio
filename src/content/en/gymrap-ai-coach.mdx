@@ -22,3 +22,11 @@ Each report moves through a ledger, and a send whose outcome is uncertain is nev
 ## Limitations
 
 It is a single-user system by design: one owner, one device, one timezone. The readiness score is my own transparent formula, not a medical measure and not a vendor's readiness score. The screenshots use synthetic data; no personal health data is published.
+
+## Inspect the implementation
+
+These links point to the published commit `8f35eba` described above, in my `onurerguden/GymRap-AI-Coach` repository.
+
+- [MCP tool definitions and report-save calls](https://github.com/onurerguden/GymRap-AI-Coach/blob/8f35eba6c5b1e3a9335fb4ece2c74c75ba70bdef/backend/src/mcp.ts).
+- [OAuth authorization and owner access](https://github.com/onurerguden/GymRap-AI-Coach/blob/8f35eba6c5b1e3a9335fb4ece2c74c75ba70bdef/backend/src/auth.ts).
+- [Backend tests](https://github.com/onurerguden/GymRap-AI-Coach/tree/8f35eba6c5b1e3a9335fb4ece2c74c75ba70bdef/backend/test) and [their Workers/D1 runtime configuration](https://github.com/onurerguden/GymRap-AI-Coach/blob/8f35eba6c5b1e3a9335fb4ece2c74c75ba70bdef/backend/vitest.config.ts).

@@ -8,7 +8,13 @@ import CaseToc from "@/components/case/case-toc";
 import OtherProjects from "@/components/case/other-projects";
 import ReportWorkflow from "@/components/case/report-workflow";
 import styles from "@/components/case/case.module.css";
-import { caseSections, getProject, getProjects, isLocale } from "@/lib/content";
+import {
+  caseSections,
+  getProject,
+  getProjects,
+  isLocale,
+  sharedFacts,
+} from "@/lib/content";
 import { pageMetadata } from "@/lib/site";
 import { caseStudyStructuredData } from "@/lib/structured-data";
 import JsonLd from "@/components/json-ld";
@@ -83,6 +89,12 @@ export default async function ProjectPage({
           className={styles.title}
         />
         <p className={styles.summary}>{project.summary}</p>
+        <p className={styles.byline}>
+          {en ? "By " : "Hazırlayan: "}
+          <Link href={`/${locale}#about`}>{sharedFacts.name}</Link>
+          {" · "}
+          <a href={sharedFacts.github}>GitHub: {sharedFacts.githubLogin}</a>
+        </p>
         {project.role ? (
           <p className={styles.role}>
             <span>{en ? "My role" : "Rolüm"}</span>
@@ -105,7 +117,7 @@ export default async function ProjectPage({
             <h2>{en ? "Source" : "Kaynak"}</h2>
             {project.repoUrl ? (
               <a className={styles.source} href={project.repoUrl}>
-                {en ? "Explore the source" : "Kaynak kodu incele"}
+                {new URL(project.repoUrl).pathname.slice(1)}
                 <span aria-hidden="true"> ↗</span>
               </a>
             ) : (

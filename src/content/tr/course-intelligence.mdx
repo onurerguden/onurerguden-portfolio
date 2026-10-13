@@ -17,7 +17,7 @@ PyQt6 masaüstü arayüzü bilgi getirme ve yanıt üretimini arka planda çalı
 
 Asistanı nicel bir soru kümesiyle ve desteklenmeyen yanıtları yakalamaya yönelik tuzak sorularla değerlendirdim; bilgi getirme filtreleri ve sıkı sistem yönergeleri bu kontrollerin parçasıydı.
 
-Bu kontroller yalnızca projenin kendi değerlendirmesini anlatır. Örneklem büyüklüğü, soru dağılımı ve bağımsız tekrar sonuçları burada raporlanmadığı için evrensel doğruluğun ya da halüsinasyonun mümkün olmadığının kanıtı değildir.
+Kamuya açık değerlendirme betiği, `7a6f90e` commit'inde 60 İngilizce soru tanımlıyor: tek bölüm, konu bazlı bilgi getirme, bölümler arası karşılaştırma ve nicel yanıtlar için 10'ar soru; halüsinasyon tuzakları için 20 soru. Otomatik etiketler sayı, ders kodu ve yanıt vermeme ifadelerinin varlığı gibi metin kurallarına dayanıyor; her yanıtı etiketlenmiş bir referansla karşılaştırmıyor. Bu etiketleri bir doğruluk ölçümü olarak kullanmıyorum. Bağımsız doğrulanmış bilgi getirme, kaynağa dayanma ve yanıt vermeme skorları burada raporlanmıyor.
 
 ## Tasarım kararları
 
@@ -26,3 +26,11 @@ Embedding, bilgi getirme, bağlam oluşturma ve üretim adımlarını ayırmak, 
 ## Sınırlamalar
 
 Eksik veya güncelliğini yitirmiş kaynaklar yanıt kalitesini sınırlıyor. Kaynak doğru yanıtı içerse bile arama başarısız olabilir. Daha geniş bir değerlendirmede bilgi getirme hataları, kaynağa dayalı yanıt kalitesi ve yanıt vermeme davranışı ayrı ayrı ölçülmelidir.
+
+## Uygulamayı incele
+
+Aşağıdaki bağlantılar kodu `7a6f90e` commit'ine sabitliyor; depo değiştikçe bu açıklamanın dayandığı uygulama incelenebilir kalıyor.
+
+- [Bilgi getirme, bağlam oluşturma ve Llama ile yanıt üretimi](https://github.com/onurerguden/IEU-Chat-Bot/blob/7a6f90e40a2c560d4dd0197c46a12e6a17cf91fd/rag/rag_app.py).
+- [60 soruluk değerlendirme ve puanlama kuralları](https://github.com/onurerguden/IEU-Chat-Bot/blob/7a6f90e40a2c560d4dd0197c46a12e6a17cf91fd/evaluation/evaluate_rag.py).
+- [PyQt6 arayüzü ve arka plan işçisi](https://github.com/onurerguden/IEU-Chat-Bot/blob/7a6f90e40a2c560d4dd0197c46a12e6a17cf91fd/gui_app.py).

@@ -141,6 +141,7 @@ export function llmsFull() {
         `${project.summary}`,
         "",
         `- Page: ${origin}/${locale}/projects/${project.slug}`,
+        `- Author: ${sharedFacts.name}; GitHub: ${sharedFacts.github}`,
         ...(project.role ? [`- My role: ${project.role}`] : []),
         `- Built with: ${project.stack.join(", ")}`,
         ...(project.repoUrl ? [`- Source: ${project.repoUrl}`] : []),
