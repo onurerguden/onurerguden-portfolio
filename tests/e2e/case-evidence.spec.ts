@@ -48,6 +48,16 @@ for (const locale of ["en", "tr"] as const) {
           ).toHaveAttribute("href", project.repoUrl);
         }
         const codeLinks = noJs.locator('article a[href*="github.com/"]');
+        if (project.slug === "water-safety") {
+          await expect(
+            noJs.locator(
+              `article a[href="${sharedFacts.publication.sourceUrl}"]`,
+            ),
+          ).toBeVisible();
+          await expect(
+            noJs.locator(`article a[href="/${locale}/research"]`),
+          ).toBeVisible();
+        }
         if (["course-intelligence", "gymrap-ai-coach"].includes(project.slug)) {
           expect(await codeLinks.count()).toBeGreaterThanOrEqual(3);
           for (const link of await codeLinks.all()) {

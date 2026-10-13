@@ -21,6 +21,8 @@ carries the same author and evidence. No client dependency is added.
 - IJEA's public journal page still lists the water-safety manuscript and the
   seven authors under accepted articles. Publication remains pending; the
   existing label, author order and absent DOI/publication date are preserved.
+  The water-safety case now links directly to that listing and the localized
+  research page, distinguishing the publisher's evidence from the source repo.
 
 ## Validation
 
