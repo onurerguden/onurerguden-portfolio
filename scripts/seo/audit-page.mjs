@@ -132,6 +132,15 @@ export function auditPage(html, url, headers = {}, { indexable = true } = {}) {
     )
   )
     failures.push("page restricts search snippets or AI grounding");
+  if (
+    indexable &&
+    !page.robots.some(
+      (value) =>
+        /\bmax-snippet\s*:\s*-1\b/i.test(value) &&
+        /\bmax-image-preview\s*:\s*large\b/i.test(value),
+    )
+  )
+    failures.push("page does not allow full text and large image previews");
   if (!indexable && !blocked) failures.push("preview page is not noindex");
   if (page.invalidJsonLd || !page.graph.length)
     failures.push("no valid JSON-LD graph");
@@ -261,6 +270,58 @@ export const crawlerAgents = [
   "bingbot",
   "OAI-SearchBot",
   "ChatGPT-User",
+  "GPTBot",
   "Claude-SearchBot",
+  "Claude-User",
+  "ClaudeBot",
   "PerplexityBot",
+  "Perplexity-User",
+  "Applebot",
 ];
+
+// Product tokens that only robots.txt reads: Gemini grounding and training
+// (Google-Extended), Apple Intelligence training, and the search and AI bots
+// above. None of them may be shut out of the whole site.
+export const robotsTokens = [
+  ...crawlerAgents,
+  "Google-Extended",
+  "Applebot-Extended",
+  "CCBot",
+  "meta-externalagent",
+];
+
+/**
+ * The tokens a robots.txt shuts out of the whole site, through a group that
+ * names them or the `*` group they fall back to (RFC 9309: a bot obeys only
+ * the most specific group that matches it).
+ */
+export function blockedRobotsTokens(robotsTxt, tokens = robotsTokens) {
+  const groups = [];
+  let current;
+  for (const raw of robotsTxt.split(/\r?\n/)) {
+    const line = raw.replace(/#.*/, "").trim();
+    const [, field, value = ""] = line.match(/^([\w-]+)\s*:\s*(.*)$/) ?? [];
+    if (!field) continue;
+    if (/^user-agent$/i.test(field)) {
+      if (!current || current.rules.length) {
+        current = { agents: [], rules: [] };
+        groups.push(current);
+      }
+      current.agents.push(value.toLowerCase());
+    } else if (current && /^(?:allow|disallow)$/i.test(field)) {
+      current.rules.push({ allow: /^allow$/i.test(field), path: value });
+    }
+  }
+  const blocksAll = (group) =>
+    group.rules.some((rule) => !rule.allow && rule.path === "/") &&
+    !group.rules.some((rule) => rule.allow && rule.path === "/");
+  return tokens.filter((token) => {
+    const named = groups.filter((group) =>
+      group.agents.includes(token.toLowerCase()),
+    );
+    const applicable = named.length
+      ? named
+      : groups.filter((group) => group.agents.includes("*"));
+    return applicable.some(blocksAll);
+  });
+}

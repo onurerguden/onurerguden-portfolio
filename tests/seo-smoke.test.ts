@@ -33,7 +33,7 @@ const graph = [
 function html(nodes: unknown[] = graph) {
   return `<!doctype html><html lang="tr"><head>
     <title>Onur Ergüden</title><meta content="A verified profile" name="description">
-    <meta content="index, follow" name="robots">
+    <meta content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" name="robots">
     <link href='${url}' rel='canonical'>
     <link hrefLang="en" href="${origin}/en" rel="alternate">
     <link hrefLang="tr" href="${url}" rel="alternate">
@@ -186,6 +186,20 @@ describe("crawler HTML semantics", () => {
         audit(html().replace("index, follow", `index, follow, ${directive}`)),
       ).toContain("page restricts search snippets or AI grounding");
     }
+  });
+  it("requires indexed pages to allow full text and large image previews", () => {
+    for (const directive of [", max-snippet:-1", ", max-image-preview:large"])
+      expect(audit(html().replace(directive, ""))).toContain(
+        "page does not allow full text and large image previews",
+      );
+    expect(
+      auditPage(
+        html().replace(/content="index[^"]*"/, 'content="noindex, nofollow"'),
+        url,
+        {},
+        { indexable: false },
+      ).failures,
+    ).toEqual([]);
   });
 });
 

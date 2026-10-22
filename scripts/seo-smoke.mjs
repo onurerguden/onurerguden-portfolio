@@ -1,5 +1,6 @@
 import {
   auditPage,
+  blockedRobotsTokens,
   crawlerAgents,
   editorialSignature,
   expectedAlternates,
@@ -33,6 +34,8 @@ const robots = await robotsResponse.text();
 if (!robots.includes(`Sitemap: ${origin}/sitemap.xml`))
   fail("/robots.txt", "no Sitemap line for this origin");
 if (/^Disallow: \/$/m.test(robots)) fail("/robots.txt", "disallows everything");
+for (const token of blockedRobotsTokens(robots))
+  fail("/robots.txt", `shuts ${token} out of the whole site`);
 
 const sitemap = await get("/sitemap.xml");
 if (sitemap.status !== 200) fail("/sitemap.xml", `answered ${sitemap.status}`);
