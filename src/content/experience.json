@@ -1,5 +1,12 @@
 [
   {
+    "id": "astro8-instructor",
+    "company": "ASTRO8 AI Academy",
+    "start": "2026-09",
+    "end": null,
+    "tools": ["anthropic", "openai"]
+  },
+  {
     "id": "fin-ai-engineer",
     "company": "Future Is Now",
     "start": "2026-09",

@@ -1,4 +1,12 @@
 {
+  "astro8-instructor": {
+    "role": "AI instructor",
+    "highlights": [
+      "Corporate training in generative AI and agentic software development for IT teams and professionals at large companies.",
+      "A two-day program I designed and taught: from LLM fundamentals (tokens, context, model and reasoning choice, cost) to agentic development with Claude Code and Codex.",
+      "A hands-on case from analysis and prototype to a tested product: project memory, review loops, skills, MCP, permissions and prompt-injection risks."
+    ]
+  },
   "fin-ai-engineer": {
     "role": "Software & AI engineer",
     "highlights": [

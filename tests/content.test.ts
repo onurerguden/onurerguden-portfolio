@@ -216,6 +216,11 @@ describe("home section content", () => {
     expect(formatPeriod("2026-07", null, "en")).toBe("Jul 2026 — present");
     expect(formatPeriod("2026-04", "2026-06", "tr")).toBe("Nis — Haz 2026");
     expect(getExperience("en")[0]).toMatchObject({
+      company: "ASTRO8 AI Academy",
+      role: "AI instructor",
+      start: "2026-09",
+    });
+    expect(getExperience("en")[1]).toMatchObject({
       company: "Future Is Now",
       role: "Software & AI engineer",
       start: "2026-09",
@@ -224,7 +229,7 @@ describe("home section content", () => {
   it("links each role to its proof and tools in both languages", () => {
     for (const locale of ["en", "tr"] as const) {
       const roles = getExperience(locale);
-      expect(roles).toHaveLength(5);
+      expect(roles).toHaveLength(6);
       const vbt = roles.find((role) => role.id === "vbt-intern");
       expect(vbt?.proof).toMatchObject({
         kind: "project",

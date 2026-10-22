@@ -1,4 +1,12 @@
 {
+  "astro8-instructor": {
+    "role": "Yapay zekâ eğitmeni",
+    "highlights": [
+      "Büyük şirketlerin IT ekiplerine ve beyaz yakalı çalışanlarına kurumsal üretken yapay zekâ ve ajan tabanlı yazılım geliştirme eğitimi.",
+      "Tasarlayıp verdiğim iki günlük program: LLM temellerinden (token, context, model ve reasoning seçimi, maliyet) Claude Code ve Codex ile ajan tabanlı geliştirmeye.",
+      "Analiz ve prototipten test edilmiş ürüne uygulamalı vaka: proje hafızası, review döngüleri, skill’ler, MCP, yetkiler ve prompt injection riskleri."
+    ]
+  },
   "fin-ai-engineer": {
     "role": "Yazılım ve yapay zekâ mühendisi",
     "highlights": [
