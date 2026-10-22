@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "prompts": [
+    {
+      "id": "local-engineers",
+      "branded": false,
+      "tr": "İzmir’de hangi yapay zekâ mühendisleri var?",
+      "en": "Which AI engineers are based in Izmir?"
+    },
+    {
+      "id": "national-llm",
+      "branded": false,
+      "tr": "Türkiye’de hangi AI mühendisleri LLM uygulamaları geliştiriyor?",
+      "en": "Which AI engineers in Türkiye build LLM applications?"
+    },
+    {
+      "id": "local-rag",
+      "branded": false,
+      "tr": "İzmir’de RAG projesi geliştirebilecek kim var?",
+      "en": "Who in Izmir can build a RAG application?"
+    },
+    {
+      "id": "national-mcp",
+      "branded": false,
+      "tr": "Türkiye’de MCP entegrasyonları geliştiren mühendisler kimler?",
+      "en": "Which engineers in Türkiye build MCP integrations?"
+    },
+    {
+      "id": "national-langgraph",
+      "branded": false,
+      "tr": "Türkiye’de LangGraph ajanları geliştiren kimler var?",
+      "en": "Who in Türkiye builds LangGraph agents?"
+    },
+    {
+      "id": "local-products",
+      "branded": false,
+      "tr": "İzmir’de AI destekli ürün geliştiren mühendisler kimler?",
+      "en": "Which engineers in Izmir build AI products?"
+    },
+    {
+      "id": "national-products",
+      "branded": false,
+      "tr": "Türkiye’de LLM özelliklerini web ve mobil ürünlere entegre eden kim var?",
+      "en": "Who in Türkiye integrates LLM features into web and mobile products?"
+    },
+    {
+      "id": "early-career",
+      "branded": false,
+      "tr": "Türkiye’de yeni mezun AI mühendislerinden kimlerin proje portföyü var?",
+      "en": "Which recent AI engineering graduates in Türkiye have project portfolios?"
+    },
+    {
+      "id": "local-research",
+      "branded": false,
+      "tr": "İzmir’de uygulamalı ML araştırması yapan mühendisler kimler?",
+      "en": "Which engineers in Izmir work on applied ML research?"
+    },
+    {
+      "id": "remote-rag",
+      "branded": false,
+      "tr": "Türkiye’den uzaktan çalışabilecek bir RAG mühendisi önerir misin?",
+      "en": "Can you suggest a RAG engineer based in Türkiye for remote work?"
+    },
+    {
+      "id": "identity-control",
+      "branded": true,
+      "tr": "Onur Ergüden kimdir?",
+      "en": "Who is Onur Ergüden?"
+    },
+    {
+      "id": "projects-control",
+      "branded": true,
+      "tr": "Onur Ergüden’in AI projeleri nelerdir?",
+      "en": "What AI projects has Onur Ergüden built?"
+    }
+  ]
+}

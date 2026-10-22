@@ -2,9 +2,22 @@
 
 The approved 12 October 2026 brief targets job and project opportunities for
 Onur in İzmir, Türkiye, with national and international remote work. The order
-is RAG/LLM/agents, AI product engineering, then applied research. It covers the
-existing bilingual portfolio. External profile edits, outreach, ongoing blog
-publication, paid SEO services and new scheduled jobs are outside this release.
+is RAG/LLM/agents, AI product engineering, then applied research.
+
+The 22 October 2026 program widens it. Onur is "AI engineer" / "yapay zekâ
+mühendisi" everywhere, with software engineering as the second line. İzmir and
+Türkiye remain facts in the profile and structured data, not headline
+emphasis. The program covers the site, a bilingual writing section (two TR + EN
+articles a month from Onur's own work) and consistent external profiles that
+Onur publishes himself.
+
+The 13 October baseline shows why. No unbranded answer named Onur, and AI
+answers about engineers cited LinkedIn far more than any other source, then
+GitHub, community and university pages, Medium and YouTube. The site is the
+entity home that confirms identity; independent pages and original writing are
+what put a name into category answers. Paid SEO services, bought mentions,
+talks and freelance marketplaces are outside the program for now. The off-site
+drafts live in ignored `work/seo/offsite/`.
 
 ## Evidence and decisions
 
@@ -85,10 +98,15 @@ impressions. Record Bing AI Performance citations, intents and topics separately
 from search traffic. [Google report](https://support.google.com/webmasters/answer/16984139),
 [Bing report metrics](https://blogs.bing.com/search/2026/6/New-AI-Visibility-Insights-in-Bing-Webmaster-Tools-Intents-Topics-Citation-Share-Compare/).
 
-`prompts.json` version 1 fixes 12 questions in each language. Run each three
-times in independent new conversations on ChatGPT Search, Perplexity and
-Google AI Mode where available (216 conditions; Claude is excluded from the
-current consumer protocol). On ChatGPT, verify temporary chat, the visible
+`prompts.json` version 2 (from 22 October 2026) fixes eight questions in each
+language: six unbranded and two branded controls. Two unbranded questions keep
+their version 1 ids so those prompts can be read side by side, but version 2 is
+a new series and is never reported as lift over version 1, which stays in
+`prompts-v1.json` with its 13 October results. Run each question three times in
+independent new conversations on ChatGPT Search, Google AI Mode, Perplexity,
+Claude, Gemini and Copilot where available (288 conditions). Record the version
+2 baseline before the identity copy ships, so the copy change has a
+comparable starting point. On ChatGPT, verify temporary chat, the visible
 unpersonalized state and web search. Where personalization cannot be controlled,
 keep results in a separate diagnostic group. Record the actual location context,
 model/surface, locale, timestamp and whether search was used; an unseen model
@@ -107,10 +125,20 @@ source coverage, otherwise the score is null. Never substitute a new answer
 for missing evidence from an old one. Score facts only when a response makes
 claims about Onur. Unavailable
 surfaces are `unavailable`, not false; pending runs are `pending`, not zero.
-The last two branded controls assess identity accuracy and are excluded from
-unbranded discovery rates. Report successes/eligible measured responses per
+Branded controls assess identity accuracy and are excluded from unbranded
+discovery rates. Answers vary from run to run, so report a mention rate, never
+a position. Report successes/eligible measured responses per
 surface and language, with denominators; do not combine repeated runs into
 claims of statistically proven lift.
+
+Export Bing AI Performance grounding queries monthly: they show the phrases
+Copilot and its partners actually searched when they cited a page. Read AI
+referrals (chatgpt.com, perplexity.ai, claude.ai, gemini.google.com,
+copilot.microsoft.com, `utm_source=chatgpt.com`) and their landing pages in
+Vercel Web Analytics; no new tracking code is added, and many AI visits arrive
+without a referrer. Keep a private `work/seo/mentions.csv` of independent pages
+that name Onur: date found, URL, platform, the name form and role wording used,
+and whether it links to the site.
 
 Run before production release, then at release +28, +56 and +90 days. Compare
 equal 28-day dashboard periods once available. Keep classic impressions/clicks,
