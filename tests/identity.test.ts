@@ -45,12 +45,13 @@ describe("public bilingual identity", () => {
       );
       const h1 = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/);
       expect(h1?.[0]).not.toContain("aria-label");
-      expect(
-        h1?.[1]
-          .replace(/<[^>]+>/g, "")
-          .replace(/\s+/g, " ")
-          .trim(),
-      ).toBe(getIdentity(locale).heading);
+      // The h1's text nodes, in order, as a reader joins them.
+      const words = [...(h1?.[1] ?? "").matchAll(/>([^<]*)</g)]
+        .map((match) => match[1])
+        .join("");
+      expect(words.replace(/\s+/g, " ").trim()).toBe(
+        getIdentity(locale).heading,
+      );
       expect(getIdentity(locale).heading).toBe(
         locale === "en"
           ? "Onur Ergüden AI engineer software engineer"
