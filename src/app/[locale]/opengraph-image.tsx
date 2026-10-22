@@ -30,7 +30,7 @@ export function generateImageMetadata({
   ];
 }
 
-/** The opening, as a card: my name, the head illustration and my role. */
+/** The opening, as a card: my name, the head illustration and my roles. */
 export default async function Image({
   params,
 }: {
@@ -70,7 +70,7 @@ export default async function Image({
           {upper(identity.role, tr)}
         </div>
         <div style={{ marginTop: 14, fontSize: 24, color: ogColors.muted }}>
-          {identity.location}
+          {upper(identity.tagline, tr)}
         </div>
       </div>
       <img src={head} width={400} height={400} alt="" />

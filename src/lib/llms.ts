@@ -27,7 +27,7 @@ function intro() {
   return [
     `# ${sharedFacts.name}`,
     "",
-    `> ${sharedFacts.name} is an ${identity.occupation} based in ${identity.location}. He builds LLM applications end to end: retrieval, tool-calling agents with LangGraph and MCP, and full-stack products. ${education.degree}, ${education.university}.`,
+    `> ${sharedFacts.name} is an ${identity.occupation} based in ${identity.location}. He builds LLM applications end to end: retrieval, tool-calling agents with LangGraph and MCP, and the software around them. ${education.degree}, ${education.university}.`,
     "",
     identity.availability,
     "",
@@ -46,7 +46,7 @@ export function llmsIndex() {
     "",
     `- [Home](${page("")}): about, what I do, experience, technologies, projects, certificates and contact`,
     `- [Projects](${page("/projects")}): every project, with case studies and public repositories`,
-    `- [Research](${page("/research")}): the accepted paper and independent studies`,
+    `- [Research](${page("/research")}): the accepted paper and a course project`,
     "",
     "## Case studies",
     "",

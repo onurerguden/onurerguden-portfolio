@@ -6,29 +6,33 @@ export function getIdentity(locale: Locale) {
   const { name, location } = sharedFacts;
   const firstName = name.split(" ")[0];
   const place = `${location.city}, ${location.country}`;
-  const role = en ? "AI engineer" : "AI mühendisi";
-  const occupation = en ? role : "yapay zekâ mühendisi";
+  // One term in each language, everywhere: the opening, titles, the graph.
+  const role = en ? "AI engineer" : "yapay zekâ mühendisi";
+  const occupation = role;
+  // The opening's second line: AI first, and the software around it.
+  const tagline = en ? "software engineer" : "yazılım mühendisi";
   const title = en
-    ? `${name} — ${occupation} in ${place}`
-    : `${name} — ${location.city}’de ${occupation}`;
+    ? `${name} — ${role}: LLM apps, RAG and agents`
+    : `${name} — ${role}: LLM, RAG ve ajanlar`;
   const introduction = en
     ? `I’m ${firstName}, an ${occupation} based in ${place}.`
     : `Ben ${firstName}, ${place}’de yaşayan bir ${occupation}yim.`;
   const expertise = en
-    ? "I build LLM applications end to end: retrieval, tool-calling agents with LangGraph and MCP, and the product around them, mostly in Python, TypeScript and Java."
-    : "LLM uygulamalarını uçtan uca geliştiriyorum: bilgi erişimi, LangGraph ve MCP ile araç çağıran ajanlar ve bunların etrafındaki ürün; çoğunlukla Python, TypeScript ve Java ile.";
+    ? "I build LLM applications end to end: retrieval, tool-calling agents with LangGraph and MCP, and the software around them, mostly in Python, TypeScript and Java."
+    : "LLM uygulamalarını uçtan uca geliştiriyorum: bilgi erişimi, LangGraph ve MCP ile araç çağıran ajanlar ve bunların etrafındaki yazılım; çoğunlukla Python, TypeScript ve Java ile.";
   const availability = en
     ? `I’m open to remote job and project opportunities in ${location.country} and internationally.`
     : `${location.country}’deki ve uluslararası uzaktan iş ve proje fırsatlarına açığım.`;
   const description = en
-    ? `${name}, an ${occupation} in ${place}. RAG, LLM apps, LangGraph and MCP agents. Open to remote roles and projects.`
-    : `${name}, ${location.city}’de ${occupation}. RAG ve LLM uygulamaları, LangGraph ve MCP ajanları. Uzaktan iş ve proje fırsatlarına açığım.`;
+    ? `${name}, an AI engineer and software engineer. RAG, LLM apps, LangGraph and MCP agents. Based in ${place}; open to remote roles and projects.`
+    : `${name}, yapay zekâ ve yazılım mühendisi. RAG ve LLM uygulamaları, LangGraph ve MCP ajanları. ${place}; uzaktan iş ve proje fırsatlarına açığım.`;
 
   return {
     name,
     role,
+    tagline,
     // The opening h1 as written and read: name, role, then the second line.
-    heading: `${name} ${role} ${location.city}`,
+    heading: `${name} ${role} ${tagline}`,
     occupation,
     city: location.city,
     location: place,

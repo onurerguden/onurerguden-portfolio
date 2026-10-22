@@ -22,7 +22,7 @@ export default function PortraitIdentity({
   opening = false,
   interactive = true,
 }: {
-  content: Pick<JourneyContent, "name" | "role" | "city">;
+  content: Pick<JourneyContent, "name" | "role" | "tagline">;
   opening?: boolean;
   interactive?: boolean;
 }) {
@@ -122,8 +122,8 @@ export default function PortraitIdentity({
         </span>{" "}
         <span className={styles.role} data-portrait-role>
           {content.role}{" "}
-          <span className={styles.location} data-portrait-location>
-            {content.city}
+          <span className={styles.tagline} data-portrait-tagline>
+            {content.tagline}
           </span>
         </span>
       </Identity>

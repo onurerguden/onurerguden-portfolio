@@ -42,7 +42,7 @@
     sans-serif;
   color: #536171;
 }
-.location {
+.tagline {
   display: block;
   margin-top: 0.2em;
   font-size: 0.8em;
@@ -151,12 +151,12 @@
     font-size: 1.45cqw;
     white-space: nowrap;
   }
-  .location {
+  .tagline {
     display: inline;
     margin-top: 0;
     font-size: inherit;
   }
-  .location::before {
+  .tagline::before {
     content: " · ";
   }
   .head {
@@ -173,6 +173,26 @@
   }
   .head {
     top: 45%;
+  }
+}
+/* Phones see a narrow slice of the opening: the second role gets its own
+   line, so neither language is cut off, and the head moves down to make room. */
+@media (max-width: 700px) {
+  .role {
+    top: 36.5%;
+    line-height: 1.25;
+    text-align: center;
+  }
+  .tagline {
+    display: block;
+    margin-top: 0.1em;
+    font-size: 0.8em;
+  }
+  .tagline::before {
+    content: none;
+  }
+  .head {
+    top: 46%;
   }
 }
 @media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
