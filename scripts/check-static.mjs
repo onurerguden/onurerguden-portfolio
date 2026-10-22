@@ -8,12 +8,15 @@ const manifest = JSON.parse(
   await readFile(".next/prerender-manifest.json", "utf8"),
 );
 const built = new Set(Object.keys(manifest.routes));
-const pages = ["en", "tr"].flatMap((locale) => [
-  `/${locale}`,
-  `/${locale}/projects`,
-  `/${locale}/research`,
-  `/${locale}/projects/kuyumcum`,
-]);
+// Every page the sitemap offers search engines, as this build generated it.
+const sitemap = await readFile(".next/server/app/sitemap.xml.body", "utf8");
+const pages = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(
+  ([, url]) => new URL(url).pathname,
+);
+if (!pages.length) {
+  console.error("The built sitemap lists no pages.");
+  process.exit(1);
+}
 const missing = pages.filter((page) => !built.has(page));
 if (missing.length) {
   console.error(`Not built ahead: ${missing.join(", ")}`);
