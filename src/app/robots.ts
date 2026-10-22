@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
-import { siteOrigin } from "@/lib/site";
+import { siteIndexable, siteOrigin } from "@/lib/site";
 export default function robots(): MetadataRoute.Robots {
-  const indexable =
-    process.env.SITE_INDEXABLE === "true" &&
-    process.env.VERCEL_ENV !== "preview";
+  // One group for every crawler, search and training alike: a named group
+  // would replace these rules for that bot (tests/robots.test.ts).
+  const indexable = siteIndexable();
   return {
     rules: {
       userAgent: "*",

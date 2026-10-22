@@ -8,7 +8,7 @@ import CustomCursor from "@/components/site/custom-cursor";
 import SiteEvents from "@/components/site/site-events";
 import { isLocale, locales } from "@/lib/content";
 import { pageIcons } from "@/lib/icons";
-import { siteOrigin } from "@/lib/site";
+import { robotsMetadata, siteOrigin } from "@/lib/site";
 import "../globals.css";
 
 // Each language is built ahead and served from the CDN; any other first
@@ -41,14 +41,7 @@ export const metadata: Metadata = {
       ? { "msvalidate.01": process.env.BING_SITE_VERIFICATION }
       : undefined,
   },
-  robots: {
-    index:
-      process.env.SITE_INDEXABLE === "true" &&
-      process.env.VERCEL_ENV !== "preview",
-    follow:
-      process.env.SITE_INDEXABLE === "true" &&
-      process.env.VERCEL_ENV !== "preview",
-  },
+  robots: robotsMetadata(),
 };
 
 /** The root layout: the language is the first segment of every page. */

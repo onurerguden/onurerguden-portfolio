@@ -8,6 +8,31 @@ export function siteOrigin() {
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
   return "http://localhost:3000";
 }
+/** Only production is indexed; previews and local builds stay out of search. */
+export function siteIndexable() {
+  return (
+    process.env.SITE_INDEXABLE === "true" &&
+    process.env.VERCEL_ENV !== "preview"
+  );
+}
+
+/**
+ * Search robots rules for every page. Indexed pages also let engines and AI
+ * answers quote any length of text and show large image previews.
+ */
+export function robotsMetadata(): Metadata["robots"] {
+  const indexable = siteIndexable();
+  return indexable
+    ? {
+        index: true,
+        follow: true,
+        "max-snippet": -1,
+        "max-image-preview": "large",
+        "max-video-preview": -1,
+      }
+    : { index: false, follow: false };
+}
+
 /**
  * A page's title, description, canonical URL and language alternates. Titles
  * get the name after them (the root layout's template) unless `absolute`,
