@@ -34,11 +34,10 @@ for (const locale of ["en", "tr"] as const) {
       const identity = getIdentity(locale);
       await expect(noJs.locator("html")).toHaveAttribute("lang", locale);
       await expect(noJs.locator("main h1")).toHaveCount(1);
-      await expect(noJs.locator("main h1")).toHaveAttribute(
+      await expect(noJs.locator("main h1")).toHaveText(identity.heading);
+      await expect(noJs.locator("main h1")).not.toHaveAttribute(
         "aria-label",
-        new RegExp(
-          `^${sharedFacts.name}, ${identity.role}(?:, ${identity.city})?$`,
-        ),
+        /./,
       );
       await expect(noJs.locator("main")).toContainText("İzmir");
       for (const id of [

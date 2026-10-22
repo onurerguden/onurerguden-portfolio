@@ -27,6 +27,8 @@ export function getIdentity(locale: Locale) {
   return {
     name,
     role,
+    // The opening h1 as written and read: name, role, then the second line.
+    heading: `${name} ${role} ${location.city}`,
     occupation,
     city: location.city,
     location: place,

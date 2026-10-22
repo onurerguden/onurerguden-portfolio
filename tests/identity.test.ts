@@ -33,7 +33,7 @@ describe("public bilingual identity", () => {
     }
   });
 
-  it("renders the compact role and city without needing client effects", () => {
+  it("renders the name and role as the h1's own text without client effects", () => {
     for (const locale of ["en", "tr"] as const) {
       const content = getJourneyContent(locale);
       const html = renderToStaticMarkup(
@@ -43,9 +43,14 @@ describe("public bilingual identity", () => {
           interactive: false,
         }),
       );
-      expect(html).toContain(
-        `aria-label="${sharedFacts.name}, ${getIdentity(locale).role}, ${sharedFacts.location.city}"`,
-      );
+      const h1 = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/);
+      expect(h1?.[0]).not.toContain("aria-label");
+      expect(
+        h1?.[1]
+          .replace(/<[^>]+>/g, "")
+          .replace(/\s+/g, " ")
+          .trim(),
+      ).toBe(getIdentity(locale).heading);
       expect(html).toMatch(/data-portrait-location="true">İzmir<\/span>/);
     }
   });

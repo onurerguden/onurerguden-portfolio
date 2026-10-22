@@ -94,9 +94,8 @@ test("reduced motion keeps the HTML explanation without WebGL", async ({
   await expect(
     page.getByRole("heading", {
       level: 1,
-      name: new RegExp(
-        `^Onur Ergüden, ${getIdentity("en").role}(?:, ${getIdentity("en").city})?$`,
-      ),
+      name: getIdentity("en").heading,
+      exact: true,
     }),
   ).toBeVisible();
   await page.waitForTimeout(2200);
@@ -188,9 +187,8 @@ test("3D canvas is decorative, within budget and safely loses context", async ({
   await expect(
     page.getByRole("heading", {
       level: 1,
-      name: new RegExp(
-        `^Onur Ergüden, ${getIdentity("en").role}(?:, ${getIdentity("en").city})?$`,
-      ),
+      name: getIdentity("en").heading,
+      exact: true,
     }),
   ).toBeVisible();
 });

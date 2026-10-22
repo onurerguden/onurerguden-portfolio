@@ -7,8 +7,15 @@
   color: #17212b;
   pointer-events: none;
 }
-.name {
+/* The h1 covers the artwork, so its name and role are placed as before. */
+.identity {
+  position: absolute;
+  inset: 0;
   margin: 0;
+  font: inherit;
+  text-wrap: wrap;
+}
+.name {
   position: absolute;
   z-index: 0;
   top: 18%;
