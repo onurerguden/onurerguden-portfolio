@@ -843,7 +843,7 @@ test("the monitor reads What I do and Experience the same both ways", async ({
   );
   const s = await story(page);
   const panel = page.locator('[data-screen="0"]');
-  await expect(panel.getByRole("heading", { level: 3 })).toHaveCount(9);
+  await expect(panel.getByRole("heading", { level: 3 })).toHaveCount(10);
   const frame = () =>
     page.evaluate(() => {
       const panel = document.querySelector('[data-screen="0"]') as HTMLElement;

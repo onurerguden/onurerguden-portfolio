@@ -1,14 +1,18 @@
 {
   "fin-ai-engineer": {
-    "role": "AI engineer",
+    "role": "Software & AI engineer",
     "highlights": [
       "Full-stack, client-facing AI applications served with FastAPI.",
       "Agentic workflows with LangChain and LangGraph over the OpenAI, Anthropic and Gemini APIs.",
       "Qdrant-based retrieval architectures for RAG pipelines."
     ]
   },
+  "fin-part-time": {
+    "role": "Agentic AI & automation engineer",
+    "highlights": ["Part-time and remote."]
+  },
   "fin-intern": {
-    "role": "AI engineering intern",
+    "role": "Agentic AI & automation engineer intern",
     "highlights": ["AI prototypes.", "Retrieval-based application features."]
   },
   "vbt-intern": {

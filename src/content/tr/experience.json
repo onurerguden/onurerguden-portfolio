@@ -1,14 +1,18 @@
 {
   "fin-ai-engineer": {
-    "role": "AI mühendisi",
+    "role": "Yazılım ve yapay zekâ mühendisi",
     "highlights": [
       "FastAPI ile sunulan full-stack, müşteriye yönelik AI uygulamaları.",
       "OpenAI, Anthropic ve Gemini API’leri üzerinde LangChain ve LangGraph ile agentic iş akışları.",
       "RAG pipeline’ları için Qdrant tabanlı bilgi getirme mimarileri."
     ]
   },
+  "fin-part-time": {
+    "role": "Agentic AI ve otomasyon mühendisi",
+    "highlights": ["Yarı zamanlı, uzaktan."]
+  },
   "fin-intern": {
-    "role": "AI mühendisliği stajyeri",
+    "role": "Agentic AI ve otomasyon mühendisi stajyeri",
     "highlights": [
       "AI prototipleri.",
       "Bilgi erişimi tabanlı uygulama özellikleri."

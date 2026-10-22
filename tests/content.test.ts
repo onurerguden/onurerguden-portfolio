@@ -217,13 +217,14 @@ describe("home section content", () => {
     expect(formatPeriod("2026-04", "2026-06", "tr")).toBe("Nis — Haz 2026");
     expect(getExperience("en")[0]).toMatchObject({
       company: "Future Is Now",
-      role: "AI engineer",
+      role: "Software & AI engineer",
+      start: "2026-09",
     });
   });
   it("links each role to its proof and tools in both languages", () => {
     for (const locale of ["en", "tr"] as const) {
       const roles = getExperience(locale);
-      expect(roles).toHaveLength(4);
+      expect(roles).toHaveLength(5);
       const vbt = roles.find((role) => role.id === "vbt-intern");
       expect(vbt?.proof).toMatchObject({
         kind: "project",
