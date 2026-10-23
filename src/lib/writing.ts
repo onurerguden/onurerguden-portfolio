@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { cache } from "react";
 import matter from "gray-matter";
 import { z } from "zod";
 import { caseHeadings, locales, slugify, type Locale } from "./content";
@@ -32,7 +33,11 @@ export type Post = z.infer<typeof frontmatterSchema> & {
 
 const defaultRoot = () => path.join(process.cwd(), "src/content");
 
-function readPosts(locale: Locale, root: string): Post[] {
+// Read once per render: an article's metadata, page and sections all ask.
+const readPosts = cache(function readPosts(
+  locale: Locale,
+  root: string,
+): Post[] {
   const dir = path.join(root, locale, "writing");
   if (!fs.existsSync(dir)) return [];
   return fs
@@ -52,7 +57,7 @@ function readPosts(locale: Locale, root: string): Post[] {
       const words = body.split(/\s+/).length;
       return { ...data, body, minutes: Math.max(1, Math.round(words / 220)) };
     });
-}
+});
 
 /** Every article in one language, newest first. */
 export function getPosts(locale: Locale, root = defaultRoot()): Post[] {

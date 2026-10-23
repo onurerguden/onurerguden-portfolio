@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { cache } from "react";
 import matter from "gray-matter";
 import { z } from "zod";
 
@@ -321,9 +322,20 @@ const translationSchema = z
   })
   .strict();
 
+/**
+ * Every project in one language. Read once per render: a case study's
+ * metadata, page, sections and neighbours all ask for it.
+ */
 export function getProjects(
   locale: Locale,
   contentRoot = path.join(process.cwd(), "src/content"),
+): Project[] {
+  return readProjects(locale, contentRoot);
+}
+
+const readProjects = cache(function readProjects(
+  locale: Locale,
+  contentRoot: string,
 ): Project[] {
   const summaries = JSON.parse(
     fs.readFileSync(path.join(contentRoot, locale, "projects.json"), "utf8"),
@@ -405,7 +417,7 @@ export function getProjects(
         : {}),
     });
   });
-}
+});
 
 export function getProject(locale: Locale, slug: string): Project | undefined {
   return getProjects(locale).find((project) => project.slug === slug);
