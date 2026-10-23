@@ -8,6 +8,11 @@ const projects = (locale: Locale): Crumb => ({
   path: "/projects",
 });
 
+const writing = (locale: Locale): Crumb => ({
+  name: locale === "en" ? "Writing" : "Yazılar",
+  path: "/writing",
+});
+
 /**
  * Each content page's trail from the home page. The visible breadcrumb and
  * the BreadcrumbList in the graph both read these, so they always match.
@@ -21,6 +26,12 @@ export const trails = {
   research: (locale: Locale): Crumb[] => [
     home(),
     { name: locale === "en" ? "Research" : "Araştırma", path: "/research" },
+  ],
+  writing: (locale: Locale): Crumb[] => [home(), writing(locale)],
+  post: (locale: Locale, title: string, slug: string): Crumb[] => [
+    home(),
+    writing(locale),
+    { name: title, path: `/writing/${slug}` },
   ],
   caseStudy: (locale: Locale, title: string, slug: string): Crumb[] => [
     home(),

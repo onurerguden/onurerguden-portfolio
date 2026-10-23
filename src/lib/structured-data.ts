@@ -4,6 +4,7 @@ import { siteOrigin } from "./site";
 import { getIdentity } from "./identity";
 import { editorialModified } from "./editorial";
 import { trails, type Crumb } from "./breadcrumbs";
+import type { Post } from "./writing";
 
 /**
  * Schema.org data for search engines and AI answer engines. Every page
@@ -295,6 +296,61 @@ export function caseStudyStructuredData(locale: Locale, project: Project) {
     article,
     software,
     breadcrumbs(locale, trails.caseStudy(locale, project.title, project.slug)),
+  );
+}
+
+/** The article list: every article, newest first. */
+export function writingStructuredData(locale: Locale, posts: Post[]) {
+  const { origin } = ids();
+  const name = locale === "en" ? "Writing" : "Yazılar";
+  return graph(
+    webPage(locale, "/writing", "CollectionPage", name, {
+      mainEntity: {
+        "@type": "ItemList",
+        itemListElement: posts.map((post, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: post.title,
+          url: `${origin}/${locale}/writing/${post.slug}`,
+        })),
+      },
+    }),
+    breadcrumbs(locale, trails.writing(locale)),
+  );
+}
+
+/**
+ * An article I wrote, linked to its translation so both languages read as
+ * one work.
+ */
+export function postStructuredData(locale: Locale, post: Post) {
+  const { origin, person } = ids();
+  const path = `/writing/${post.slug}`;
+  const url = `${origin}/${locale}${path}`;
+  const other = locale === "en" ? "tr" : "en";
+  const article: Node = {
+    "@type": "BlogPosting",
+    "@id": `${url}#article`,
+    headline: post.title,
+    name: post.title,
+    description: post.description,
+    inLanguage: locale,
+    keywords: post.tags.join(", "),
+    datePublished: post.published,
+    dateModified: post.updated,
+    author: { "@id": person },
+    publisher: { "@id": person },
+    mainEntityOfPage: { "@id": `${url}#page` },
+    [locale === "en" ? "workTranslation" : "translationOfWork"]: {
+      "@id": `${origin}/${other}${path}#article`,
+    },
+  };
+  return graph(
+    webPage(locale, path, "WebPage", post.title, {
+      mainEntity: { "@id": article["@id"] },
+    }),
+    article,
+    breadcrumbs(locale, trails.post(locale, post.title, post.slug)),
   );
 }
 
