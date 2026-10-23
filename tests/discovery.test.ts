@@ -25,7 +25,7 @@ describe("discovery", () => {
         ),
       ),
     );
-    for (const project of getProjects("en").filter((p) => p.featured))
+    for (const project of getProjects("en").filter((p) => p.caseStudy))
       expect(
         images(`https://onurerguden.dev/en/projects/${project.slug}`),
       ).toEqual(
@@ -42,7 +42,7 @@ describe("discovery", () => {
     expect(text).toContain("## Türkçe");
     expect(text).toContain(getIdentity("tr").lead);
     expect(text).toContain("(https://onurerguden.dev/tr/about)");
-    for (const project of getProjects("tr").filter((p) => p.featured))
+    for (const project of getProjects("tr").filter((p) => p.caseStudy))
       expect(text).toContain(
         `https://onurerguden.dev/tr/projects/${project.slug}`,
       );
@@ -65,7 +65,7 @@ describe("discovery", () => {
     expect(list(aboutStructuredData("tr") as Graph)).toEqual(
       expected(trails.about("tr")),
     );
-    const project = getProjects("tr").find((p) => p.featured)!;
+    const project = getProjects("tr").find((p) => p.caseStudy)!;
     expect(list(caseStudyStructuredData("tr", project) as Graph)).toEqual(
       expected(trails.caseStudy("tr", project.title, project.slug)),
     );
