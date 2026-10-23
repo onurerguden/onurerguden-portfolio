@@ -177,17 +177,28 @@ export async function synchronize(
   if (!(await store.acquire(delivery, nonce))) return "busy";
   try {
     if (await store.done(delivery)) return "duplicate";
-    const before = await store.read();
-    const repos = (await fetchPublicRepos(token, store, fetcher)).filter(
-      (repo) => repo.id !== removedId,
-    );
-    if (
-      !(await store.commit(
-        { repos, syncedAt: new Date().toISOString() },
-        before.revision,
-      ))
-    )
-      throw new Error("Snapshot changed; retry delivery");
+    const started = Date.now();
+    // The webhook and the daily run can sync at once, and the one that
+    // commits first may hold the older list. The other fetches and commits
+    // once more on the new revision instead of dropping its delivery. A
+    // removal moves the revision too; the second fetch comes after it, so a
+    // stale list is never written over it.
+    for (let attempt = 1; ; attempt++) {
+      const before = await store.read();
+      const repos = (await fetchPublicRepos(token, store, fetcher)).filter(
+        (repo) => repo.id !== removedId,
+      );
+      if (
+        await store.commit(
+          { repos, syncedAt: new Date().toISOString() },
+          before.revision,
+        )
+      )
+        break;
+      // Within the function's time limit, and only once.
+      if (attempt === 2 || Date.now() - started > 20_000)
+        throw new Error("Snapshot changed; retry delivery");
+    }
     await store.complete(delivery);
     return "updated";
   } finally {
