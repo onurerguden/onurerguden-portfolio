@@ -54,8 +54,8 @@ describe("public bilingual identity", () => {
       );
       expect(getIdentity(locale).heading).toBe(
         locale === "en"
-          ? "Onur Ergüden AI engineer software engineer"
-          : "Onur Ergüden yapay zekâ mühendisi yazılım mühendisi",
+          ? "Onur Ergüden AI Engineer"
+          : "Onur Ergüden Yapay Zekâ Mühendisi",
       );
     }
   });
@@ -79,7 +79,7 @@ describe("public bilingual identity", () => {
         identity.description,
         identity.bio,
         identity.heading,
-        identity.availability,
+        identity.invitation,
       ];
     });
     for (const text of [...texts, llmsIndex(), llmsFull()])
@@ -88,7 +88,7 @@ describe("public bilingual identity", () => {
       );
   });
 
-  it("shares the visible About bio and opportunity statement with AI text", () => {
+  it("shares the visible About bio with AI text", () => {
     for (const locale of ["en", "tr"] as const) {
       const identity = getIdentity(locale);
       const about = getAbout(locale);
@@ -99,7 +99,6 @@ describe("public bilingual identity", () => {
     expect(getIdentity("tr").bio).toContain("yapay zekâ mühendisiyim");
     for (const text of [llmsIndex(), llmsFull()]) {
       expect(text).toContain(getIdentity("en").location);
-      expect(text).toContain(getIdentity("en").availability);
     }
     expect(llmsFull()).toContain(getAbout("en").paragraphs[0]);
   });

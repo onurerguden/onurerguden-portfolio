@@ -104,7 +104,7 @@ function person(locale: Locale): Node {
         name: teaching.company,
       },
     ],
-    hasOccupation: [identity.role, identity.tagline, roleAt(teaching.company)]
+    hasOccupation: [identity.role, roleAt(teaching.company)]
       .filter((name): name is string => Boolean(name))
       .map((name) => ({ "@type": "Occupation", name })),
     alumniOf: university,

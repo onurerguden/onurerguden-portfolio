@@ -5,7 +5,8 @@ Onur in İzmir, Türkiye, with national and international remote work. The order
 is RAG/LLM/agents, AI product engineering, then applied research.
 
 The 22 October 2026 program widens it. Onur is "AI engineer" / "yapay zekâ
-mühendisi" everywhere, with software engineering as the second line. İzmir and
+mühendisi" everywhere (the opening writes it "AI Engineer" / "Yapay Zekâ
+Mühendisi" since 23 October). İzmir and
 Türkiye remain facts in the profile and structured data, not headline
 emphasis. The program covers the site, a bilingual writing section (two TR + EN
 articles a month from Onur's own work) and consistent external profiles that

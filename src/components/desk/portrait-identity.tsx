@@ -22,7 +22,7 @@ export default function PortraitIdentity({
   opening = false,
   interactive = true,
 }: {
-  content: Pick<JourneyContent, "name" | "role" | "tagline">;
+  content: Pick<JourneyContent, "name" | "role">;
   opening?: boolean;
   interactive?: boolean;
 }) {
@@ -121,10 +121,7 @@ export default function PortraitIdentity({
           <span>{words[0]}</span> <span>{words.slice(1).join(" ")}</span>
         </span>{" "}
         <span className={styles.role} data-portrait-role>
-          {content.role}{" "}
-          <span className={styles.tagline} data-portrait-tagline>
-            {content.tagline}
-          </span>
+          {content.role}
         </span>
       </Identity>
       <div className={styles.head} data-portrait-poster>
