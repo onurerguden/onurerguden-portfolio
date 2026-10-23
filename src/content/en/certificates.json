@@ -30,5 +30,23 @@
     "issuer": "Google AI & Technology Academy",
     "description": "Training completion certificate from the Google AI & Technology Academy.",
     "alt": "Basic entrepreneurship training completion certificate awarded to Onur Ergüden by the Google AI & Technology Academy (Yapay Zeka ve Teknoloji Akademisi) on February 21, 2026."
+  },
+  "academy-ai-program": {
+    "title": "AI training program",
+    "issuer": "Google AI & Technology Academy",
+    "description": "Graduation certificate · the academy’s 2025–2026 AI training program.",
+    "alt": "Graduation certificate awarded to Onur Ergüden by the Google AI & Technology Academy (Yapay Zeka ve Teknoloji Akademisi) for its 2025–2026 AI Training Program, dated October 21, 2026."
+  },
+  "defense-systems-engineering": {
+    "title": "Overview of systems engineering",
+    "issuer": "Presidency of Defence Industries",
+    "description": "Participation certificate from the Savunma Gelişim training program.",
+    "alt": "Savunma Gelişim certificate of participation for Onur Ergüden in Overview of Systems Engineering, from the Presidency of Defence Industries and the Defence Industry Academy."
+  },
+  "defense-data-analysis": {
+    "title": "Data analysis",
+    "issuer": "Presidency of Defence Industries",
+    "description": "Participation certificate from the Savunma Gelişim training program.",
+    "alt": "Savunma Gelişim certificate of participation for Onur Ergüden in Data Analysis, from the Presidency of Defence Industries and the Defence Industry Academy."
   }
 }

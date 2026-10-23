@@ -312,6 +312,8 @@ const experienceCopySchema = z
     highlights: z.array(z.string().min(1)).min(1).max(3),
     /** The link text for the role's proof, when it has one. */
     proofLabel: z.string().min(1).optional(),
+    /** What a role covers when it is not a set of tools, e.g. teaching. */
+    topics: z.array(z.string().min(1)).max(4).optional(),
   })
   .strict();
 
@@ -321,6 +323,7 @@ export type Experience = {
   role: string;
   highlights: string[];
   tools: string[];
+  topics: string[];
   proof: (ProofLink & { action: string }) | null;
   start: string;
   end: string | null;
@@ -381,6 +384,7 @@ export function getExperience(
         if (!name) throw new Error(`Unknown experience tool: ${techId}`);
         return name;
       }),
+      topics: copy[entry.id].topics ?? [],
       proof: proof && action ? { ...proof, action } : null,
       start: entry.start,
       end: entry.end,
@@ -462,6 +466,8 @@ export function validateHomeContent(root?: string): void {
   en.forEach((entry, index) => {
     if (entry.highlights.length !== tr[index].highlights.length)
       throw new Error(`Experience highlight parity failed: ${entry.id}`);
+    if (entry.topics.length !== tr[index].topics.length)
+      throw new Error(`Experience topic parity failed: ${entry.id}`);
   });
 }
 

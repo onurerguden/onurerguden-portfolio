@@ -42,7 +42,6 @@ describe("structured data", () => {
         ],
         hasOccupation: [
           { "@type": "Occupation", name: identity.role },
-          { "@type": "Occupation", name: identity.tagline },
           {
             "@type": "Occupation",
             name: locale === "en" ? "AI instructor" : "Yapay zekâ eğitmeni",

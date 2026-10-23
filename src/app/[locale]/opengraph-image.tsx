@@ -67,10 +67,7 @@ export default async function Image({
           <span>ERGÜDEN</span>
         </div>
         <div style={{ marginTop: 34, fontSize: 40, color: ogColors.accent }}>
-          {upper(identity.role, tr)}
-        </div>
-        <div style={{ marginTop: 14, fontSize: 24, color: ogColors.muted }}>
-          {upper(identity.tagline, tr)}
+          {upper(identity.headline, tr)}
         </div>
       </div>
       <img src={head} width={400} height={400} alt="" />

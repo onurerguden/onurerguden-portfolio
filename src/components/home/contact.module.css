@@ -16,7 +16,7 @@
   color: var(--text-body);
   font-size: clamp(16px, 1.4vw, 19px);
 }
-.availability {
+.invitation {
   max-width: 62ch;
   margin: clamp(24px, 3vw, 36px) auto 0;
   color: var(--text-body);
@@ -84,8 +84,6 @@
   justify-content: center;
   gap: 8px 26px;
   margin: 26px 0 0;
-  padding: 0;
-  list-style: none;
 }
 .links a {
   display: inline-flex;

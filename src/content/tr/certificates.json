@@ -28,5 +28,20 @@
     "title": "Temel girişimcilik",
     "description": "Yapay Zeka ve Teknoloji Akademisi’nden eğitim tamamlama belgesi.",
     "alt": "Yapay Zeka ve Teknoloji Akademisi’nin Onur Ergüden’e 21 Şubat 2026’da verdiği temel girişimcilik eğitimi tamamlama belgesi."
+  },
+  "academy-ai-program": {
+    "title": "Yapay zekâ eğitim programı",
+    "description": "Mezuniyet belgesi · akademinin 2025–2026 dönemi yapay zekâ eğitim programı.",
+    "alt": "Yapay Zeka ve Teknoloji Akademisi’nin Onur Ergüden’e 21 Ekim 2026’da verdiği 2025–2026 dönemi Yapay Zeka Eğitim Programı mezuniyet belgesi."
+  },
+  "defense-systems-engineering": {
+    "title": "Sistem mühendisliğine genel bakış",
+    "description": "Savunma Gelişim eğitim programından katılım belgesi.",
+    "alt": "Savunma Sanayii Başkanlığı ve Savunma Sanayii Akademi’nin Savunma Gelişim programında Onur Ergüden’e verdiği Sistem Mühendisliğine Genel Bakış katılım belgesi."
+  },
+  "defense-data-analysis": {
+    "title": "Veri analizi",
+    "description": "Savunma Gelişim eğitim programından katılım belgesi.",
+    "alt": "Savunma Sanayii Başkanlığı ve Savunma Sanayii Akademi’nin Savunma Gelişim programında Onur Ergüden’e verdiği Veri Analizi katılım belgesi."
   }
 }

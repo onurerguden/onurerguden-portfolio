@@ -96,6 +96,8 @@ export function inspectPage(html) {
     graph: graphs,
     invalidJsonLd,
     contentLinks: tags(main, "a").map((link) => link.href),
+    // Profiles live in the footer, once per page, so check the whole page.
+    pageLinks: tags(html, "a").map((link) => link.href),
   };
 }
 
@@ -171,12 +173,12 @@ export function auditPage(html, url, headers = {}, { indexable = true } = {}) {
         failures.push("Person identity is missing from HTML content");
     }
     for (const profile of person?.sameAs ?? []) {
-      if (typeof profile !== "string" || !page.contentLinks.includes(profile))
+      if (typeof profile !== "string" || !page.pageLinks.includes(profile))
         failures.push("Person public profile is missing from HTML links");
     }
     if (
       typeof person?.identifier?.url === "string" &&
-      !page.contentLinks.includes(person.identifier.url)
+      !page.pageLinks.includes(person.identifier.url)
     )
       failures.push("Person ORCID record is missing from HTML links");
     // Employers, school and occupations must be facts the page also says.

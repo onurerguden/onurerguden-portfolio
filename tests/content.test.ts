@@ -215,15 +215,18 @@ describe("home section content", () => {
   it("formats experience periods for each language", () => {
     expect(formatPeriod("2026-07", null, "en")).toBe("Jul 2026 — present");
     expect(formatPeriod("2026-04", "2026-06", "tr")).toBe("Nis — Haz 2026");
+    // My engineering role leads; teaching runs alongside it.
     expect(getExperience("en")[0]).toMatchObject({
-      company: "ASTRO8 AI Academy",
-      role: "AI instructor",
-      start: "2026-09",
-    });
-    expect(getExperience("en")[1]).toMatchObject({
       company: "Future Is Now",
       role: "Software & AI engineer",
       start: "2026-09",
+    });
+    expect(getExperience("en")[1]).toMatchObject({
+      company: "ASTRO8 AI Academy",
+      role: "AI instructor",
+      start: "2026-09",
+      tools: [],
+      topics: ["LLM fundamentals", "Agentic development", "Corporate training"],
     });
   });
   it("links each role to its proof and tools in both languages", () => {
