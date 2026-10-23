@@ -19,11 +19,14 @@ export default function SiteEvents({ pageViews }: { pageViews: boolean }) {
   const pathname = usePathname();
   useEffect(() => {
     if (!pageViews) return;
-    import("@vercel/analytics").then(({ inject }) =>
-      inject({
-        framework: "next",
-        beforeSend: (event) => (optedOut() ? null : event),
-      }),
+    import("@vercel/analytics").then(
+      ({ inject }) =>
+        inject({
+          framework: "next",
+          beforeSend: (event) => (optedOut() ? null : event),
+        }),
+      // A chunk that cannot load (an old tab after a deploy) counts nothing.
+      () => {},
     );
   }, [pageViews]);
   useEffect(() => {
@@ -31,6 +34,10 @@ export default function SiteEvents({ pageViews }: { pageViews: boolean }) {
     let stop = () => {};
     const early: EventTarget[] = [];
     const remember = (event: Event) => early.push(event.target!);
+    const forget = () => {
+      document.removeEventListener("click", remember, { capture: true });
+      early.length = 0;
+    };
     const off = () => {
       for (const type of firstUse)
         window.removeEventListener(type, load, { capture: true });
@@ -42,7 +49,7 @@ export default function SiteEvents({ pageViews }: { pageViews: boolean }) {
         if (!live) return;
         stop = listen();
         for (const target of early.splice(0)) countClick(target);
-      });
+      }, forget);
     }
     document.addEventListener("click", remember, { capture: true });
     for (const type of firstUse)

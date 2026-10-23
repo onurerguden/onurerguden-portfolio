@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { frameSlices, yieldToFrame } from "../src/lib/yield";
+import { frameSlices, whenIdle, yieldToFrame } from "../src/lib/yield";
 
 describe("yielding a frame", () => {
   afterEach(() => {
@@ -51,5 +51,41 @@ describe("yielding a frame", () => {
     }
     // Three 2 ms steps fill a 6 ms slice; the fourth waits for a frame.
     expect(startedAt).toEqual([0, 0, 0, 1, 1, 1]);
+  });
+});
+
+describe("waiting for an idle moment", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("cancels an idle callback without clearing a timer that shares its number", () => {
+    const cancelIdle = vi.fn();
+    vi.stubGlobal("requestIdleCallback", () => 3);
+    vi.stubGlobal("cancelIdleCallback", cancelIdle);
+    const clearTimer = vi.spyOn(globalThis, "clearTimeout");
+    const cancel = whenIdle(() => {}, { timeout: 1000, fallback: 100 });
+    cancel();
+    expect(cancelIdle).toHaveBeenCalledWith(3);
+    expect(clearTimer).not.toHaveBeenCalled();
+  });
+
+  it("falls back to a timer where idle callbacks are missing", () => {
+    vi.useFakeTimers();
+    try {
+      const callback = vi.fn();
+      whenIdle(callback, { timeout: 1000, fallback: 100 });
+      vi.advanceTimersByTime(99);
+      expect(callback).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(1);
+      expect(callback).toHaveBeenCalledOnce();
+      const cancelled = vi.fn();
+      whenIdle(cancelled, { timeout: 1000, fallback: 100 })();
+      vi.advanceTimersByTime(200);
+      expect(cancelled).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

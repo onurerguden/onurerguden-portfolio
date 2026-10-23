@@ -57,6 +57,7 @@ import {
   rawStory,
 } from "@/lib/desk-story/clock";
 import { onScrollPause } from "@/lib/scroll-pause";
+import { whenIdle } from "@/lib/yield";
 import SceneBoundary from "@/components/three/scene-boundary";
 import { JourneyNav, plainClick } from "@/components/site/site-nav";
 import monitorStyles from "@/components/sections/monitor.module.css";
@@ -437,15 +438,11 @@ export default function DeskJourney({
     };
     refresh();
     // The desk's code meanwhile downloads (and runs) while the page is idle.
-    const prefetch = () => void import("./journey-scene");
-    let cancelPrefetch = () => {};
-    if (!plain() && typeof requestIdleCallback === "function") {
-      const id = requestIdleCallback(prefetch, { timeout: 1500 });
-      cancelPrefetch = () => cancelIdleCallback(id);
-    } else if (!plain()) {
-      const id = window.setTimeout(prefetch, 300);
-      cancelPrefetch = () => window.clearTimeout(id);
-    }
+    // A failed prefetch is the scene's own load to report.
+    const prefetch = () => void import("./journey-scene").catch(() => {});
+    const cancelPrefetch = plain()
+      ? () => {}
+      : whenIdle(prefetch, { timeout: 1500, fallback: 300 });
     motion.addEventListener("change", refresh);
     const observer = new IntersectionObserver(([entry]) => {
       setActive(entry.isIntersecting);
