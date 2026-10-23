@@ -29,7 +29,8 @@ for (const locale of ["en", "tr"] as const) {
           name: sharedFacts.name,
           exact: true,
         });
-        await expect(author).toHaveAttribute("href", `/${locale}#about`);
+        await expect(author).toHaveAttribute("href", `/${locale}/about`);
+        await expect(author).toHaveAttribute("rel", "author");
         await expect(author).toBeVisible();
         await author.focus();
         await expect(author).toBeFocused();

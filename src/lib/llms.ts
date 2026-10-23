@@ -43,6 +43,7 @@ export function llmsIndex() {
     "## Pages",
     "",
     `- [Home](${page("")}): about, what I do, experience, technologies, projects, certificates and contact`,
+    `- [About](${page("/about")}): who I am, my roles, education, timeline and how to reach me`,
     `- [Projects](${page("/projects")}): every project, with case studies and public repositories`,
     `- [Research](${page("/research")}): the accepted paper and a course project`,
     "",

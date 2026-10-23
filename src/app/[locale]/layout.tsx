@@ -32,7 +32,8 @@ export const metadata: Metadata = {
   description:
     "AI engineering, applied machine learning and research by Onur Ergüden.",
   applicationName: "Onur Ergüden",
-  authors: [{ name: "Onur Ergüden", url: siteOrigin() }],
+  // rel=author points at my profile page, not a redirect.
+  authors: [{ name: "Onur Ergüden", url: `${siteOrigin()}/en/about` }],
   creator: "Onur Ergüden",
   // Search Console and Bing Webmaster Tools ownership, when configured.
   verification: {

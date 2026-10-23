@@ -10,6 +10,7 @@ import {
 import AxeBuilder from "@axe-core/playwright";
 const paths = [
   "",
+  "/about",
   "/projects",
   "/research",
   "/projects/kuyumcum",
@@ -408,7 +409,7 @@ test("content pages link to Projects and Contact in both languages", async ({
     await page.goto(`/${locale}/research`);
     const navigation = page.getByRole("navigation", { name: label });
     for (const [name, href] of [
-      [projects, `/${locale}#work`],
+      [projects, `/${locale}/projects`],
       [contact, `/${locale}#contact`],
     ]) {
       const link = navigation.getByRole("link", { name, exact: true });

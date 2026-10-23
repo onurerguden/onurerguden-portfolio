@@ -93,7 +93,9 @@ export default async function ProjectPage({
         <p className={styles.summary}>{project.summary}</p>
         <p className={styles.byline}>
           {en ? "By " : "Hazırlayan: "}
-          <Link href={`/${locale}#about`}>{sharedFacts.name}</Link>
+          <Link href={`/${locale}/about`} rel="author">
+            {sharedFacts.name}
+          </Link>
           {" · "}
           <a href={sharedFacts.github} rel="me">
             GitHub: {sharedFacts.githubLogin}

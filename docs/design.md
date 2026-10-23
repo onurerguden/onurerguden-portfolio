@@ -129,3 +129,7 @@ Onur said the site was better but still did not flow like butter, and chose (but
 ## October 23: profile links and the entity graph
 
 The contact section and footer list every public profile that names me and links back here (GitHub, LinkedIn, ORCID, Hugging Face, DergiPark) as `rel="me"` links, in the same plain link row as before; one `ProfileLinks` list feeds both and the Person's `sameAs`, so the page and the graph cannot drift. Case studies are my articles (TechArticle) about the software they describe, crediting me as creator for solo work and contributor for team work.
+
+## About page (geo/05)
+
+`/about` is the one ProfilePage: a server-rendered page with no 3D, in Research's type scale. The h1 is my name, the role sits under it as a job title, and the first paragraph names me, both roles and the city. Facts, the timeline and the case list are generated from the same data as the home page. Its graph carries the full Person as `mainEntity`; the home page becomes a WebPage `about` me and still embeds the Person, whose `url` is now `/about`. Profiles stay in the footer only.
