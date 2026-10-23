@@ -1,0 +1,72 @@
+---
+slug: model-writes-server-computes
+locale: en
+title: "Let the model write, not compute: lessons from an MCP coach"
+description: "How I split a personal coaching agent so tested code computes every number, ChatGPT writes through MCP, and a blocked write never costs a report."
+published: "2026-10-23"
+updated: "2026-10-23"
+tags: ["MCP", "OAuth", "Agents", "Reliability"]
+---
+
+## Short answer
+
+In GymRap, my personal strength coach, the language model never produces a number. A Cloudflare Worker computes every score and target in tested code; ChatGPT connects to it as a remote MCP server, reads a structured brief and writes only the coaching text, which the server validates against a schema before storing. The server, not the model, guarantees the daily report: when the model's write does not arrive, a numbers-only report still goes out, and an uncertain email is never sent twice.
+
+## The split: numbers in code, words from the model
+
+GymRap reads what my watch and phone record through Health Connect: 23 record types, uploaded by a small Kotlin bridge only for the days that changed. Everything that turns those records into a decision runs on the server: a readiness score against my own 30-day baselines, sleep debt, double-progression training targets and weekly sets per muscle group.
+
+I drew that line first, and every later choice follows from it. A model is good at reading a structured situation and explaining it; it is not a calculator I can test. So the backend makes no LLM API calls at all. The model's job is interpretation, and the repository's 137 backend tests at the published commit cover the part that has to be right.
+
+This also kept the running cost at zero beyond the ChatGPT subscription I already had: the model does its work inside ChatGPT, through tools the server exposes.
+
+## Tools with scopes, not a shared key
+
+The Worker is a remote MCP server with 13 tools. Each tool declares whether it only reads, and every call passes through one guard that checks the OAuth scope the call needs: `gymrap:read` for reads, `gymrap:write` for the two save tools. A call without the right scope gets a structured `insufficient_scope` answer instead of an exception.
+
+Authorization is OAuth 2.1 with PKCE, limited to one owner account. The consent page states what the connecting app may do, and the email recipient is fixed on the server: a connected app can ask for a report to be sent, but it can never choose where it goes. For a tool that can send email on my behalf, that boundary matters more than any prompt.
+
+## A save that is safe to repeat
+
+The model saves its coaching text with `save_coach_report` (and `save_post_workout_report` after a gym session). Both take a report key, a hash of the context the text was written from, and the coaching JSON.
+
+Three rules make the save safe:
+
+- The JSON must parse against the coach schema. If it does not, nothing is stored.
+- The save is idempotent per report key. Repeating the identical call changes nothing and says so, so a retrying client cannot create a second report.
+- Delivery runs after the response. The save returns as soon as the text is stored; sending the email happens afterwards, and a cron job picks it up if that run does not finish.
+
+The tool descriptions say all of this in plain words, because the model reads them. "Idempotent per report_key: repeating the identical call is safe and changes nothing" is an instruction to the model as much as documentation.
+
+## When the model's write never arrives
+
+The first version assumed the model's save would arrive. It did not always. In six scheduled runs over three days, ChatGPT's safety layer blocked the report save. From inside the chat it looked like the tool had been called; the server's call log, which records each tool call's name, outcome and size but never its arguments, showed that the write never arrived.
+
+I stopped treating the model as the thing that completes the job. The server now guarantees the daily report. A cron job checks every ten minutes and, if no coaching text has arrived by the deadline, sends a numbers-only report: all the measurements and targets, without the commentary. If the coaching text turns up later, the server attaches it to that day's web report instead of sending a second email. The coaching is now one sentence away in chat, and the morning email no longer depends on a write I cannot see.
+
+The lesson I took from it: if a step can be refused by a system you do not control, it cannot be the step that makes the job succeed.
+
+## A duplicate is worse than a missing email
+
+Every emailed report moves through a ledger: generated, sending, then sent; or failed, or uncertain. Only a new, queued or definitely failed report can be claimed for sending, and a send whose lease runs out without an outcome becomes `uncertain`, which is surfaced to me and never retried automatically.
+
+That is a deliberate trade. A report that does not arrive is an annoyance I will notice. The same report arriving twice teaches me to distrust the system. When I cannot know whether Gmail accepted a message, the system chooses the outcome I can recover from.
+
+## What I would keep
+
+- Keep numbers in tested code and give the model a structured brief to interpret.
+- Put the permission check in the server, per call, with scopes, and fix anything dangerous (like an email recipient) server-side.
+- Make every write the model performs idempotent and schema-validated, and say so in the tool description.
+- Log tool calls without their content, so you can tell "the model did not call" from "the call was refused".
+- Never let the model's success be the only path to the result the user expects.
+
+GymRap is a single-user system by design, and its readiness score is my own transparent formula, not a medical measure. The patterns above are the part I would carry into any agent that acts for someone.
+
+## Inspect the implementation
+
+These links point to the published commit `8f35eba` of my GymRap AI Coach repository. The [case study](/en/projects/gymrap-ai-coach) describes the whole system.
+
+- [The MCP tools, the scope guard and the call log](https://github.com/onurerguden/GymRap-AI-Coach/blob/8f35eba6c5b1e3a9335fb4ece2c74c75ba70bdef/backend/src/mcp.ts).
+- [OAuth authorization and owner access](https://github.com/onurerguden/GymRap-AI-Coach/blob/8f35eba6c5b1e3a9335fb4ece2c74c75ba70bdef/backend/src/auth.ts).
+- [The report ledger](https://github.com/onurerguden/GymRap-AI-Coach/blob/8f35eba6c5b1e3a9335fb4ece2c74c75ba70bdef/backend/src/ledger.ts).
+- [Saving coaching text and the numbers-only fallback](https://github.com/onurerguden/GymRap-AI-Coach/blob/8f35eba6c5b1e3a9335fb4ece2c74c75ba70bdef/backend/src/report.ts).

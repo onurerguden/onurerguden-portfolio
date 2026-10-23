@@ -9,6 +9,8 @@ const changes: Readonly<Record<string, string>> = Object.freeze({
   "/about": "2026-10-23T12:00:00Z",
   "/projects": "2026-10-23T14:00:00Z",
   "/research": "2026-10-22T15:47:00Z",
+  "/writing": "2026-10-23T15:00:00Z",
+  "/writing/model-writes-server-computes": "2026-10-23T15:00:00Z",
   "/projects/carbonpilot": "2026-10-23T14:00:00Z",
   "/projects/course-intelligence": "2026-10-13T12:41:00Z",
   "/projects/gymrap-ai-coach": "2026-10-13T12:41:00Z",
