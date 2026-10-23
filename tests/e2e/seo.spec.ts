@@ -14,7 +14,7 @@ import {
 // build-time canonical origin via SEO_CANONICAL_ORIGIN when necessary.
 const indexable = process.env.SEO_EXPECT_INDEXABLE === "true";
 const canonicalOrigin = process.env.SEO_CANONICAL_ORIGIN || siteOrigin();
-const representatives = ["/en", "/tr", "/en/projects/kuyumcum"];
+const representatives = ["/en", "/tr", "/tr/about", "/en/projects/kuyumcum"];
 
 for (const locale of ["en", "tr"] as const) {
   test(`${locale}: production homepage content is usable without JavaScript`, async ({

@@ -48,7 +48,9 @@ test("the home page describes me as a Person with my profiles", async ({
     identifier: { propertyID: "ORCID", value: sharedFacts.orcid },
     knowsAbout: expect.arrayContaining(["Model Context Protocol"]),
   });
-  expect(data["@graph"].map((node) => node["@type"])).toContain("ProfilePage");
+  // /about is the profile page; home is a page about me.
+  expect(data["@graph"].map((node) => node["@type"])).toContain("WebPage");
+  expect(person).toMatchObject({ url: expect.stringMatching(/\/tr\/about$/) });
 });
 
 test("the bare origin moves to English for good", async ({ request }) => {
