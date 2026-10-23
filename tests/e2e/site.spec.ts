@@ -10,7 +10,6 @@ import {
 import AxeBuilder from "@axe-core/playwright";
 const paths = [
   "",
-  "/about",
   "/projects",
   "/research",
   "/projects/kuyumcum",
@@ -81,7 +80,14 @@ test("language switching preserves the case study and research is reachable", as
   await expect(page).toHaveURL(/\/tr\/projects\/kuyumcum$/);
   // A full navigation, so the document announces its new language.
   await expect(page.locator("html")).toHaveAttribute("lang", "tr");
-  await page.getByRole("link", { name: "Araştırma", exact: true }).click();
+  // Research is a home section, reached from the Sections menu.
+  await page.getByRole("button", { name: "Bölümler" }).click();
+  await page
+    .locator("#journey-sections-menu")
+    .getByRole("link", { name: "Araştırma", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/tr#research$/);
+  await page.locator('#research a[href="/tr/research"]').first().click();
   await expect(page).toHaveURL(/\/tr\/research$/);
   await expect(
     page.getByText("Kabul edildi", { exact: false }).first(),
@@ -409,7 +415,7 @@ test("content pages link to Projects and Contact in both languages", async ({
     await page.goto(`/${locale}/research`);
     const navigation = page.getByRole("navigation", { name: label });
     for (const [name, href] of [
-      [projects, `/${locale}/projects`],
+      [projects, `/${locale}#work`],
       [contact, `/${locale}#contact`],
     ]) {
       const link = navigation.getByRole("link", { name, exact: true });
@@ -417,4 +423,37 @@ test("content pages link to Projects and Contact in both languages", async ({
       await expect(link).toHaveAttribute("href", href);
     }
   }
+});
+
+test("the old About page moves to the home page's About section", async ({
+  request,
+}) => {
+  for (const locale of ["en", "tr"]) {
+    const response = await request.get(`/${locale}/about`, { maxRedirects: 0 });
+    expect(response.status()).toBe(308);
+    expect(response.headers().location).toBe(`/${locale}#about`);
+  }
+});
+
+test("content pages keep the home bar: Projects, Contact and every section in the menu", async ({
+  page,
+}) => {
+  await page.goto("/tr/projects/kuyumcum");
+  const navigation = page.getByRole("navigation", { name: "Ana gezinme" });
+  await expect(
+    navigation.getByRole("link", { name: "Projeler", exact: true }),
+  ).toHaveAttribute("href", "/tr#work");
+  await expect(
+    navigation.getByRole("link", { name: "İletişim", exact: true }),
+  ).toHaveAttribute("href", "/tr#contact");
+  await navigation.getByRole("button", { name: "Bölümler" }).click();
+  const menu = page.locator("#journey-sections-menu");
+  await expect(
+    menu.getByRole("link", { name: "Hakkımda", exact: true }),
+  ).toHaveAttribute("href", "/tr#about");
+  await expect(
+    menu.getByRole("link", { name: "Yazılar", exact: true }),
+  ).toHaveAttribute("href", "/tr/writing");
+  // One About link: the home page's section.
+  await expect(page.locator('a[href="/tr/about"]')).toHaveCount(0);
 });

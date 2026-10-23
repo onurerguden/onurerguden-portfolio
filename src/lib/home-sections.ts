@@ -52,6 +52,15 @@ export type SectionPlace = (typeof homeSections)[number]["place"];
 export const homeSectionIds = homeSections.map((section) => section.id);
 
 export type SectionLink = { id: HomeSectionId; label: string };
+export type PageLink = { href: string; label: string };
+
+/** Pages outside the home page that every Sections menu lists. */
+export const menuPageLinks = (locale: "en" | "tr"): PageLink[] => [
+  {
+    href: `/${locale}/writing`,
+    label: locale === "en" ? "Writing" : "Yazılar",
+  },
+];
 
 /**
  * Links to every section that has content, in reading order. Optional

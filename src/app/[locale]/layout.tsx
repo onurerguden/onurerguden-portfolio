@@ -7,6 +7,8 @@ import SiteFooter from "@/components/site/site-footer";
 import CustomCursor from "@/components/site/custom-cursor";
 import SiteEvents from "@/components/site/site-events";
 import { isLocale, locales } from "@/lib/content";
+import { getCertificates } from "@/lib/home-content";
+import { homeSectionLinks, menuPageLinks } from "@/lib/home-sections";
 import { pageIcons } from "@/lib/icons";
 import { robotsMetadata, siteOrigin } from "@/lib/site";
 import "../globals.css";
@@ -33,7 +35,7 @@ export const metadata: Metadata = {
     "AI engineering, applied machine learning and research by Onur Ergüden.",
   applicationName: "Onur Ergüden",
   // rel=author points at my profile page, not a redirect.
-  authors: [{ name: "Onur Ergüden", url: `${siteOrigin()}/en/about` }],
+  authors: [{ name: "Onur Ergüden", url: `${siteOrigin()}/en` }],
   creator: "Onur Ergüden",
   // Search Console and Bing Webmaster Tools ownership, when configured.
   verification: {
@@ -62,7 +64,13 @@ export default async function LocaleLayout({
           {locale === "en" ? "Skip to content" : "İçeriğe geç"}
         </a>
         <div className="site-shell">
-          <PageNav locale={locale} />
+          <PageNav
+            locale={locale}
+            sections={homeSectionLinks(locale, {
+              certificates: getCertificates(locale).length > 0,
+            })}
+            pages={menuPageLinks(locale)}
+          />
           {children}
         </div>
         <SiteFooter locale={locale} />

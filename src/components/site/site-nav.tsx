@@ -8,7 +8,7 @@ import {
   type MouseEvent,
   type RefObject,
 } from "react";
-import type { SectionLink } from "@/lib/home-sections";
+import type { PageLink, SectionLink } from "@/lib/home-sections";
 import MotionToggle from "@/components/motion-toggle";
 import { deskMode, useStaticDesk } from "@/lib/desk-mode";
 import { useMotionPreference } from "@/lib/motion-preference";
@@ -90,13 +90,23 @@ function SectionsMenu({
   locale,
   sections,
   current,
+  base = "",
+  pages = [],
+  desk = true,
 }: {
   locale: "en" | "tr";
   sections: SectionLink[];
   /** The desk chapter on screen, marked as the reader's place. */
   current?: string;
+  /** Where the sections are: "" on the home page, `/en` elsewhere. */
+  base?: string;
+  /** Pages of their own (Writing), after the home sections. */
+  pages?: PageLink[];
+  /** The 3D switch, only where the desk is. */
+  desk?: boolean;
 }) {
   const en = locale === "en";
+  const path = usePathname();
   const [open, setOpen] = useState(false);
   const button = useRef<HTMLButtonElement>(null);
   const menu = useRef<HTMLDivElement>(null);
@@ -146,12 +156,23 @@ function SectionsMenu({
           {sections.map((section) => (
             <li key={section.id}>
               <a
-                href={`#${section.id}`}
+                href={`${base}#${section.id}`}
                 aria-current={section.id === current ? "location" : undefined}
                 onClick={() => setOpen(false)}
               >
                 {section.label}
               </a>
+            </li>
+          ))}
+          {pages.map((page) => (
+            <li key={page.href}>
+              <Link
+                href={page.href}
+                aria-current={path.startsWith(page.href) ? "page" : undefined}
+                onClick={() => setOpen(false)}
+              >
+                {page.label}
+              </Link>
             </li>
           ))}
         </ul>
@@ -162,7 +183,7 @@ function SectionsMenu({
         >
           <p id="journey-motion-label">{en ? "Motion" : "Hareket"}</p>
           <MotionToggle locale={locale} className={styles.motionToggle} />
-          <DeskToggle locale={locale} />
+          {desk ? <DeskToggle locale={locale} /> : null}
         </div>
       </div>
     </div>
@@ -219,6 +240,7 @@ export function JourneyNav({
   chapters,
   current,
   sections,
+  pages,
   onSkip,
 }: {
   locale: "en" | "tr";
@@ -227,6 +249,7 @@ export function JourneyNav({
   /** Index of the chapter on screen, or -1. */
   current: number;
   sections: SectionLink[];
+  pages?: PageLink[];
   onSkip: (event: MouseEvent<HTMLAnchorElement>) => void;
 }) {
   const en = locale === "en";
@@ -257,6 +280,7 @@ export function JourneyNav({
           locale={locale}
           sections={sections}
           current={chapters[current]?.id}
+          pages={pages}
         />
       ) : null}
       <LanguageLink locale={locale} className={styles.language} />
@@ -264,8 +288,21 @@ export function JourneyNav({
   );
 }
 
-/** The bar on content pages; the home page and its lab twin use JourneyNav. */
-export function PageNav({ locale }: { locale: "en" | "tr" }) {
+/**
+ * The bar on content pages: the same bar as the home page's, so it never
+ * changes under the reader. Projects and Contact stay in it; every home
+ * section and Writing live in the Sections menu.
+ */
+export function PageNav({
+  locale,
+  sections,
+  pages,
+}: {
+  locale: "en" | "tr";
+  /** The home sections, from the server so their labels stay out of the bundle. */
+  sections: SectionLink[];
+  pages: PageLink[];
+}) {
   const path = usePathname();
   const en = locale === "en";
   if (
@@ -274,34 +311,6 @@ export function PageNav({ locale }: { locale: "en" | "tr" }) {
     path === `/${locale}/lab/desk/journey`
   )
     return null;
-  const links = [
-    {
-      href: `/${locale}/projects`,
-      label: en ? "Projects" : "Projeler",
-      page: true,
-    },
-    {
-      href: `/${locale}#services`,
-      label: en ? "What I do" : "Ne yapıyorum",
-      secondary: true,
-    },
-    {
-      href: `/${locale}/research`,
-      label: en ? "Research" : "Araştırma",
-      page: true,
-    },
-    {
-      href: `/${locale}/writing`,
-      label: en ? "Writing" : "Yazılar",
-      page: true,
-    },
-    {
-      href: `/${locale}/about`,
-      label: en ? "About" : "Hakkımda",
-      page: true,
-    },
-    { href: `/${locale}#contact`, label: en ? "Contact" : "İletişim" },
-  ];
   return (
     <header className="site-header">
       <nav
@@ -310,19 +319,21 @@ export function PageNav({ locale }: { locale: "en" | "tr" }) {
       >
         <Brand locale={locale} />
         <div className={styles.links}>
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={link.secondary ? styles.secondary : undefined}
-              aria-current={
-                link.page && path.startsWith(link.href) ? "page" : undefined
-              }
-            >
-              {link.label}
-            </Link>
-          ))}
+          {sections
+            .filter((section) => barSections.includes(section.id))
+            .map((section) => (
+              <Link href={`/${locale}#${section.id}`} key={section.id}>
+                {section.label}
+              </Link>
+            ))}
         </div>
+        <SectionsMenu
+          locale={locale}
+          sections={sections}
+          base={`/${locale}`}
+          pages={pages}
+          desk={false}
+        />
         <LanguageLink locale={locale} className={styles.language} />
       </nav>
     </header>
