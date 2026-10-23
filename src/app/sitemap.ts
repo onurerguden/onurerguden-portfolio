@@ -6,9 +6,9 @@ import { editorialModified } from "@/lib/editorial";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const origin = siteOrigin();
-  const featured = getProjects("en").filter((project) => project.featured);
+  const studies = getProjects("en").filter((project) => project.caseStudy);
   // Every case study has a page; archive entries live on /projects.
-  const cases = featured.map((project) => `/projects/${project.slug}`);
+  const cases = studies.map((project) => `/projects/${project.slug}`);
   const paths = ["", "/about", "/projects", "/research", ...cases];
   // Images each page shows, so image search can find and credit them.
   const images: Record<string, string[]> = {
@@ -17,7 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       ...getCertificates("en").map((certificate) => certificate.image.src),
     ],
     ...Object.fromEntries(
-      featured.map((project) => [
+      studies.map((project) => [
         `/projects/${project.slug}`,
         (project.media ?? []).map((item) => item.src),
       ]),

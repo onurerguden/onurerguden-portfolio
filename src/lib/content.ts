@@ -21,7 +21,10 @@ const projectSchema = z.object({
   role: z.string().min(1).optional(),
   stack: z.array(z.string().min(1)).min(1),
   year: z.string(),
+  /** A card in the home page's project stack. */
   featured: z.boolean(),
+  /** Has its own case-study page; every featured project does. */
+  caseStudy: z.boolean(),
   /**
    * Who built a case study: "solo" when I wrote all of it, "team" when I
    * built it with others. Its page then credits me as creator or contributor.
@@ -142,6 +145,8 @@ type SharedProject = Pick<
   Project,
   "slug" | "stack" | "year" | "featured" | "repoUrl" | "authorship"
 > & {
+  /** A case-study page for a project that is not a home card. */
+  caseStudy?: true;
   /** A shared count shown with its localized label; never a model score. */
   metric?: Measurement;
   /** Real screenshots or repository artefacts only; alt text is localized. */
@@ -262,6 +267,8 @@ const projects: SharedProject[] = [
     stack: ["LangGraph", "Gemini", "FastAPI", "pgvector", "Docker"],
     year: "2026",
     featured: false,
+    caseStudy: true,
+    authorship: "team",
     repoUrl: "https://github.com/fatmanurdurmus/YZTA-BOOTCAMP-GRUP-9",
   },
   {
@@ -333,8 +340,9 @@ export function getProjects(
     const copy = translationSchema.parse(summaries[shared.slug]);
     if ((media?.length ?? 0) !== (copy.mediaAlt?.length ?? 0))
       throw new Error(`Media alt text mismatch: ${locale}/${shared.slug}`);
+    const caseStudy = shared.featured || Boolean(shared.caseStudy);
     let body: string | undefined;
-    if (shared.featured) {
+    if (caseStudy) {
       const parsed = matter(
         fs.readFileSync(
           path.join(contentRoot, locale, `${shared.slug}.mdx`),
@@ -353,24 +361,25 @@ export function getProjects(
     }
     if (metric && !copy.metricLabel)
       throw new Error(`Missing metric context: ${locale}/${shared.slug}`);
-    if (shared.featured !== Boolean(copy.role))
+    if (caseStudy !== Boolean(copy.role))
       throw new Error(
         `Role belongs to case studies only: ${locale}/${shared.slug}`,
       );
-    if (shared.featured !== Boolean(shared.authorship))
+    if (caseStudy !== Boolean(shared.authorship))
       throw new Error(
         `Authorship belongs to case studies only: ${locale}/${shared.slug}`,
       );
-    if (shared.featured !== Boolean(copy.description))
+    if (caseStudy !== Boolean(copy.description))
       throw new Error(
         `Search description belongs to case studies only: ${locale}/${shared.slug}`,
       );
-    if (shared.featured !== Boolean(copy.searchTitle))
+    if (caseStudy !== Boolean(copy.searchTitle))
       throw new Error(
         `Search title belongs to case studies only: ${locale}/${shared.slug}`,
       );
     return projectSchema.parse({
       ...shared,
+      caseStudy,
       title: copy.title,
       searchTitle: copy.searchTitle,
       summary: copy.summary,
@@ -410,6 +419,7 @@ export function validateContent(contentRoot?: string): void {
       stack: project.stack,
       year: project.year,
       featured: project.featured,
+      caseStudy: project.caseStudy,
       repoUrl: project.repoUrl,
       // The value is one shared number, formatted per locale.
       metric: Boolean(project.metric),

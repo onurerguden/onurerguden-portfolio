@@ -12,7 +12,7 @@ describe("llms.txt", () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://onurerguden.dev");
     const index = llmsIndex();
     expect(index.startsWith(`# ${sharedFacts.name}\n\n> `)).toBe(true);
-    for (const project of getProjects("en").filter((p) => p.featured))
+    for (const project of getProjects("en").filter((p) => p.caseStudy))
       expect(index).toContain(
         `(https://onurerguden.dev/en/projects/${project.slug})`,
       );
@@ -60,6 +60,6 @@ describe("llms.txt", () => {
     expect(full).toContain(sharedFacts.publication.authors.join(", "));
     expect(full).toContain(sharedFacts.publication.sourceUrl);
     expect(full).toContain("LangGraph in CarbonPilot:");
-    expect(full).toContain("/en/projects#carbonpilot");
+    expect(full).toContain("/en/projects/carbonpilot");
   });
 });

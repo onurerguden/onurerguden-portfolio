@@ -62,8 +62,11 @@
   },
   "carbonpilot": {
     "title": "CarbonPilot AI",
-    "summary": "Beş kişilik Google AI & Technology Academy bitirme projesi: CBAM kapsamındaki ihracatçılar için deterministik emisyon hesaplaması ve korumalı bir LangGraph ajanıyla karbon muhasebesi. Benim payım: döngü, zaman aşımı ve yedek korumalarıyla ajan grafiği, Gemini ile veri çıkarımı, LangSmith izleme ve PDF/JSON raporlar.",
-    "category": "Agentic iş akışları · ekip projesi"
+    "searchTitle": "CarbonPilot AI — CBAM için korumalı bir LangGraph ajanı",
+    "summary": "Beş kişilik Google AI & Technology Academy bitirme projesi: CBAM kapsamındaki ihracatçılar için deterministik emisyon hesaplaması ve korumalı bir LangGraph ajanıyla karbon muhasebesi. Benim payım: raporla ya da insan incelemesiyle biten ajan grafiği, Gemini ile veri çıkarımı, yeşil dönüşüm optimizasyonu, LangSmith izleme ve hash’li raporlar.",
+    "description": "CBAM karbon muhasebesi ekip projesindeki payım: raporla ya da insan incelemesiyle biten LangGraph ajanı, katı Gemini çıkarımı ve hash’li raporlar.",
+    "category": "Agentic iş akışları · ekip projesi",
+    "role": "Geliştirici · ajan grafiği, çıkarım, optimizasyon ve raporlar"
   },
   "voiceops": {
     "title": "VoiceOps",

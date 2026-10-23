@@ -35,17 +35,23 @@ afterEach(() =>
 );
 
 describe("bilingual portfolio content", () => {
-  it("provides four complete case studies and five archive entries in each language", () => {
+  it("provides five complete case studies, four of them home cards, in each language", () => {
     expect(() => validateContent()).not.toThrow();
     for (const locale of ["en", "tr"] as const) {
       const projects = getProjects(locale);
       expect(projects).toHaveLength(9);
-      expect(projects.filter((project) => project.body)).toHaveLength(4);
-      expect(
-        projects
-          .filter((project) => !project.featured)
-          .every((project) => !project.body),
-      ).toBe(true);
+      expect(projects.filter((project) => project.body)).toHaveLength(5);
+      expect(projects.filter((project) => project.featured)).toHaveLength(4);
+      // Every home card has a page; a page does not need a home card.
+      for (const project of projects) {
+        expect(Boolean(project.body)).toBe(project.caseStudy);
+        if (project.featured) expect(project.caseStudy).toBe(true);
+      }
+      expect(getProject(locale, "carbonpilot")).toMatchObject({
+        featured: false,
+        caseStudy: true,
+        authorship: "team",
+      });
     }
   });
   it("fails when a translated case study is absent", () => {
@@ -136,7 +142,7 @@ describe("home section content", () => {
       );
       expect(agents?.href).toBe(`/${locale}/projects/gymrap-ai-coach`);
       expect(agents?.supportingProof).toEqual({
-        href: `/${locale}/projects#carbonpilot`,
+        href: `/${locale}/projects/carbonpilot`,
         label:
           locale === "en"
             ? "LangGraph in CarbonPilot"
@@ -278,7 +284,7 @@ describe("technology evidence", () => {
     ]);
     expect(evidence("langgraph")).toEqual([
       expect.objectContaining({ kind: "experience", label: "Future Is Now" }),
-      expect.objectContaining({ href: "/en/projects#carbonpilot" }),
+      expect.objectContaining({ href: "/en/projects/carbonpilot" }),
     ]);
     expect(evidence("mcp").map((proof) => proof.href)).toEqual([
       "/en/projects/gymrap-ai-coach",
@@ -338,7 +344,7 @@ describe("case studies", () => {
   it("state my role on case studies only", () => {
     for (const locale of ["en", "tr"] as const)
       for (const project of getProjects(locale))
-        expect(Boolean(project.role)).toBe(project.featured);
+        expect(Boolean(project.role)).toBe(project.caseStudy);
     const root = fixture();
     editJson(root, "en/projects.json", (value) => {
       value.pam.role = "Invented role";

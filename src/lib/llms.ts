@@ -48,7 +48,7 @@ function turkish() {
     `- [Projeler](${page("/projects")})`,
     `- [Araştırma](${page("/research")})`,
     ...getProjects("tr")
-      .filter((project) => project.featured)
+      .filter((project) => project.caseStudy)
       .map(
         (project) =>
           `- [${project.title}](${page(`/projects/${project.slug}`)}): ${project.summary}`,
@@ -73,7 +73,7 @@ export function llmsIndex() {
     "## Case studies",
     "",
     ...projects
-      .filter((project) => project.featured)
+      .filter((project) => project.caseStudy)
       .map(
         (project) =>
           `- [${project.title}](${page(`/projects/${project.slug}`)}): ${project.summary}`,
@@ -85,7 +85,7 @@ export function llmsIndex() {
     "",
     `- [Full text](${origin}/llms-full.txt): this summary with the case studies, experience and certificates in full`,
     ...projects
-      .filter((project) => !project.featured && project.repoUrl)
+      .filter((project) => !project.caseStudy && project.repoUrl)
       .map(
         (project) =>
           `- [${project.title}](${project.repoUrl}): ${project.summary}`,
@@ -158,7 +158,7 @@ export function llmsFull() {
     research.interests,
     "",
     ...projects
-      .filter((project) => project.featured && project.body)
+      .filter((project) => project.caseStudy && project.body)
       .flatMap((project) => [
         `## Case study: ${project.title}`,
         "",
@@ -176,7 +176,7 @@ export function llmsFull() {
     "## Other projects",
     "",
     ...projects
-      .filter((project) => !project.featured)
+      .filter((project) => !project.caseStudy)
       .map(
         (project) =>
           `- **${project.title}** (${project.stack.join(", ")}): ${project.summary}${project.repoUrl ? ` Source: ${project.repoUrl}` : ""}`,

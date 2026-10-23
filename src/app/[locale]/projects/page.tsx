@@ -69,14 +69,14 @@ export default async function ProjectsPage({
             className={styles.entry}
             id={p.slug}
             key={p.slug}
-            data-linked={p.featured ? "" : undefined}
+            data-linked={p.caseStudy ? "" : undefined}
           >
             <span className={styles.number} aria-hidden="true">
               {String(i + 1).padStart(2, "0")}
             </span>
             <p className={styles.category}>{p.category}</p>
             <h2>
-              {p.featured ? (
+              {p.caseStudy ? (
                 <Link
                   className={styles.cover}
                   href={`/${locale}/projects/${p.slug}`}
@@ -102,7 +102,7 @@ export default async function ProjectsPage({
               ))}
             </ul>
             <p className={styles.action}>
-              {p.featured ? (
+              {p.caseStudy ? (
                 <span aria-hidden="true">
                   {en ? "Read the case study" : "Vaka çalışmasını oku"} →
                 </span>

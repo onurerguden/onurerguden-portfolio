@@ -86,7 +86,7 @@ describe("structured data", () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://onurerguden.dev");
     const me = { "@id": "https://onurerguden.dev/#person" };
     const credits: Record<string, "solo" | "team"> = {};
-    for (const project of getProjects("en").filter((p) => p.featured)) {
+    for (const project of getProjects("en").filter((p) => p.caseStudy)) {
       const graph = caseStudyStructuredData("en", project) as Graph;
       const url = `https://onurerguden.dev/en/projects/${project.slug}`;
       expect(node(graph, "WebPage")?.mainEntity).toEqual({
@@ -122,6 +122,7 @@ describe("structured data", () => {
       "water-safety": "team",
       "course-intelligence": "solo",
       "gymrap-ai-coach": "solo",
+      carbonpilot: "team",
     });
   });
 

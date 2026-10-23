@@ -40,7 +40,7 @@ export default async function Image({
   const { locale } = await params;
   const tr = isLocale(locale) && locale === "tr";
   const projects = getProjects(tr ? "tr" : "en");
-  const cases = projects.filter((project) => project.featured);
+  const cases = projects.filter((project) => project.caseStudy);
   return new ImageResponse(
     <div
       style={{

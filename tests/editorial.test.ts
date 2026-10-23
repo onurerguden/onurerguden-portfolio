@@ -49,7 +49,7 @@ describe("editorial modification dates", () => {
       expect(node(about, "ProfilePage")?.dateModified).toBe(
         editorialModified("/about"),
       );
-      for (const project of getProjects(locale).filter((p) => p.featured)) {
+      for (const project of getProjects(locale).filter((p) => p.caseStudy)) {
         const graph = caseStudyStructuredData(locale, project) as Graph;
         expect(node(graph, "WebPage")?.dateModified).toBe(
           editorialModified(`/projects/${project.slug}`),

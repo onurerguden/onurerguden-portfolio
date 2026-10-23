@@ -15,7 +15,7 @@ for (const locale of ["en", "tr"] as const) {
     const noJs = await context.newPage();
     try {
       for (const project of getProjects(locale).filter(
-        (item) => item.featured,
+        (item) => item.caseStudy,
       )) {
         const response = await noJs.goto(
           new URL(

@@ -12,7 +12,7 @@ export default function OtherProjects({
 }) {
   const en = locale === "en";
   const others = getProjects(locale).filter(
-    (project) => project.featured && project.slug !== current,
+    (project) => project.caseStudy && project.slug !== current,
   );
   return (
     <section className={styles.others} aria-labelledby="other-projects">

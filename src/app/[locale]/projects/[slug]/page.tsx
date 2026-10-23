@@ -31,7 +31,7 @@ export function generateStaticParams({
 }) {
   if (!isLocale(params.locale)) return [];
   return getProjects(params.locale)
-    .filter((project) => project.featured && project.body)
+    .filter((project) => project.caseStudy && project.body)
     .map((project) => ({ slug: project.slug }));
 }
 
@@ -69,7 +69,7 @@ export default async function ProjectPage({
   const { locale, slug } = await params;
   if (!isLocale(locale)) notFound();
   const project = getProject(locale, slug);
-  if (!project?.featured || !project.body) notFound();
+  if (!project?.caseStudy || !project.body) notFound();
   const en = locale === "en";
   const sections = caseSections(locale, slug);
   // Headings take their language-independent ids by position.
