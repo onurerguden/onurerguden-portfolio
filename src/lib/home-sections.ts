@@ -79,3 +79,18 @@ export function homeSectionLinks(
 export const deskSections = homeSections.filter(
   (section) => section.place !== "flow",
 );
+
+/**
+ * The element id a location hash names, or null for none. A hash with a
+ * stray `%` (a mistyped or mangled link) cannot be decoded; it is then read
+ * as written, as the browser does when it looks for the target itself.
+ */
+export function hashId(hash: string): string | null {
+  const raw = hash.replace(/^#/, "");
+  if (!raw) return null;
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}

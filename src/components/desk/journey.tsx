@@ -38,6 +38,7 @@ import {
 } from "@/lib/desk-asset-urls";
 import { stageRegistry } from "@/lib/stage-registry";
 import {
+  hashId,
   homeSections,
   type PageLink,
   type SectionLink,
@@ -531,16 +532,16 @@ export default function DeskJourney({
     // journey that grows mid-scroll can put the visitor back on it. Only the
     // visitor's own scrolling lets it go.
     const remember = () => {
-      const hash = location.hash;
-      const id = decodeURIComponent(hash.slice(1));
+      const id = hashId(location.hash);
       const target =
-        hash && hash !== "#journey-content"
-          ? document.getElementById(id)
-          : null;
+        id && id !== "journey-content" ? document.getElementById(id) : null;
       // Where the target sat when the link was used; only a layout change
       // that moves it justifies scrolling again.
       pendingHash.current = target
-        ? { id, top: target.getBoundingClientRect().top + window.scrollY }
+        ? {
+            id: target.id,
+            top: target.getBoundingClientRect().top + window.scrollY,
+          }
         : null;
     };
     const clear = (event: Event) => {
