@@ -38,7 +38,7 @@ The prior 50-call budget described the desk without a reflective room and is not
 
 ## Accessibility and release
 
-English/Turkish content, reduced motion, no JavaScript, failed model, context loss, native keyboard navigation, screen links, reverse scroll and offscreen idle behavior are exercised by the updated test suites. Reduced motion loads a room poster and HTML without requesting the model. The scroll cue animates twice (3.6s total), and never animates under reduced motion.
+English/Turkish content, reduced motion, no JavaScript, failed model, context loss, native keyboard navigation, screen links, reverse scroll and offscreen idle behavior are exercised by the updated test suites. Reduced motion loads a room poster and HTML without requesting the model. The scroll cue plays three times (4.8 s in all) once the desk is ready, plays again after a pause in scrolling, and never animates under reduced motion or a motion pause (see the October 24 entry in `docs/design.md`).
 
 Web Interface Guidelines were reviewed from the upstream source on September 11. The approved first-person and sentence-case contract overrides the source's stylistic defaults. No deployment or merge is included. A physical iPhone Safari GPU review and Onur's visual acceptance remain release prerequisites.
 
