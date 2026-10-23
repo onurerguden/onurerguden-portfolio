@@ -14,6 +14,7 @@ import CosmicEnvironment, { type CosmicPointer } from "./cosmic-environment";
 import DeskLighting from "./lighting";
 import { DeskObjectControls, useDeskInteractions } from "./interactions";
 import IdleCue from "./idle-cue";
+import DeskTeases from "./desk-teases";
 import { Canvas, useFrame, useThree, type RootStore } from "@react-three/fiber";
 import { deskEvents } from "./desk-events";
 import { Matrix4, Quaternion, Vector3, PerspectiveCamera } from "three";
@@ -677,6 +678,7 @@ function JourneyScene(props: JourneySceneProps) {
             layout={layout}
             wrapper={props.wrapper}
           />
+          <DeskTeases controls={controls} distance={distance} layout={layout} />
         </>
       ) : null}
     </>
