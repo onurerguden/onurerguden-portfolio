@@ -125,7 +125,11 @@ export default async function ProjectPage({
           <div>
             <h2>{en ? "Source" : "Kaynak"}</h2>
             {project.repoUrl ? (
-              <a className={styles.source} href={project.repoUrl}>
+              <a
+                className={styles.source}
+                href={project.repoUrl}
+                data-source-of={project.slug}
+              >
                 {new URL(project.repoUrl).pathname.slice(1)}
                 <span aria-hidden="true"> ↗</span>
               </a>

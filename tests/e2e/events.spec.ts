@@ -81,6 +81,34 @@ test("reaching the end of a case study counts one read", async ({ page }) => {
   expect(sent).toHaveLength(1);
 });
 
+test("a team project's source link counts for its project, under any owner", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const sent = beacons(page);
+  await page.goto("/en/projects/carbonpilot");
+  await stayOnPage(page);
+  // CarbonPilot's repository lives under a teammate's account, not mine.
+  await page.locator('main a[data-source-of="carbonpilot"]').click();
+  await expect
+    .poll(() =>
+      sent.filter(
+        (event) =>
+          typeof event === "object" &&
+          event !== null &&
+          "name" in event &&
+          event.name === "source_click",
+      ),
+    )
+    .toEqual([
+      {
+        name: "source_click",
+        project: "carbonpilot",
+        channel: "direct_or_unknown",
+      },
+    ]);
+});
+
 test("client navigation installs each case-read observer without losing the entry channel", async ({
   page,
 }) => {

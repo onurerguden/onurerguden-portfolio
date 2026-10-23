@@ -107,7 +107,7 @@ export default async function ProjectsPage({
                   {en ? "Read the case study" : "Vaka çalışmasını oku"} →
                 </span>
               ) : p.repoUrl ? (
-                <a href={p.repoUrl}>
+                <a href={p.repoUrl} data-source-of={p.slug}>
                   {en ? "Source on GitHub" : "GitHub’da kaynak kod"}
                   <span aria-hidden="true"> ↗</span>
                 </a>
