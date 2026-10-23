@@ -16,7 +16,7 @@ import {
   sharedFacts,
 } from "@/lib/content";
 import { pageMetadata } from "@/lib/site";
-import { editorialModified } from "@/lib/editorial";
+import { editorialModified, editorialPublished } from "@/lib/editorial";
 import { caseStudyStructuredData } from "@/lib/structured-data";
 import JsonLd from "@/components/json-ld";
 import Breadcrumbs from "@/components/site/breadcrumbs";
@@ -49,7 +49,12 @@ export async function generateMetadata({
         `/projects/${slug}`,
         project.searchTitle ?? project.title,
         project.description ?? project.summary,
-        { article: { modifiedTime: editorialModified(`/projects/${slug}`) } },
+        {
+          article: {
+            modifiedTime: editorialModified(`/projects/${slug}`),
+            publishedTime: editorialPublished(`/projects/${slug}`),
+          },
+        },
       )
     : {};
 }

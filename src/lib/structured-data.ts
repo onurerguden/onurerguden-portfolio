@@ -2,7 +2,7 @@ import { getCertificates, getExperience } from "./home-content";
 import { sharedFacts, type Locale, type Project } from "./content";
 import { siteOrigin } from "./site";
 import { getIdentity } from "./identity";
-import { editorialModified } from "./editorial";
+import { editorialModified, editorialPublished } from "./editorial";
 import { trails, type Crumb } from "./breadcrumbs";
 import type { Post } from "./writing";
 
@@ -258,6 +258,7 @@ export function caseStudyStructuredData(locale: Locale, project: Project) {
     ...(project.year ? { dateCreated: project.year } : {}),
   };
   const modified = editorialModified(path);
+  const published = editorialPublished(path);
   const article: Node = {
     "@type": "TechArticle",
     "@id": `${url}#article`,
@@ -270,6 +271,7 @@ export function caseStudyStructuredData(locale: Locale, project: Project) {
     author: me,
     mainEntityOfPage: { "@id": `${url}#page` },
     about: { "@id": software["@id"] },
+    ...(published ? { datePublished: published } : {}),
     ...(modified ? { dateModified: modified } : {}),
     ...(project.media?.[0]
       ? { image: `${origin}${project.media[0].src}` }
@@ -362,7 +364,8 @@ export function researchStructuredData(locale: Locale) {
         ? { "@id": person }
         : { "@type": "Person", name: author },
     ),
-    about: `${origin}/${locale}/projects/water-safety`,
+    // The software the paper reports on, as its case study describes it.
+    about: { "@id": `${origin}/${locale}/projects/water-safety#software` },
   };
   return graph(
     webPage(locale, "/research", "CollectionPage", name, {

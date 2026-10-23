@@ -94,5 +94,13 @@ describe("writing", () => {
       expect(llmsIndex()).toContain(`/tr/writing/${post.slug}`);
     }
     expect(feed).not.toMatch(/&(?!amp;|lt;|gt;|quot;)/);
+    // The feed is as new as its newest article, never a fixed date.
+    const newest = getPosts("en")
+      .map((post) => post.updated)
+      .sort()
+      .at(-1);
+    expect(feed).toContain(
+      `<id>https://onurerguden.dev/en/writing</id>\n  <updated>${newest}T00:00:00Z</updated>`,
+    );
   });
 });

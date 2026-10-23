@@ -21,3 +21,22 @@ const changes: Readonly<Record<string, string>> = Object.freeze({
 export function editorialModified(path: string): string | undefined {
   return Object.hasOwn(changes, path) ? changes[path] : undefined;
 }
+
+/**
+ * When each case study first went public: the launch on 6 October 2026
+ * (docs/release.md) for those written before it, otherwise the day its pull
+ * request reached production. Days only; the hours were not recorded.
+ * Articles carry their own dates in their frontmatter.
+ */
+const published: Readonly<Record<string, string>> = Object.freeze({
+  "/projects/carbonpilot": "2026-10-23",
+  "/projects/course-intelligence": "2026-10-06",
+  "/projects/gymrap-ai-coach": "2026-10-06",
+  "/projects/kuyumcum": "2026-10-06",
+  "/projects/water-safety": "2026-10-06",
+});
+
+/** A recorded ISO 8601 date, or none when the first publication is unknown. */
+export function editorialPublished(path: string): string | undefined {
+  return Object.hasOwn(published, path) ? published[path] : undefined;
+}

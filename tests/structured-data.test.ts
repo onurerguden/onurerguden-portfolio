@@ -133,6 +133,10 @@ describe("structured data", () => {
     expect(node(research, "ScholarlyArticle")).toMatchObject({
       creativeWorkStatus: "Accepted",
       isPartOf: { url: sharedFacts.publication.sourceUrl },
+      // A node in the graph, not a bare address.
+      about: {
+        "@id": expect.stringMatching(/\/en\/projects\/water-safety#software$/),
+      },
     });
     expect(node(research, "ScholarlyArticle")).not.toHaveProperty(
       "datePublished",

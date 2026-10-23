@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import sitemap from "../src/app/sitemap";
 import { getProjects } from "../src/lib/content";
-import { editorialModified } from "../src/lib/editorial";
+import { editorialModified, editorialPublished } from "../src/lib/editorial";
 import {
   caseStudyStructuredData,
   homeStructuredData,
@@ -19,8 +19,28 @@ afterEach(() => {
 
 describe("editorial modification dates", () => {
   it("omits unverified dates, including arbitrary object keys", () => {
-    for (const path of ["/unknown", "/lab/desk", "constructor", "__proto__"])
+    for (const path of ["/unknown", "/lab/desk", "constructor", "__proto__"]) {
       expect(editorialModified(path)).toBeUndefined();
+      expect(editorialPublished(path)).toBeUndefined();
+    }
+  });
+
+  it("dates each case study's first publication, never after its last edit", () => {
+    for (const project of getProjects("en").filter((p) => p.caseStudy)) {
+      const path = `/projects/${project.slug}`;
+      const published = editorialPublished(path);
+      expect(published, path).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      // Nothing went public before the launch (docs/release.md).
+      expect(published! >= "2026-10-06", path).toBe(true);
+      expect(published! <= editorialModified(path)!.slice(0, 10), path).toBe(
+        true,
+      );
+      const article = node(
+        caseStudyStructuredData("en", project) as Graph,
+        "TechArticle",
+      );
+      expect(article?.datePublished).toBe(published);
+    }
   });
 
   it("does not renew recorded dates when the clock or deployment changes", () => {
