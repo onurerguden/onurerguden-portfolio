@@ -13,6 +13,7 @@ import DeskPlatform from "./platform";
 import CosmicEnvironment, { type CosmicPointer } from "./cosmic-environment";
 import DeskLighting from "./lighting";
 import { DeskObjectControls, useDeskInteractions } from "./interactions";
+import IdleCue from "./idle-cue";
 import { Canvas, useFrame, useThree, type RootStore } from "@react-three/fiber";
 import { deskEvents } from "./desk-events";
 import { Matrix4, Quaternion, Vector3, PerspectiveCamera } from "three";
@@ -665,7 +666,18 @@ function JourneyScene(props: JourneySceneProps) {
         <Driver {...props} active={controls.active} running={running} />
       </Canvas>
       {!props.poster ? (
-        <DeskObjectControls controls={controls} locale={props.locale} journey />
+        <>
+          <DeskObjectControls
+            controls={controls}
+            locale={props.locale}
+            journey
+          />
+          <IdleCue
+            distance={distance}
+            layout={layout}
+            wrapper={props.wrapper}
+          />
+        </>
       ) : null}
     </>
   );

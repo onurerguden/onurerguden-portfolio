@@ -608,8 +608,8 @@ test("home keeps desk interactions available and exits promptly after the full v
   );
   await go(page, s.room + 0.1);
   const camera = await journeyCanvas(page).getAttribute("data-camera");
-  await expect(page.locator("[data-continue-cue]")).toBeVisible();
-  await expect(page.locator("[data-continue-cue]")).toHaveText("");
+  await expect(page.locator("[data-idle-cue]")).toBeVisible();
+  await expect(page.locator("[data-idle-cue]")).toHaveText("");
   await go(page, s.length);
   expect(await journeyCanvas(page).getAttribute("data-camera")).toBe(camera);
   await go(page, within(s.portrait, 0.05));

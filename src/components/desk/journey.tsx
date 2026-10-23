@@ -63,7 +63,6 @@ import { JourneyNav, plainClick } from "@/components/site/site-nav";
 import monitorStyles from "@/components/sections/monitor.module.css";
 import xpStyles from "@/components/xp/xp.module.css";
 import styles from "./journey.module.css";
-import hintStyles from "./scroll-hint.module.css";
 import PortraitIdentity from "./portrait-identity";
 import { staticQuery } from "@/lib/motion-preference";
 import ScreenPanels from "./screen-panels";
@@ -1003,17 +1002,6 @@ export default function DeskJourney({
                 />
               ))
             : null}
-          {enhanced && ready && finalView ? (
-            // Remounted on every return to the final view, so its few
-            // strokes play again and then stop (WCAG 2.2.2).
-            <div
-              className={styles.continueCue}
-              data-continue-cue
-              aria-hidden="true"
-            >
-              <span className={hintStyles.hint} />
-            </div>
-          ) : null}
           {enhanced ? (
             <div className={styles.foot}>
               <span role="status">
