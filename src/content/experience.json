@@ -1,12 +1,5 @@
 [
   {
-    "id": "astro8-instructor",
-    "company": "ASTRO8 AI Academy",
-    "start": "2026-09",
-    "end": null,
-    "tools": ["anthropic", "openai"]
-  },
-  {
     "id": "fin-ai-engineer",
     "company": "Future Is Now",
     "start": "2026-09",
@@ -21,6 +14,12 @@
       "gemini",
       "fastapi"
     ]
+  },
+  {
+    "id": "astro8-instructor",
+    "company": "ASTRO8 AI Academy",
+    "start": "2026-09",
+    "end": null
   },
   {
     "id": "fin-part-time",
@@ -40,7 +39,10 @@
     "start": "2025-08",
     "end": "2025-09",
     "tools": ["spring-boot", "react", "typescript", "postgresql", "docker"],
-    "proof": { "kind": "project", "slug": "taskfoo" }
+    "proof": {
+      "kind": "project",
+      "slug": "taskfoo"
+    }
   },
   {
     "id": "bmc-intern",

@@ -62,6 +62,16 @@ export default function ExperienceRail({ locale }: { locale: Locale }) {
                     ))}
                   </ul>
                 ) : null}
+                {entry.topics.length ? (
+                  <ul
+                    className={styles.tech}
+                    aria-label={en ? "Topics" : "Konular"}
+                  >
+                    {entry.topics.map((name) => (
+                      <li key={name}>{name}</li>
+                    ))}
+                  </ul>
+                ) : null}
               </div>
               {entry.proof ? (
                 <Link
