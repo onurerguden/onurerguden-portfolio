@@ -174,6 +174,25 @@ export function auditPage(html, url, headers = {}, { indexable = true } = {}) {
       if (typeof profile !== "string" || !page.contentLinks.includes(profile))
         failures.push("Person public profile is missing from HTML links");
     }
+    if (
+      typeof person?.identifier?.url === "string" &&
+      !page.contentLinks.includes(person.identifier.url)
+    )
+      failures.push("Person ORCID record is missing from HTML links");
+    // Employers, school and occupations must be facts the page also says.
+    for (const named of [
+      ...[person?.worksFor ?? []].flat(),
+      ...[person?.alumniOf ?? []].flat(),
+      ...[person?.hasOccupation ?? []].flat(),
+    ]) {
+      if (
+        typeof named?.name !== "string" ||
+        !contains(page.mainText, named.name)
+      )
+        failures.push(
+          `Person fact is missing from HTML content: ${named?.name}`,
+        );
+    }
     if (!person?.homeLocation)
       failures.push("Person is missing its verified homeLocation");
     else {
@@ -193,17 +212,42 @@ export function auditPage(html, url, headers = {}, { indexable = true } = {}) {
     !hasType(node, "ProfilePage") &&
     reference(node.mainEntity)
   ) {
-    const work = page.graph.find(
+    const article = page.graph.find(
       (item) => reference(item) === reference(node.mainEntity),
     );
-    if (!work || reference(work.creator) !== personId)
-      failures.push("case work is missing or has a different creator");
+    if (
+      !article ||
+      !hasType(article, "TechArticle") ||
+      reference(article.author) !== personId
+    )
+      failures.push("case article is missing or has a different author");
+    if (
+      article &&
+      (typeof article.headline !== "string" ||
+        !contains(page.mainText, article.headline))
+    )
+      failures.push("case article headline is missing from HTML content");
+    const work = page.graph.find(
+      (item) => article && reference(item) === reference(article.about),
+    );
+    if (
+      !work ||
+      ![work.creator, work.contributor].some(
+        (credit) => reference(credit) === personId,
+      )
+    )
+      failures.push("case software is missing or does not credit me");
     if (
       work &&
       typeof work.name === "string" &&
       !contains(page.mainText, work.name)
     )
-      failures.push("case work name is missing from HTML content");
+      failures.push("case software name is missing from HTML content");
+    if (
+      typeof work?.codeRepository === "string" &&
+      !page.contentLinks.includes(work.codeRepository)
+    )
+      failures.push("case repository is missing from HTML links");
   }
   for (const article of page.graph.filter((item) =>
     hasType(item, "ScholarlyArticle"),

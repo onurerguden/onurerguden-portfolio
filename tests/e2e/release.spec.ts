@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import budget from "./budgets.json";
 import { getIdentity } from "../../src/lib/identity";
+import { sharedFacts } from "../../src/lib/content";
 
 test("each locale has its own share card", async ({ request }) => {
   for (const locale of ["en", "tr"]) {
@@ -43,10 +44,8 @@ test("the home page describes me as a Person with my profiles", async ({
   expect(person).toMatchObject({
     name: "Onur Ergüden",
     jobTitle: getIdentity("tr").role,
-    sameAs: [
-      "https://github.com/onurerguden",
-      "https://www.linkedin.com/in/onurerguden/",
-    ],
+    sameAs: sharedFacts.profiles.map((profile) => profile.url),
+    identifier: { propertyID: "ORCID", value: sharedFacts.orcid },
     knowsAbout: expect.arrayContaining(["Model Context Protocol"]),
   });
   expect(data["@graph"].map((node) => node["@type"])).toContain("ProfilePage");

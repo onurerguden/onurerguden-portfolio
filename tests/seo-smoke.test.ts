@@ -203,13 +203,21 @@ describe("crawler HTML semantics", () => {
   });
 });
 
-it("requires a case study's represented work and creator to match its page", () => {
+it("requires a case study's article and software to credit me", () => {
   const caseUrl = `${url}/projects/sample`;
-  const work = {
-    "@type": "CreativeWork",
-    "@id": `${caseUrl}#work`,
+  const software = {
+    "@type": "SoftwareSourceCode",
+    "@id": `${caseUrl}#software`,
     name: "Sample app",
+    codeRepository: "https://github.com/example/sample",
     creator: { "@id": person["@id"] },
+  };
+  const article = {
+    "@type": "TechArticle",
+    "@id": `${caseUrl}#article`,
+    headline: "Sample app",
+    author: { "@id": person["@id"] },
+    about: { "@id": software["@id"] },
   };
   const nodes = [
     {
@@ -217,26 +225,84 @@ it("requires a case study's represented work and creator to match its page", () 
       "@type": "WebPage",
       "@id": `${caseUrl}#page`,
       url: caseUrl,
-      mainEntity: { "@id": work["@id"] },
+      mainEntity: { "@id": article["@id"] },
     },
-    work,
+    article,
+    software,
   ];
   const document = html(nodes)
     .replace(`href='${url}'`, `href='${caseUrl}'`)
     .replace(`hrefLang="tr" href="${url}"`, `hrefLang="tr" href="${caseUrl}"`)
     .replaceAll(`href="${origin}/en"`, `href="${origin}/en/projects/sample"`)
-    .replace("<main>", "<main><p>Sample app</p>");
+    .replace(
+      "<main>",
+      '<main><p>Sample app</p><a href="https://github.com/example/sample">source</a>',
+    );
   expect(auditPage(document, caseUrl).failures).toEqual([]);
-  const wrong = document.replace(
-    JSON.stringify(work),
+  // A team project credits me as a contributor instead.
+  const team = document.replace(
+    JSON.stringify(software),
     JSON.stringify({
-      ...work,
+      ...software,
+      creator: undefined,
+      contributor: { "@id": person["@id"] },
+    }),
+  );
+  expect(auditPage(team, caseUrl).failures).toEqual([]);
+  const wrong = document.replace(
+    JSON.stringify(software),
+    JSON.stringify({
+      ...software,
       creator: { "@id": `${origin}/#different-person` },
     }),
   );
   expect(auditPage(wrong, caseUrl).failures).toContain(
-    "case work is missing or has a different creator",
+    "case software is missing or does not credit me",
   );
+  const unlinked = document.replace(
+    '<a href="https://github.com/example/sample">source</a>',
+    "",
+  );
+  expect(auditPage(unlinked, caseUrl).failures).toContain(
+    "case repository is missing from HTML links",
+  );
+  const generic = document.replace(
+    JSON.stringify(article),
+    JSON.stringify({ ...article, "@type": "CreativeWork" }),
+  );
+  expect(auditPage(generic, caseUrl).failures).toContain(
+    "case article is missing or has a different author",
+  );
+});
+
+it("requires the Person's employers, occupations and ORCID on the page", () => {
+  const facts = {
+    ...person,
+    identifier: {
+      "@type": "PropertyValue",
+      propertyID: "ORCID",
+      value: "0000-0000-0000-0000",
+      url: "https://orcid.org/0000-0000-0000-0000",
+    },
+    worksFor: [{ "@type": "Organization", name: "Future Is Now" }],
+    hasOccupation: [{ "@type": "Occupation", name: "AI mühendisi" }],
+  };
+  const document = html([graph[0], graph[1], facts]).replace(
+    "</main>",
+    '<p>Future Is Now</p><a href="https://orcid.org/0000-0000-0000-0000">ORCID</a></main>',
+  );
+  expect(audit(document)).toEqual([]);
+  expect(audit(document.replace("<p>Future Is Now</p>", ""))).toContain(
+    "Person fact is missing from HTML content: Future Is Now",
+  );
+  expect(
+    audit(
+      document.replace(
+        '<a href="https://orcid.org/0000-0000-0000-0000">ORCID</a>',
+        "",
+      ),
+    ),
+  ).toContain("Person ORCID record is missing from HTML links");
 });
 
 it("checks scholarly authors and publisher links against the HTML content", () => {

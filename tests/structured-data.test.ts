@@ -29,7 +29,29 @@ describe("structured data", () => {
       expect(node(graph, "Person")).toMatchObject({
         "@id": "https://onurerguden.dev/#person",
         name: sharedFacts.name,
-        sameAs: [sharedFacts.github, sharedFacts.linkedin],
+        sameAs: sharedFacts.profiles.map((profile) => profile.url),
+        identifier: {
+          "@type": "PropertyValue",
+          propertyID: "ORCID",
+          value: "0009-0001-3636-483X",
+          url: "https://orcid.org/0009-0001-3636-483X",
+        },
+        worksFor: [
+          { "@id": "https://onurerguden.dev/#org-future-is-now" },
+          { "@id": "https://onurerguden.dev/#org-astro8" },
+        ],
+        hasOccupation: [
+          { "@type": "Occupation", name: identity.role },
+          { "@type": "Occupation", name: identity.tagline },
+          {
+            "@type": "Occupation",
+            name: locale === "en" ? "AI instructor" : "Yapay zekâ eğitmeni",
+          },
+        ],
+        alumniOf: {
+          url: "https://www.ieu.edu.tr/",
+          sameAs: "https://www.wikidata.org/wiki/Q4822444",
+        },
         jobTitle: identity.role,
         description: identity.description,
         homeLocation: {
@@ -45,24 +67,47 @@ describe("structured data", () => {
     }
   });
 
-  it("links every case study to its creator and source", () => {
+  it("describes each case study as my article about the software", () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://onurerguden.dev");
+    const me = { "@id": "https://onurerguden.dev/#person" };
+    const credits: Record<string, "solo" | "team"> = {};
     for (const project of getProjects("en").filter((p) => p.featured)) {
       const graph = caseStudyStructuredData("en", project) as Graph;
-      const work = node(graph, "CreativeWork");
-      expect(work).toMatchObject({
-        name: project.title,
-        creator: { "@id": "https://onurerguden.dev/#person" },
+      const url = `https://onurerguden.dev/en/projects/${project.slug}`;
+      expect(node(graph, "WebPage")?.mainEntity).toEqual({
+        "@id": `${url}#article`,
       });
+      expect(node(graph, "TechArticle")).toMatchObject({
+        headline: project.title,
+        author: me,
+        about: { "@id": `${url}#software` },
+      });
+      const software = graph["@graph"].find(
+        (entry) => entry["@id"] === `${url}#software`,
+      );
+      expect(software?.["@type"]).toBe(
+        project.repoUrl ? "SoftwareSourceCode" : "SoftwareApplication",
+      );
       if (project.repoUrl)
-        expect(work?.about).toMatchObject({ codeRepository: project.repoUrl });
+        expect(software?.codeRepository).toBe(project.repoUrl);
+      // Languages come only from the visible stack chips.
+      for (const language of (software?.programmingLanguage as string[]) ?? [])
+        expect(project.stack).toContain(language);
+      expect(
+        software?.[project.authorship === "team" ? "contributor" : "creator"],
+      ).toEqual(me);
+      credits[project.slug] = project.authorship!;
       const crumbs = node(graph, "BreadcrumbList")?.itemListElement as {
         item: string;
       }[];
-      expect(crumbs.at(-1)?.item).toBe(
-        `https://onurerguden.dev/en/projects/${project.slug}`,
-      );
+      expect(crumbs.at(-1)?.item).toBe(url);
     }
+    expect(credits).toEqual({
+      kuyumcum: "team",
+      "water-safety": "team",
+      "course-intelligence": "solo",
+      "gymrap-ai-coach": "solo",
+    });
   });
 
   it("lists archive projects and the paper's full author order", () => {
