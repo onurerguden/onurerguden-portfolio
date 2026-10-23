@@ -40,3 +40,14 @@ DESK_REVIEW_URL=http://localhost:3101 node scripts/desk/capture-interactions.mjs
 The script saves `interactions-on.png`, `interactions-off.png`, `interactions-purple.png` and `interactions-mobile.png` in this directory. For browser tests, `PLAYWRIGHT_PORT=3101` isolates this run from another local server; the default remains 3100.
 
 The bias strip sits on the rear casing, above the lower bezel, so it is occluded from front-facing cameras. The journey close-up at distance 3.75 is recorded in `hidden-bias-close.png`; only the upper lightbar remains directly visible.
+
+## October 24: hover, press, ripple and teases
+
+- Hovering an object marks the element the desk's pointer events come from (`data-desk-hover`), so the cursor ring opens over desk objects on the journey too; until now the ring only read the canvas, which the journey's pointer never reaches. The hovered object lifts 2 to 4 mm and the hovered drawer peeks out 6 mm, eased over 140 ms.
+- Every click or keyboard press ripples: two warm rings spread over 700 ms on the desk around the object (in ink on a drawer's front, riding out with it), drawn in the blob shadows' instanced quad, so no draw call or program is added. Objects press before they act:
+  - the lamp and the dial squash towards their base for 240 ms, and the lamp nods under 3°;
+  - their colour or lights change once the press lands, 110 ms in (`aria-pressed` updates at once);
+  - the headphones crouch, hop about 30 mm off the stand and land with a squash (650 ms);
+  - the tablet dips 1.5 mm while the pencil rolls;
+  - a drawer clicks 8 mm in before the wave opens them.
+- In the final view, after 4 s without input, an object not clicked yet is teased with a ripple and a small hop (the dial dims the lights for a moment, a drawer peeks), at least 8 s apart and three per visit at most. Teases change nothing and never run under a motion pause, in a hidden tab or in QA visits unless `portfolio:teases` sets a quiet time. `tests/e2e/desk-interactions.spec.ts` covers the hover mark, ripples, the hop, the drawers' press and the teases' limits.
