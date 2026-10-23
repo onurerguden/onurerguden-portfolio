@@ -48,7 +48,7 @@ for (const locale of ["en", "tr"] as const) {
       await expect(noJs.locator("main h1")).toHaveText(post.title);
       await expect(noJs.locator('main a[rel="author"]')).toHaveAttribute(
         "href",
-        `/${locale}/about`,
+        `/${locale}#about`,
       );
       await expect(
         noJs.locator(`main time[datetime="${post.published}"]`).first(),

@@ -23,7 +23,7 @@ export default function SiteFooter({ locale }: { locale: "en" | "tr" }) {
         </p>
         <ul className={styles.links}>
           <li>
-            <Link href={`/${locale}/about`}>{en ? "About" : "Hakkımda"}</Link>
+            <Link href={`/${locale}#about`}>{en ? "About" : "Hakkımda"}</Link>
           </li>
           <li>
             <Link href={`/${locale}/writing`}>

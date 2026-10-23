@@ -3,7 +3,7 @@ import { sharedFacts, type Locale } from "./content";
 /** Public identity shared by the visible page, search metadata and text feeds. */
 export function getIdentity(locale: Locale) {
   const en = locale === "en";
-  const { name, location, work, teaching } = sharedFacts;
+  const { name, location } = sharedFacts;
   const firstName = name.split(" ")[0];
   const place = `${location.city}, ${location.country}`;
   // One term in each language, everywhere: the opening, titles, the graph.
@@ -20,12 +20,8 @@ export function getIdentity(locale: Locale) {
     ? `I’m ${firstName}, an ${occupation} based in ${place}.`
     : `Ben ${firstName}, ${place}’de yaşayan bir ${occupation}yim.`;
   const expertise = en
-    ? "I build LLM applications end to end: retrieval, tool-calling agents with LangGraph and MCP, and the software around them, mostly in Python, TypeScript and Java."
-    : "LLM uygulamalarını uçtan uca geliştiriyorum: bilgi erişimi, LangGraph ve MCP ile araç çağıran ajanlar ve bunların etrafındaki yazılım; çoğunlukla Python, TypeScript ve Java ile.";
-  // About's opening: the full name, both roles and the city in one sentence.
-  const lead = en
-    ? `I’m ${name}, an ${role} at ${work.company} and an AI instructor at ${teaching.company}, based in ${place}.`
-    : `Ben ${name}; ${work.company}’da ${role}, ${teaching.company}’de yapay zekâ eğitmeniyim ve ${place}’de yaşıyorum.`;
+    ? "I build LLM applications end to end: retrieval, tool-calling agents with LangGraph and MCP, and the software around them."
+    : "LLM uygulamalarını uçtan uca geliştiriyorum: bilgi erişimi, LangGraph ve MCP ile araç çağıran ajanlar ve etraflarındaki yazılım.";
   // I have a job; the contact line invites a message, not offers.
   const invitation = en
     ? "If you’d like to get in touch, feel free to write."
@@ -46,7 +42,6 @@ export function getIdentity(locale: Locale) {
     title,
     introduction,
     bio: `${introduction} ${expertise}`,
-    lead,
     expertise,
     description,
     invitation,

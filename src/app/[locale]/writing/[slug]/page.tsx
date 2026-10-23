@@ -74,7 +74,7 @@ export default async function PostPage({
           <h1>{post.title}</h1>
           <p className={styles.byline}>
             {en ? "By " : "Yazan: "}
-            <Link href={`/${locale}/about`} rel="author">
+            <Link href={`/${locale}#about`} rel="author">
               {sharedFacts.name}
             </Link>
             {" · "}

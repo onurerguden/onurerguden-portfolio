@@ -6,7 +6,7 @@ import ExperienceRail from "@/components/sections/experience-rail";
 import XpDesktop from "@/components/xp/xp-desktop";
 import DeskJourney from "@/components/desk/journey";
 import HomeContinuation from "@/components/home-continuation";
-import { homeSectionLinks } from "@/lib/home-sections";
+import { homeSectionLinks, menuPageLinks } from "@/lib/home-sections";
 import { getCertificates } from "@/lib/home-content";
 export async function generateMetadata({
   params,
@@ -40,6 +40,7 @@ export default async function JourneyPage({
         sections={homeSectionLinks(locale, {
           certificates: getCertificates(locale).length > 0,
         })}
+        pages={menuPageLinks(locale)}
       />
       <HomeContinuation locale={locale} />
     </main>

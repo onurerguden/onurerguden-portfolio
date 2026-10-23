@@ -6,6 +6,8 @@ export const lampColors = [
   "#35546b",
   "#405e4e",
 ] as const;
+/** The lamp opens amber (warm yellow); the dial cycles from there. */
+export const initialLampColor = 0;
 export const animationDuration = { headphones: 550, mouse: 750, tablet: 1000 };
 const smooth = (t: number) => t * t * (3 - 2 * t);
 

@@ -84,9 +84,9 @@ function person(locale: Locale): Node {
         addressCountry: sharedFacts.location.countryCode,
       },
     },
-    // /about is my profile page; every other page points at it.
-    url: `${origin}/${locale}/about`,
-    mainEntityOfPage: { "@id": `${origin}/${locale}/about#page` },
+    // The home page is my profile page; every other page points at it.
+    url: `${origin}/${locale}`,
+    mainEntityOfPage: { "@id": `${origin}/${locale}#page` },
     image: `${origin}/images/avatar/onur-head-v4-1254.webp`,
     email: `mailto:${sharedFacts.email}`,
     sameAs: sharedFacts.profiles.map((profile) => profile.url),
@@ -182,29 +182,14 @@ const graph = (...nodes: Node[]) => ({
   "@graph": nodes,
 });
 
-/** The home page is about me and still carries the full Person. */
+/** The home page is my profile page. */
 export function homeStructuredData(locale: Locale) {
   return graph(
-    webPage(locale, "", "WebPage", getIdentity(locale).title, {
-      about: { "@id": ids().person },
-    }),
-    website(),
-    person(locale),
-  );
-}
-
-/** /about is my one profile page, with the Person as its main entity. */
-export function aboutStructuredData(locale: Locale) {
-  const name = locale === "en" ? "About" : "Hakkımda";
-  const created = "2026-10-23T12:00:00Z";
-  return graph(
-    webPage(locale, "/about", "ProfilePage", name, {
+    webPage(locale, "", "ProfilePage", getIdentity(locale).title, {
       mainEntity: { "@id": ids().person },
-      dateCreated: created,
     }),
     website(),
     person(locale),
-    breadcrumbs(locale, trails.about(locale)),
   );
 }
 

@@ -14,7 +14,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const articles = posts.map((post) => `/writing/${post.slug}`);
   const paths = [
     "",
-    "/about",
     "/projects",
     "/research",
     "/writing",

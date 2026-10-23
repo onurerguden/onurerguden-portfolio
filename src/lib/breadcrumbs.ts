@@ -18,10 +18,6 @@ const writing = (locale: Locale): Crumb => ({
  * the BreadcrumbList in the graph both read these, so they always match.
  */
 export const trails = {
-  about: (locale: Locale): Crumb[] => [
-    home(),
-    { name: locale === "en" ? "About" : "Hakkımda", path: "/about" },
-  ],
   projects: (locale: Locale): Crumb[] => [home(), projects(locale)],
   research: (locale: Locale): Crumb[] => [
     home(),

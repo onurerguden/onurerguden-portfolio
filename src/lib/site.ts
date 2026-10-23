@@ -91,7 +91,7 @@ export function pageMetadata(
       ...(article
         ? {
             type: "article",
-            authors: [`${base}/${locale}/about`],
+            authors: [`${base}/${locale}`],
             ...(article.modifiedTime
               ? { modifiedTime: article.modifiedTime }
               : {}),

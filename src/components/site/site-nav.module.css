@@ -286,7 +286,6 @@
   width: 100%;
   margin: 18px 0 8px;
   transform: none;
-  grid-template-columns: minmax(max-content, 1fr) auto auto;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -390,14 +389,6 @@
     min-height: 40px;
     padding: 10px 9px;
     font-size: 10.5px;
-  }
-  /* Projects, Research and Contact do not fit beside the name on a phone,
-     so they take a second row, as on the home page's bar. */
-  .page .links {
-    grid-row: 2;
-  }
-  .page .links a.secondary {
-    display: none;
   }
   .menu {
     grid-column: 2;

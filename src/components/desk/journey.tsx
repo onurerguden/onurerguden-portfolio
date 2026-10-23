@@ -37,7 +37,11 @@ import {
   roomPoster,
 } from "@/lib/desk-asset-urls";
 import { stageRegistry } from "@/lib/stage-registry";
-import { homeSections, type SectionLink } from "@/lib/home-sections";
+import {
+  homeSections,
+  type PageLink,
+  type SectionLink,
+} from "@/lib/home-sections";
 import { currentSection } from "@/lib/current-section";
 import { deskMode, useStaticDesk } from "@/lib/desk-mode";
 import { curtainOpening, curtainProgress } from "@/lib/desk-story/curtain";
@@ -184,12 +188,15 @@ export default function DeskJourney({
   content,
   screens,
   sections = [],
+  pages = [],
 }: {
   locale: "en" | "tr";
   content: JourneyContent;
   screens: ScreenContent;
   /** Home sections, listed in the nav's Sections menu. */
   sections?: SectionLink[];
+  /** Pages of their own (Writing), listed after the sections. */
+  pages?: PageLink[];
 }) {
   const en = locale === "en";
   const section = useRef<HTMLElement>(null);
@@ -1085,6 +1092,7 @@ export default function DeskJourney({
         }))}
         current={chapter}
         sections={sections}
+        pages={pages}
         onSkip={(event) => {
           if (!plainClick(event)) return;
           event.preventDefault();

@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 // The visible trail and the graph's BreadcrumbList say the same thing.
 for (const path of [
-  "/en/about",
+  "/en/writing",
   "/tr/projects",
   "/en/research",
   "/tr/projects/kuyumcum",

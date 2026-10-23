@@ -46,7 +46,7 @@ for (const locale of ["en", "tr"] as const) {
       await page.waitForTimeout(400);
       await expect(dial).toHaveAttribute("aria-pressed", "false");
       await expect(canvas).toHaveAttribute("data-lights", "0.000");
-      for (const color of ["514366", "35546b", "405e4e", "694b2f", "603f4b"]) {
+      for (const color of ["603f4b", "514366", "35546b", "405e4e", "694b2f"]) {
         await page.locator('[data-desk-action="lamp"]').click();
         await page.waitForTimeout(400);
         await expect(canvas).toHaveAttribute("data-lamp-color", color);
@@ -199,7 +199,7 @@ test("review objects accept direct pointer clicks and reduced motion keeps funct
     if (id === "dial")
       await expect(canvas).toHaveAttribute("data-lights", "0.000");
     else if (id === "lamp")
-      await expect(canvas).toHaveAttribute("data-lamp-color", "514366");
+      await expect(canvas).toHaveAttribute("data-lamp-color", "603f4b");
     else if (id === "headphones")
       await expect(page.locator("details").getByRole("status")).toHaveText(
         "Music has not been added yet.",
@@ -232,5 +232,5 @@ test("review objects accept direct pointer clicks and reduced motion keeps funct
   await expect(canvas).toHaveAttribute("data-lights", "1.000");
   await page.locator('[data-desk-action="lamp"]').click();
   await page.waitForTimeout(80);
-  await expect(canvas).toHaveAttribute("data-lamp-color", "35546b");
+  await expect(canvas).toHaveAttribute("data-lamp-color", "514366");
 });

@@ -9,7 +9,7 @@ import ServiceRows from "@/components/sections/service-rows";
 import ExperienceRail from "@/components/sections/experience-rail";
 import XpDesktop from "@/components/xp/xp-desktop";
 import HomeContinuation from "@/components/home-continuation";
-import { homeSectionLinks } from "@/lib/home-sections";
+import { homeSectionLinks, menuPageLinks } from "@/lib/home-sections";
 import { getCertificates } from "@/lib/home-content";
 import { getIdentity } from "@/lib/identity";
 
@@ -46,6 +46,7 @@ export default async function Home({
         sections={homeSectionLinks(locale, {
           certificates: getCertificates(locale).length > 0,
         })}
+        pages={menuPageLinks(locale)}
       />
       <HomeContinuation locale={locale} />
     </main>
