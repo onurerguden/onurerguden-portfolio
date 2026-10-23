@@ -133,3 +133,7 @@ The contact section and footer list every public profile that names me and links
 ## About page (geo/05)
 
 `/about` is the one ProfilePage: a server-rendered page with no 3D, in Research's type scale. The h1 is my name, the role sits under it as a job title, and the first paragraph names me, both roles and the city. Facts, the timeline and the case list are generated from the same data as the home page. Its graph carries the full Person as `mainEntity`; the home page becomes a WebPage `about` me and still embeds the Person, whose `url` is now `/about`. Profiles stay in the footer only.
+
+## Writing (geo/07)
+
+Articles live in `src/content/{en,tr}/writing/<slug>.mdx` and must match across languages: the same slug, dates and number of sections. They cannot carry future dates, and each one needs its date in `editorial.ts` (`validateWriting`). An article page is server-rendered, with a 72ch measure, a byline that links to /about with `rel="author"`, and a short answer set apart under the first heading. Its graph is a BlogPosting linked to its translation with `workTranslation`/`translationOfWork`. The site is always canonical; cross-posts point back to it.

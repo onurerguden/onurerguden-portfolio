@@ -257,3 +257,16 @@ Onur gave blanket approval on 23 October 2026 to finish the plan. CarbonPilot AI
 | Summary | "My part: the agent graph with loop, timeout and fallback guards, Gemini extraction, …"    | "My part: the agent graph that ends in a report or human review, Gemini extraction, the green-transition optimizer, LangSmith tracing and hashed reports." The guards were teammates' work, so the summary no longer claims them. |
 | Page    | —                                                                                          | Sections: the problem, my contribution (with teammates' parts named), the graph, the extraction boundary, report hashes, the optimizer, limitations, pinned code links. No team images.                                           |
 | Links   | Services "LangGraph in CarbonPilot" and the LangGraph chip went to `/projects#carbonpilot` | Both go to `/projects/carbonpilot`                                                                                                                                                                                                |
+
+## Writing (geo/07, October 23)
+
+Under Onur's blanket approval of 23 October 2026, `/writing` launches with its first real article, in English and Turkish: "Let the model write, not compute: lessons from an MCP coach" / "Model yazsın, hesaplamasın: bir MCP koçundan dersler" (`/writing/model-writes-server-computes`). Every fact comes from the GymRap case study already on the site and from the public repository at commit `8f35eba`:
+
+- the 23 Health Connect record types, the 13 MCP tools and the 137 backend tests;
+- the `gymrap:read`/`gymrap:write` scope guard and OAuth 2.1 with PKCE for one owner;
+- the idempotent, schema-validated saves and the call log, which records no arguments;
+- the six blocked saves over three days;
+- the ten-minute numbers-only fallback;
+- the report ledger, which never resends an uncertain send.
+
+The article makes no new claims. Each article opens with a short answer, shows a byline linked to /about and dates as `<time>` elements, and ends with pinned code links. Navigation and the footer gain "Writing" / "Yazılar". Each language has an Atom feed at `/{locale}/writing/feed.xml`. Medium and dev.to copies (canonical to the site) and a LinkedIn article are Onur's to publish once Google indexes the page.

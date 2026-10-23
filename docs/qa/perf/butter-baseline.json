@@ -22,22 +22,10 @@
         "scrollOver50": 4,
         "slowShare": 3.13,
         "gaps": [
-          [
-            2295,
-            250
-          ],
-          [
-            2695,
-            100
-          ],
-          [
-            13061,
-            67
-          ],
-          [
-            19044,
-            100
-          ]
+          [2295, 250],
+          [2695, 100],
+          [13061, 67],
+          [19044, 100]
         ],
         "regions": {
           "opening": {
@@ -51,10 +39,7 @@
               "desk": 100
             },
             "gpu": {
-              "desk": [
-                5.12,
-                7.2
-              ]
+              "desk": [5.12, 7.2]
             }
           },
           "monitor": {
@@ -69,14 +54,8 @@
               "balls": 88
             },
             "gpu": {
-              "desk": [
-                3.09,
-                3.77
-              ],
-              "balls": [
-                2.37,
-                3.02
-              ]
+              "desk": [3.09, 3.77],
+              "balls": [2.37, 3.02]
             }
           },
           "macbook": {
@@ -101,14 +80,8 @@
               "about": 220
             },
             "gpu": {
-              "desk": [
-                5.67,
-                9.88
-              ],
-              "about": [
-                2.41,
-                5.5
-              ]
+              "desk": [5.67, 9.88],
+              "about": [2.41, 5.5]
             }
           },
           "about": {
@@ -122,10 +95,7 @@
               "about": 127
             },
             "gpu": {
-              "about": [
-                2.99,
-                3.37
-              ]
+              "about": [2.99, 3.37]
             }
           },
           "flow": {
@@ -139,26 +109,14 @@
               "about": 101
             },
             "gpu": {
-              "about": [
-                2.95,
-                3.39
-              ]
+              "about": [2.95, 3.39]
             }
           }
         },
         "gpu": {
-          "desk": [
-            4.89,
-            8.71
-          ],
-          "balls": [
-            2.37,
-            3.02
-          ],
-          "about": [
-            2.85,
-            4.7
-          ]
+          "desk": [4.89, 8.71],
+          "balls": [2.37, 3.02],
+          "about": [2.85, 4.7]
         },
         "deskGpuP95": 8.94,
         "aboutGpuP95": 4.7,
@@ -174,111 +132,33 @@
         "glBlocking": 321,
         "glBlockingAfterReady": 0,
         "glCalls": [
-          [
-            765,
-            104,
-            "getProgramInfoLog"
-          ],
-          [
-            1067,
-            90,
-            "getProgramInfoLog"
-          ],
-          [
-            1161,
-            104,
-            "getProgramInfoLog"
-          ]
+          [765, 104, "getProgramInfoLog"],
+          [1067, 90, "getProgramInfoLog"],
+          [1161, 104, "getProgramInfoLog"]
         ],
         "programs": 37,
         "programAt": [
-          764,
-          1067,
-          1161,
-          1269,
-          1270,
-          1272,
-          1274,
-          1276,
-          1278,
-          1279,
-          1281,
-          1282,
-          1284,
-          1285,
-          1285,
-          1285,
-          1286,
-          1286,
-          1286,
-          1287,
-          1287,
-          9321,
-          9327,
-          9330,
-          9335,
-          18538,
-          18542,
-          18543,
-          18545,
-          18549,
-          18551,
-          18552,
-          18554,
-          18555,
-          18557,
-          18558,
-          18559
+          764, 1067, 1161, 1269, 1270, 1272, 1274, 1276, 1278, 1279, 1281, 1282,
+          1284, 1285, 1285, 1285, 1286, 1286, 1286, 1287, 1287, 9321, 9327,
+          9330, 9335, 18538, 18542, 18543, 18545, 18549, 18551, 18552, 18554,
+          18555, 18557, 18558, 18559
         ],
         "shaders": [
           [
             765,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
           ],
-          [
-            1067,
-            "CubemapToCubeUV"
-          ],
-          [
-            1161,
-            "PMREMGGXConvolution"
-          ],
-          [
-            1270,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            1272,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            1274,
-            "Woven"
-          ],
-          [
-            1275,
-            "Satin"
-          ],
-          [
-            1277,
-            "Expanded"
-          ],
-          [
-            1278,
-            "Expanded"
-          ],
-          [
-            1280,
-            "Keycap"
-          ],
-          [
-            1281,
-            "Barracuda"
-          ],
-          [
-            1283,
-            "Inactive"
-          ],
+          [1067, "CubemapToCubeUV"],
+          [1161, "PMREMGGXConvolution"],
+          [1270, "diffuse,emissive,roughness,metalness"],
+          [1272, "diffuse,emissive,roughness,metalness"],
+          [1274, "Woven"],
+          [1275, "Satin"],
+          [1277, "Expanded"],
+          [1278, "Expanded"],
+          [1280, "Keycap"],
+          [1281, "Barracuda"],
+          [1283, "Inactive"],
           [
             1285,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -287,50 +167,23 @@
             1285,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
           ],
-          [
-            1285,
-            "?"
-          ],
+          [1285, "?"],
           [
             1286,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
           ],
-          [
-            1286,
-            "?"
-          ],
-          [
-            1286,
-            "diffuse,opacity,uvTransform,map"
-          ],
-          [
-            1286,
-            "uReveal,uCells,uFade"
-          ],
-          [
-            1287,
-            "depth"
-          ],
-          [
-            1287,
-            "depth"
-          ],
+          [1286, "?"],
+          [1286, "diffuse,opacity,uvTransform,map"],
+          [1286, "uReveal,uCells,uFade"],
+          [1287, "depth"],
+          [1287, "depth"],
           [
             9322,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
           ],
-          [
-            9327,
-            "CubemapToCubeUV"
-          ],
-          [
-            9330,
-            "PMREMGGXConvolution"
-          ],
-          [
-            9335,
-            "diffuse,emissive,roughness,metalness"
-          ],
+          [9327, "CubemapToCubeUV"],
+          [9330, "PMREMGGXConvolution"],
+          [9335, "diffuse,emissive,roughness,metalness"],
           [
             18538,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -339,46 +192,16 @@
             18542,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
           ],
-          [
-            18543,
-            "CubemapToCubeUV"
-          ],
-          [
-            18545,
-            "PMREMGGXConvolution"
-          ],
-          [
-            18550,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            18552,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            18553,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            18555,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            18556,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            18557,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            18558,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            18559,
-            "diffuse,emissive,roughness,metalness"
-          ]
+          [18543, "CubemapToCubeUV"],
+          [18545, "PMREMGGXConvolution"],
+          [18550, "diffuse,emissive,roughness,metalness"],
+          [18552, "diffuse,emissive,roughness,metalness"],
+          [18553, "diffuse,emissive,roughness,metalness"],
+          [18555, "diffuse,emissive,roughness,metalness"],
+          [18556, "diffuse,emissive,roughness,metalness"],
+          [18557, "diffuse,emissive,roughness,metalness"],
+          [18558, "diffuse,emissive,roughness,metalness"],
+          [18559, "diffuse,emissive,roughness,metalness"]
         ],
         "contexts": 5,
         "scriptBytes": 544697,
@@ -499,22 +322,10 @@
           "scrollOver50": 4,
           "slowShare": 3.13,
           "gaps": [
-            [
-              2263,
-              183
-            ],
-            [
-              2463,
-              83
-            ],
-            [
-              12946,
-              67
-            ],
-            [
-              18829,
-              100
-            ]
+            [2263, 183],
+            [2463, 83],
+            [12946, 67],
+            [18829, 100]
           ],
           "regions": {
             "opening": {
@@ -528,10 +339,7 @@
                 "desk": 104
               },
               "gpu": {
-                "desk": [
-                  5.17,
-                  7.1
-                ]
+                "desk": [5.17, 7.1]
               }
             },
             "monitor": {
@@ -546,14 +354,8 @@
                 "balls": 85
               },
               "gpu": {
-                "desk": [
-                  3.16,
-                  4.3
-                ],
-                "balls": [
-                  2.42,
-                  3.14
-                ]
+                "desk": [3.16, 4.3],
+                "balls": [2.42, 3.14]
               }
             },
             "macbook": {
@@ -578,14 +380,8 @@
                 "about": 238
               },
               "gpu": {
-                "desk": [
-                  5.75,
-                  10.08
-                ],
-                "about": [
-                  2.45,
-                  5.5
-                ]
+                "desk": [5.75, 10.08],
+                "about": [2.45, 5.5]
               }
             },
             "about": {
@@ -599,10 +395,7 @@
                 "about": 132
               },
               "gpu": {
-                "about": [
-                  2.95,
-                  3.32
-                ]
+                "about": [2.95, 3.32]
               }
             },
             "flow": {
@@ -616,26 +409,14 @@
                 "about": 98
               },
               "gpu": {
-                "about": [
-                  2.83,
-                  3.51
-                ]
+                "about": [2.83, 3.51]
               }
             }
           },
           "gpu": {
-            "desk": [
-              4.85,
-              8.94
-            ],
-            "balls": [
-              2.42,
-              3.14
-            ],
-            "about": [
-              2.73,
-              4.48
-            ]
+            "desk": [4.85, 8.94],
+            "balls": [2.42, 3.14],
+            "about": [2.73, 4.48]
           },
           "deskGpuP95": 8.94,
           "aboutGpuP95": 4.48,
@@ -651,111 +432,33 @@
           "glBlocking": 362,
           "glBlockingAfterReady": 0,
           "glCalls": [
-            [
-              696,
-              154,
-              "getProgramInfoLog"
-            ],
-            [
-              999,
-              88,
-              "getProgramInfoLog"
-            ],
-            [
-              1091,
-              94,
-              "getProgramInfoLog"
-            ]
+            [696, 154, "getProgramInfoLog"],
+            [999, 88, "getProgramInfoLog"],
+            [1091, 94, "getProgramInfoLog"]
           ],
           "programs": 37,
           "programAt": [
-            694,
-            999,
-            1091,
-            1187,
-            1189,
-            1191,
-            1193,
-            1194,
-            1196,
-            1197,
-            1199,
-            1200,
-            1202,
-            1202,
-            1203,
-            1203,
-            1203,
-            1203,
-            1203,
-            1204,
-            1204,
-            9237,
-            9247,
-            9251,
-            9255,
-            18384,
-            18390,
-            18392,
-            18397,
-            18401,
-            18403,
-            18404,
-            18405,
-            18407,
-            18409,
-            18410,
-            18412
+            694, 999, 1091, 1187, 1189, 1191, 1193, 1194, 1196, 1197, 1199,
+            1200, 1202, 1202, 1203, 1203, 1203, 1203, 1203, 1204, 1204, 9237,
+            9247, 9251, 9255, 18384, 18390, 18392, 18397, 18401, 18403, 18404,
+            18405, 18407, 18409, 18410, 18412
           ],
           "shaders": [
             [
               695,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              999,
-              "CubemapToCubeUV"
-            ],
-            [
-              1091,
-              "PMREMGGXConvolution"
-            ],
-            [
-              1188,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              1190,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              1192,
-              "Woven"
-            ],
-            [
-              1193,
-              "Satin"
-            ],
-            [
-              1195,
-              "Expanded"
-            ],
-            [
-              1196,
-              "Expanded"
-            ],
-            [
-              1198,
-              "Keycap"
-            ],
-            [
-              1199,
-              "Barracuda"
-            ],
-            [
-              1201,
-              "Inactive"
-            ],
+            [999, "CubemapToCubeUV"],
+            [1091, "PMREMGGXConvolution"],
+            [1188, "diffuse,emissive,roughness,metalness"],
+            [1190, "diffuse,emissive,roughness,metalness"],
+            [1192, "Woven"],
+            [1193, "Satin"],
+            [1195, "Expanded"],
+            [1196, "Expanded"],
+            [1198, "Keycap"],
+            [1199, "Barracuda"],
+            [1201, "Inactive"],
             [
               1202,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -764,50 +467,23 @@
               1202,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              1203,
-              "?"
-            ],
+            [1203, "?"],
             [
               1203,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              1203,
-              "?"
-            ],
-            [
-              1203,
-              "diffuse,opacity,uvTransform,map"
-            ],
-            [
-              1203,
-              "uReveal,uCells,uFade"
-            ],
-            [
-              1204,
-              "depth"
-            ],
-            [
-              1204,
-              "depth"
-            ],
+            [1203, "?"],
+            [1203, "diffuse,opacity,uvTransform,map"],
+            [1203, "uReveal,uCells,uFade"],
+            [1204, "depth"],
+            [1204, "depth"],
             [
               9237,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              9247,
-              "CubemapToCubeUV"
-            ],
-            [
-              9251,
-              "PMREMGGXConvolution"
-            ],
-            [
-              9256,
-              "diffuse,emissive,roughness,metalness"
-            ],
+            [9247, "CubemapToCubeUV"],
+            [9251, "PMREMGGXConvolution"],
+            [9256, "diffuse,emissive,roughness,metalness"],
             [
               18385,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -816,46 +492,16 @@
               18391,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              18392,
-              "CubemapToCubeUV"
-            ],
-            [
-              18397,
-              "PMREMGGXConvolution"
-            ],
-            [
-              18402,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18404,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18405,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18406,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18408,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18410,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18412,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18413,
-              "diffuse,emissive,roughness,metalness"
-            ]
+            [18392, "CubemapToCubeUV"],
+            [18397, "PMREMGGXConvolution"],
+            [18402, "diffuse,emissive,roughness,metalness"],
+            [18404, "diffuse,emissive,roughness,metalness"],
+            [18405, "diffuse,emissive,roughness,metalness"],
+            [18406, "diffuse,emissive,roughness,metalness"],
+            [18408, "diffuse,emissive,roughness,metalness"],
+            [18410, "diffuse,emissive,roughness,metalness"],
+            [18412, "diffuse,emissive,roughness,metalness"],
+            [18413, "diffuse,emissive,roughness,metalness"]
           ],
           "contexts": 5,
           "scriptBytes": 544697,
@@ -996,22 +642,10 @@
           "scrollOver50": 4,
           "slowShare": 3.39,
           "gaps": [
-            [
-              2295,
-              250
-            ],
-            [
-              2695,
-              100
-            ],
-            [
-              13061,
-              67
-            ],
-            [
-              19044,
-              100
-            ]
+            [2295, 250],
+            [2695, 100],
+            [13061, 67],
+            [19044, 100]
           ],
           "regions": {
             "opening": {
@@ -1025,10 +659,7 @@
                 "desk": 100
               },
               "gpu": {
-                "desk": [
-                  5.12,
-                  7.2
-                ]
+                "desk": [5.12, 7.2]
               }
             },
             "monitor": {
@@ -1043,14 +674,8 @@
                 "balls": 88
               },
               "gpu": {
-                "desk": [
-                  3.09,
-                  3.77
-                ],
-                "balls": [
-                  2.37,
-                  3.02
-                ]
+                "desk": [3.09, 3.77],
+                "balls": [2.37, 3.02]
               }
             },
             "macbook": {
@@ -1075,14 +700,8 @@
                 "about": 220
               },
               "gpu": {
-                "desk": [
-                  5.67,
-                  9.88
-                ],
-                "about": [
-                  2.41,
-                  5.5
-                ]
+                "desk": [5.67, 9.88],
+                "about": [2.41, 5.5]
               }
             },
             "about": {
@@ -1096,10 +715,7 @@
                 "about": 127
               },
               "gpu": {
-                "about": [
-                  2.99,
-                  3.37
-                ]
+                "about": [2.99, 3.37]
               }
             },
             "flow": {
@@ -1113,26 +729,14 @@
                 "about": 101
               },
               "gpu": {
-                "about": [
-                  2.95,
-                  3.39
-                ]
+                "about": [2.95, 3.39]
               }
             }
           },
           "gpu": {
-            "desk": [
-              4.89,
-              8.71
-            ],
-            "balls": [
-              2.37,
-              3.02
-            ],
-            "about": [
-              2.85,
-              4.7
-            ]
+            "desk": [4.89, 8.71],
+            "balls": [2.37, 3.02],
+            "about": [2.85, 4.7]
           },
           "deskGpuP95": 8.71,
           "aboutGpuP95": 4.7,
@@ -1148,111 +752,33 @@
           "glBlocking": 321,
           "glBlockingAfterReady": 0,
           "glCalls": [
-            [
-              765,
-              104,
-              "getProgramInfoLog"
-            ],
-            [
-              1067,
-              90,
-              "getProgramInfoLog"
-            ],
-            [
-              1161,
-              104,
-              "getProgramInfoLog"
-            ]
+            [765, 104, "getProgramInfoLog"],
+            [1067, 90, "getProgramInfoLog"],
+            [1161, 104, "getProgramInfoLog"]
           ],
           "programs": 37,
           "programAt": [
-            764,
-            1067,
-            1161,
-            1269,
-            1270,
-            1272,
-            1274,
-            1276,
-            1278,
-            1279,
-            1281,
-            1282,
-            1284,
-            1285,
-            1285,
-            1285,
-            1286,
-            1286,
-            1286,
-            1287,
-            1287,
-            9321,
-            9327,
-            9330,
-            9335,
-            18538,
-            18542,
-            18543,
-            18545,
-            18549,
-            18551,
-            18552,
-            18554,
-            18555,
-            18557,
-            18558,
-            18559
+            764, 1067, 1161, 1269, 1270, 1272, 1274, 1276, 1278, 1279, 1281,
+            1282, 1284, 1285, 1285, 1285, 1286, 1286, 1286, 1287, 1287, 9321,
+            9327, 9330, 9335, 18538, 18542, 18543, 18545, 18549, 18551, 18552,
+            18554, 18555, 18557, 18558, 18559
           ],
           "shaders": [
             [
               765,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              1067,
-              "CubemapToCubeUV"
-            ],
-            [
-              1161,
-              "PMREMGGXConvolution"
-            ],
-            [
-              1270,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              1272,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              1274,
-              "Woven"
-            ],
-            [
-              1275,
-              "Satin"
-            ],
-            [
-              1277,
-              "Expanded"
-            ],
-            [
-              1278,
-              "Expanded"
-            ],
-            [
-              1280,
-              "Keycap"
-            ],
-            [
-              1281,
-              "Barracuda"
-            ],
-            [
-              1283,
-              "Inactive"
-            ],
+            [1067, "CubemapToCubeUV"],
+            [1161, "PMREMGGXConvolution"],
+            [1270, "diffuse,emissive,roughness,metalness"],
+            [1272, "diffuse,emissive,roughness,metalness"],
+            [1274, "Woven"],
+            [1275, "Satin"],
+            [1277, "Expanded"],
+            [1278, "Expanded"],
+            [1280, "Keycap"],
+            [1281, "Barracuda"],
+            [1283, "Inactive"],
             [
               1285,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -1261,50 +787,23 @@
               1285,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              1285,
-              "?"
-            ],
+            [1285, "?"],
             [
               1286,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              1286,
-              "?"
-            ],
-            [
-              1286,
-              "diffuse,opacity,uvTransform,map"
-            ],
-            [
-              1286,
-              "uReveal,uCells,uFade"
-            ],
-            [
-              1287,
-              "depth"
-            ],
-            [
-              1287,
-              "depth"
-            ],
+            [1286, "?"],
+            [1286, "diffuse,opacity,uvTransform,map"],
+            [1286, "uReveal,uCells,uFade"],
+            [1287, "depth"],
+            [1287, "depth"],
             [
               9322,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              9327,
-              "CubemapToCubeUV"
-            ],
-            [
-              9330,
-              "PMREMGGXConvolution"
-            ],
-            [
-              9335,
-              "diffuse,emissive,roughness,metalness"
-            ],
+            [9327, "CubemapToCubeUV"],
+            [9330, "PMREMGGXConvolution"],
+            [9335, "diffuse,emissive,roughness,metalness"],
             [
               18538,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -1313,46 +812,16 @@
               18542,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              18543,
-              "CubemapToCubeUV"
-            ],
-            [
-              18545,
-              "PMREMGGXConvolution"
-            ],
-            [
-              18550,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18552,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18553,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18555,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18556,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18557,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18558,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18559,
-              "diffuse,emissive,roughness,metalness"
-            ]
+            [18543, "CubemapToCubeUV"],
+            [18545, "PMREMGGXConvolution"],
+            [18550, "diffuse,emissive,roughness,metalness"],
+            [18552, "diffuse,emissive,roughness,metalness"],
+            [18553, "diffuse,emissive,roughness,metalness"],
+            [18555, "diffuse,emissive,roughness,metalness"],
+            [18556, "diffuse,emissive,roughness,metalness"],
+            [18557, "diffuse,emissive,roughness,metalness"],
+            [18558, "diffuse,emissive,roughness,metalness"],
+            [18559, "diffuse,emissive,roughness,metalness"]
           ],
           "contexts": 5,
           "scriptBytes": 544697,
@@ -1472,26 +941,11 @@
           "scrollOver50": 5,
           "slowShare": 2.91,
           "gaps": [
-            [
-              2258,
-              283
-            ],
-            [
-              2574,
-              83
-            ],
-            [
-              2691,
-              83
-            ],
-            [
-              13141,
-              67
-            ],
-            [
-              18957,
-              117
-            ]
+            [2258, 283],
+            [2574, 83],
+            [2691, 83],
+            [13141, 67],
+            [18957, 117]
           ],
           "regions": {
             "opening": {
@@ -1505,10 +959,7 @@
                 "desk": 98
               },
               "gpu": {
-                "desk": [
-                  5.32,
-                  7.02
-                ]
+                "desk": [5.32, 7.02]
               }
             },
             "monitor": {
@@ -1523,14 +974,8 @@
                 "balls": 84
               },
               "gpu": {
-                "desk": [
-                  3.14,
-                  4.09
-                ],
-                "balls": [
-                  2.44,
-                  2.88
-                ]
+                "desk": [3.14, 4.09],
+                "balls": [2.44, 2.88]
               }
             },
             "macbook": {
@@ -1555,14 +1000,8 @@
                 "about": 210
               },
               "gpu": {
-                "desk": [
-                  5.91,
-                  10.19
-                ],
-                "about": [
-                  2.38,
-                  5.81
-                ]
+                "desk": [5.91, 10.19],
+                "about": [2.38, 5.81]
               }
             },
             "about": {
@@ -1576,10 +1015,7 @@
                 "about": 116
               },
               "gpu": {
-                "about": [
-                  2.96,
-                  3.76
-                ]
+                "about": [2.96, 3.76]
               }
             },
             "flow": {
@@ -1593,26 +1029,14 @@
                 "about": 109
               },
               "gpu": {
-                "about": [
-                  2.96,
-                  3.85
-                ]
+                "about": [2.96, 3.85]
               }
             }
           },
           "gpu": {
-            "desk": [
-              5.12,
-              9.3
-            ],
-            "balls": [
-              2.44,
-              2.88
-            ],
-            "about": [
-              2.75,
-              4.72
-            ]
+            "desk": [5.12, 9.3],
+            "balls": [2.44, 2.88],
+            "about": [2.75, 4.72]
           },
           "deskGpuP95": 9.3,
           "aboutGpuP95": 4.72,
@@ -1628,111 +1052,33 @@
           "glBlocking": 321,
           "glBlockingAfterReady": 0,
           "glCalls": [
-            [
-              725,
-              107,
-              "getProgramInfoLog"
-            ],
-            [
-              1023,
-              92,
-              "getProgramInfoLog"
-            ],
-            [
-              1119,
-              100,
-              "getProgramInfoLog"
-            ]
+            [725, 107, "getProgramInfoLog"],
+            [1023, 92, "getProgramInfoLog"],
+            [1119, 100, "getProgramInfoLog"]
           ],
           "programs": 37,
           "programAt": [
-            723,
-            1023,
-            1119,
-            1223,
-            1225,
-            1228,
-            1230,
-            1232,
-            1233,
-            1235,
-            1237,
-            1238,
-            1241,
-            1241,
-            1242,
-            1242,
-            1242,
-            1242,
-            1242,
-            1243,
-            1243,
-            9171,
-            9178,
-            9180,
-            9184,
-            18446,
-            18451,
-            18452,
-            18454,
-            18458,
-            18459,
-            18460,
-            18462,
-            18463,
-            18464,
-            18465,
-            18467
+            723, 1023, 1119, 1223, 1225, 1228, 1230, 1232, 1233, 1235, 1237,
+            1238, 1241, 1241, 1242, 1242, 1242, 1242, 1242, 1243, 1243, 9171,
+            9178, 9180, 9184, 18446, 18451, 18452, 18454, 18458, 18459, 18460,
+            18462, 18463, 18464, 18465, 18467
           ],
           "shaders": [
             [
               724,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              1023,
-              "CubemapToCubeUV"
-            ],
-            [
-              1119,
-              "PMREMGGXConvolution"
-            ],
-            [
-              1225,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              1227,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              1229,
-              "Woven"
-            ],
-            [
-              1231,
-              "Satin"
-            ],
-            [
-              1233,
-              "Expanded"
-            ],
-            [
-              1234,
-              "Expanded"
-            ],
-            [
-              1236,
-              "Keycap"
-            ],
-            [
-              1237,
-              "Barracuda"
-            ],
-            [
-              1239,
-              "Inactive"
-            ],
+            [1023, "CubemapToCubeUV"],
+            [1119, "PMREMGGXConvolution"],
+            [1225, "diffuse,emissive,roughness,metalness"],
+            [1227, "diffuse,emissive,roughness,metalness"],
+            [1229, "Woven"],
+            [1231, "Satin"],
+            [1233, "Expanded"],
+            [1234, "Expanded"],
+            [1236, "Keycap"],
+            [1237, "Barracuda"],
+            [1239, "Inactive"],
             [
               1241,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -1741,50 +1087,23 @@
               1242,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              1242,
-              "?"
-            ],
+            [1242, "?"],
             [
               1242,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              1242,
-              "?"
-            ],
-            [
-              1242,
-              "diffuse,opacity,uvTransform,map"
-            ],
-            [
-              1243,
-              "uReveal,uCells,uFade"
-            ],
-            [
-              1243,
-              "depth"
-            ],
-            [
-              1243,
-              "depth"
-            ],
+            [1242, "?"],
+            [1242, "diffuse,opacity,uvTransform,map"],
+            [1243, "uReveal,uCells,uFade"],
+            [1243, "depth"],
+            [1243, "depth"],
             [
               9172,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              9178,
-              "CubemapToCubeUV"
-            ],
-            [
-              9180,
-              "PMREMGGXConvolution"
-            ],
-            [
-              9185,
-              "diffuse,emissive,roughness,metalness"
-            ],
+            [9178, "CubemapToCubeUV"],
+            [9180, "PMREMGGXConvolution"],
+            [9185, "diffuse,emissive,roughness,metalness"],
             [
               18446,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -1793,46 +1112,16 @@
               18451,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              18452,
-              "CubemapToCubeUV"
-            ],
-            [
-              18454,
-              "PMREMGGXConvolution"
-            ],
-            [
-              18458,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18460,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18461,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18462,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18463,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18465,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18466,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18468,
-              "diffuse,emissive,roughness,metalness"
-            ]
+            [18452, "CubemapToCubeUV"],
+            [18454, "PMREMGGXConvolution"],
+            [18458, "diffuse,emissive,roughness,metalness"],
+            [18460, "diffuse,emissive,roughness,metalness"],
+            [18461, "diffuse,emissive,roughness,metalness"],
+            [18462, "diffuse,emissive,roughness,metalness"],
+            [18463, "diffuse,emissive,roughness,metalness"],
+            [18465, "diffuse,emissive,roughness,metalness"],
+            [18466, "diffuse,emissive,roughness,metalness"],
+            [18468, "diffuse,emissive,roughness,metalness"]
           ],
           "contexts": 5,
           "scriptBytes": 544697,
@@ -1954,12 +1243,7 @@
         "scrollP99": 33,
         "scrollOver50": 1,
         "slowShare": 3.02,
-        "gaps": [
-          [
-            8361,
-            83
-          ]
-        ],
+        "gaps": [[8361, 83]],
         "regions": {
           "opening": {
             "frames": 195,
@@ -1972,10 +1256,7 @@
               "desk": 90
             },
             "gpu": {
-              "desk": [
-                4.87,
-                6.95
-              ]
+              "desk": [4.87, 6.95]
             }
           },
           "monitor": {
@@ -1990,14 +1271,8 @@
               "balls": 85
             },
             "gpu": {
-              "desk": [
-                3.87,
-                5.37
-              ],
-              "balls": [
-                2.42,
-                3.05
-              ]
+              "desk": [3.87, 5.37],
+              "balls": [2.42, 3.05]
             }
           },
           "macbook": {
@@ -2022,14 +1297,8 @@
               "about": 225
             },
             "gpu": {
-              "desk": [
-                5.52,
-                9.13
-              ],
-              "about": [
-                2.58,
-                5.4
-              ]
+              "desk": [5.52, 9.13],
+              "about": [2.58, 5.4]
             }
           },
           "about": {
@@ -2043,10 +1312,7 @@
               "about": 112
             },
             "gpu": {
-              "about": [
-                2.94,
-                3.42
-              ]
+              "about": [2.94, 3.42]
             }
           },
           "flow": {
@@ -2060,26 +1326,14 @@
               "about": 108
             },
             "gpu": {
-              "about": [
-                2.94,
-                3.66
-              ]
+              "about": [2.94, 3.66]
             }
           }
         },
         "gpu": {
-          "desk": [
-            4.63,
-            7.43
-          ],
-          "balls": [
-            2.42,
-            3.05
-          ],
-          "about": [
-            2.82,
-            4.18
-          ]
+          "desk": [4.63, 7.43],
+          "balls": [2.42, 3.05],
+          "about": [2.82, 4.18]
         },
         "deskGpuP95": 7.72,
         "aboutGpuP95": 4.22,
@@ -2097,42 +1351,9 @@
         "glCalls": [],
         "programs": 37,
         "programAt": [
-          638,
-          943,
-          950,
-          955,
-          956,
-          959,
-          960,
-          961,
-          962,
-          964,
-          965,
-          967,
-          969,
-          970,
-          971,
-          971,
-          971,
-          971,
-          971,
-          972,
-          972,
-          8409,
-          8417,
-          8422,
-          8427,
-          17803,
-          17809,
-          17810,
-          17813,
-          17818,
-          17819,
-          17820,
-          17822,
-          17823,
-          17824,
-          17825,
+          638, 943, 950, 955, 956, 959, 960, 961, 962, 964, 965, 967, 969, 970,
+          971, 971, 971, 971, 971, 972, 972, 8409, 8417, 8422, 8427, 17803,
+          17809, 17810, 17813, 17818, 17819, 17820, 17822, 17823, 17824, 17825,
           17827
         ],
         "shaders": [
@@ -2140,50 +1361,17 @@
             639,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
           ],
-          [
-            943,
-            "CubemapToCubeUV"
-          ],
-          [
-            950,
-            "PMREMGGXConvolution"
-          ],
-          [
-            956,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            958,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            959,
-            "Woven"
-          ],
-          [
-            961,
-            "Satin"
-          ],
-          [
-            962,
-            "Expanded"
-          ],
-          [
-            963,
-            "Expanded"
-          ],
-          [
-            965,
-            "Keycap"
-          ],
-          [
-            966,
-            "Barracuda"
-          ],
-          [
-            968,
-            "Inactive"
-          ],
+          [943, "CubemapToCubeUV"],
+          [950, "PMREMGGXConvolution"],
+          [956, "diffuse,emissive,roughness,metalness"],
+          [958, "diffuse,emissive,roughness,metalness"],
+          [959, "Woven"],
+          [961, "Satin"],
+          [962, "Expanded"],
+          [963, "Expanded"],
+          [965, "Keycap"],
+          [966, "Barracuda"],
+          [968, "Inactive"],
           [
             970,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -2192,50 +1380,23 @@
             970,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
           ],
-          [
-            971,
-            "?"
-          ],
+          [971, "?"],
           [
             971,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
           ],
-          [
-            971,
-            "?"
-          ],
-          [
-            971,
-            "diffuse,opacity,uvTransform,map"
-          ],
-          [
-            971,
-            "uReveal,uCells,uFade"
-          ],
-          [
-            972,
-            "depth"
-          ],
-          [
-            972,
-            "depth"
-          ],
+          [971, "?"],
+          [971, "diffuse,opacity,uvTransform,map"],
+          [971, "uReveal,uCells,uFade"],
+          [972, "depth"],
+          [972, "depth"],
           [
             8409,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
           ],
-          [
-            8417,
-            "CubemapToCubeUV"
-          ],
-          [
-            8423,
-            "PMREMGGXConvolution"
-          ],
-          [
-            8428,
-            "diffuse,emissive,roughness,metalness"
-          ],
+          [8417, "CubemapToCubeUV"],
+          [8423, "PMREMGGXConvolution"],
+          [8428, "diffuse,emissive,roughness,metalness"],
           [
             17803,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -2244,46 +1405,16 @@
             17809,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
           ],
-          [
-            17810,
-            "CubemapToCubeUV"
-          ],
-          [
-            17813,
-            "PMREMGGXConvolution"
-          ],
-          [
-            17818,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            17820,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            17821,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            17822,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            17823,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            17825,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            17826,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            17828,
-            "diffuse,emissive,roughness,metalness"
-          ]
+          [17810, "CubemapToCubeUV"],
+          [17813, "PMREMGGXConvolution"],
+          [17818, "diffuse,emissive,roughness,metalness"],
+          [17820, "diffuse,emissive,roughness,metalness"],
+          [17821, "diffuse,emissive,roughness,metalness"],
+          [17822, "diffuse,emissive,roughness,metalness"],
+          [17823, "diffuse,emissive,roughness,metalness"],
+          [17825, "diffuse,emissive,roughness,metalness"],
+          [17826, "diffuse,emissive,roughness,metalness"],
+          [17828, "diffuse,emissive,roughness,metalness"]
         ],
         "contexts": 5,
         "scriptBytes": 0,
@@ -2354,12 +1485,7 @@
           "scrollP99": 33,
           "scrollOver50": 1,
           "slowShare": 3.02,
-          "gaps": [
-            [
-              8523,
-              67
-            ]
-          ],
+          "gaps": [[8523, 67]],
           "regions": {
             "opening": {
               "frames": 202,
@@ -2372,10 +1498,7 @@
                 "desk": 93
               },
               "gpu": {
-                "desk": [
-                  4.75,
-                  6.87
-                ]
+                "desk": [4.75, 6.87]
               }
             },
             "monitor": {
@@ -2390,14 +1513,8 @@
                 "balls": 89
               },
               "gpu": {
-                "desk": [
-                  3.63,
-                  6.72
-                ],
-                "balls": [
-                  2.44,
-                  3.31
-                ]
+                "desk": [3.63, 6.72],
+                "balls": [2.44, 3.31]
               }
             },
             "macbook": {
@@ -2422,14 +1539,8 @@
                 "about": 245
               },
               "gpu": {
-                "desk": [
-                  5.61,
-                  8.67
-                ],
-                "about": [
-                  2.52,
-                  5.45
-                ]
+                "desk": [5.61, 8.67],
+                "about": [2.52, 5.45]
               }
             },
             "about": {
@@ -2443,10 +1554,7 @@
                 "about": 134
               },
               "gpu": {
-                "about": [
-                  2.92,
-                  3.53
-                ]
+                "about": [2.92, 3.53]
               }
             },
             "flow": {
@@ -2460,26 +1568,14 @@
                 "about": 100
               },
               "gpu": {
-                "about": [
-                  2.89,
-                  3.38
-                ]
+                "about": [2.89, 3.38]
               }
             }
           },
           "gpu": {
-            "desk": [
-              4.77,
-              8.28
-            ],
-            "balls": [
-              2.44,
-              3.31
-            ],
-            "about": [
-              2.8,
-              4.22
-            ]
+            "desk": [4.77, 8.28],
+            "balls": [2.44, 3.31],
+            "about": [2.8, 4.22]
           },
           "deskGpuP95": 8.28,
           "aboutGpuP95": 4.22,
@@ -2497,93 +1593,27 @@
           "glCalls": [],
           "programs": 37,
           "programAt": [
-            671,
-            976,
-            983,
-            988,
-            990,
-            992,
-            993,
-            995,
-            997,
-            998,
-            1000,
-            1002,
-            1004,
-            1005,
-            1005,
-            1005,
-            1005,
-            1005,
-            1006,
-            1006,
-            1006,
-            8569,
-            8580,
-            8584,
-            8589,
-            18132,
-            18139,
-            18140,
-            18143,
-            18147,
-            18148,
-            18149,
-            18151,
-            18152,
-            18154,
-            18155,
-            18157
+            671, 976, 983, 988, 990, 992, 993, 995, 997, 998, 1000, 1002, 1004,
+            1005, 1005, 1005, 1005, 1005, 1006, 1006, 1006, 8569, 8580, 8584,
+            8589, 18132, 18139, 18140, 18143, 18147, 18148, 18149, 18151, 18152,
+            18154, 18155, 18157
           ],
           "shaders": [
             [
               671,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              976,
-              "CubemapToCubeUV"
-            ],
-            [
-              983,
-              "PMREMGGXConvolution"
-            ],
-            [
-              989,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              992,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              993,
-              "Woven"
-            ],
-            [
-              995,
-              "Satin"
-            ],
-            [
-              996,
-              "Expanded"
-            ],
-            [
-              998,
-              "Expanded"
-            ],
-            [
-              999,
-              "Keycap"
-            ],
-            [
-              1001,
-              "Barracuda"
-            ],
-            [
-              1002,
-              "Inactive"
-            ],
+            [976, "CubemapToCubeUV"],
+            [983, "PMREMGGXConvolution"],
+            [989, "diffuse,emissive,roughness,metalness"],
+            [992, "diffuse,emissive,roughness,metalness"],
+            [993, "Woven"],
+            [995, "Satin"],
+            [996, "Expanded"],
+            [998, "Expanded"],
+            [999, "Keycap"],
+            [1001, "Barracuda"],
+            [1002, "Inactive"],
             [
               1004,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -2592,50 +1622,23 @@
               1005,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              1005,
-              "?"
-            ],
+            [1005, "?"],
             [
               1005,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              1005,
-              "?"
-            ],
-            [
-              1006,
-              "diffuse,opacity,uvTransform,map"
-            ],
-            [
-              1006,
-              "uReveal,uCells,uFade"
-            ],
-            [
-              1006,
-              "depth"
-            ],
-            [
-              1006,
-              "depth"
-            ],
+            [1005, "?"],
+            [1006, "diffuse,opacity,uvTransform,map"],
+            [1006, "uReveal,uCells,uFade"],
+            [1006, "depth"],
+            [1006, "depth"],
             [
               8571,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              8580,
-              "CubemapToCubeUV"
-            ],
-            [
-              8585,
-              "PMREMGGXConvolution"
-            ],
-            [
-              8590,
-              "diffuse,emissive,roughness,metalness"
-            ],
+            [8580, "CubemapToCubeUV"],
+            [8585, "PMREMGGXConvolution"],
+            [8590, "diffuse,emissive,roughness,metalness"],
             [
               18132,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -2644,46 +1647,16 @@
               18139,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              18140,
-              "CubemapToCubeUV"
-            ],
-            [
-              18143,
-              "PMREMGGXConvolution"
-            ],
-            [
-              18148,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18149,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18150,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18151,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18153,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18154,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18156,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18157,
-              "diffuse,emissive,roughness,metalness"
-            ]
+            [18140, "CubemapToCubeUV"],
+            [18143, "PMREMGGXConvolution"],
+            [18148, "diffuse,emissive,roughness,metalness"],
+            [18149, "diffuse,emissive,roughness,metalness"],
+            [18150, "diffuse,emissive,roughness,metalness"],
+            [18151, "diffuse,emissive,roughness,metalness"],
+            [18153, "diffuse,emissive,roughness,metalness"],
+            [18154, "diffuse,emissive,roughness,metalness"],
+            [18156, "diffuse,emissive,roughness,metalness"],
+            [18157, "diffuse,emissive,roughness,metalness"]
           ],
           "contexts": 5,
           "scriptBytes": 0,
@@ -2773,10 +1746,7 @@
                 "desk": 94
               },
               "gpu": {
-                "desk": [
-                  5.28,
-                  6.91
-                ]
+                "desk": [5.28, 6.91]
               }
             },
             "monitor": {
@@ -2791,14 +1761,8 @@
                 "balls": 90
               },
               "gpu": {
-                "desk": [
-                  3.78,
-                  6.38
-                ],
-                "balls": [
-                  2.42,
-                  3.01
-                ]
+                "desk": [3.78, 6.38],
+                "balls": [2.42, 3.01]
               }
             },
             "macbook": {
@@ -2823,14 +1787,8 @@
                 "about": 231
               },
               "gpu": {
-                "desk": [
-                  5.8,
-                  9.16
-                ],
-                "about": [
-                  2.34,
-                  5.16
-                ]
+                "desk": [5.8, 9.16],
+                "about": [2.34, 5.16]
               }
             },
             "about": {
@@ -2844,10 +1802,7 @@
                 "about": 129
               },
               "gpu": {
-                "about": [
-                  2.92,
-                  3.71
-                ]
+                "about": [2.92, 3.71]
               }
             },
             "flow": {
@@ -2861,26 +1816,14 @@
                 "about": 101
               },
               "gpu": {
-                "about": [
-                  2.95,
-                  3.63
-                ]
+                "about": [2.95, 3.63]
               }
             }
           },
           "gpu": {
-            "desk": [
-              4.92,
-              7.72
-            ],
-            "balls": [
-              2.42,
-              3.01
-            ],
-            "about": [
-              2.77,
-              4.3
-            ]
+            "desk": [4.92, 7.72],
+            "balls": [2.42, 3.01],
+            "about": [2.77, 4.3]
           },
           "deskGpuP95": 7.72,
           "aboutGpuP95": 4.3,
@@ -2898,93 +1841,27 @@
           "glCalls": [],
           "programs": 37,
           "programAt": [
-            627,
-            948,
-            955,
-            960,
-            962,
-            964,
-            965,
-            967,
-            968,
-            970,
-            971,
-            973,
-            975,
-            976,
-            977,
-            977,
-            977,
-            977,
-            977,
-            978,
-            978,
-            8445,
-            8451,
-            8454,
-            8458,
-            17843,
-            17848,
-            17849,
-            17852,
-            17856,
-            17858,
-            17859,
-            17861,
-            17862,
-            17864,
-            17865,
-            17866
+            627, 948, 955, 960, 962, 964, 965, 967, 968, 970, 971, 973, 975,
+            976, 977, 977, 977, 977, 977, 978, 978, 8445, 8451, 8454, 8458,
+            17843, 17848, 17849, 17852, 17856, 17858, 17859, 17861, 17862,
+            17864, 17865, 17866
           ],
           "shaders": [
             [
               627,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              948,
-              "CubemapToCubeUV"
-            ],
-            [
-              955,
-              "PMREMGGXConvolution"
-            ],
-            [
-              961,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              963,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              964,
-              "Woven"
-            ],
-            [
-              966,
-              "Satin"
-            ],
-            [
-              968,
-              "Expanded"
-            ],
-            [
-              969,
-              "Expanded"
-            ],
-            [
-              971,
-              "Keycap"
-            ],
-            [
-              973,
-              "Barracuda"
-            ],
-            [
-              974,
-              "Inactive"
-            ],
+            [948, "CubemapToCubeUV"],
+            [955, "PMREMGGXConvolution"],
+            [961, "diffuse,emissive,roughness,metalness"],
+            [963, "diffuse,emissive,roughness,metalness"],
+            [964, "Woven"],
+            [966, "Satin"],
+            [968, "Expanded"],
+            [969, "Expanded"],
+            [971, "Keycap"],
+            [973, "Barracuda"],
+            [974, "Inactive"],
             [
               976,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -2993,50 +1870,23 @@
               977,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              977,
-              "?"
-            ],
+            [977, "?"],
             [
               977,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              977,
-              "?"
-            ],
-            [
-              977,
-              "diffuse,opacity,uvTransform,map"
-            ],
-            [
-              978,
-              "uReveal,uCells,uFade"
-            ],
-            [
-              978,
-              "depth"
-            ],
-            [
-              978,
-              "depth"
-            ],
+            [977, "?"],
+            [977, "diffuse,opacity,uvTransform,map"],
+            [978, "uReveal,uCells,uFade"],
+            [978, "depth"],
+            [978, "depth"],
             [
               8445,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              8451,
-              "CubemapToCubeUV"
-            ],
-            [
-              8454,
-              "PMREMGGXConvolution"
-            ],
-            [
-              8459,
-              "diffuse,emissive,roughness,metalness"
-            ],
+            [8451, "CubemapToCubeUV"],
+            [8454, "PMREMGGXConvolution"],
+            [8459, "diffuse,emissive,roughness,metalness"],
             [
               17843,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -3045,46 +1895,16 @@
               17848,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              17849,
-              "CubemapToCubeUV"
-            ],
-            [
-              17852,
-              "PMREMGGXConvolution"
-            ],
-            [
-              17857,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              17859,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              17860,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              17862,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              17863,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              17864,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              17866,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              17867,
-              "diffuse,emissive,roughness,metalness"
-            ]
+            [17849, "CubemapToCubeUV"],
+            [17852, "PMREMGGXConvolution"],
+            [17857, "diffuse,emissive,roughness,metalness"],
+            [17859, "diffuse,emissive,roughness,metalness"],
+            [17860, "diffuse,emissive,roughness,metalness"],
+            [17862, "diffuse,emissive,roughness,metalness"],
+            [17863, "diffuse,emissive,roughness,metalness"],
+            [17864, "diffuse,emissive,roughness,metalness"],
+            [17866, "diffuse,emissive,roughness,metalness"],
+            [17867, "diffuse,emissive,roughness,metalness"]
           ],
           "contexts": 5,
           "scriptBytes": 0,
@@ -3154,12 +1974,7 @@
           "scrollP99": 33,
           "scrollOver50": 1,
           "slowShare": 2.59,
-          "gaps": [
-            [
-              8361,
-              83
-            ]
-          ],
+          "gaps": [[8361, 83]],
           "regions": {
             "opening": {
               "frames": 195,
@@ -3172,10 +1987,7 @@
                 "desk": 90
               },
               "gpu": {
-                "desk": [
-                  4.87,
-                  6.95
-                ]
+                "desk": [4.87, 6.95]
               }
             },
             "monitor": {
@@ -3190,14 +2002,8 @@
                 "balls": 85
               },
               "gpu": {
-                "desk": [
-                  3.87,
-                  5.37
-                ],
-                "balls": [
-                  2.42,
-                  3.05
-                ]
+                "desk": [3.87, 5.37],
+                "balls": [2.42, 3.05]
               }
             },
             "macbook": {
@@ -3222,14 +2028,8 @@
                 "about": 225
               },
               "gpu": {
-                "desk": [
-                  5.52,
-                  9.13
-                ],
-                "about": [
-                  2.58,
-                  5.4
-                ]
+                "desk": [5.52, 9.13],
+                "about": [2.58, 5.4]
               }
             },
             "about": {
@@ -3243,10 +2043,7 @@
                 "about": 112
               },
               "gpu": {
-                "about": [
-                  2.94,
-                  3.42
-                ]
+                "about": [2.94, 3.42]
               }
             },
             "flow": {
@@ -3260,26 +2057,14 @@
                 "about": 108
               },
               "gpu": {
-                "about": [
-                  2.94,
-                  3.66
-                ]
+                "about": [2.94, 3.66]
               }
             }
           },
           "gpu": {
-            "desk": [
-              4.63,
-              7.43
-            ],
-            "balls": [
-              2.42,
-              3.05
-            ],
-            "about": [
-              2.82,
-              4.18
-            ]
+            "desk": [4.63, 7.43],
+            "balls": [2.42, 3.05],
+            "about": [2.82, 4.18]
           },
           "deskGpuP95": 7.43,
           "aboutGpuP95": 4.18,
@@ -3297,93 +2082,27 @@
           "glCalls": [],
           "programs": 37,
           "programAt": [
-            638,
-            943,
-            950,
-            955,
-            956,
-            959,
-            960,
-            961,
-            962,
-            964,
-            965,
-            967,
-            969,
-            970,
-            971,
-            971,
-            971,
-            971,
-            971,
-            972,
-            972,
-            8409,
-            8417,
-            8422,
-            8427,
-            17803,
-            17809,
-            17810,
-            17813,
-            17818,
-            17819,
-            17820,
-            17822,
-            17823,
-            17824,
-            17825,
-            17827
+            638, 943, 950, 955, 956, 959, 960, 961, 962, 964, 965, 967, 969,
+            970, 971, 971, 971, 971, 971, 972, 972, 8409, 8417, 8422, 8427,
+            17803, 17809, 17810, 17813, 17818, 17819, 17820, 17822, 17823,
+            17824, 17825, 17827
           ],
           "shaders": [
             [
               639,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              943,
-              "CubemapToCubeUV"
-            ],
-            [
-              950,
-              "PMREMGGXConvolution"
-            ],
-            [
-              956,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              958,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              959,
-              "Woven"
-            ],
-            [
-              961,
-              "Satin"
-            ],
-            [
-              962,
-              "Expanded"
-            ],
-            [
-              963,
-              "Expanded"
-            ],
-            [
-              965,
-              "Keycap"
-            ],
-            [
-              966,
-              "Barracuda"
-            ],
-            [
-              968,
-              "Inactive"
-            ],
+            [943, "CubemapToCubeUV"],
+            [950, "PMREMGGXConvolution"],
+            [956, "diffuse,emissive,roughness,metalness"],
+            [958, "diffuse,emissive,roughness,metalness"],
+            [959, "Woven"],
+            [961, "Satin"],
+            [962, "Expanded"],
+            [963, "Expanded"],
+            [965, "Keycap"],
+            [966, "Barracuda"],
+            [968, "Inactive"],
             [
               970,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -3392,50 +2111,23 @@
               970,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              971,
-              "?"
-            ],
+            [971, "?"],
             [
               971,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              971,
-              "?"
-            ],
-            [
-              971,
-              "diffuse,opacity,uvTransform,map"
-            ],
-            [
-              971,
-              "uReveal,uCells,uFade"
-            ],
-            [
-              972,
-              "depth"
-            ],
-            [
-              972,
-              "depth"
-            ],
+            [971, "?"],
+            [971, "diffuse,opacity,uvTransform,map"],
+            [971, "uReveal,uCells,uFade"],
+            [972, "depth"],
+            [972, "depth"],
             [
               8409,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              8417,
-              "CubemapToCubeUV"
-            ],
-            [
-              8423,
-              "PMREMGGXConvolution"
-            ],
-            [
-              8428,
-              "diffuse,emissive,roughness,metalness"
-            ],
+            [8417, "CubemapToCubeUV"],
+            [8423, "PMREMGGXConvolution"],
+            [8428, "diffuse,emissive,roughness,metalness"],
             [
               17803,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -3444,46 +2136,16 @@
               17809,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              17810,
-              "CubemapToCubeUV"
-            ],
-            [
-              17813,
-              "PMREMGGXConvolution"
-            ],
-            [
-              17818,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              17820,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              17821,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              17822,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              17823,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              17825,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              17826,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              17828,
-              "diffuse,emissive,roughness,metalness"
-            ]
+            [17810, "CubemapToCubeUV"],
+            [17813, "PMREMGGXConvolution"],
+            [17818, "diffuse,emissive,roughness,metalness"],
+            [17820, "diffuse,emissive,roughness,metalness"],
+            [17821, "diffuse,emissive,roughness,metalness"],
+            [17822, "diffuse,emissive,roughness,metalness"],
+            [17823, "diffuse,emissive,roughness,metalness"],
+            [17825, "diffuse,emissive,roughness,metalness"],
+            [17826, "diffuse,emissive,roughness,metalness"],
+            [17828, "diffuse,emissive,roughness,metalness"]
           ],
           "contexts": 5,
           "scriptBytes": 0,
@@ -3557,22 +2219,10 @@
         "scrollOver50": 4,
         "slowShare": 4.82,
         "gaps": [
-          [
-            9356,
-            117
-          ],
-          [
-            14289,
-            117
-          ],
-          [
-            14406,
-            83
-          ],
-          [
-            18439,
-            100
-          ]
+          [9356, 117],
+          [14289, 117],
+          [14406, 83],
+          [18439, 100]
         ],
         "regions": {
           "opening": {
@@ -3586,10 +2236,7 @@
               "desk": 94
             },
             "gpu": {
-              "desk": [
-                4.73,
-                7.95
-              ]
+              "desk": [4.73, 7.95]
             }
           },
           "monitor": {
@@ -3604,14 +2251,8 @@
               "balls": 85
             },
             "gpu": {
-              "desk": [
-                3.14,
-                7.74
-              ],
-              "balls": [
-                2.41,
-                3.07
-              ]
+              "desk": [3.14, 7.74],
+              "balls": [2.41, 3.07]
             }
           },
           "macbook": {
@@ -3636,14 +2277,8 @@
               "about": 226
             },
             "gpu": {
-              "desk": [
-                5.15,
-                9.5
-              ],
-              "about": [
-                2.09,
-                4.56
-              ]
+              "desk": [5.15, 9.5],
+              "about": [2.09, 4.56]
             }
           },
           "about": {
@@ -3657,10 +2292,7 @@
               "about": 121
             },
             "gpu": {
-              "about": [
-                2.49,
-                3.34
-              ]
+              "about": [2.49, 3.34]
             }
           },
           "flow": {
@@ -3674,26 +2306,14 @@
               "about": 94
             },
             "gpu": {
-              "about": [
-                2.49,
-                3.41
-              ]
+              "about": [2.49, 3.41]
             }
           }
         },
         "gpu": {
-          "desk": [
-            4.57,
-            8.83
-          ],
-          "balls": [
-            2.41,
-            3.07
-          ],
-          "about": [
-            2.46,
-            3.52
-          ]
+          "desk": [4.57, 8.83],
+          "balls": [2.41, 3.07],
+          "about": [2.46, 3.52]
         },
         "deskGpuP95": 8.83,
         "aboutGpuP95": 3.56,
@@ -3711,93 +2331,27 @@
         "glCalls": [],
         "programs": 37,
         "programAt": [
-          1323,
-          1638,
-          1646,
-          1656,
-          1663,
-          1670,
-          1675,
-          1680,
-          1684,
-          1690,
-          1695,
-          1701,
-          1709,
-          1715,
-          1716,
-          1716,
-          1718,
-          1718,
-          1719,
-          1720,
-          1722,
-          9411,
-          9437,
-          9441,
-          9448,
-          18473,
-          18486,
-          18490,
-          18492,
-          18500,
-          18505,
-          18510,
-          18517,
-          18528,
-          18546,
-          18550,
-          18556
+          1323, 1638, 1646, 1656, 1663, 1670, 1675, 1680, 1684, 1690, 1695,
+          1701, 1709, 1715, 1716, 1716, 1718, 1718, 1719, 1720, 1722, 9411,
+          9437, 9441, 9448, 18473, 18486, 18490, 18492, 18500, 18505, 18510,
+          18517, 18528, 18546, 18550, 18556
         ],
         "shaders": [
           [
             1325,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
           ],
-          [
-            1642,
-            "CubemapToCubeUV"
-          ],
-          [
-            1646,
-            "PMREMGGXConvolution"
-          ],
-          [
-            1660,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            1667,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            1673,
-            "Woven"
-          ],
-          [
-            1678,
-            "Satin"
-          ],
-          [
-            1683,
-            "Expanded"
-          ],
-          [
-            1688,
-            "Expanded"
-          ],
-          [
-            1692,
-            "Keycap"
-          ],
-          [
-            1699,
-            "Barracuda"
-          ],
-          [
-            1704,
-            "Inactive"
-          ],
+          [1642, "CubemapToCubeUV"],
+          [1646, "PMREMGGXConvolution"],
+          [1660, "diffuse,emissive,roughness,metalness"],
+          [1667, "diffuse,emissive,roughness,metalness"],
+          [1673, "Woven"],
+          [1678, "Satin"],
+          [1683, "Expanded"],
+          [1688, "Expanded"],
+          [1692, "Keycap"],
+          [1699, "Barracuda"],
+          [1704, "Inactive"],
           [
             1711,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -3806,50 +2360,23 @@
             1715,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
           ],
-          [
-            1716,
-            "?"
-          ],
+          [1716, "?"],
           [
             1717,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
           ],
-          [
-            1718,
-            "?"
-          ],
-          [
-            1718,
-            "diffuse,opacity,uvTransform,map"
-          ],
-          [
-            1719,
-            "uReveal,uCells,uFade"
-          ],
-          [
-            1722,
-            "depth"
-          ],
-          [
-            1723,
-            "depth"
-          ],
+          [1718, "?"],
+          [1718, "diffuse,opacity,uvTransform,map"],
+          [1719, "uReveal,uCells,uFade"],
+          [1722, "depth"],
+          [1723, "depth"],
           [
             9412,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
           ],
-          [
-            9437,
-            "CubemapToCubeUV"
-          ],
-          [
-            9442,
-            "PMREMGGXConvolution"
-          ],
-          [
-            9451,
-            "diffuse,emissive,roughness,metalness"
-          ],
+          [9437, "CubemapToCubeUV"],
+          [9442, "PMREMGGXConvolution"],
+          [9451, "diffuse,emissive,roughness,metalness"],
           [
             18474,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -3858,46 +2385,16 @@
             18488,
             "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
           ],
-          [
-            18490,
-            "CubemapToCubeUV"
-          ],
-          [
-            18493,
-            "PMREMGGXConvolution"
-          ],
-          [
-            18503,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            18508,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            18514,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            18526,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            18530,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            18549,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            18553,
-            "diffuse,emissive,roughness,metalness"
-          ],
-          [
-            18558,
-            "diffuse,emissive,roughness,metalness"
-          ]
+          [18490, "CubemapToCubeUV"],
+          [18493, "PMREMGGXConvolution"],
+          [18503, "diffuse,emissive,roughness,metalness"],
+          [18508, "diffuse,emissive,roughness,metalness"],
+          [18514, "diffuse,emissive,roughness,metalness"],
+          [18526, "diffuse,emissive,roughness,metalness"],
+          [18530, "diffuse,emissive,roughness,metalness"],
+          [18549, "diffuse,emissive,roughness,metalness"],
+          [18553, "diffuse,emissive,roughness,metalness"],
+          [18558, "diffuse,emissive,roughness,metalness"]
         ],
         "contexts": 5,
         "scriptBytes": 0,
@@ -4025,22 +2522,10 @@
           "scrollOver50": 4,
           "slowShare": 5.21,
           "gaps": [
-            [
-              9650,
-              117
-            ],
-            [
-              14583,
-              117
-            ],
-            [
-              14699,
-              83
-            ],
-            [
-              18916,
-              117
-            ]
+            [9650, 117],
+            [14583, 117],
+            [14699, 83],
+            [18916, 117]
           ],
           "regions": {
             "opening": {
@@ -4054,10 +2539,7 @@
                 "desk": 94
               },
               "gpu": {
-                "desk": [
-                  3.93,
-                  7.96
-                ]
+                "desk": [3.93, 7.96]
               }
             },
             "monitor": {
@@ -4072,14 +2554,8 @@
                 "balls": 79
               },
               "gpu": {
-                "desk": [
-                  3.21,
-                  4.43
-                ],
-                "balls": [
-                  2.14,
-                  3.06
-                ]
+                "desk": [3.21, 4.43],
+                "balls": [2.14, 3.06]
               }
             },
             "macbook": {
@@ -4104,14 +2580,8 @@
                 "about": 241
               },
               "gpu": {
-                "desk": [
-                  5.34,
-                  9.7
-                ],
-                "about": [
-                  2.05,
-                  4.87
-                ]
+                "desk": [5.34, 9.7],
+                "about": [2.05, 4.87]
               }
             },
             "about": {
@@ -4125,10 +2595,7 @@
                 "about": 129
               },
               "gpu": {
-                "about": [
-                  2.94,
-                  3.22
-                ]
+                "about": [2.94, 3.22]
               }
             },
             "flow": {
@@ -4142,26 +2609,14 @@
                 "about": 95
               },
               "gpu": {
-                "about": [
-                  2.93,
-                  3.46
-                ]
+                "about": [2.93, 3.46]
               }
             }
           },
           "gpu": {
-            "desk": [
-              4.17,
-              9.31
-            ],
-            "balls": [
-              2.14,
-              3.06
-            ],
-            "about": [
-              2.47,
-              3.56
-            ]
+            "desk": [4.17, 9.31],
+            "balls": [2.14, 3.06],
+            "about": [2.47, 3.56]
           },
           "deskGpuP95": 9.31,
           "aboutGpuP95": 3.56,
@@ -4179,93 +2634,27 @@
           "glCalls": [],
           "programs": 37,
           "programAt": [
-            1477,
-            1796,
-            1805,
-            1814,
-            1820,
-            1830,
-            1834,
-            1841,
-            1846,
-            1853,
-            1863,
-            1868,
-            1879,
-            1881,
-            1883,
-            1884,
-            1887,
-            1888,
-            1888,
-            1891,
-            1893,
-            9724,
-            9737,
-            9743,
-            9751,
-            18960,
-            18972,
-            18977,
-            18980,
-            18994,
-            18999,
-            19005,
-            19010,
-            19015,
-            19034,
-            19040,
-            19045
+            1477, 1796, 1805, 1814, 1820, 1830, 1834, 1841, 1846, 1853, 1863,
+            1868, 1879, 1881, 1883, 1884, 1887, 1888, 1888, 1891, 1893, 9724,
+            9737, 9743, 9751, 18960, 18972, 18977, 18980, 18994, 18999, 19005,
+            19010, 19015, 19034, 19040, 19045
           ],
           "shaders": [
             [
               1478,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              1800,
-              "CubemapToCubeUV"
-            ],
-            [
-              1805,
-              "PMREMGGXConvolution"
-            ],
-            [
-              1818,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              1827,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              1833,
-              "Woven"
-            ],
-            [
-              1839,
-              "Satin"
-            ],
-            [
-              1844,
-              "Expanded"
-            ],
-            [
-              1850,
-              "Expanded"
-            ],
-            [
-              1856,
-              "Keycap"
-            ],
-            [
-              1867,
-              "Barracuda"
-            ],
-            [
-              1873,
-              "Inactive"
-            ],
+            [1800, "CubemapToCubeUV"],
+            [1805, "PMREMGGXConvolution"],
+            [1818, "diffuse,emissive,roughness,metalness"],
+            [1827, "diffuse,emissive,roughness,metalness"],
+            [1833, "Woven"],
+            [1839, "Satin"],
+            [1844, "Expanded"],
+            [1850, "Expanded"],
+            [1856, "Keycap"],
+            [1867, "Barracuda"],
+            [1873, "Inactive"],
             [
               1881,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -4274,50 +2663,23 @@
               1883,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              1884,
-              "?"
-            ],
+            [1884, "?"],
             [
               1886,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              1887,
-              "?"
-            ],
-            [
-              1888,
-              "diffuse,opacity,uvTransform,map"
-            ],
-            [
-              1888,
-              "uReveal,uCells,uFade"
-            ],
-            [
-              1892,
-              "depth"
-            ],
-            [
-              1893,
-              "depth"
-            ],
+            [1887, "?"],
+            [1888, "diffuse,opacity,uvTransform,map"],
+            [1888, "uReveal,uCells,uFade"],
+            [1892, "depth"],
+            [1893, "depth"],
             [
               9725,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              9737,
-              "CubemapToCubeUV"
-            ],
-            [
-              9744,
-              "PMREMGGXConvolution"
-            ],
-            [
-              9769,
-              "diffuse,emissive,roughness,metalness"
-            ],
+            [9737, "CubemapToCubeUV"],
+            [9744, "PMREMGGXConvolution"],
+            [9769, "diffuse,emissive,roughness,metalness"],
             [
               18961,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -4326,46 +2688,16 @@
               18974,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              18977,
-              "CubemapToCubeUV"
-            ],
-            [
-              18980,
-              "PMREMGGXConvolution"
-            ],
-            [
-              18996,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              19003,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              19008,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              19013,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              19018,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              19037,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              19043,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              19048,
-              "diffuse,emissive,roughness,metalness"
-            ]
+            [18977, "CubemapToCubeUV"],
+            [18980, "PMREMGGXConvolution"],
+            [18996, "diffuse,emissive,roughness,metalness"],
+            [19003, "diffuse,emissive,roughness,metalness"],
+            [19008, "diffuse,emissive,roughness,metalness"],
+            [19013, "diffuse,emissive,roughness,metalness"],
+            [19018, "diffuse,emissive,roughness,metalness"],
+            [19037, "diffuse,emissive,roughness,metalness"],
+            [19043, "diffuse,emissive,roughness,metalness"],
+            [19048, "diffuse,emissive,roughness,metalness"]
           ],
           "contexts": 5,
           "scriptBytes": 0,
@@ -4492,22 +2824,10 @@
           "scrollOver50": 4,
           "slowShare": 4.82,
           "gaps": [
-            [
-              9356,
-              117
-            ],
-            [
-              14289,
-              117
-            ],
-            [
-              14406,
-              83
-            ],
-            [
-              18439,
-              100
-            ]
+            [9356, 117],
+            [14289, 117],
+            [14406, 83],
+            [18439, 100]
           ],
           "regions": {
             "opening": {
@@ -4521,10 +2841,7 @@
                 "desk": 94
               },
               "gpu": {
-                "desk": [
-                  4.73,
-                  7.95
-                ]
+                "desk": [4.73, 7.95]
               }
             },
             "monitor": {
@@ -4539,14 +2856,8 @@
                 "balls": 85
               },
               "gpu": {
-                "desk": [
-                  3.14,
-                  7.74
-                ],
-                "balls": [
-                  2.41,
-                  3.07
-                ]
+                "desk": [3.14, 7.74],
+                "balls": [2.41, 3.07]
               }
             },
             "macbook": {
@@ -4571,14 +2882,8 @@
                 "about": 226
               },
               "gpu": {
-                "desk": [
-                  5.15,
-                  9.5
-                ],
-                "about": [
-                  2.09,
-                  4.56
-                ]
+                "desk": [5.15, 9.5],
+                "about": [2.09, 4.56]
               }
             },
             "about": {
@@ -4592,10 +2897,7 @@
                 "about": 121
               },
               "gpu": {
-                "about": [
-                  2.49,
-                  3.34
-                ]
+                "about": [2.49, 3.34]
               }
             },
             "flow": {
@@ -4609,26 +2911,14 @@
                 "about": 94
               },
               "gpu": {
-                "about": [
-                  2.49,
-                  3.41
-                ]
+                "about": [2.49, 3.41]
               }
             }
           },
           "gpu": {
-            "desk": [
-              4.57,
-              8.83
-            ],
-            "balls": [
-              2.41,
-              3.07
-            ],
-            "about": [
-              2.46,
-              3.52
-            ]
+            "desk": [4.57, 8.83],
+            "balls": [2.41, 3.07],
+            "about": [2.46, 3.52]
           },
           "deskGpuP95": 8.83,
           "aboutGpuP95": 3.52,
@@ -4646,93 +2936,27 @@
           "glCalls": [],
           "programs": 37,
           "programAt": [
-            1323,
-            1638,
-            1646,
-            1656,
-            1663,
-            1670,
-            1675,
-            1680,
-            1684,
-            1690,
-            1695,
-            1701,
-            1709,
-            1715,
-            1716,
-            1716,
-            1718,
-            1718,
-            1719,
-            1720,
-            1722,
-            9411,
-            9437,
-            9441,
-            9448,
-            18473,
-            18486,
-            18490,
-            18492,
-            18500,
-            18505,
-            18510,
-            18517,
-            18528,
-            18546,
-            18550,
-            18556
+            1323, 1638, 1646, 1656, 1663, 1670, 1675, 1680, 1684, 1690, 1695,
+            1701, 1709, 1715, 1716, 1716, 1718, 1718, 1719, 1720, 1722, 9411,
+            9437, 9441, 9448, 18473, 18486, 18490, 18492, 18500, 18505, 18510,
+            18517, 18528, 18546, 18550, 18556
           ],
           "shaders": [
             [
               1325,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              1642,
-              "CubemapToCubeUV"
-            ],
-            [
-              1646,
-              "PMREMGGXConvolution"
-            ],
-            [
-              1660,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              1667,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              1673,
-              "Woven"
-            ],
-            [
-              1678,
-              "Satin"
-            ],
-            [
-              1683,
-              "Expanded"
-            ],
-            [
-              1688,
-              "Expanded"
-            ],
-            [
-              1692,
-              "Keycap"
-            ],
-            [
-              1699,
-              "Barracuda"
-            ],
-            [
-              1704,
-              "Inactive"
-            ],
+            [1642, "CubemapToCubeUV"],
+            [1646, "PMREMGGXConvolution"],
+            [1660, "diffuse,emissive,roughness,metalness"],
+            [1667, "diffuse,emissive,roughness,metalness"],
+            [1673, "Woven"],
+            [1678, "Satin"],
+            [1683, "Expanded"],
+            [1688, "Expanded"],
+            [1692, "Keycap"],
+            [1699, "Barracuda"],
+            [1704, "Inactive"],
             [
               1711,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -4741,50 +2965,23 @@
               1715,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              1716,
-              "?"
-            ],
+            [1716, "?"],
             [
               1717,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              1718,
-              "?"
-            ],
-            [
-              1718,
-              "diffuse,opacity,uvTransform,map"
-            ],
-            [
-              1719,
-              "uReveal,uCells,uFade"
-            ],
-            [
-              1722,
-              "depth"
-            ],
-            [
-              1723,
-              "depth"
-            ],
+            [1718, "?"],
+            [1718, "diffuse,opacity,uvTransform,map"],
+            [1719, "uReveal,uCells,uFade"],
+            [1722, "depth"],
+            [1723, "depth"],
             [
               9412,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              9437,
-              "CubemapToCubeUV"
-            ],
-            [
-              9442,
-              "PMREMGGXConvolution"
-            ],
-            [
-              9451,
-              "diffuse,emissive,roughness,metalness"
-            ],
+            [9437, "CubemapToCubeUV"],
+            [9442, "PMREMGGXConvolution"],
+            [9451, "diffuse,emissive,roughness,metalness"],
             [
               18474,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -4793,46 +2990,16 @@
               18488,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              18490,
-              "CubemapToCubeUV"
-            ],
-            [
-              18493,
-              "PMREMGGXConvolution"
-            ],
-            [
-              18503,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18508,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18514,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18526,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18530,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18549,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18553,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18558,
-              "diffuse,emissive,roughness,metalness"
-            ]
+            [18490, "CubemapToCubeUV"],
+            [18493, "PMREMGGXConvolution"],
+            [18503, "diffuse,emissive,roughness,metalness"],
+            [18508, "diffuse,emissive,roughness,metalness"],
+            [18514, "diffuse,emissive,roughness,metalness"],
+            [18526, "diffuse,emissive,roughness,metalness"],
+            [18530, "diffuse,emissive,roughness,metalness"],
+            [18549, "diffuse,emissive,roughness,metalness"],
+            [18553, "diffuse,emissive,roughness,metalness"],
+            [18558, "diffuse,emissive,roughness,metalness"]
           ],
           "contexts": 5,
           "scriptBytes": 0,
@@ -4959,22 +3126,10 @@
           "scrollOver50": 4,
           "slowShare": 4.22,
           "gaps": [
-            [
-              9186,
-              100
-            ],
-            [
-              14186,
-              100
-            ],
-            [
-              14286,
-              100
-            ],
-            [
-              18352,
-              100
-            ]
+            [9186, 100],
+            [14186, 100],
+            [14286, 100],
+            [18352, 100]
           ],
           "regions": {
             "opening": {
@@ -4988,10 +3143,7 @@
                 "desk": 90
               },
               "gpu": {
-                "desk": [
-                  4.25,
-                  7.61
-                ]
+                "desk": [4.25, 7.61]
               }
             },
             "monitor": {
@@ -5006,14 +3158,8 @@
                 "balls": 77
               },
               "gpu": {
-                "desk": [
-                  3.42,
-                  5.29
-                ],
-                "balls": [
-                  2.18,
-                  3.02
-                ]
+                "desk": [3.42, 5.29],
+                "balls": [2.18, 3.02]
               }
             },
             "macbook": {
@@ -5038,14 +3184,8 @@
                 "about": 215
               },
               "gpu": {
-                "desk": [
-                  5.54,
-                  9.07
-                ],
-                "about": [
-                  2.1,
-                  3.73
-                ]
+                "desk": [5.54, 9.07],
+                "about": [2.1, 3.73]
               }
             },
             "about": {
@@ -5059,10 +3199,7 @@
                 "about": 110
               },
               "gpu": {
-                "about": [
-                  2.67,
-                  3.53
-                ]
+                "about": [2.67, 3.53]
               }
             },
             "flow": {
@@ -5076,26 +3213,14 @@
                 "about": 101
               },
               "gpu": {
-                "about": [
-                  2.87,
-                  3.46
-                ]
+                "about": [2.87, 3.46]
               }
             }
           },
           "gpu": {
-            "desk": [
-              4.45,
-              8.05
-            ],
-            "balls": [
-              2.18,
-              3.02
-            ],
-            "about": [
-              2.47,
-              3.58
-            ]
+            "desk": [4.45, 8.05],
+            "balls": [2.18, 3.02],
+            "about": [2.47, 3.58]
           },
           "deskGpuP95": 8.05,
           "aboutGpuP95": 3.58,
@@ -5113,93 +3238,27 @@
           "glCalls": [],
           "programs": 37,
           "programAt": [
-            1304,
-            1621,
-            1627,
-            1635,
-            1642,
-            1650,
-            1654,
-            1661,
-            1665,
-            1671,
-            1677,
-            1684,
-            1737,
-            1739,
-            1741,
-            1742,
-            1743,
-            1743,
-            1744,
-            1746,
-            1748,
-            9251,
-            9267,
-            9272,
-            9278,
-            18389,
-            18400,
-            18404,
-            18408,
-            18414,
-            18418,
-            18424,
-            18428,
-            18433,
-            18439,
-            18444,
-            18467
+            1304, 1621, 1627, 1635, 1642, 1650, 1654, 1661, 1665, 1671, 1677,
+            1684, 1737, 1739, 1741, 1742, 1743, 1743, 1744, 1746, 1748, 9251,
+            9267, 9272, 9278, 18389, 18400, 18404, 18408, 18414, 18418, 18424,
+            18428, 18433, 18439, 18444, 18467
           ],
           "shaders": [
             [
               1306,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              1621,
-              "CubemapToCubeUV"
-            ],
-            [
-              1627,
-              "PMREMGGXConvolution"
-            ],
-            [
-              1639,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              1647,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              1652,
-              "Woven"
-            ],
-            [
-              1658,
-              "Satin"
-            ],
-            [
-              1664,
-              "Expanded"
-            ],
-            [
-              1669,
-              "Expanded"
-            ],
-            [
-              1674,
-              "Keycap"
-            ],
-            [
-              1682,
-              "Barracuda"
-            ],
-            [
-              1687,
-              "Inactive"
-            ],
+            [1621, "CubemapToCubeUV"],
+            [1627, "PMREMGGXConvolution"],
+            [1639, "diffuse,emissive,roughness,metalness"],
+            [1647, "diffuse,emissive,roughness,metalness"],
+            [1652, "Woven"],
+            [1658, "Satin"],
+            [1664, "Expanded"],
+            [1669, "Expanded"],
+            [1674, "Keycap"],
+            [1682, "Barracuda"],
+            [1687, "Inactive"],
             [
               1738,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -5208,50 +3267,23 @@
               1740,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              1742,
-              "?"
-            ],
+            [1742, "?"],
             [
               1743,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              1743,
-              "?"
-            ],
-            [
-              1744,
-              "diffuse,opacity,uvTransform,map"
-            ],
-            [
-              1744,
-              "uReveal,uCells,uFade"
-            ],
-            [
-              1747,
-              "depth"
-            ],
-            [
-              1748,
-              "depth"
-            ],
+            [1743, "?"],
+            [1744, "diffuse,opacity,uvTransform,map"],
+            [1744, "uReveal,uCells,uFade"],
+            [1747, "depth"],
+            [1748, "depth"],
             [
               9252,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              9267,
-              "CubemapToCubeUV"
-            ],
-            [
-              9272,
-              "PMREMGGXConvolution"
-            ],
-            [
-              9281,
-              "diffuse,emissive,roughness,metalness"
-            ],
+            [9267, "CubemapToCubeUV"],
+            [9272, "PMREMGGXConvolution"],
+            [9281, "diffuse,emissive,roughness,metalness"],
             [
               18390,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
@@ -5260,46 +3292,16 @@
               18402,
               "diffuse,opacity,transmissionMapTransform,thicknessMapTransform"
             ],
-            [
-              18404,
-              "CubemapToCubeUV"
-            ],
-            [
-              18408,
-              "PMREMGGXConvolution"
-            ],
-            [
-              18417,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18421,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18426,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18430,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18435,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18442,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18449,
-              "diffuse,emissive,roughness,metalness"
-            ],
-            [
-              18470,
-              "diffuse,emissive,roughness,metalness"
-            ]
+            [18404, "CubemapToCubeUV"],
+            [18408, "PMREMGGXConvolution"],
+            [18417, "diffuse,emissive,roughness,metalness"],
+            [18421, "diffuse,emissive,roughness,metalness"],
+            [18426, "diffuse,emissive,roughness,metalness"],
+            [18430, "diffuse,emissive,roughness,metalness"],
+            [18435, "diffuse,emissive,roughness,metalness"],
+            [18442, "diffuse,emissive,roughness,metalness"],
+            [18449, "diffuse,emissive,roughness,metalness"],
+            [18470, "diffuse,emissive,roughness,metalness"]
           ],
           "contexts": 5,
           "scriptBytes": 0,

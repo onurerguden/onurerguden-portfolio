@@ -8,9 +8,9 @@ Before and after, the same production build settings, captured with Playwright's
 
 Keyboard order on the home page, after the two skip links and the name:
 
-| | EN | TR |
-|---|---|---|
+|        | EN                                                  | TR                                                    |
+| ------ | --------------------------------------------------- | ----------------------------------------------------- |
 | Before | What I do → Experience → Tech stack → Sections → TR | Ne yapıyorum → Deneyim → Teknolojiler → Bölümler → EN |
-| After | Projects → Contact → Sections → TR | Projeler → İletişim → Bölümler → EN |
+| After  | Projects → Contact → Sections → TR                  | Projeler → İletişim → Bölümler → EN                   |
 
 The desk chapters stay in the Sections menu, which marks the chapter on screen (`aria-current="location"`, with an accent edge), as the bar did before. On phones, content pages put Projects, Research and Contact on a second row, as the home bar already does; on one row Contact was cut off.
