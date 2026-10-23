@@ -1,0 +1,56 @@
+---
+slug: carbonpilot
+locale: en
+---
+
+## Carbon numbers an auditor can check
+
+Exporters of steel and other heavy goods to the EU now have to report the embedded emissions under the Carbon Border Adjustment Mechanism (CBAM). CarbonPilot AI is a five-person Google AI & Technology Academy graduation project for that work: it turns invoices, shipments and energy records into Scope 1, 2 and CBAM-focused Scope 3 emissions, retrieves the regulation behind each figure and produces a report an auditor can verify.
+
+The rule the team set early: a language model may read documents and route work, but every emission figure comes from deterministic Python.
+
+## My contribution
+
+I was one of three developers. I set up the monorepo, the deterministic calculation engine and the first LangGraph graph, then built, in my own commits:
+
+- the agent graph's current shape, nine nodes that end either in a report or in human review;
+- strict Gemini document extraction;
+- uploadable regulation sources for the Law-RAG layer;
+- the green-transition optimizer and the slider simulation behind the dashboard;
+- opt-in LangSmith tracing;
+- JSON reports with integrity hashes and downloadable PDF reports;
+- the dashboard's connection to the real backend APIs.
+
+Teammates wrote the critic's retry routing, the timeout fallback, persistence and most of the frontend.
+
+## A graph that ends in a report or a person
+
+The graph runs ingest, extraction, schema validation, regulation retrieval, the emission calculation, optimization and a critic review. When the critic passes, the run generates the report. When it fails, the graph retries the calculation up to the request's retry limit and then routes to a human-review node instead of returning an unchecked result.
+
+Two outer guards sit around it. A recursion limit derived from the retry budget stops a runaway loop, and a run that takes longer than its timeout returns a marked fallback rather than a silent answer. The timeout is checked after the run finishes, so it labels a slow result; it does not cancel one.
+
+## Keeping the model on a leash
+
+Gemini extraction only proposes data. Its output must satisfy the same strict Pydantic schema as typed input; anything else is rejected with an explicit error, and the candidate is not saved until a person runs the calculation. Tracing is opt-in and records operational metadata only, never document text or activity data.
+
+## Reports that show tampering
+
+Every JSON report carries a SHA-256 hash over its canonical JSON, so a consumer can detect any change made after generation. The PDF report keeps the calculation lines and the legal references behind them.
+
+## Planning the transition
+
+The optimizer ranks green-transition options by net present savings under a carbon-tax schedule the user supplies. The slider simulation moves shares of energy or material use to transition levers and recomputes emissions, cost and return. The rule that matters here: legal rates, factors and costs are inputs, not hard-coded claims, and the engine rejects slider combinations that would count the same emissions twice. The 25 tests in those two modules cover these rules.
+
+## Limitations
+
+The extraction and optimization were tested with fixtures and a stubbed model, not on a company's real documents. Emission factors are inputs; the bundled steel data is a demo, and the default regulation references are general CBAM and GHG Protocol sources, not legal advice. The live demo is not published. Teammates' parts are described here only to place mine.
+
+## Inspect the implementation
+
+The links below pin the code to commit `70e88fc` in the team's public repository.
+
+- [The agent graph, its routing and fallback](https://github.com/fatmanurdurmus/YZTA-BOOTCAMP-GRUP-9/blob/70e88fc1992c705892dc585c1407e9e28fe6da0d/apps/backend/src/carbonpilot/agents/graph.py).
+- [Strict Gemini extraction](https://github.com/fatmanurdurmus/YZTA-BOOTCAMP-GRUP-9/blob/70e88fc1992c705892dc585c1407e9e28fe6da0d/apps/backend/src/carbonpilot/ingestion/extractor.py).
+- [Report integrity hashes](https://github.com/fatmanurdurmus/YZTA-BOOTCAMP-GRUP-9/blob/70e88fc1992c705892dc585c1407e9e28fe6da0d/apps/backend/src/carbonpilot/reporting/integrity.py).
+- [The optimizer and slider simulation](https://github.com/fatmanurdurmus/YZTA-BOOTCAMP-GRUP-9/blob/70e88fc1992c705892dc585c1407e9e28fe6da0d/apps/backend/src/carbonpilot/simulation/service.py).
+- [The team's decision log](https://github.com/fatmanurdurmus/YZTA-BOOTCAMP-GRUP-9/blob/70e88fc1992c705892dc585c1407e9e28fe6da0d/docs/DECISIONS.md).

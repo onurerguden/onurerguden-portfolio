@@ -62,8 +62,11 @@
   },
   "carbonpilot": {
     "title": "CarbonPilot AI",
-    "summary": "A five-person Google AI & Technology Academy graduation project: carbon accounting for CBAM exporters with deterministic emission calculations and a guarded LangGraph agent. My part: the agent graph with loop, timeout and fallback guards, Gemini extraction, LangSmith tracing and the PDF/JSON reports.",
-    "category": "Agentic workflows · team project"
+    "searchTitle": "CarbonPilot AI — a guarded LangGraph agent for CBAM",
+    "summary": "A five-person Google AI & Technology Academy graduation project: carbon accounting for CBAM exporters with deterministic emission calculations and a guarded LangGraph agent. My part: the agent graph that ends in a report or human review, Gemini extraction, the green-transition optimizer, LangSmith tracing and hashed reports.",
+    "description": "My part of a team CBAM carbon-accounting project: a LangGraph agent that ends in a report or human review, strict Gemini extraction and hashed reports.",
+    "category": "Agentic workflows · team project",
+    "role": "Developer · agent graph, extraction, optimizer and reports"
   },
   "voiceops": {
     "title": "VoiceOps",

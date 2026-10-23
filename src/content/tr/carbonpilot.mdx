@@ -1,0 +1,56 @@
+---
+slug: carbonpilot
+locale: tr
+---
+
+## Denetçinin doğrulayabileceği karbon rakamları
+
+Çelik ve diğer ağır sanayi ürünlerini AB’ye ihraç edenler artık ürünlerin gömülü emisyonlarını Sınırda Karbon Düzenleme Mekanizması (SKDM/CBAM) kapsamında raporlamak zorunda. CarbonPilot AI, bu iş için geliştirilen beş kişilik bir Google AI & Technology Academy bitirme projesi: faturaları, sevkiyatları ve enerji kayıtlarını Kapsam 1, 2 ve CBAM odaklı Kapsam 3 emisyonlarına çeviriyor, her rakamın dayandığı mevzuatı getiriyor ve denetçinin doğrulayabileceği bir rapor üretiyor.
+
+Ekibin baştan koyduğu kural: dil modeli belgeleri okuyabilir ve işi yönlendirebilir, ama her emisyon rakamı deterministik Python kodundan gelir.
+
+## Benim payım
+
+Üç geliştiriciden biriydim. Monorepo’yu, deterministik hesaplama motorunu ve ilk LangGraph grafiğini kurdum; ardından kendi commit’lerimle şunları geliştirdim:
+
+- ajan grafiğinin bugünkü hâli: ya raporla ya da insan incelemesiyle biten dokuz düğüm;
+- katı şemalı Gemini belge çıkarımı;
+- Law-RAG katmanı için yüklenebilir mevzuat kaynakları;
+- yeşil dönüşüm optimizasyonu ve panelin arkasındaki sürgü simülasyonu;
+- isteğe bağlı LangSmith izleme;
+- bütünlük hash’li JSON raporlar ve indirilebilir PDF raporlar;
+- panelin gerçek backend API’lerine bağlanması.
+
+Critic’in yeniden deneme yönlendirmesini, zaman aşımı yedeğini, kalıcılık katmanını ve frontend’in büyük kısmını ekip arkadaşlarım yazdı.
+
+## Raporla ya da bir insanla biten grafik
+
+Grafik sırasıyla belge alma, çıkarım, şema doğrulama, mevzuat getirme, emisyon hesabı, optimizasyon ve critic incelemesinden geçiyor. Critic onaylarsa rapor üretiliyor. Onaylamazsa grafik hesabı isteğin yeniden deneme sınırına kadar tekrarlıyor, sonra denetlenmemiş bir sonuç döndürmek yerine insan incelemesi düğümüne geçiyor.
+
+Etrafında iki dış koruma var. Yeniden deneme bütçesinden türetilen bir özyineleme sınırı kontrolden çıkan döngüyü durduruyor; zaman aşımını geçen bir çalıştırma da sessiz bir cevap yerine işaretli bir yedek yanıt döndürüyor. Zaman aşımı çalıştırma bittikten sonra kontrol ediliyor; yani yavaş sonucu işaretliyor, iptal etmiyor.
+
+## Modeli dizginlemek
+
+Gemini çıkarımı yalnızca veri öneriyor. Çıktısı, elle girilen veriyle aynı katı Pydantic şemasını sağlamak zorunda; sağlamayan her şey açık bir hatayla reddediliyor ve aday veri, bir kişi hesabı çalıştırana kadar kaydedilmiyor. İzleme isteğe bağlı ve yalnızca operasyonel üst veriyi kaydediyor; belge metnini ya da faaliyet verisini asla.
+
+## Değiştirildiğini gösteren raporlar
+
+Her JSON rapor, kanonik JSON’u üzerinden hesaplanmış bir SHA-256 hash’i taşıyor; böylece rapor üretildikten sonra yapılan her değişiklik fark edilebiliyor. PDF rapor da hesaplama satırlarını ve dayandıkları mevzuat referanslarını koruyor.
+
+## Dönüşümü planlamak
+
+Optimizasyon motoru, kullanıcının verdiği karbon vergisi takvimine göre yeşil dönüşüm seçeneklerini net bugünkü tasarrufa göre sıralıyor. Sürgü simülasyonu, enerji ya da malzeme kullanımının bir payını dönüşüm kaldıraçlarına taşıyıp emisyonu, maliyeti ve getiriyi yeniden hesaplıyor. Buradaki önemli kural: yasal oranlar, katsayılar ve maliyetler koda gömülü iddialar değil, girdiler; motor aynı emisyonu iki kez sayacak sürgü kombinasyonlarını reddediyor. Bu iki modüldeki 25 test bu kuralları kapsıyor.
+
+## Sınırlar
+
+Çıkarım ve optimizasyon gerçek şirket belgeleriyle değil, test verisi ve taklit bir modelle denendi. Emisyon katsayıları girdidir; pakette gelen çelik verisi bir demodur ve varsayılan mevzuat referansları genel CBAM ve GHG Protocol kaynaklarıdır, hukuki görüş değildir. Canlı demo yayımlanmadı. Ekip arkadaşlarımın payları burada yalnızca benimkini konumlandırmak için anlatılıyor.
+
+## Kodu incele
+
+Aşağıdaki bağlantılar kodu ekibin açık reposundaki `70e88fc` commit’ine sabitliyor.
+
+- [Ajan grafiği, yönlendirmesi ve yedek yanıtı](https://github.com/fatmanurdurmus/YZTA-BOOTCAMP-GRUP-9/blob/70e88fc1992c705892dc585c1407e9e28fe6da0d/apps/backend/src/carbonpilot/agents/graph.py).
+- [Katı şemalı Gemini çıkarımı](https://github.com/fatmanurdurmus/YZTA-BOOTCAMP-GRUP-9/blob/70e88fc1992c705892dc585c1407e9e28fe6da0d/apps/backend/src/carbonpilot/ingestion/extractor.py).
+- [Rapor bütünlük hash’leri](https://github.com/fatmanurdurmus/YZTA-BOOTCAMP-GRUP-9/blob/70e88fc1992c705892dc585c1407e9e28fe6da0d/apps/backend/src/carbonpilot/reporting/integrity.py).
+- [Optimizasyon ve sürgü simülasyonu](https://github.com/fatmanurdurmus/YZTA-BOOTCAMP-GRUP-9/blob/70e88fc1992c705892dc585c1407e9e28fe6da0d/apps/backend/src/carbonpilot/simulation/service.py).
+- [Ekibin karar günlüğü](https://github.com/fatmanurdurmus/YZTA-BOOTCAMP-GRUP-9/blob/70e88fc1992c705892dc585c1407e9e28fe6da0d/docs/DECISIONS.md).
