@@ -170,16 +170,6 @@
   pointer-events: none;
 }
 
-/* The final view's scroll hint, white over the desk. */
-.continueCue {
-  position: absolute;
-  z-index: 4;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  --hint: #ffffff80;
-}
-
 .foot {
   z-index: 4;
   pointer-events: none;
