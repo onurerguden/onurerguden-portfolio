@@ -47,7 +47,7 @@ export function atomFeed(locale: Locale) {
     `  <updated>${updated ?? "2026-10-23"}T00:00:00Z</updated>`,
     "  <author>",
     "    <name>Onur Ergüden</name>",
-    `    <uri>${origin}/${locale}/about</uri>`,
+    `    <uri>${origin}/${locale}</uri>`,
     "  </author>",
     ...entries,
     "</feed>",

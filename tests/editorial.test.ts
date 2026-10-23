@@ -3,7 +3,6 @@ import sitemap from "../src/app/sitemap";
 import { getProjects } from "../src/lib/content";
 import { editorialModified } from "../src/lib/editorial";
 import {
-  aboutStructuredData,
   caseStudyStructuredData,
   homeStructuredData,
   researchStructuredData,
@@ -43,12 +42,10 @@ describe("editorial modification dates", () => {
   it("dates the portfolio page without redating the underlying work", () => {
     for (const locale of ["en", "tr"] as const) {
       const home = homeStructuredData(locale) as Graph;
-      expect(node(home, "WebPage")?.dateModified).toBe(editorialModified(""));
-      expect(node(home, "WebPage")).not.toHaveProperty("dateCreated");
-      const about = aboutStructuredData(locale) as Graph;
-      expect(node(about, "ProfilePage")?.dateModified).toBe(
-        editorialModified("/about"),
+      expect(node(home, "ProfilePage")?.dateModified).toBe(
+        editorialModified(""),
       );
+      expect(node(home, "ProfilePage")).not.toHaveProperty("dateCreated");
       for (const project of getProjects(locale).filter((p) => p.caseStudy)) {
         const graph = caseStudyStructuredData(locale, project) as Graph;
         expect(node(graph, "WebPage")?.dateModified).toBe(

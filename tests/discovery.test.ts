@@ -6,8 +6,8 @@ import { getIdentity } from "../src/lib/identity";
 import { llmsIndex } from "../src/lib/llms";
 import { trails } from "../src/lib/breadcrumbs";
 import {
-  aboutStructuredData,
   caseStudyStructuredData,
+  researchStructuredData,
 } from "../src/lib/structured-data";
 
 afterEach(() => vi.unstubAllEnvs());
@@ -33,15 +33,15 @@ describe("discovery", () => {
           (item) => `https://onurerguden.dev${item.src}`,
         ),
       );
-    expect(images("https://onurerguden.dev/en/about")).toEqual([]);
+    expect(images("https://onurerguden.dev/en/research")).toEqual([]);
   });
 
   it("introduces and links the Turkish pages in llms.txt", () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://onurerguden.dev");
     const text = llmsIndex();
     expect(text).toContain("## Türkçe");
-    expect(text).toContain(getIdentity("tr").lead);
-    expect(text).toContain("(https://onurerguden.dev/tr/about)");
+    expect(text).toContain(getIdentity("tr").bio);
+    expect(text).toContain("(https://onurerguden.dev/tr/writing)");
     for (const project of getProjects("tr").filter((p) => p.caseStudy))
       expect(text).toContain(
         `https://onurerguden.dev/tr/projects/${project.slug}`,
@@ -62,8 +62,8 @@ describe("discovery", () => {
         name: crumb.name,
         item: `https://onurerguden.dev/tr${crumb.path}`,
       }));
-    expect(list(aboutStructuredData("tr") as Graph)).toEqual(
-      expected(trails.about("tr")),
+    expect(list(researchStructuredData("tr") as Graph)).toEqual(
+      expected(trails.research("tr")),
     );
     const project = getProjects("tr").find((p) => p.caseStudy)!;
     expect(list(caseStudyStructuredData("tr", project) as Graph)).toEqual(

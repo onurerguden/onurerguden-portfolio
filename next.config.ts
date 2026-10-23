@@ -58,6 +58,12 @@ const nextConfig: NextConfig = {
     const card = "(opengraph-image|twitter-image)";
     return [
       { source: "/", destination: "/en", permanent: true },
+      // The About page was folded back into the home page's About section.
+      {
+        source: "/:locale(en|tr)/about",
+        destination: "/:locale#about",
+        permanent: true,
+      },
       ...[
         "/:locale(en|tr)",
         "/:locale(en|tr)/:section(research|projects)",

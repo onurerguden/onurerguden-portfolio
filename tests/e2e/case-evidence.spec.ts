@@ -28,7 +28,7 @@ for (const locale of ["en", "tr"] as const) {
         // The breadcrumb also names me; the byline is the author link.
         const author = header.locator('a[rel="author"]');
         await expect(author).toHaveText(sharedFacts.name);
-        await expect(author).toHaveAttribute("href", `/${locale}/about`);
+        await expect(author).toHaveAttribute("href", `/${locale}#about`);
         await expect(author).toHaveAttribute("rel", "author");
         await expect(author).toBeVisible();
         await author.focus();
