@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { sharedFacts } from "@/lib/content";
 import { siteRepository } from "@/lib/site";
+import ProfileLinks from "./profile-links";
 import styles from "./site-footer.module.css";
 
 export default function SiteFooter({ locale }: { locale: "en" | "tr" }) {
@@ -21,12 +22,7 @@ export default function SiteFooter({ locale }: { locale: "en" | "tr" }) {
           </a>
         </p>
         <ul className={styles.links}>
-          <li>
-            <a href={sharedFacts.github}>GitHub</a>
-          </li>
-          <li>
-            <a href={sharedFacts.linkedin}>LinkedIn</a>
-          </li>
+          <ProfileLinks />
           <li>
             <a href={`mailto:${sharedFacts.email}`}>
               {en ? "Email" : "E-posta"}

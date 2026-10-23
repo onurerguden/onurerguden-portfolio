@@ -1,4 +1,5 @@
 import GiantTitle from "@/components/giant-title";
+import ProfileLinks from "@/components/site/profile-links";
 import { sharedFacts, type Locale } from "@/lib/content";
 import { cvLink } from "@/lib/site";
 import CopyEmail from "./copy-email";
@@ -41,12 +42,7 @@ export default function ContactSection({ locale }: { locale: Locale }) {
           <li>
             <a href={cv.href}>{cv.label}</a>
           </li>
-          <li>
-            <a href={sharedFacts.github}>GitHub</a>
-          </li>
-          <li>
-            <a href={sharedFacts.linkedin}>LinkedIn</a>
-          </li>
+          <ProfileLinks />
         </ul>
       </div>
     </section>
