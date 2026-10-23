@@ -1,10 +1,15 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+
+const noChange = () => () => {};
+const clipboardReady = () =>
+  typeof navigator.clipboard?.writeText === "function";
 
 /**
  * Copies the address to the clipboard and says so; mail clients are not
- * everyone's first choice. Without the Clipboard API the button is not
- * offered, and the address stays selectable text.
+ * everyone's first choice. Without the Clipboard API (an old browser, a page
+ * not served securely) the button is not offered, and the address stays
+ * selectable text. A copy the browser refuses says so too.
  */
 export default function CopyEmail({
   email,
@@ -16,7 +21,12 @@ export default function CopyEmail({
   className?: string;
 }) {
   const en = locale === "en";
-  const [copied, setCopied] = useState(false);
+  // The server renders the button; a browser without the API removes it.
+  const available = useSyncExternalStore(noChange, clipboardReady, () => true);
+  const [result, setResult] = useState<"copied" | "failed" | null>(null);
+  const reset = useRef(0);
+  useEffect(() => () => window.clearTimeout(reset.current), []);
+  if (!available) return null;
   return (
     <>
       <button
@@ -24,32 +34,44 @@ export default function CopyEmail({
         className={className}
         onClick={async (event) => {
           const button = event.currentTarget;
+          window.clearTimeout(reset.current);
           try {
             await navigator.clipboard.writeText(email);
-            setCopied(true);
-            import("@/lib/event-beacon").then(({ locationOf, track }) =>
-              track({ name: "email_copy", location: locationOf(button) }),
+            setResult("copied");
+            import("@/lib/event-beacon").then(
+              ({ locationOf, track }) =>
+                track({ name: "email_copy", location: locationOf(button) }),
+              () => {},
             );
-            window.setTimeout(() => setCopied(false), 2500);
           } catch {
-            setCopied(false);
+            // Permission refused, or the page lost focus mid-copy.
+            setResult("failed");
           }
+          reset.current = window.setTimeout(() => setResult(null), 2500);
         }}
       >
-        {copied
+        {result === "copied"
           ? en
             ? "Copied"
             : "Kopyalandı"
-          : en
-            ? "Copy address"
-            : "Adresi kopyala"}
+          : result === "failed"
+            ? en
+              ? "Copy failed"
+              : "Kopyalanamadı"
+            : en
+              ? "Copy address"
+              : "Adresi kopyala"}
       </button>
       <span className="visually-hidden" role="status">
-        {copied
+        {result === "copied"
           ? en
             ? "Email address copied"
             : "E-posta adresi kopyalandı"
-          : ""}
+          : result === "failed"
+            ? en
+              ? "The address could not be copied; select it to copy it yourself"
+              : "Adres kopyalanamadı; seçerek kendiniz kopyalayabilirsiniz"
+            : ""}
       </span>
     </>
   );
