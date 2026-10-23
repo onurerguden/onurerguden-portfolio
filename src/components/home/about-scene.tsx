@@ -27,6 +27,7 @@ import DeskLighting from "@/components/desk/lighting";
 import { warmUp } from "@/components/three/warm-up";
 import { seededRandom } from "@/lib/random";
 import { frameSlices } from "@/lib/yield";
+import { staticAsset } from "@/lib/static-asset-urls";
 import { programHost } from "@/components/three/program-host";
 import { onScrollFrame } from "@/lib/scroll-frame";
 import techIcons from "@/lib/tech-icons.generated.json";
@@ -43,6 +44,7 @@ import {
   placeShadow,
   showShadows,
   network,
+  polaroid,
   racket,
   tennisBall,
   terminal,
@@ -74,13 +76,14 @@ type Body = {
  * object further back appears closer to the centre (camera at z = 8).
  */
 const wideSlots: Record<string, Slot> = {
-  basketball: { x: -0.88, y: 0.66, z: 0.2, scale: 0.46 },
+  basketball: { x: -0.88, y: 0.66, z: 0.2, scale: 0.38 },
   tennis: { x: 0.86, y: -0.5, z: 0.8, scale: 0.26 },
-  racket: { x: 0.8, y: 0.34, z: -0.6, scale: 0.78 },
-  terminal: { x: -0.87, y: -0.44, z: -0.3, scale: 0.68 },
-  braces: { x: -0.59, y: 0.94, z: -1.4, scale: 0.4 },
+  racket: { x: 0.8, y: 0.34, z: -0.6, scale: 0.64 },
+  terminal: { x: -0.87, y: -0.44, z: -0.3, scale: 0.56 },
+  braces: { x: -0.59, y: 0.94, z: -1.4, scale: 0.32 },
   chip: { x: 0.74, y: 0.93, z: -1.3, scale: 0.46 },
-  network: { x: -0.9, y: 0.06, z: -1.6, scale: 0.72 },
+  photo: { x: -0.76, y: 0.1, z: 0.5, scale: 0.86 },
+  network: { x: -0.72, y: -0.16, z: -2.6, scale: 0.6 },
   keycaps: { x: 0.62, y: -0.72, z: 0.1, scale: 0.62 },
   "logo-0": { x: 0.93, y: 0.02, z: -0.9, scale: 0.46 },
   "logo-1": { x: -0.6, y: -0.74, z: 0.3, scale: 0.4 },
@@ -94,7 +97,7 @@ const narrowSlots: Record<string, Slot> = {
   basketball: { x: -0.8, y: 0.93, z: 0, scale: 0.2 },
   tennis: { x: 0.78, y: -0.94, z: 0.6, scale: 0.14 },
   chip: { x: 0.78, y: 0.93, z: -0.8, scale: 0.22 },
-  "logo-0": { x: -0.78, y: -0.94, z: -0.4, scale: 0.24 },
+  photo: { x: -0.66, y: -0.86, z: 0.2, scale: 0.34 },
 };
 
 type Groups = RefObject<Map<string, Group>>;
@@ -163,6 +166,7 @@ const builders = {
   chip,
   network,
   keycaps,
+  photo: () => polaroid(staticAsset("images/about/onur-photo.webp")),
   shadows: () => contactShadows(Object.keys(wideSlots).length),
 };
 type Parts = { [K in keyof typeof builders]: ReturnType<(typeof builders)[K]> };
@@ -227,6 +231,9 @@ function standIns(logos: string[]) {
     [built.terminal.body, built.terminal.bodyMaterial],
     [plane, built.terminal.screenMaterial],
     [built.braces.geometry, built.braces.material],
+    [built.photo.frame, built.photo.frameMaterial],
+    [plane, built.photo.photoMaterial],
+    [built.photo.tape, built.photo.tapeMaterial],
     [built.keycaps.geometry, built.keycaps.capMaterial],
     ...built.keycaps.legendMaterials.map(
       (legend): [BufferGeometry, Material] => [plane, legend],
@@ -530,7 +537,27 @@ function Objects({
           <planeGeometry args={[0.62, 0.62]} />
         </mesh>
       </Float>
-      {logos.slice(0, narrow ? 1 : 3).map((slug, i) =>
+      <Float id="photo" groups={groups}>
+        <group rotation={[0, 0, 0.08]}>
+          <mesh
+            geometry={built.photo.frame}
+            material={built.photo.frameMaterial}
+          />
+          <mesh
+            position={[0, 0.09, 0.021]}
+            material={built.photo.photoMaterial}
+          >
+            <planeGeometry args={[0.86, 0.86]} />
+          </mesh>
+          <mesh
+            geometry={built.photo.tape}
+            material={built.photo.tapeMaterial}
+            position={[0, 0.6, 0.03]}
+            rotation={[0, 0, -0.12]}
+          />
+        </group>
+      </Float>
+      {logos.slice(0, narrow ? 0 : 3).map((slug, i) =>
         icons[slug] ? (
           <Float id={`logo-${i}`} groups={groups} key={slug}>
             <Logo path={icons[slug].path} color={icons[slug].hex} />

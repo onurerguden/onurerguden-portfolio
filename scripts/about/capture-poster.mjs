@@ -17,7 +17,7 @@ const layouts = [
 // Hide everything but the canvas, so only the objects keep their pixels.
 const isolate = `
   html, body, main, #about section, #about section::before { background: transparent !important; }
-  #about section > :not([data-about-stage]), nav, [data-journey-stage], #about ~ * { visibility: hidden !important; }
+  #about section > :not([data-about-stage]), nav, .skip-link, [data-journey-stage], #about ~ * { visibility: hidden !important; }
 `;
 
 await mkdir("public/images/about", { recursive: true });

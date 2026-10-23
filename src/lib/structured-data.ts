@@ -87,7 +87,8 @@ function person(locale: Locale): Node {
     // The home page is my profile page; every other page points at it.
     url: `${origin}/${locale}`,
     mainEntityOfPage: { "@id": `${origin}/${locale}#page` },
-    image: `${origin}/images/avatar/onur-head-v4-1254.webp`,
+    // The real photo, the one my other profiles use; the opening keeps the illustration.
+    image: `${origin}/images/about/onur-photo.webp`,
     email: `mailto:${sharedFacts.email}`,
     sameAs: sharedFacts.profiles.map((profile) => profile.url),
     identifier: {

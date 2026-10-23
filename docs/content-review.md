@@ -287,3 +287,13 @@ Onur reviewed the live site and asked for four changes on 23 October 2026.
 
 - **The desk lamp opens amber** (warm yellow) instead of pink; the lamp button still cycles through all five colours.
 - **One top bar everywhere.** Content pages use the home page's bar: Projects, Contact, the Sections menu (every home section, plus Writing) and the language switch. They no longer get a separate set of links.
+
+## About photo (October 23, night)
+
+Onur supplied a real photo and asked for it as a playful framed object in the home page's About scene. Its shape and size:
+
+- **The object:** a polaroid. It has a paper frame, the photo and a strip of volt tape, and floats with the other objects. It sits in the left gutter on wide screens and in the bottom-left corner of the phone poster.
+- **Resizing:** the basketball, racket, `</>` and terminal are smaller so the photo reads first.
+- **The image file:** `public/images/about/onur-photo.webp` (384 px, metadata stripped).
+- **Schema:** the photo is now `Person.image`, the same photo his other profiles use. It is also listed in the image sitemap.
+- **Posters:** the posters were re-captured with the photo. Under reduced motion, without WebGL and on touch screens, the poster is shown instead of the 3D scene. The capture script now also hides the skip link.

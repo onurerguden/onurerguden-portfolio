@@ -16,6 +16,7 @@ import {
   Shape,
   SphereGeometry,
   SRGBColorSpace,
+  TextureLoader,
   TubeGeometry,
   Vector3,
   type BufferGeometry,
@@ -259,6 +260,33 @@ export function terminal() {
       map: screen,
       roughness: 0.3,
       clearcoat: 1,
+    }),
+  };
+}
+
+/**
+ * A polaroid of me: a paper frame with the photo set above a wider bottom
+ * margin, held on by a strip of volt tape. The photo is a small static file
+ * (public/images/about/onur-photo.webp); the frame shows paper until it loads.
+ */
+export function polaroid(src: string) {
+  const texture = new TextureLoader().load(src);
+  texture.colorSpace = SRGBColorSpace;
+  texture.anisotropy = 4;
+  return {
+    frame: new RoundedBoxGeometry(1, 1.2, 0.04, 3, 0.03),
+    frameMaterial: clay(palette.paper, { roughness: 0.75, clearcoat: 0.1 }),
+    photoMaterial: new MeshPhysicalMaterial({
+      map: texture,
+      roughness: 0.4,
+      clearcoat: 0.6,
+    }),
+    tape: new BoxGeometry(0.44, 0.13, 0.008),
+    tapeMaterial: new MeshPhysicalMaterial({
+      color: palette.volt,
+      roughness: 0.8,
+      transparent: true,
+      opacity: 0.85,
     }),
   };
 }
