@@ -18,10 +18,12 @@ export async function generateMetadata({
   return pageMetadata(
     locale,
     "/research",
-    locale === "en" ? "Research" : "Araştırma",
     locale === "en"
-      ? "Research by Onur Ergüden: a two-layered AI system for drinking-water safety, accepted by the International Journal of Engineering Approaches."
-      : "Onur Ergüden’in araştırması: içme suyu güvenliği için iki katmanlı bir AI sistemi, International Journal of Engineering Approaches’ta yayına kabul edildi.",
+      ? "Applied AI research"
+      : "Uygulamalı yapay zekâ araştırması",
+    locale === "en"
+      ? "Research by Onur Ergüden, AI engineer: a two-layered AI system for drinking-water safety, accepted by the International Journal of Engineering Approaches."
+      : "Onur Ergüden’in yapay zekâ araştırması: içme suyu güvenliği için iki katmanlı bir sistem, International Journal of Engineering Approaches’ta kabul edildi.",
   );
 }
 export default async function ResearchPage({

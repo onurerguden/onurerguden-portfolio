@@ -52,7 +52,7 @@ export const sharedFacts = {
   githubLogin: "onurerguden",
   linkedin: "https://www.linkedin.com/in/onurerguden/",
   location: { city: "İzmir", country: "Türkiye", countryCode: "TR" },
-  work: { company: "Future Is Now", since: "2026-07" },
+  work: { company: "Future Is Now", since: "2026-09" },
   academy: {
     name: "Google AI & Technology Academy",
     track: "Deep Learning",

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import DeskReview from "@/components/desk/review";
 import { isLocale, sharedFacts } from "@/lib/content";
 import { getServices } from "@/lib/home-content";
+import { getIdentity } from "@/lib/identity";
 
 export async function generateMetadata({
   params,
@@ -29,7 +30,7 @@ export default async function DeskPage({
       en ? "What I do" : "Ne yapıyorum",
       ...getServices(locale).map((service) => service.title),
     ],
-    [sharedFacts.name, en ? "AI engineer" : "AI mühendisi"],
+    [sharedFacts.name, getIdentity(locale).role],
     [en ? "My tech stack" : "Teknolojilerim", "my_tech_stack.exe"],
   ];
   return <DeskReview locale={locale} screenCopy={screenCopy} />;

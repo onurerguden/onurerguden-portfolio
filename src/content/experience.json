@@ -1,8 +1,15 @@
 [
   {
+    "id": "astro8-instructor",
+    "company": "ASTRO8 AI Academy",
+    "start": "2026-09",
+    "end": null,
+    "tools": ["anthropic", "openai"]
+  },
+  {
     "id": "fin-ai-engineer",
     "company": "Future Is Now",
-    "start": "2026-07",
+    "start": "2026-09",
     "end": null,
     "tools": [
       "python",
@@ -14,6 +21,12 @@
       "gemini",
       "fastapi"
     ]
+  },
+  {
+    "id": "fin-part-time",
+    "company": "Future Is Now",
+    "start": "2026-06",
+    "end": "2026-08"
   },
   {
     "id": "fin-intern",

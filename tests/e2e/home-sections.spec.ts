@@ -249,9 +249,8 @@ test("research, education and the name read before any 3D", async ({
   await expect(
     page.getByRole("heading", {
       level: 1,
-      name: new RegExp(
-        `^Onur Ergüden, ${getIdentity("en").role}(?:, ${getIdentity("en").city})?$`,
-      ),
+      name: getIdentity("en").heading,
+      exact: true,
     }),
   ).toHaveCount(1);
   const research = page.locator("#research");

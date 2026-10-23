@@ -16,7 +16,11 @@ Four detailed cases: Kuyumcum, water safety, course intelligence and GymRap AI C
 
 ### October 12: identity and evidence for search
 
-The approved location is İzmir, Türkiye, with national and international remote job and project opportunities. Keep the compact opening role in both languages and add İzmir without changing the desk composition; About carries the fuller identity. Shared facts drive the visible copy and search metadata. First person and sentence case remain intentional. Service rows prioritize RAG/LLM/agents, then AI product engineering and applied research, with a distinct keyboard-accessible CarbonPilot link supporting LangGraph. The current Experience treatment stays intact. Research displays every verified author in order and links to the publisher, while clearly retaining accepted/publication-pending status. See `docs/seo/README.md` for the scope and evidence policy.
+The approved location is İzmir, Türkiye, with national and international remote job and project opportunities. Keep the compact opening role in both languages without changing the desk composition; About carries the fuller identity. Since October 22 the opening's second line is the software role, not İzmir (see below). Shared facts drive the visible copy and search metadata. First person and sentence case remain intentional. Service rows prioritize RAG/LLM/agents, then AI product engineering and applied research, with a distinct keyboard-accessible CarbonPilot link supporting LangGraph. The current Experience treatment stays intact. Research displays every verified author in order and links to the publisher, while clearly retaining accepted/publication-pending status. See `docs/seo/README.md` for the scope and evidence policy.
+
+### October 22: AI engineer, and the software around it
+
+One role in each language everywhere: "AI engineer" / "yapay zekâ mühendisi" (no more "AI mühendisi"). The opening's second line, where İzmir was, says "software engineer" / "yazılım mühendisi"; İzmir, Türkiye stays a fact in About, the description and the graph, not a headline. The name and both roles are the h1's own visible text, read as "Onur Ergüden AI engineer software engineer"; there is no aria-label. The h1 covers the artwork, so the composition is unchanged. Titles lead with the role, the city and the work: "AI engineer in İzmir: LLM apps, RAG and agents". The city stays in the title because the 22 October AI-search baseline found the old İzmir title behind the one unbranded answer that named Onur; the h1 still does not carry it. The home share card repeats both roles.
 
 ## September 11: room entrance
 
@@ -61,7 +65,7 @@ Approved by Onur on 2 October 2026 (the desk-story plan, six PRs). It replaces t
 - **Takeover.** A screen whose close-up would be shorter than 360 px or narrower than 260 px (a phone's MacBook; both screens on a landscape phone or at high zoom) grows to fill the view after the camera arrives and shrinks back before it leaves; the desk stops drawing behind it.
 - **Balls.** No pushing. They drop scattered onto the hill; hovering or tapping a settled ball names it, its category and where it was used in an XP balloon. The Explorer's rise throws them out of the screen; they rain again on the way back.
 - **Evidence.** Every technology, role and service links to where it can be checked (a project, a role or this site's source). A tool without a public example shows nothing; nothing is invented to fill it.
-- **One h1.** The opening's name, labelled "Onur Ergüden, AI engineer".
+- **One h1.** The opening's name and role, read as shown (since October 22: "Onur Ergüden AI engineer software engineer").
 
 ## October 3: paper About section
 

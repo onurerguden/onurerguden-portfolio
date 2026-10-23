@@ -12,8 +12,8 @@ import PortraitIdentity from "../src/components/desk/portrait-identity";
 describe("public bilingual identity", () => {
   it("uses the approved name, occupation and place in home metadata", () => {
     const titles = {
-      en: "Onur Ergüden — AI engineer in İzmir, Türkiye",
-      tr: "Onur Ergüden — İzmir’de yapay zekâ mühendisi",
+      en: "Onur Ergüden — AI engineer in İzmir: LLM apps, RAG and agents",
+      tr: "Onur Ergüden — İzmir’de yapay zekâ mühendisi: LLM, RAG ve ajanlar",
     };
     for (const locale of ["en", "tr"] as const) {
       const identity = getIdentity(locale);
@@ -33,7 +33,7 @@ describe("public bilingual identity", () => {
     }
   });
 
-  it("renders the compact role and city without needing client effects", () => {
+  it("renders the name and role as the h1's own text without client effects", () => {
     for (const locale of ["en", "tr"] as const) {
       const content = getJourneyContent(locale);
       const html = renderToStaticMarkup(
@@ -43,11 +43,49 @@ describe("public bilingual identity", () => {
           interactive: false,
         }),
       );
-      expect(html).toContain(
-        `aria-label="${sharedFacts.name}, ${getIdentity(locale).role}, ${sharedFacts.location.city}"`,
+      const h1 = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/);
+      expect(h1?.[0]).not.toContain("aria-label");
+      // The h1's text nodes, in order, as a reader joins them.
+      const words = [...(h1?.[1] ?? "").matchAll(/>([^<]*)</g)]
+        .map((match) => match[1])
+        .join("");
+      expect(words.replace(/\s+/g, " ").trim()).toBe(
+        getIdentity(locale).heading,
       );
-      expect(html).toMatch(/data-portrait-location="true">İzmir<\/span>/);
+      expect(getIdentity(locale).heading).toBe(
+        locale === "en"
+          ? "Onur Ergüden AI engineer software engineer"
+          : "Onur Ergüden yapay zekâ mühendisi yazılım mühendisi",
+      );
     }
+  });
+
+  it("keeps İzmir, Türkiye as a fact in the bio and description", () => {
+    for (const locale of ["en", "tr"] as const) {
+      const identity = getIdentity(locale);
+      expect(identity.bio).toContain("İzmir, Türkiye");
+      expect(identity.description).toContain("İzmir, Türkiye");
+      // The title names the city (23 October); the visible h1 does not.
+      expect(identity.title).toContain("İzmir");
+      expect(identity.heading).not.toContain("İzmir");
+    }
+  });
+
+  it("makes no age, birth-year or freelance claim in identity text", () => {
+    const texts = (["en", "tr"] as const).flatMap((locale) => {
+      const identity = getIdentity(locale);
+      return [
+        identity.title,
+        identity.description,
+        identity.bio,
+        identity.heading,
+        identity.availability,
+      ];
+    });
+    for (const text of [...texts, llmsIndex(), llmsFull()])
+      expect(text).not.toMatch(
+        /\b(?:born|young|age\s+\d|freelanc\w*|genç|doğumlu|yaşında)\b|\b(?:19|20)0\d\b/i,
+      );
   });
 
   it("shares the visible About bio and opportunity statement with AI text", () => {

@@ -22,7 +22,7 @@ export default function PortraitIdentity({
   opening = false,
   interactive = true,
 }: {
-  content: Pick<JourneyContent, "name" | "role" | "city">;
+  content: Pick<JourneyContent, "name" | "role" | "tagline">;
   opening?: boolean;
   interactive?: boolean;
 }) {
@@ -104,9 +104,11 @@ export default function PortraitIdentity({
   }, [interactive]);
 
   const words = content.name.split(" ");
-  // The opening's name is the page's only h1; the ultrawide's copy of it is
-  // decoration, hidden from assistive technology.
-  const Name = opening ? "h1" : "div";
+  // The opening's name and role are the page's only h1, read as written;
+  // the ultrawide's copy of it is decoration, hidden from assistive
+  // technology. The spaces keep the words apart for text readers; the
+  // flex and absolute layout draws them the same either way.
+  const Identity = opening ? "h1" : "div";
   const artwork = (
     <div
       ref={artworkRef}
@@ -114,29 +116,17 @@ export default function PortraitIdentity({
       data-portrait-identity
       aria-hidden={opening ? undefined : true}
     >
-      <Name
-        className={styles.name}
-        data-portrait-name
-        // The name is drawn as two stacked words; say it as one, with my role.
-        aria-label={
-          opening
-            ? `${content.name}, ${content.role}, ${content.city}`
-            : undefined
-        }
-      >
-        <span>{words[0]}</span>
-        <span>{words.slice(1).join(" ")}</span>
-      </Name>
-      <span
-        className={styles.role}
-        data-portrait-role
-        aria-hidden={opening ? true : undefined}
-      >
-        {content.role}
-        <span className={styles.location} data-portrait-location>
-          {content.city}
+      <Identity className={styles.identity}>
+        <span className={styles.name} data-portrait-name>
+          <span>{words[0]}</span> <span>{words.slice(1).join(" ")}</span>
+        </span>{" "}
+        <span className={styles.role} data-portrait-role>
+          {content.role}{" "}
+          <span className={styles.tagline} data-portrait-tagline>
+            {content.tagline}
+          </span>
         </span>
-      </span>
+      </Identity>
       <div className={styles.head} data-portrait-poster>
         {/* Phones up to 2.6x and 1x desktops get 1080 px, the rest 1254, AVIF
             with a lossy WebP fallback (scripts/desk/portrait-avif.mjs). */}
