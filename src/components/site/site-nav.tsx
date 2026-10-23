@@ -291,6 +291,11 @@ export function PageNav({ locale }: { locale: "en" | "tr" }) {
       page: true,
     },
     {
+      href: `/${locale}/writing`,
+      label: en ? "Writing" : "Yazılar",
+      page: true,
+    },
+    {
       href: `/${locale}/about`,
       label: en ? "About" : "Hakkımda",
       page: true,

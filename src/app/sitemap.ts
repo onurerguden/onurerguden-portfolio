@@ -3,13 +3,24 @@ import { getProjects } from "@/lib/content";
 import { getCertificates } from "@/lib/home-content";
 import { siteOrigin } from "@/lib/site";
 import { editorialModified } from "@/lib/editorial";
+import { getPosts } from "@/lib/writing";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const origin = siteOrigin();
   const studies = getProjects("en").filter((project) => project.caseStudy);
   // Every case study has a page; archive entries live on /projects.
   const cases = studies.map((project) => `/projects/${project.slug}`);
-  const paths = ["", "/about", "/projects", "/research", ...cases];
+  const posts = getPosts("en");
+  const articles = posts.map((post) => `/writing/${post.slug}`);
+  const paths = [
+    "",
+    "/about",
+    "/projects",
+    "/research",
+    "/writing",
+    ...cases,
+    ...articles,
+  ];
   // Images each page shows, so image search can find and credit them.
   const images: Record<string, string[]> = {
     "": [

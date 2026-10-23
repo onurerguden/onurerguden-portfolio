@@ -25,6 +25,11 @@ export default function SiteFooter({ locale }: { locale: "en" | "tr" }) {
           <li>
             <Link href={`/${locale}/about`}>{en ? "About" : "Hakkımda"}</Link>
           </li>
+          <li>
+            <Link href={`/${locale}/writing`}>
+              {en ? "Writing" : "Yazılar"}
+            </Link>
+          </li>
           <ProfileLinks />
           <li>
             <a href={`mailto:${sharedFacts.email}`}>
