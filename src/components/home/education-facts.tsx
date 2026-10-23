@@ -26,7 +26,7 @@ export default function EducationFacts({
         <dd>
           {en ? education.degree : "Yazılım Mühendisliği"}
           <span>
-            {en ? education.university : "İzmir Ekonomi Üniversitesi"} ·{" "}
+            {en ? education.university : education.universityTr} ·{" "}
             {monthYear(education.graduation, locale)} · GPA {education.gpa}
           </span>
         </dd>

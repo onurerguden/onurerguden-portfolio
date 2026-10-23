@@ -22,6 +22,11 @@ const projectSchema = z.object({
   stack: z.array(z.string().min(1)).min(1),
   year: z.string(),
   featured: z.boolean(),
+  /**
+   * Who built a case study: "solo" when I wrote all of it, "team" when I
+   * built it with others. Its page then credits me as creator or contributor.
+   */
+  authorship: z.enum(["solo", "team"]).optional(),
   repoUrl: z.url().optional(),
   metric: z.object({ value: z.string(), label: z.string() }).optional(),
   media: z
@@ -45,14 +50,32 @@ const projectSchema = z.object({
 });
 export type Project = z.infer<typeof projectSchema>;
 
+const github = "https://github.com/onurerguden";
+const linkedin = "https://www.linkedin.com/in/onurerguden/";
+const orcid = "0009-0001-3636-483X";
+
 export const sharedFacts = {
   name: "Onur Ergüden",
   email: "onurerguden5@gmail.com",
-  github: "https://github.com/onurerguden",
+  github,
   githubLogin: "onurerguden",
-  linkedin: "https://www.linkedin.com/in/onurerguden/",
+  linkedin,
+  orcid,
+  /**
+   * Public profiles that name me and link back to this site. Each one is a
+   * visible rel="me" link on the page and an entry in the Person's sameAs.
+   */
+  profiles: [
+    { name: "GitHub", url: github },
+    { name: "LinkedIn", url: linkedin },
+    { name: "ORCID", url: `https://orcid.org/${orcid}` },
+    { name: "Hugging Face", url: "https://huggingface.co/onurerguden" },
+    { name: "DergiPark", url: "https://dergipark.org.tr/en/pub/@onur-erguden" },
+  ],
   location: { city: "İzmir", country: "Türkiye", countryCode: "TR" },
+  // futureisnow.com.tr fails TLS (22 October 2026), so it gets no URL yet.
   work: { company: "Future Is Now", since: "2026-09" },
+  teaching: { company: "ASTRO8 AI Academy", since: "2026-09" },
   academy: {
     name: "Google AI & Technology Academy",
     track: "Deep Learning",
@@ -60,6 +83,10 @@ export const sharedFacts = {
   },
   education: {
     university: "İzmir University of Economics",
+    universityTr: "İzmir Ekonomi Üniversitesi",
+    universityUrl: "https://www.ieu.edu.tr/",
+    // Checked 23 October 2026: the item's label and official website match.
+    universityWikidata: "https://www.wikidata.org/wiki/Q4822444",
     degree: "BSc Software Engineering",
     graduation: "2026-06",
     gpa: "3.30 / 4.00",
@@ -113,7 +140,7 @@ function resolveMeasurements(body: string, locale: Locale) {
 
 type SharedProject = Pick<
   Project,
-  "slug" | "stack" | "year" | "featured" | "repoUrl"
+  "slug" | "stack" | "year" | "featured" | "repoUrl" | "authorship"
 > & {
   /** A shared count shown with its localized label; never a model score. */
   metric?: Measurement;
@@ -139,6 +166,7 @@ const projects: SharedProject[] = [
     ],
     year: "",
     featured: true,
+    authorship: "team",
     media: [
       {
         src: "/images/kuyumcum/map.webp",
@@ -165,6 +193,7 @@ const projects: SharedProject[] = [
     ],
     year: "",
     featured: true,
+    authorship: "team",
     repoUrl: "https://github.com/onurerguden/izsu_ai_project",
     metric: "waterRecords",
     // Rendered from the repository's own data graphs.
@@ -188,6 +217,7 @@ const projects: SharedProject[] = [
     stack: ["Llama 3.1", "SBERT", "FAISS", "PyQt6"],
     year: "",
     featured: true,
+    authorship: "solo",
     repoUrl: "https://github.com/onurerguden/IEU-Chat-Bot",
   },
   {
@@ -202,6 +232,7 @@ const projects: SharedProject[] = [
     ],
     year: "2026",
     featured: true,
+    authorship: "solo",
     repoUrl: "https://github.com/onurerguden/GymRap-AI-Coach",
     // The repository's own screenshots, rendered from synthetic data (MIT).
     media: [
@@ -325,6 +356,10 @@ export function getProjects(
     if (shared.featured !== Boolean(copy.role))
       throw new Error(
         `Role belongs to case studies only: ${locale}/${shared.slug}`,
+      );
+    if (shared.featured !== Boolean(shared.authorship))
+      throw new Error(
+        `Authorship belongs to case studies only: ${locale}/${shared.slug}`,
       );
     if (shared.featured !== Boolean(copy.description))
       throw new Error(
