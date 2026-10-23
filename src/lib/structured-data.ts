@@ -1,4 +1,4 @@
-import { getCertificates } from "./home-content";
+import { getCertificates, getExperience } from "./home-content";
 import { sharedFacts, type Locale, type Project } from "./content";
 import { siteOrigin } from "./site";
 import { getIdentity } from "./identity";
@@ -34,15 +34,24 @@ function website(): Node {
   };
 }
 
-/** Me, with my role, education, credentials and public profiles. */
+/** Me, with my roles, employers, education, credentials and profiles. */
 function person(locale: Locale): Node {
   const { origin, person } = ids();
   const en = locale === "en";
   const identity = getIdentity(locale);
+  const { education, work, teaching } = sharedFacts;
   const university = {
     "@type": "CollegeOrUniversity",
-    name: sharedFacts.education.university,
+    "@id": `${origin}/#org-ieu`,
+    // Named as the page names it, with the other language as an alias.
+    name: en ? education.university : education.universityTr,
+    alternateName: en ? education.universityTr : education.university,
+    url: education.universityUrl,
+    sameAs: education.universityWikidata,
   };
+  // The roles as the Experience section names them, current ones first.
+  const roleAt = (company: string) =>
+    getExperience(locale).find((entry) => entry.company === company)?.role;
   const certificates = getCertificates(locale).map((certificate) => ({
     "@type": "EducationalOccupationalCredential",
     name: certificate.title,
@@ -76,8 +85,28 @@ function person(locale: Locale): Node {
     url: `${origin}/${locale}`,
     image: `${origin}/images/avatar/onur-head-v4-1254.webp`,
     email: `mailto:${sharedFacts.email}`,
-    sameAs: [sharedFacts.github, sharedFacts.linkedin],
-    worksFor: { "@type": "Organization", name: sharedFacts.work.company },
+    sameAs: sharedFacts.profiles.map((profile) => profile.url),
+    identifier: {
+      "@type": "PropertyValue",
+      propertyID: "ORCID",
+      value: sharedFacts.orcid,
+      url: `https://orcid.org/${sharedFacts.orcid}`,
+    },
+    worksFor: [
+      {
+        "@type": "Organization",
+        "@id": `${origin}/#org-future-is-now`,
+        name: work.company,
+      },
+      {
+        "@type": "EducationalOrganization",
+        "@id": `${origin}/#org-astro8`,
+        name: teaching.company,
+      },
+    ],
+    hasOccupation: [identity.role, identity.tagline, roleAt(teaching.company)]
+      .filter((name): name is string => Boolean(name))
+      .map((name) => ({ "@type": "Occupation", name })),
     alumniOf: university,
     hasCredential: [
       {
@@ -89,7 +118,7 @@ function person(locale: Locale): Node {
       ...certificates,
     ],
     knowsLanguage: ["tr", "en"],
-    // What the case studies show, in the field's own terms.
+    // What the case studies and the bio show, in the field's own terms.
     knowsAbout: [
       "Large language models",
       "Retrieval-augmented generation",
@@ -98,6 +127,11 @@ function person(locale: Locale): Node {
       "LangGraph",
       "Machine learning",
       "Computer vision",
+      "Software engineering",
+      "Python",
+      "TypeScript",
+      "Java",
+      "Flutter",
     ],
   };
 }
@@ -182,39 +216,69 @@ export function projectsStructuredData(locale: Locale, projects: Project[]) {
   );
 }
 
-/** A case study: what was built, with what, and where its source is. */
+// Stack chips that name a programming language, for SoftwareSourceCode.
+const languages = new Set([
+  "Dart",
+  "Java",
+  "JavaScript",
+  "Kotlin",
+  "Python",
+  "Swift",
+  "TypeScript",
+]);
+
+/**
+ * A case study: my write-up (TechArticle) about the software it describes.
+ * I always write the article; the software credits me as its creator when I
+ * built it alone and as a contributor when I built it with a team.
+ */
 export function caseStudyStructuredData(locale: Locale, project: Project) {
   const { origin, person } = ids();
   const path = `/projects/${project.slug}`;
-  const work: Node = {
-    "@type": "CreativeWork",
-    "@id": `${origin}/${locale}${path}#work`,
+  const url = `${origin}/${locale}${path}`;
+  const me = { "@id": person };
+  const programmingLanguage = project.stack.filter((name) =>
+    languages.has(name),
+  );
+  const software: Node = {
+    "@type": project.repoUrl ? "SoftwareSourceCode" : "SoftwareApplication",
+    "@id": `${url}#software`,
     name: project.title,
+    description: project.summary,
+    keywords: project.stack.join(", "),
+    ...(project.authorship === "team"
+      ? { contributor: me }
+      : { creator: me, author: me }),
+    ...(project.repoUrl ? { codeRepository: project.repoUrl } : {}),
+    ...(project.repoUrl && programmingLanguage.length
+      ? { programmingLanguage }
+      : {}),
+    ...(project.year ? { dateCreated: project.year } : {}),
+  };
+  const modified = editorialModified(path);
+  const article: Node = {
+    "@type": "TechArticle",
+    "@id": `${url}#article`,
     headline: project.title,
+    name: project.title,
     description: project.summary,
     genre: project.category,
     inLanguage: locale,
     keywords: project.stack.join(", "),
-    creator: { "@id": person },
-    ...(project.year ? { dateCreated: project.year } : {}),
+    author: me,
+    mainEntityOfPage: { "@id": `${url}#page` },
+    about: { "@id": software["@id"] },
+    ...(modified ? { dateModified: modified } : {}),
     ...(project.media?.[0]
       ? { image: `${origin}${project.media[0].src}` }
-      : {}),
-    ...(project.repoUrl
-      ? {
-          about: {
-            "@type": "SoftwareSourceCode",
-            name: project.title,
-            codeRepository: project.repoUrl,
-          },
-        }
       : {}),
   };
   return graph(
     webPage(locale, path, "WebPage", project.title, {
-      mainEntity: { "@id": work["@id"] },
+      mainEntity: { "@id": article["@id"] },
     }),
-    work,
+    article,
+    software,
     breadcrumbs(locale, [
       { name: locale === "en" ? "Projects" : "Projeler", path: "/projects" },
       { name: project.title, path },

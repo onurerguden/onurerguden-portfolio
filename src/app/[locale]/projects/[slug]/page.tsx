@@ -16,6 +16,7 @@ import {
   sharedFacts,
 } from "@/lib/content";
 import { pageMetadata } from "@/lib/site";
+import { editorialModified } from "@/lib/editorial";
 import { caseStudyStructuredData } from "@/lib/structured-data";
 import JsonLd from "@/components/json-ld";
 
@@ -46,6 +47,7 @@ export async function generateMetadata({
         `/projects/${slug}`,
         project.searchTitle ?? project.title,
         project.description ?? project.summary,
+        { article: { modifiedTime: editorialModified(`/projects/${slug}`) } },
       )
     : {};
 }
@@ -93,7 +95,9 @@ export default async function ProjectPage({
           {en ? "By " : "Hazırlayan: "}
           <Link href={`/${locale}#about`}>{sharedFacts.name}</Link>
           {" · "}
-          <a href={sharedFacts.github}>GitHub: {sharedFacts.githubLogin}</a>
+          <a href={sharedFacts.github} rel="me">
+            GitHub: {sharedFacts.githubLogin}
+          </a>
         </p>
         {project.role ? (
           <p className={styles.role}>

@@ -37,14 +37,18 @@ export function robotsMetadata(): Metadata["robots"] {
  * A page's title, description, canonical URL and language alternates. Titles
  * get the name after them (the root layout's template) unless `absolute`,
  * which the home page uses to lead with the name; share cards always carry
- * the full title, since they are read away from the site.
+ * the full title, since they are read away from the site. An `article` page
+ * (a case study) is typed as one, with me as its author.
  */
 export function pageMetadata(
   locale: "en" | "tr",
   path: string,
   title: string,
   description: string,
-  { absolute = false } = {},
+  {
+    absolute = false,
+    article,
+  }: { absolute?: boolean; article?: { modifiedTime?: string } } = {},
 ): Metadata {
   const base = siteOrigin();
   const full = absolute ? title : `${title} | Onur Ergüden`;
@@ -66,8 +70,16 @@ export function pageMetadata(
       url: `${base}/${locale}${path}`,
       locale: locale === "tr" ? "tr_TR" : "en_US",
       alternateLocale: locale === "tr" ? "en_US" : "tr_TR",
-      type: "website",
       siteName: "Onur Ergüden",
+      ...(article
+        ? {
+            type: "article",
+            authors: [`${base}/${locale}`],
+            ...(article.modifiedTime
+              ? { modifiedTime: article.modifiedTime }
+              : {}),
+          }
+        : { type: "website" }),
     },
     twitter: { card: "summary_large_image", title: full, description },
   };
