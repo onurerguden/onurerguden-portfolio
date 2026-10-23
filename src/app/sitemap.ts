@@ -24,6 +24,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const images: Record<string, string[]> = {
     "": [
       "/images/avatar/onur-head-v4-1254.webp",
+      "/images/about/onur-photo.webp",
       ...getCertificates("en").map((certificate) => certificate.image.src),
     ],
     ...Object.fromEntries(
