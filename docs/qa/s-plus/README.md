@@ -11,13 +11,13 @@ This records how the S+ home page (PRs #19 onwards) was verified, what was measu
 
 ## Measurements
 
-| Scene | Steady frame | Notes |
-| --- | --- | --- |
-| Desk journey | ≤ 130 draw calls, ≤ 210k triangles | Unchanged; releases its context once far offscreen |
-| About objects | 20 calls / 79,492 triangles (desktop); 6 / 14,650 (390 px) | Up to 60 fps while visible (30 on touch) |
-| Tech-stack balls | 1 call / 58,320 triangles (27 balls); 38,880 (18 balls) | Draws nothing once the pile settles |
-| Display font | 9.5 KB (two WOFF2 subsets) | Turkish capitals load only when used |
-| Bliss layers | ≈150 KB AVIF at 1920 px for all three layers | Reduced motion downloads only the original photo |
+| Scene            | Steady frame                                               | Notes                                              |
+| ---------------- | ---------------------------------------------------------- | -------------------------------------------------- |
+| Desk journey     | ≤ 130 draw calls, ≤ 210k triangles                         | Unchanged; releases its context once far offscreen |
+| About objects    | 20 calls / 79,492 triangles (desktop); 6 / 14,650 (390 px) | Up to 60 fps while visible (30 on touch)           |
+| Tech-stack balls | 1 call / 58,320 triangles (27 balls); 38,880 (18 balls)    | Draws nothing once the pile settles                |
+| Display font     | 9.5 KB (two WOFF2 subsets)                                 | Turkish capitals load only when used               |
+| Bliss layers     | ≈150 KB AVIF at 1920 px for all three layers               | Reduced motion downloads only the original photo   |
 
 At most two WebGL contexts exist at any scroll position (checked by walking the whole page with scenes forced on).
 
@@ -25,13 +25,13 @@ At most two WebGL contexts exist at any scroll position (checked by walking the 
 
 Compressed bytes for `/en` before any scrolling, from the production build on 30 September 2026. `tests/e2e/release.spec.ts` enforces the ceilings in `tests/e2e/budgets.json`.
 
-| Resource | `main` | This release | Ceiling |
-| --- | --- | --- | --- |
-| Script (reduced motion) | 195,465 | 208,623 (+13.2 KB) | 215,945 (`main` + 20 KB, as planned) |
-| Script (full motion, desk scene included) | 507,179 | 520,584 (+13.4 KB) | not enforced |
-| Font | 98,040 | 106,048 (+8.0 KB, the display font) | 112,000 |
-| CSS | 10,101 | 16,832 | 20,000 |
-| Image | 1,085,266 | 1,085,266 | 1,150,000 |
+| Resource                                  | `main`    | This release                        | Ceiling                              |
+| ----------------------------------------- | --------- | ----------------------------------- | ------------------------------------ |
+| Script (reduced motion)                   | 195,465   | 208,623 (+13.2 KB)                  | 215,945 (`main` + 20 KB, as planned) |
+| Script (full motion, desk scene included) | 507,179   | 520,584 (+13.4 KB)                  | not enforced                         |
+| Font                                      | 98,040    | 106,048 (+8.0 KB, the display font) | 112,000                              |
+| CSS                                       | 10,101    | 16,832                              | 20,000                               |
+| Image                                     | 1,085,266 | 1,085,266                           | 1,150,000                            |
 
 The image total is almost entirely the opening portrait, `public/images/avatar/onur-head-v4.webp` (1,076,728 bytes, 1254 × 1254 with alpha), which predates this work and is served at full resolution on purpose (`docs/design.md`, 23 September). A trial AVIF at quality 70 is 152,577 bytes (43 dB PSNR). It is left for Onur to decide, since the start screen is still being designed.
 

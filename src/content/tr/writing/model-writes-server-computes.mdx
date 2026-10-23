@@ -1,0 +1,72 @@
+---
+slug: model-writes-server-computes
+locale: tr
+title: "Model yazsın, hesaplamasın: bir MCP koçundan dersler"
+description: "Kişisel koç ajanımı nasıl böldüm: her sayıyı test edilmiş kod hesaplıyor, ChatGPT MCP ile yazıyor, engellenen bir yazma raporu kaybettirmiyor."
+published: "2026-10-23"
+updated: "2026-10-23"
+tags: ["MCP", "OAuth", "Ajanlar", "Güvenilirlik"]
+---
+
+## Kısa cevap
+
+Kişisel güç antrenmanı koçum GymRap’te dil modeli hiçbir sayı üretmiyor. Her skoru ve hedefi bir Cloudflare Worker test edilmiş kodla hesaplıyor; ChatGPT ona uzak bir MCP sunucusu olarak bağlanıyor, yapılandırılmış bir özeti okuyor ve yalnızca koçluk metnini yazıyor. Sunucu bu metni saklamadan önce bir şemaya göre doğruluyor. Günlük raporu model değil sunucu garanti ediyor: modelin yazması gelmezse yine yalnızca sayılardan oluşan bir rapor gidiyor ve sonucu belirsiz bir e-posta asla iki kez gönderilmiyor.
+
+## Ayrım: sayılar kodda, kelimeler modelde
+
+GymRap, saatimin ve telefonumun Health Connect üzerinden kaydettiklerini okuyor: 23 kayıt türü, küçük bir Kotlin köprüsüyle yalnızca değişen günler için yükleniyor. Bu kayıtları bir karara çeviren her şey sunucuda çalışıyor: kendi 30 günlük referanslarıma göre hazır olma skoru, uyku borcu, çift ilerlemeli antrenman hedefleri ve kas grubu başına haftalık set sayısı.
+
+Önce bu çizgiyi çektim; sonraki her karar ondan çıktı. Bir model yapılandırılmış bir durumu okuyup açıklamakta iyi; test edebileceğim bir hesap makinesi değil. Bu yüzden backend hiç LLM API çağrısı yapmıyor. Modelin işi yorumlamak; doğru olması gereken kısmı ise yayımlanan commit’teki 137 backend testi kapsıyor.
+
+Bu ayrım, zaten sahip olduğum ChatGPT aboneliğinin ötesinde çalıştırma maliyetini sıfırda tuttu: model işini ChatGPT’nin içinde, sunucunun açtığı araçlar üzerinden yapıyor.
+
+## Paylaşılan anahtar değil, kapsamlı araçlar
+
+Worker, 13 aracı olan uzak bir MCP sunucusu. Her araç yalnızca okuyup okumadığını bildiriyor ve her çağrı, gereken OAuth kapsamını kontrol eden tek bir korumadan geçiyor: okumalar için `gymrap:read`, iki kaydetme aracı için `gymrap:write`. Doğru kapsamı olmayan bir çağrı istisna yerine yapılandırılmış bir `insufficient_scope` cevabı alıyor.
+
+Yetkilendirme, tek bir sahip hesabıyla sınırlı, PKCE’li OAuth 2.1. Onay sayfası bağlanan uygulamanın neler yapabileceğini açıkça yazıyor ve e-postanın alıcısı sunucuda sabit: bağlanan bir uygulama rapor gönderilmesini isteyebilir ama nereye gideceğini asla seçemez. Benim adıma e-posta gönderebilen bir araçta bu sınır, herhangi bir prompt’tan daha önemli.
+
+## Tekrarlanması güvenli bir kaydetme
+
+Model koçluk metnini `save_coach_report` ile kaydediyor (antrenmandan sonra da `save_post_workout_report` ile). İkisi de bir rapor anahtarı, metnin yazıldığı bağlamın hash’i ve koçluk JSON’unu alıyor.
+
+Kaydetmeyi üç kural güvenli kılıyor:
+
+- JSON, koç şemasına uymak zorunda. Uymazsa hiçbir şey saklanmıyor.
+- Kaydetme rapor anahtarı başına idempotent. Aynı çağrıyı tekrarlamak hiçbir şeyi değiştirmiyor ve bunu söylüyor; yeniden deneyen bir istemci ikinci bir rapor oluşturamıyor.
+- Gönderim cevaptan sonra çalışıyor. Kaydetme, metin saklanır saklanmaz dönüyor; e-posta daha sonra gönderiliyor ve o çalışma bitmezse bir cron işi devralıyor.
+
+Araç açıklamaları bunların hepsini düz bir dille söylüyor, çünkü model onları okuyor. "Rapor anahtarı başına idempotent: aynı çağrıyı tekrarlamak güvenlidir ve hiçbir şeyi değiştirmez" cümlesi bir dokümantasyon olduğu kadar modele verilen bir talimat.
+
+## Modelin yazması hiç gelmediğinde
+
+İlk sürüm modelin kaydının geleceğini varsayıyordu. Her zaman gelmedi. Üç gün içindeki altı zamanlanmış çalıştırmada ChatGPT’nin güvenlik katmanı rapor kaydını engelledi. Sohbetin içinden araç çağrılmış gibi görünüyordu; ama her araç çağrısının adını, sonucunu ve boyutunu kaydeden (argümanlarını asla kaydetmeyen) sunucu çağrı günlüğü, yazmanın hiç gelmediğini gösterdi.
+
+Modeli işi tamamlayan parça olarak görmeyi bıraktım. Artık günlük raporu sunucu garanti ediyor. Bir cron işi her on dakikada bir kontrol ediyor ve koçluk metni süresi içinde gelmediyse yalnızca sayılardan oluşan bir rapor gönderiyor: bütün ölçümler ve hedefler, yorum olmadan. Koçluk metni sonradan gelirse sunucu ikinci bir e-posta göndermek yerine onu o günün web raporuna ekliyor. Koçluk artık sohbette tek bir cümle uzaklıkta; sabah e-postası da göremediğim bir yazmaya bağlı değil.
+
+Buradan çıkardığım ders: kontrol etmediğiniz bir sistemin reddedebileceği bir adım, işi başarıya ulaştıran adım olamaz.
+
+## Mükerrer e-posta, gelmeyen e-postadan kötüdür
+
+E-postayla gönderilen her rapor bir defterden geçiyor: oluşturuldu, gönderiliyor, gönderildi; ya da başarısız veya belirsiz. Yalnızca yeni, kuyruktaki ya da kesin olarak başarısız bir rapor gönderim için alınabiliyor; süresi dolan ve sonucu bilinmeyen bir gönderim `uncertain` oluyor, bana gösteriliyor ve asla otomatik olarak tekrarlanmıyor.
+
+Bu bilinçli bir takas. Gelmeyen bir rapor, fark edeceğim bir rahatsızlık. Aynı raporun iki kez gelmesi ise bana sisteme güvenmemeyi öğretir. Gmail’in mesajı kabul edip etmediğini bilemediğimde sistem, telafi edebileceğim sonucu seçiyor.
+
+## Neleri korurdum
+
+- Sayıları test edilmiş kodda tutun; modele yorumlayacağı yapılandırılmış bir özet verin.
+- Yetki kontrolünü sunucuya, her çağrıya, kapsamlarla koyun; tehlikeli olan her şeyi (e-posta alıcısı gibi) sunucu tarafında sabitleyin.
+- Modelin yaptığı her yazmayı idempotent ve şemayla doğrulanan hâle getirin ve bunu araç açıklamasında söyleyin.
+- Araç çağrılarını içerikleri olmadan kaydedin; böylece "model çağırmadı" ile "çağrı reddedildi"yi ayırt edebilirsiniz.
+- Kullanıcının beklediği sonuca giden tek yol asla modelin başarısı olmasın.
+
+GymRap bilerek tek kullanıcılı bir sistem; hazır olma skoru da tıbbi bir ölçüm değil, kendi şeffaf formülüm. Yukarıdaki kalıplar ise biri adına iş yapan her ajana taşıyacağım kısım.
+
+## Kodu incele
+
+Bu bağlantılar GymRap AI Coach repomun yayımlanan `8f35eba` commit’ine gidiyor. Sistemin tamamını [vaka çalışması](/tr/projects/gymrap-ai-coach) anlatıyor.
+
+- [MCP araçları, kapsam koruması ve çağrı günlüğü](https://github.com/onurerguden/GymRap-AI-Coach/blob/8f35eba6c5b1e3a9335fb4ece2c74c75ba70bdef/backend/src/mcp.ts).
+- [OAuth yetkilendirmesi ve sahip erişimi](https://github.com/onurerguden/GymRap-AI-Coach/blob/8f35eba6c5b1e3a9335fb4ece2c74c75ba70bdef/backend/src/auth.ts).
+- [Rapor defteri](https://github.com/onurerguden/GymRap-AI-Coach/blob/8f35eba6c5b1e3a9335fb4ece2c74c75ba70bdef/backend/src/ledger.ts).
+- [Koçluk metninin kaydı ve yalnızca sayılardan oluşan yedek rapor](https://github.com/onurerguden/GymRap-AI-Coach/blob/8f35eba6c5b1e3a9335fb4ece2c74c75ba70bdef/backend/src/report.ts).

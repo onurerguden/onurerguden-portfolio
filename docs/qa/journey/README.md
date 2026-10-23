@@ -42,7 +42,6 @@ Physical iOS Safari, measured device FPS and final visual approval remain outsta
 
 Lazy 3D JavaScript measured separately: **290,940 encoded bytes**, identified from the production dynamic-import chunk list. The Draco wrapper adds **11,748 bytes** and WASM adds **63,458 bytes**; shared application/runtime code and CSS are excluded from the 3D JavaScript subtotal. See `network.json` for the exact chunk paths and method.
 
-
 ## September 8 realism pass
 
 Five authored tangent-space microstructure maps now distinguish aluminium, polymer, rubber, fabric and keycaps. New close-up geometry includes asymmetric laptop ports, hinge collars, camera/sensors, bezel seams, controls, rivets, drawer grip and cushion stitching. Positions and camera anchors are unchanged. The GLB normal-map test confirms that surface detail reaches the browser export.
@@ -56,7 +55,6 @@ The September 8 accessory revision regenerates all journey captures and recordin
 ### Accessory and keyboard photo refinement — 2026-09-08
 
 The revised model adds broader riser curves, continuous sheet fit, oval inward-facing headphone cups, a staggered Turkish ISO keyboard with one return key and split vertical arrows, and a 70 mm estimated rear desk extension with centered accessories. Screen anchors and the camera sequence stay unchanged. The current model and matching WebGL loading poster are regenerated together; desktop/mobile stop captures and recordings accompany the change. Typecheck, lint, 29 unit tests, content validation, production build and 31 targeted browser tests pass (5 documented headless WebKit GPU skips). Physical device performance has not been measured.
-
 
 ## Riser/frame compositing correction — 2026-09-09
 

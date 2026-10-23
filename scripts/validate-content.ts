@@ -8,10 +8,12 @@ import {
   validateHomeContent,
 } from "../src/lib/home-content";
 import techIcons from "../src/lib/tech-icons.generated.json";
+import { validateWriting } from "../src/lib/writing";
 
 async function main() {
   validateContent();
   validateHomeContent();
+  validateWriting();
 
   // Every image the content references exists at the declared size.
   const images = new Map<string, { width: number; height: number }>();

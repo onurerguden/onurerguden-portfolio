@@ -9,6 +9,7 @@ import { reportWorkflow } from "./report-workflow";
 import { getResearch } from "./research";
 import { siteOrigin } from "./site";
 import { getIdentity } from "./identity";
+import { getPosts } from "./writing";
 
 /**
  * /llms.txt and /llms-full.txt (llmstxt.org): the site as Markdown for AI
@@ -47,6 +48,10 @@ function turkish() {
     `- [Hakkımda](${page("/about")})`,
     `- [Projeler](${page("/projects")})`,
     `- [Araştırma](${page("/research")})`,
+    `- [Yazılar](${page("/writing")})`,
+    ...getPosts("tr").map(
+      (post) => `- [${post.title}](${page(`/writing/${post.slug}`)})`,
+    ),
     ...getProjects("tr")
       .filter((project) => project.caseStudy)
       .map(
@@ -69,6 +74,14 @@ export function llmsIndex() {
     `- [About](${page("/about")}): who I am, my roles, education, timeline and how to reach me`,
     `- [Projects](${page("/projects")}): every project, with case studies and public repositories`,
     `- [Research](${page("/research")}): the accepted paper and a course project`,
+    `- [Writing](${page("/writing")}): articles from my own work, in English and Turkish`,
+    "",
+    "## Writing",
+    "",
+    ...getPosts(locale).map(
+      (post) =>
+        `- [${post.title}](${page(`/writing/${post.slug}`)}): ${post.description}`,
+    ),
     "",
     "## Case studies",
     "",

@@ -224,7 +224,7 @@ export function auditPage(html, url, headers = {}, { indexable = true } = {}) {
     );
     if (
       !article ||
-      !hasType(article, "TechArticle") ||
+      !(hasType(article, "TechArticle") || hasType(article, "BlogPosting")) ||
       reference(article.author) !== personId
     )
       failures.push("case article is missing or has a different author");
@@ -237,11 +237,13 @@ export function auditPage(html, url, headers = {}, { indexable = true } = {}) {
     const work = page.graph.find(
       (item) => article && reference(item) === reference(article.about),
     );
+    // A case study is about software that credits me; an essay is not.
     if (
-      !work ||
-      ![work.creator, work.contributor].some(
-        (credit) => reference(credit) === personId,
-      )
+      hasType(article, "TechArticle") &&
+      (!work ||
+        ![work.creator, work.contributor].some(
+          (credit) => reference(credit) === personId,
+        ))
     )
       failures.push("case software is missing or does not credit me");
     if (

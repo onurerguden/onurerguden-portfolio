@@ -56,7 +56,6 @@ Use `--source-only` on the Blender builder to save editable geometry before the 
 
 Validation for this revision: Blender fit checks pass, including keyboard key intersections and centered rear accessories. `npm run check` passes (typecheck, lint, 29 unit tests, content validation, production build). Targeted desk/journey browser tests pass 31 with 5 headless WebKit GPU skips. The Chromium desk audit reports zero accessibility violations, no page errors, stopped offscreen rendering and no narrow/zoom overflow. Delivery GLB: 482,504 bytes, 93,159 exported triangles, 18 material batches, 1024 px maximum textures. Sampled manual wide view: 93,211 rendered triangles / 21 draw calls. Physical iOS Safari remains untested.
 
-
 ## Barracuda connection and screen occlusion revision — 2026-09-09
 
 The latest supplied product photographs control the broad moulded headband/yoke construction. Replaced disconnected tubular adjustment arms with continuous tapered ribbons whose lower endpoints are computed from the earcup transform. Widened the headband and its backing, added flush adjustment collars and an authored honeycomb cushion texture. No product photographs or downloaded third-party geometry are embedded. Unmeasured surfaces remain photo-based approximations, not a certified one-to-one product model.

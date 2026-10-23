@@ -48,7 +48,17 @@ export function pageMetadata(
   {
     absolute = false,
     article,
-  }: { absolute?: boolean; article?: { modifiedTime?: string } } = {},
+    feed,
+  }: {
+    absolute?: boolean;
+    article?: {
+      modifiedTime?: string;
+      publishedTime?: string;
+      tags?: string[];
+    };
+    /** An Atom feed this page offers, by absolute URL. */
+    feed?: { title: string; url: string };
+  } = {},
 ): Metadata {
   const base = siteOrigin();
   const full = absolute ? title : `${title} | Onur Ergüden`;
@@ -63,6 +73,13 @@ export function pageMetadata(
         tr: `${base}/tr${path}`,
         "x-default": `${base}/en${path}`,
       },
+      ...(feed
+        ? {
+            types: {
+              "application/atom+xml": [{ url: feed.url, title: feed.title }],
+            },
+          }
+        : {}),
     },
     openGraph: {
       title: full,
@@ -78,6 +95,10 @@ export function pageMetadata(
             ...(article.modifiedTime
               ? { modifiedTime: article.modifiedTime }
               : {}),
+            ...(article.publishedTime
+              ? { publishedTime: article.publishedTime }
+              : {}),
+            ...(article.tags ? { tags: article.tags } : {}),
           }
         : { type: "website" }),
     },
