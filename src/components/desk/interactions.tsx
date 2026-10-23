@@ -8,6 +8,14 @@ import styles from "./interactions.module.css";
 export type DeskAction =
   "dial" | "headphones" | "lamp" | "mouse" | "tablet" | "drawers";
 export type InteractionPoint = [number, number, number];
+export const deskActions = [
+  "headphones",
+  "drawers",
+  "lamp",
+  "dial",
+  "tablet",
+  "mouse",
+] as const satisfies readonly DeskAction[];
 const copy = {
   en: {
     title: "Desk objects",
@@ -50,9 +58,11 @@ export function useDeskInteractions(active: boolean, reduced: boolean) {
   const [colorIndex, setColorIndex] = useState(initialLampColor);
   const [audioStatus, setAudioStatus] = useState<AudioStatus>("idle");
   const [visible, setVisible] = useState(true);
-  const motion = useRef<(action: DeskAction, point?: InteractionPoint) => void>(
-    () => {},
-  );
+  const motion = useRef<
+    (action: DeskAction, point?: InteractionPoint, tease?: boolean) => void
+  >(() => {});
+  // What the visitor has clicked this visit: teases go to the others.
+  const touched = useRef(new Set<DeskAction>());
   const audio = useRef<ReturnType<typeof createDeskAudio> | null>(null);
   const registerMotion = useCallback((handler: typeof motion.current) => {
     motion.current = handler;
@@ -85,9 +95,22 @@ export function useDeskInteractions(active: boolean, reduced: boolean) {
       if (action === "lamp")
         setColorIndex((value) => (value + 1) % lampColors.length);
       if (action === "headphones") audio.current?.toggle();
+      touched.current.add(action);
       motion.current(action, point);
     },
     [active, visible],
+  );
+  /** A hint that an object can be clicked; it changes nothing. */
+  const tease = useCallback(
+    (action: DeskAction) => {
+      if (active && visible && !reduced)
+        motion.current(action, undefined, true);
+    },
+    [active, visible, reduced],
+  );
+  const untouched = useCallback(
+    () => deskActions.filter((action) => !touched.current.has(action)),
+    [],
   );
   return {
     lights,
@@ -97,6 +120,8 @@ export function useDeskInteractions(active: boolean, reduced: boolean) {
     reduced,
     registerMotion,
     activate,
+    tease,
+    untouched,
   };
 }
 export type DeskInteractions = ReturnType<typeof useDeskInteractions>;

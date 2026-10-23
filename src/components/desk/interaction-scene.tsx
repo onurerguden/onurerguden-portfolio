@@ -11,13 +11,16 @@ import {
   Sprite,
   SpriteMaterial,
   Group,
+  InstancedBufferAttribute,
   InstancedMesh,
   Mesh,
-  MeshBasicMaterial,
   MeshStandardMaterial,
   Object3D,
+  PlaneGeometry,
   PointLight,
+  Quaternion,
   SpotLight,
+  Vector3,
   type WebGLRenderer,
 } from "three";
 import contract from "@/lib/desk-interactions.json";
@@ -26,13 +29,38 @@ import {
   accessoryPose,
   drawerIds,
   drawerOffset,
+  drawerPeek,
+  drawerPress,
+  drawerPressOffset,
   drawerWave,
   animationDuration,
+  hopPose,
+  hoverDuration,
+  hoverLevel,
+  hoverLift,
   lampColors,
+  lampNod,
   initialLampColor,
+  pressDepth,
+  pressDuration,
+  pressLead,
+  pressScale,
+  rippleDelay,
+  rippleDuration,
+  squashPivot,
+  tabletDip,
+  teaseDim,
+  teaseDuration,
+  teaseLift,
+  teasePeek,
   type AnimatedObject,
+  type PosedObject,
 } from "@/lib/desk-interaction-motion";
-import type { DeskAction, DeskInteractions } from "./interactions";
+import type {
+  DeskAction,
+  DeskInteractions,
+  InteractionPoint,
+} from "./interactions";
 
 const actions = new Set<string>([
   "dial",
@@ -43,13 +71,73 @@ const actions = new Set<string>([
   "drawers",
 ]);
 const animated = ["headphones", "mouse", "tablet"] as const;
+/** Which drawer a point on the cabinet is nearest. */
+const drawerAt = (y: number) => {
+  let nearest = 0;
+  drawerIds.forEach((id, index) => {
+    if (
+      Math.abs(contract.objects[id].pivot[1] - y) <
+      Math.abs(contract.objects[drawerIds[nearest]].pivot[1] - y)
+    )
+      nearest = index;
+  });
+  return nearest;
+};
+type HoverKey = PosedObject | (typeof drawerIds)[number];
+// Places the instanced shadows and ripples (three's mutable scratch object).
+const placer = new Object3D();
+const scratch = {
+  pivot: new Vector3(),
+  offset: new Vector3(),
+  scale: new Vector3(),
+  turn: new Quaternion(),
+  axisX: new Vector3(1, 0, 0),
+  axisY: new Vector3(0, 1, 0),
+  axisZ: new Vector3(0, 0, 1),
+};
 export function actionFor(object: Object3D): DeskAction | undefined {
   const id = object.userData.interaction;
   if (drawerIds.includes(id)) return "drawers";
   return actions.has(id) ? (id as DeskAction) : undefined;
 }
-const shadowVertex = `varying vec2 vUv; void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*instanceMatrix*vec4(position,1.);}`;
-const shadowFragment = `varying vec2 vUv; void main(){float r=length((vUv-.5)*2.);gl_FragColor=vec4(0.,0.,0.,.22*pow(max(0.,1.-r),2.));}`;
+/*
+ * One instanced quad draws the three blob shadows and up to three click
+ * ripples (October 24): a ripple is two warm rings that spread and fade, as
+ * on water, so the effect costs no draw call or program of its own. Its
+ * rings follow rippleRing() in desk-interaction-motion.ts; mode 2 draws
+ * them in ink, for the white drawer fronts.
+ */
+const shadowSlots = 3;
+const rippleSlots = 3;
+const shadowVertex = `attribute vec2 aRipple; varying vec2 vUv; varying vec2 vRipple; void main(){vUv=uv;vRipple=aRipple;gl_Position=projectionMatrix*modelViewMatrix*instanceMatrix*vec4(position,1.);}`;
+const shadowFragment = `varying vec2 vUv; varying vec2 vRipple;
+float ring(float p, float i){float t=clamp((p-i*${rippleDelay.toFixed(2)})/${(1 - rippleDelay).toFixed(2)},0.,1.);if(t<=0.||t>=1.)return 0.;float e=1.-pow(1.-t,3.);float r=length((vUv-.5)*2.);return .55*(1.-t)*smoothstep(.06,0.,abs(r-(.3+.7*e)));}
+void main(){if(vRipple.x<.5){float r=length((vUv-.5)*2.);gl_FragColor=vec4(0.,0.,0.,.22*pow(max(0.,1.-r),2.));return;}
+float a=max(ring(vRipple.y,0.),ring(vRipple.y,1.));gl_FragColor=vRipple.x>1.5?vec4(.24,.27,.31,a):vec4(.914,.867,.816,a);}`;
+type Ripple = {
+  start: number;
+  position: Vector3;
+  /** On a drawer's front rather than flat on the desk. */
+  vertical: boolean;
+  /** Radius of the outer ring at its widest (m). */
+  radius: number;
+  /** A drawer's ripple rides out with it. */
+  drawer?: number;
+};
+/** Where each object's ripple spreads when no point on it is known. */
+const rippleAnchors: Record<
+  PosedObject,
+  { at: [number, number, number]; radius: number }
+> = {
+  headphones: { at: [0.48, 0.0055, -0.34], radius: 0.11 },
+  mouse: { at: [0.39, 0.0055, 0.075], radius: 0.08 },
+  tablet: { at: [-0.435, 0.0175, 0.17], radius: 0.09 },
+  lamp: { at: [0.673, 0.0055, -0.3725], radius: 0.1 },
+  dial: { at: [0.345, 0.0055, -0.3725], radius: 0.06 },
+};
+/** The drawers' fronts (m) and the cabinet's width. */
+const drawerFront = 0.3625;
+const drawerCenterX = 0.563;
 
 // Three.js owns these mutable GPU resources, outside React's state model.
 function cacheShadows(renderer: WebGLRenderer, cached: boolean) {
@@ -79,6 +167,28 @@ export default function InteractionScene({
   controls: DeskInteractions;
 }) {
   const { gl, invalidate } = useThree();
+  // The element pointer events come from: the journey's wrapper (its canvas
+  // takes none), or the review's canvas container. The cursor ring reads
+  // `data-desk-hover` there (src/lib/cursor.ts).
+  const connected = useThree((state) => state.events.connected) as
+    HTMLElement | undefined;
+  const hoverTarget = useCallback(
+    () => connected ?? gl.domElement,
+    [connected, gl],
+  );
+  const markHover = useCallback(
+    (on: boolean) => {
+      const element = hoverTarget();
+      if (on) {
+        element.setAttribute("data-desk-hover", "");
+        element.style.setProperty("cursor", "pointer");
+      } else {
+        element.removeAttribute("data-desk-hover");
+        element.style.removeProperty("cursor");
+      }
+    },
+    [hoverTarget],
+  );
   const setEvents = useThree((state) => state.setEvents);
   useEffect(() => {
     // Only the nearest object under the pointer counts (each handler stops
@@ -131,7 +241,6 @@ export default function InteractionScene({
     }
   }, [active, reduced]);
   const lights = useRef<(PointLight | SpotLight | null)[]>([]);
-  const ring = useRef<Mesh>(null);
   const biasStrip = useRef<Mesh>(null);
   const glow = useRef<Sprite>(null);
   const glowMap = useMemo(() => {
@@ -153,11 +262,32 @@ export default function InteractionScene({
     return target;
   }, []);
   const shadows = useRef<InstancedMesh>(null);
-  const shadowTransform = useMemo(() => {
-    const transform = new Object3D();
-    transform.rotation.x = -Math.PI / 2;
-    return transform;
+  // Per instance: mode (0 a blob shadow, 1 or 2 a ripple) and its progress.
+  const shadowGeometry = useMemo(() => {
+    const geometry = new PlaneGeometry(1, 1);
+    const modes = new Float32Array((shadowSlots + rippleSlots) * 2);
+    for (let i = shadowSlots; i < shadowSlots + rippleSlots; i++) {
+      modes[i * 2] = 1;
+      modes[i * 2 + 1] = 1;
+    }
+    geometry.setAttribute("aRipple", new InstancedBufferAttribute(modes, 2));
+    return geometry;
   }, []);
+  useEffect(() => () => shadowGeometry.dispose(), [shadowGeometry]);
+  const ripples = useRef<(Ripple | null)[]>([]);
+  const nextRipple = useRef(0);
+  // Presses, hops and teases, by object: when each started.
+  const presses = useRef<Partial<Record<PosedObject, number>>>({});
+  const teases = useRef<Partial<Record<HoverKey, number>>>({});
+  const drawerPressed = useRef<{ start: number; index: number } | null>(null);
+  const dialDim = useRef<number | null>(null);
+  // The hovered object eases up and the last one eases down.
+  const hover = useRef<
+    Partial<Record<HoverKey, { from: number; to: number; start: number }>>
+  >({});
+  const hovered = useRef<HoverKey | null>(null);
+  // A press delays the click's own change (lights, colour) until it lands.
+  const visualDelay = useRef(0);
   const running = useRef<
     Partial<Record<AnimatedObject, { start: number; variant: number }>>
   >({});
@@ -195,6 +325,7 @@ export default function InteractionScene({
             {
               position: node.position.clone(),
               quaternion: node.quaternion.clone(),
+              scale: node.scale.clone(),
             },
           ];
         }),
@@ -235,13 +366,16 @@ export default function InteractionScene({
     };
   }, [gl, invalidate]);
   useEffect(() => {
+    const delay = visualDelay.current;
+    visualDelay.current = 0;
     transition.current = {
       ...transition.current,
-      start: performance.now(),
+      start: performance.now() + delay,
       colorStart: color.current.clone(),
       lightStart: transition.current.light,
     };
-    if (!controls.reduced) requestAnimation(350);
+    settled.current = false;
+    if (!controls.reduced) requestAnimation(350 + delay);
     invalidate();
   }, [
     controls.lights,
@@ -250,46 +384,133 @@ export default function InteractionScene({
     invalidate,
     requestAnimation,
   ]);
+  const addRipple = useCallback(
+    (id: DeskAction, point?: InteractionPoint, drawer?: number) => {
+      let ripple: Ripple;
+      const now = performance.now();
+      if (id === "drawers") {
+        const index = drawer ?? 0;
+        const center = contract.objects[drawerIds[index]].pivot;
+        ripple = {
+          start: now,
+          vertical: true,
+          radius: 0.07,
+          drawer: index,
+          position: new Vector3(
+            point?.[0] ?? drawerCenterX,
+            point?.[1] ?? center[1],
+            drawerFront,
+          ),
+        };
+      } else {
+        const anchor = rippleAnchors[id];
+        ripple = {
+          start: now,
+          vertical: false,
+          radius: anchor.radius,
+          position: new Vector3(
+            id === "mouse" && point ? point[0] : anchor.at[0],
+            anchor.at[1],
+            id === "mouse" && point ? point[2] : anchor.at[2],
+          ),
+        };
+      }
+      ripples.current[nextRipple.current] = ripple;
+      nextRipple.current = (nextRipple.current + 1) % rippleSlots;
+      // Counted as they start: a slow renderer may draw none of their frames.
+      if (qa())
+        gl.domElement.setAttribute(
+          "data-ripples-started",
+          String(Number(gl.domElement.dataset.ripplesStarted || 0) + 1),
+        );
+    },
+    [gl],
+  );
   useEffect(() => {
-    return registerMotion((id, point) => {
-      gl.domElement.setAttribute("data-last-desk-action", id);
+    return registerMotion((id, point, tease) => {
+      if (!tease) gl.domElement.setAttribute("data-last-desk-action", id);
       if (!active || reduced) return;
+      const now = performance.now();
+      settled.current = false;
+      if (tease) {
+        // A hint that changes nothing: a ripple and a small hop or peek.
+        if (id === "drawers") {
+          const index = Math.floor(Math.random() * drawerIds.length);
+          teases.current[drawerIds[qa() ? 0 : index]] = now;
+          addRipple(id, undefined, qa() ? 0 : index);
+        } else {
+          teases.current[id] = now;
+          if (id === "dial") dialDim.current = now;
+          addRipple(id);
+        }
+        if (qa())
+          gl.domElement.setAttribute(
+            "data-teases",
+            String(Number(gl.domElement.dataset.teases || 0) + 1),
+          );
+        requestAnimation(Math.max(teaseDuration, rippleDuration));
+        invalidate();
+        return;
+      }
       if (id === "drawers") {
         if (drawerStart.current === null) {
-          drawerStart.current = performance.now();
+          const index = point ? drawerAt(point[1]) : 0;
+          drawerPressed.current = { start: now, index };
+          drawerStart.current = now + drawerPress.lead;
+          addRipple(id, point, index);
           gl.domElement.setAttribute("data-drawer-peak", "0.000");
-          settled.current = false;
-          requestAnimation(drawerWave.duration);
+          requestAnimation(drawerPress.lead + drawerWave.duration);
           invalidate();
         }
+        return;
+      }
+      if (id === "lamp" || id === "dial") {
+        presses.current[id] = now;
+        visualDelay.current = pressLead;
+        addRipple(id, point);
+        requestAnimation(Math.max(pressDuration, rippleDuration));
+        invalidate();
         return;
       }
       if (!animated.includes(id as AnimatedObject)) return;
       const key = id as AnimatedObject;
       if (running.current[key]) return;
       running.current[key] = {
-        start: performance.now(),
+        start: now,
         variant: id === "mouse" ? nextMouse.current++ % 5 : 0,
       };
-      settled.current = false;
-      requestAnimation(animationDuration[key]);
-      if (id === "mouse" && ring.current) {
-        const pivot = contract.targets.mouse.position;
-        ring.current.position.set(
-          point?.[0] ?? pivot[0],
-          0.005,
-          point?.[2] ?? pivot[2],
-        );
-      }
+      if (key !== "headphones") presses.current[key] = now;
+      addRipple(id, point);
+      requestAnimation(Math.max(animationDuration[key], rippleDuration));
       invalidate();
     });
-  }, [active, reduced, registerMotion, invalidate, requestAnimation, gl]);
+  }, [
+    active,
+    reduced,
+    registerMotion,
+    invalidate,
+    requestAnimation,
+    gl,
+    addRipple,
+  ]);
   useEffect(() => {
     if (!controls.active || controls.reduced) {
       running.current = {};
       drawerStart.current = null;
+      drawerPressed.current = null;
+      presses.current = {};
+      teases.current = {};
+      hover.current = {};
+      hovered.current = null;
+      dialDim.current = null;
+      ripples.current = [];
       dirtyShadows(gl);
       for (const id of drawerIds) nodes[id].position.copy(origins[id].position);
+      for (const id of ["lamp", "dial", "tablet", "headphones", "mouse"]) {
+        nodes[id].position.copy(origins[id].position);
+        nodes[id].quaternion.copy(origins[id].quaternion);
+        nodes[id].scale.copy(origins[id].scale);
+      }
       gl.domElement.setAttribute("data-drawers-motion", "idle");
       gl.domElement.setAttribute(
         "data-drawer-offsets",
@@ -300,17 +521,30 @@ export default function InteractionScene({
         nodes[key].position.copy(origins[key].position);
         nodes[key].quaternion.copy(origins[key].quaternion);
       }
-      if (ring.current) ring.current.visible = false;
-      gl.domElement.style.removeProperty("cursor");
+      if (shadows.current) {
+        const modes = shadows.current.geometry.getAttribute("aRipple");
+        for (let i = 0; i < rippleSlots; i++) {
+          placer.scale.setScalar(0);
+          placer.updateMatrix();
+          shadows.current.setMatrixAt(shadowSlots + i, placer.matrix);
+          modes.setY(shadowSlots + i, 1);
+        }
+        modes.needsUpdate = true;
+        shadows.current.instanceMatrix.needsUpdate = true;
+      }
+      markHover(false);
       invalidate();
     }
-  }, [controls.active, controls.reduced, nodes, origins, gl, invalidate]);
-  useEffect(
-    () => () => {
-      gl.domElement.style.removeProperty("cursor");
-    },
-    [gl],
-  );
+  }, [
+    controls.active,
+    controls.reduced,
+    nodes,
+    origins,
+    gl,
+    invalidate,
+    markHover,
+  ]);
+  useEffect(() => () => markHover(false), [markHover]);
   useEffect(() => {
     settled.current = false;
   }, [
@@ -327,16 +561,43 @@ export default function InteractionScene({
     if (!controls.active) return;
     const movingCasters =
       drawerStart.current !== null ||
-      animated.some((id) => running.current[id]);
+      animated.some((id) => running.current[id]) ||
+      Object.keys(teases.current).length > 0;
     if (movingCasters) dirtyShadows(gl);
     // A final clean frame also makes idle metrics exclude the last depth update.
     if (gl.shadowMap.needsUpdate) invalidate();
     if (settled.current) return;
     const writeQa = qa();
     const now = performance.now();
+    let busy = false;
+    // How far a timed motion has run (0 to 1), or 0 once it has finished.
+    const progress = <K extends string>(
+      jobs: Partial<Record<K, number>>,
+      key: K,
+      duration: number,
+    ) => {
+      const start = jobs[key];
+      if (start === undefined) return 0;
+      const t = (now - start) / duration;
+      if (t >= 1) {
+        delete jobs[key];
+        return 0;
+      }
+      busy = true;
+      return Math.max(0, t);
+    };
+    const level = (key: HoverKey) => {
+      const job = hover.current[key];
+      if (!job) return 0;
+      const elapsed = now - job.start;
+      const value = hoverLevel(job.from, job.to, elapsed);
+      if (elapsed < hoverDuration) busy = true;
+      else if (job.to === 0) delete hover.current[key];
+      return value;
+    };
     const elapsed = now - transition.current.start;
-    const ct = controls.reduced ? 1 : Math.min(1, elapsed / 350);
-    const lt = controls.reduced ? 1 : Math.min(1, elapsed / 250);
+    const ct = controls.reduced ? 1 : Math.max(0, Math.min(1, elapsed / 350));
+    const lt = controls.reduced ? 1 : Math.max(0, Math.min(1, elapsed / 250));
     const ease = (t: number) => t * t * (3 - 2 * t);
     color.current
       .copy(transition.current.colorStart)
@@ -353,34 +614,91 @@ export default function InteractionScene({
       transition.current.lightStart +
       ((controls.lights ? 1 : 0) - transition.current.lightStart) * ease(lt);
     transition.current.light = light;
+    // A teased dial dims the lights for a moment; the state stays as it was.
+    let dim = 1;
+    if (dialDim.current !== null) {
+      const t = (now - dialDim.current) / teaseDuration;
+      if (t >= 1) dialDim.current = null;
+      else {
+        dim = teaseDim(t);
+        busy = true;
+      }
+    }
+    const shown = light * dim;
     taskMaterials.forEach((material) => {
-      material.emissiveIntensity = 2 * light;
+      material.emissiveIntensity = 2 * shown;
       material.color.setRGB(
-        0.08 + 0.87 * light,
-        0.08 + 0.64 * light,
-        0.08 + 0.32 * light,
+        0.08 + 0.87 * shown,
+        0.08 + 0.64 * shown,
+        0.08 + 0.32 * shown,
       );
     });
     if (biasStrip.current) {
       const material = biasStrip.current.material as MeshStandardMaterial;
-      material.emissiveIntensity = 4 * light;
-      material.color.setScalar(0.04 + 0.8 * light);
+      material.emissiveIntensity = 4 * shown;
+      material.color.setScalar(0.04 + 0.8 * shown);
     }
     lights.current.forEach((lamp, i) => {
       if (lamp) {
         if (i === 3) lamp.color.copy(color.current);
-        else lamp.intensity = [0.22, 0.35, 0.65][i] * light;
+        else lamp.intensity = [0.22, 0.35, 0.65][i] * shown;
       }
     });
-    let busy = ct < 1 || lt < 1;
+    if (ct < 1 || lt < 1) busy = true;
+    // Places a node at its authored pose plus an offset, squashed towards a
+    // height on its own vertical axis and turned about a local axis (about
+    // that pivot too when `orbit`, else about its own origin).
+    const place = (
+      key: string,
+      x: number,
+      y: number,
+      z: number,
+      axis: Vector3 | null,
+      angle: number,
+      squash: number,
+      pivotY: number,
+      orbit: boolean,
+    ) => {
+      const node = nodes[key];
+      const origin = origins[key];
+      const o = origin.position;
+      const across = squash === 1 ? 1 : 1 / Math.sqrt(squash);
+      scratch.scale.set(across, squash, across);
+      scratch.pivot.set(o.x, pivotY, o.z);
+      scratch.offset
+        .set(o.x + x, o.y + y, o.z + z)
+        .sub(scratch.pivot)
+        .multiply(scratch.scale);
+      node.quaternion.copy(origin.quaternion);
+      if (axis && angle) {
+        scratch.turn.setFromAxisAngle(axis, angle);
+        if (orbit) scratch.offset.applyQuaternion(scratch.turn);
+        node.quaternion.multiply(scratch.turn);
+      }
+      node.position.copy(scratch.pivot).add(scratch.offset);
+      node.scale.copy(origin.scale).multiply(scratch.scale);
+    };
+    const lift = (id: PosedObject) =>
+      hoverLift[id] * level(id) +
+      teaseLift(progress(teases.current, id, teaseDuration));
     const drawerElapsed =
       drawerStart.current === null
         ? drawerWave.duration
         : now - drawerStart.current;
     const drawersMoving = drawerElapsed < drawerWave.duration;
+    const pressed = drawerPressed.current;
+    const pressElapsed = pressed ? now - pressed.start : Infinity;
+    if (pressed && pressElapsed >= drawerPress.duration)
+      drawerPressed.current = null;
+    else if (pressed) busy = true;
     drawerIds.forEach((id, index) => {
+      const tease = progress(teases.current, id, teaseDuration);
       nodes[id].position.z =
-        origins[id].position.z + drawerOffset(drawerElapsed, index);
+        origins[id].position.z +
+        drawerOffset(drawerElapsed, index) +
+        (pressed?.index === index ? drawerPressOffset(pressElapsed) : 0) +
+        drawerPeek * level(id) +
+        (tease ? teasePeek * Math.sin(Math.PI * tease) ** 2 : 0);
     });
     if (writeQa) {
       const offsets = drawerIds.map((_, index) =>
@@ -404,6 +722,54 @@ export default function InteractionScene({
     }
     if (drawersMoving) busy = true;
     else drawerStart.current = null;
+    // The lamp, the dial and the tablet answer with a press.
+    {
+      const t = progress(presses.current, "lamp", pressDuration);
+      place(
+        "lamp",
+        0,
+        lift("lamp"),
+        0,
+        scratch.axisX,
+        lampNod(t),
+        pressScale(t, pressDepth.lamp),
+        squashPivot.lamp,
+        true,
+      );
+    }
+    {
+      const t = progress(presses.current, "dial", pressDuration);
+      const tease = teases.current.dial;
+      const teased =
+        tease === undefined ? 0 : Math.min(1, (now - tease) / teaseDuration);
+      place(
+        "dial",
+        0,
+        hoverLift.dial * level("dial"),
+        0,
+        null,
+        0,
+        pressScale(t, pressDepth.dial) * pressScale(teased, 0.08),
+        squashPivot.dial,
+        false,
+      );
+      // The dial's tease is its press and the dimming, not a hop.
+      progress(teases.current, "dial", teaseDuration);
+    }
+    {
+      const t = progress(presses.current, "tablet", pressDuration);
+      place(
+        "tablet",
+        0,
+        tabletDip(t) + lift("tablet"),
+        0,
+        null,
+        0,
+        1,
+        squashPivot.tablet,
+        false,
+      );
+    }
     for (const [index, id] of animated.entries()) {
       const key = id === "tablet" ? "pencil" : id;
       const job = running.current[id];
@@ -411,17 +777,48 @@ export default function InteractionScene({
         ? Math.min(1, (now - job.start) / animationDuration[id])
         : 1;
       const pose = accessoryPose(id, t, job?.variant);
-      const origin = origins[key].position;
-      nodes[key].position.set(
-        origin.x + pose.x,
-        origin.y + pose.y,
-        origin.z + pose.z,
-      );
-      nodes[key].quaternion.copy(origins[key].quaternion);
-      if (id === "tablet") nodes[key].rotateZ(pose.rotation);
-      else nodes[key].rotateY(pose.rotation);
+      if (id === "headphones") {
+        const hop = hopPose(t);
+        place(
+          key,
+          0,
+          pose.y + lift("headphones"),
+          0,
+          scratch.axisZ,
+          pose.rotation,
+          hop.scale,
+          squashPivot.headphones,
+          true,
+        );
+      } else if (id === "mouse") {
+        const press = progress(presses.current, "mouse", pressDuration);
+        place(
+          key,
+          pose.x,
+          pose.y + lift("mouse"),
+          pose.z,
+          scratch.axisY,
+          pose.rotation,
+          pressScale(press, pressDepth.mouse),
+          squashPivot.mouse,
+          false,
+        );
+      } else {
+        place(
+          key,
+          pose.x,
+          pose.y,
+          pose.z,
+          scratch.axisZ,
+          pose.rotation,
+          1,
+          origins[key].position.y,
+          false,
+        );
+      }
       if (shadows.current) {
-        shadowTransform.position.set(
+        placer.rotation.set(-Math.PI / 2, 0, 0);
+        placer.position.set(
           nodes[key].position.x,
           0.0043,
           nodes[key].position.z,
@@ -432,16 +829,10 @@ export default function InteractionScene({
             : id === "mouse"
               ? [0.11, 0.15]
               : [0.016, 0.175];
-        shadowTransform.scale.set(size[0], size[1], 1);
-        shadowTransform.updateMatrix();
-        shadows.current.setMatrixAt(index, shadowTransform.matrix);
+        placer.scale.set(size[0], size[1], 1);
+        placer.updateMatrix();
+        shadows.current.setMatrixAt(index, placer.matrix);
         shadows.current.instanceMatrix.needsUpdate = true;
-      }
-      if (id === "mouse" && ring.current) {
-        ring.current.visible = !!job && t < 0.6;
-        ring.current.scale.setScalar(0.7 + t * 2);
-        (ring.current.material as MeshBasicMaterial).opacity =
-          0.5 * Math.max(0, 1 - t / 0.6);
       }
       if (job && t < 1) busy = true;
       else delete running.current[id];
@@ -450,6 +841,37 @@ export default function InteractionScene({
           `data-${id}-motion`,
           job && t < 1 ? "running" : "idle",
         );
+    }
+    // The ripples spread on the desk, or on a drawer's front as it moves.
+    if (shadows.current) {
+      const modes = shadows.current.geometry.getAttribute("aRipple");
+      let spreading = 0;
+      for (let i = 0; i < rippleSlots; i++) {
+        const ripple = ripples.current[i];
+        const p = ripple ? (now - ripple.start) / rippleDuration : 1;
+        if (!ripple || p >= 1) {
+          ripples.current[i] = null;
+          placer.scale.setScalar(0);
+          modes.setY(shadowSlots + i, 1);
+        } else {
+          busy = true;
+          spreading++;
+          placer.position.copy(ripple.position);
+          if (ripple.drawer !== undefined) {
+            const id = drawerIds[ripple.drawer];
+            placer.position.z += nodes[id].position.z - origins[id].position.z;
+          }
+          placer.rotation.set(ripple.vertical ? 0 : -Math.PI / 2, 0, 0);
+          placer.scale.set(2 * ripple.radius, 2 * ripple.radius, 1);
+          modes.setXY(shadowSlots + i, ripple.vertical ? 2 : 1, Math.max(0, p));
+        }
+        placer.updateMatrix();
+        shadows.current.setMatrixAt(shadowSlots + i, placer.matrix);
+      }
+      modes.needsUpdate = true;
+      shadows.current.instanceMatrix.needsUpdate = true;
+      if (writeQa)
+        gl.domElement.setAttribute("data-ripples", String(spreading));
     }
     if (writeQa) {
       gl.domElement.setAttribute("data-lights", light.toFixed(3));
@@ -471,12 +893,37 @@ export default function InteractionScene({
     const action = id ?? actionFor(event.object);
     if (action) controls.activate(action, event.point.toArray());
   };
+  // The hovered object lifts a little (a drawer peeks out) and the cursor
+  // ring opens: both say it can be clicked.
+  const setHovered = (key: HoverKey | null) => {
+    if (hovered.current === key) return;
+    const now = performance.now();
+    const ease = (target: HoverKey, to: number) => {
+      const job = hover.current[target];
+      const from = job ? hoverLevel(job.from, job.to, now - job.start) : 0;
+      hover.current[target] = { from, to, start: now };
+    };
+    if (hovered.current) ease(hovered.current, 0);
+    if (key && active && !reduced) ease(key, 1);
+    hovered.current = key;
+    settled.current = false;
+    requestAnimation(hoverDuration);
+    invalidate();
+  };
   const over = (event: ThreeEvent<PointerEvent>, id?: DeskAction) => {
     event.stopPropagation();
-    gl.domElement.style.setProperty(
-      "cursor",
-      id || actionFor(event.object) ? "pointer" : "",
+    const action = id ?? actionFor(event.object);
+    markHover(!!action);
+    if (!action) return setHovered(null);
+    setHovered(
+      action === "drawers"
+        ? drawerIds[drawerAt(event.point.y)]
+        : (action as PosedObject),
     );
+  };
+  const out = () => {
+    markHover(false);
+    setHovered(null);
   };
   return (
     <>
@@ -485,9 +932,7 @@ export default function InteractionScene({
         dispose={null}
         onClick={click}
         onPointerOver={over}
-        onPointerOut={() => {
-          gl.domElement.style.removeProperty("cursor");
-        }}
+        onPointerOut={out}
       />
       {Object.entries(contract.targets).map(([id, target]) => (
         <mesh
@@ -495,9 +940,7 @@ export default function InteractionScene({
           position={target.position as [number, number, number]}
           onClick={(event) => click(event, id as DeskAction)}
           onPointerOver={(event) => over(event, id as DeskAction)}
-          onPointerOut={() => {
-            gl.domElement.style.removeProperty("cursor");
-          }}
+          onPointerOut={out}
         >
           <boxGeometry args={target.size as [number, number, number]} />
           <meshBasicMaterial
@@ -581,10 +1024,9 @@ export default function InteractionScene({
       </mesh>
       <instancedMesh
         ref={shadows}
-        args={[undefined, undefined, 3]}
+        args={[shadowGeometry, undefined, shadowSlots + rippleSlots]}
         frustumCulled={false}
       >
-        <planeGeometry args={[1, 1]} />
         <shaderMaterial
           transparent
           depthWrite={false}
@@ -592,15 +1034,6 @@ export default function InteractionScene({
           fragmentShader={shadowFragment}
         />
       </instancedMesh>
-      <mesh ref={ring} visible={false} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.01, 0.011, 40]} />
-        <meshBasicMaterial
-          color="#e9ddd0"
-          transparent
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </mesh>
     </>
   );
 }
