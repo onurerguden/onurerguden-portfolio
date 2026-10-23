@@ -22,7 +22,8 @@ export default async function DeskPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  if (!isLocale(locale) || process.env.VERCEL_ENV === "production") notFound();
+  // The lab layout keeps this page off the public site (labBlocked).
+  if (!isLocale(locale)) notFound();
   const en = locale === "en";
   // What the desk's screens show on the home page, as plain lines.
   const screenCopy = [
