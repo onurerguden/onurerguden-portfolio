@@ -51,10 +51,15 @@ describe("editorial modification dates", () => {
         expect(node(graph, "WebPage")?.dateModified).toBe(
           editorialModified(`/projects/${project.slug}`),
         );
-        expect(node(graph, "CreativeWork")).not.toHaveProperty("dateModified");
-        expect(node(graph, "CreativeWork")?.dateCreated).toBe(
-          project.year || undefined,
+        // The write-up is redated; the software it describes is not.
+        expect(node(graph, "TechArticle")?.dateModified).toBe(
+          editorialModified(`/projects/${project.slug}`),
         );
+        const software = graph["@graph"].find((entry) =>
+          String(entry["@id"]).endsWith("#software"),
+        );
+        expect(software).not.toHaveProperty("dateModified");
+        expect(software?.dateCreated).toBe(project.year || undefined);
       }
       const research = researchStructuredData(locale) as Graph;
       expect(node(research, "CollectionPage")?.dateModified).toBe(
