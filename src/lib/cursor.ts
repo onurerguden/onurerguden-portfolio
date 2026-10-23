@@ -30,19 +30,15 @@ export const actionCursorSelector = [
   "[role=tab]",
   "[role=menuitem]",
   "[role=option]",
+  // The desk marks the element its pointer events come from while a
+  // clickable object is under the pointer (interaction-scene.tsx).
+  "[data-desk-hover]",
 ].join(",");
 
 export function cursorLook(target: Element | null): CursorLook {
   if (!target) return "default";
   if (target.closest(nativeCursorSelector)) return "native";
   if (target.closest(actionCursorSelector)) return "action";
-  // The desk's canvas marks clickable objects with an inline pointer cursor.
-  if (
-    target instanceof HTMLElement &&
-    target.tagName === "CANVAS" &&
-    target.style.cursor === "pointer"
-  )
-    return "action";
   return "default";
 }
 
