@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { ReactNode } from "react";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import GiantTitle from "@/components/giant-title";
 import CaseMedia from "@/components/case/case-media";
@@ -12,11 +11,12 @@ import {
   caseSections,
   getProject,
   getProjects,
+  headingIds,
   isLocale,
   sharedFacts,
 } from "@/lib/content";
 import { pageMetadata } from "@/lib/site";
-import { editorialModified } from "@/lib/editorial";
+import { editorialModified, editorialPublished } from "@/lib/editorial";
 import { caseStudyStructuredData } from "@/lib/structured-data";
 import JsonLd from "@/components/json-ld";
 import Breadcrumbs from "@/components/site/breadcrumbs";
@@ -49,17 +49,15 @@ export async function generateMetadata({
         `/projects/${slug}`,
         project.searchTitle ?? project.title,
         project.description ?? project.summary,
-        { article: { modifiedTime: editorialModified(`/projects/${slug}`) } },
+        {
+          article: {
+            modifiedTime: editorialModified(`/projects/${slug}`),
+            publishedTime: editorialPublished(`/projects/${slug}`),
+          },
+        },
       )
     : {};
 }
-
-const text = (node: ReactNode): string =>
-  typeof node === "string" || typeof node === "number"
-    ? String(node)
-    : Array.isArray(node)
-      ? node.map(text).join("")
-      : "";
 
 export default async function ProjectPage({
   params,
@@ -72,9 +70,6 @@ export default async function ProjectPage({
   if (!project?.caseStudy || !project.body) notFound();
   const en = locale === "en";
   const sections = caseSections(locale, slug);
-  // Headings take their language-independent ids by position.
-  const idFor = (label: string) =>
-    sections.find((section) => section.label === label.trim())?.id;
   return (
     <main id="main" tabIndex={-1} className={styles.page}>
       <JsonLd data={caseStudyStructuredData(locale, project)} />
@@ -125,7 +120,11 @@ export default async function ProjectPage({
           <div>
             <h2>{en ? "Source" : "Kaynak"}</h2>
             {project.repoUrl ? (
-              <a className={styles.source} href={project.repoUrl}>
+              <a
+                className={styles.source}
+                href={project.repoUrl}
+                data-source-of={project.slug}
+              >
                 {new URL(project.repoUrl).pathname.slice(1)}
                 <span aria-hidden="true"> ↗</span>
               </a>
@@ -141,10 +140,13 @@ export default async function ProjectPage({
         <article className={styles.prose}>
           <MDXRemote
             source={project.body}
+            // Headings take their language-independent ids by position.
+            options={{
+              mdxOptions: {
+                rehypePlugins: [headingIds(sections.map(({ id }) => id))],
+              },
+            }}
             components={{
-              h2: ({ children }: { children?: ReactNode }) => (
-                <h2 id={idFor(text(children))}>{children}</h2>
-              ),
               ReportWorkflow: () => <ReportWorkflow locale={locale} />,
             }}
           />

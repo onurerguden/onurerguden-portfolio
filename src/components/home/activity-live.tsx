@@ -12,6 +12,7 @@ import {
   topLanguages,
 } from "@/lib/activity-view";
 import { useMinute } from "@/lib/use-minute";
+import { whenIdle } from "@/lib/idle";
 import ActivitySkeleton from "./activity-skeleton";
 import ActivityUnavailable from "./activity-unavailable";
 import ContributionGrid from "./contribution-grid";
@@ -170,14 +171,10 @@ export default function ActivityLive({
       { rootMargin: "150% 0px" },
     );
     if (section.current) near.observe(section.current);
-    const idle =
-      typeof requestIdleCallback === "function"
-        ? requestIdleCallback(start, { timeout: 4000 })
-        : window.setTimeout(start, 2000);
+    const cancelIdle = whenIdle(start, { timeout: 4000, fallback: 2000 });
     return () => {
       near.disconnect();
-      if (typeof cancelIdleCallback === "function") cancelIdleCallback(idle);
-      window.clearTimeout(idle);
+      cancelIdle();
       controller.abort();
       window.clearTimeout(timer);
       document.removeEventListener("visibilitychange", schedule);

@@ -1,8 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
+import { cache } from "react";
 import matter from "gray-matter";
 import { z } from "zod";
-import { caseHeadings, locales, slugify, type Locale } from "./content";
+import { caseHeadings, headingSections, locales, type Locale } from "./content";
 import { editorialModified } from "./editorial";
 
 /**
@@ -32,7 +33,11 @@ export type Post = z.infer<typeof frontmatterSchema> & {
 
 const defaultRoot = () => path.join(process.cwd(), "src/content");
 
-function readPosts(locale: Locale, root: string): Post[] {
+// Read once per render: an article's metadata, page and sections all ask.
+const readPosts = cache(function readPosts(
+  locale: Locale,
+  root: string,
+): Post[] {
   const dir = path.join(root, locale, "writing");
   if (!fs.existsSync(dir)) return [];
   return fs
@@ -52,7 +57,7 @@ function readPosts(locale: Locale, root: string): Post[] {
       const words = body.split(/\s+/).length;
       return { ...data, body, minutes: Math.max(1, Math.round(words / 220)) };
     });
-}
+});
 
 /** Every article in one language, newest first. */
 export function getPosts(locale: Locale, root = defaultRoot()): Post[] {
@@ -68,11 +73,10 @@ export function getPost(locale: Locale, slug: string, root = defaultRoot()) {
 
 /** Section ids come from the English headings, so both languages share them. */
 export function postSections(locale: Locale, slug: string) {
-  const local = getPost(locale, slug)?.body;
-  const english = getPost("en", slug)?.body;
-  if (!local || !english) return [];
-  const ids = caseHeadings(english).map(slugify);
-  return caseHeadings(local).map((label, i) => ({ id: ids[i], label }));
+  return headingSections(
+    getPost(locale, slug)?.body,
+    getPost("en", slug)?.body,
+  );
 }
 
 /** Both languages carry the same articles, dates and sections; none is from the future. */

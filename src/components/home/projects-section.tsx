@@ -185,6 +185,7 @@ export default function ProjectsSection({ locale }: { locale: Locale }) {
                       <a
                         className={styles.pill}
                         href={project.repoUrl}
+                        data-source-of={project.slug}
                         aria-label={
                           en
                             ? `${project.title} source code on GitHub`

@@ -13,6 +13,7 @@ import MotionToggle from "@/components/motion-toggle";
 import { deskMode, useStaticDesk } from "@/lib/desk-mode";
 import { useMotionPreference } from "@/lib/motion-preference";
 import { currentSection } from "@/lib/current-section";
+import { whenIdle } from "@/lib/idle";
 import LanguageLink from "./language-link";
 import styles from "./site-nav.module.css";
 
@@ -208,18 +209,18 @@ function useNavMorph(navRef: RefObject<HTMLElement | null>) {
       return;
     let live = true;
     let stop = () => {};
+    // Without the morph's chunk (an old tab after a deploy) the bar steps.
     const load = () =>
-      import("./nav-morph").then(({ morphNav }) => {
-        if (live) stop = morphNav(nav);
-      });
-    const idle =
-      typeof requestIdleCallback === "function"
-        ? requestIdleCallback(load, { timeout: 3000 })
-        : window.setTimeout(load, 1000);
+      import("./nav-morph").then(
+        ({ morphNav }) => {
+          if (live) stop = morphNav(nav);
+        },
+        () => {},
+      );
+    const cancelLoad = whenIdle(load, { timeout: 3000, fallback: 1000 });
     return () => {
       live = false;
-      if (typeof cancelIdleCallback === "function") cancelIdleCallback(idle);
-      window.clearTimeout(idle);
+      cancelLoad();
       stop();
     };
   }, [navRef]);

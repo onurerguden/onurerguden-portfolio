@@ -1,9 +1,22 @@
 import { describe, expect, it } from "vitest";
 import {
   deskSections,
+  hashId,
   homeSectionLinks,
   homeSections,
 } from "../src/lib/home-sections";
+
+describe("reading a link's hash", () => {
+  it("decodes the target id, and reads a malformed one as written", () => {
+    expect(hashId("#experience")).toBe("experience");
+    expect(hashId("#caf%C3%A9")).toBe("café");
+    // A stray % would make decodeURIComponent throw and break the page.
+    expect(hashId("#%")).toBe("%");
+    expect(hashId("#100%")).toBe("100%");
+    expect(hashId("#")).toBeNull();
+    expect(hashId("")).toBeNull();
+  });
+});
 
 describe("home section registry", () => {
   it("reads the desk screens first, then the page flow", () => {

@@ -59,6 +59,10 @@ export function eventFor(link: HTMLAnchorElement): SiteEvent | null {
   if (url.hostname === "linkedin.com" || url.hostname.endsWith(".linkedin.com"))
     return { name: "linkedin_click", location: locationOf(link) };
   if (url.hostname !== "github.com") return null;
+  // A project's source link names its project, whoever owns the repository:
+  // team projects live under a teammate's account.
+  const source = link.dataset.sourceOf;
+  if (source) return { name: "source_click", project: source };
   const [owner, repo] = url.pathname.split("/").filter(Boolean);
   if (owner?.toLowerCase() !== "onurerguden") return null;
   const project = repo ? projectOf(link) : undefined;

@@ -19,11 +19,14 @@ export default function SiteEvents({ pageViews }: { pageViews: boolean }) {
   const pathname = usePathname();
   useEffect(() => {
     if (!pageViews) return;
-    import("@vercel/analytics").then(({ inject }) =>
-      inject({
-        framework: "next",
-        beforeSend: (event) => (optedOut() ? null : event),
-      }),
+    import("@vercel/analytics").then(
+      ({ inject }) =>
+        inject({
+          framework: "next",
+          beforeSend: (event) => (optedOut() ? null : event),
+        }),
+      // A chunk that cannot load (an old tab after a deploy) counts nothing.
+      () => {},
     );
   }, [pageViews]);
   useEffect(() => {
@@ -31,6 +34,10 @@ export default function SiteEvents({ pageViews }: { pageViews: boolean }) {
     let stop = () => {};
     const early: EventTarget[] = [];
     const remember = (event: Event) => early.push(event.target!);
+    // Stops collecting early clicks: the counter took them, or its chunk
+    // could not load (an old tab after a deploy) and nothing is counted.
+    const forget = () =>
+      document.removeEventListener("click", remember, { capture: true });
     const off = () => {
       for (const type of firstUse)
         window.removeEventListener(type, load, { capture: true });
@@ -38,11 +45,11 @@ export default function SiteEvents({ pageViews }: { pageViews: boolean }) {
     function load() {
       off();
       import("@/lib/event-beacon").then(({ countClick, listen }) => {
-        document.removeEventListener("click", remember, { capture: true });
+        forget();
         if (!live) return;
         stop = listen();
         for (const target of early.splice(0)) countClick(target);
-      });
+      }, forget);
     }
     document.addEventListener("click", remember, { capture: true });
     for (const type of firstUse)
@@ -50,7 +57,7 @@ export default function SiteEvents({ pageViews }: { pageViews: boolean }) {
     return () => {
       live = false;
       off();
-      document.removeEventListener("click", remember, { capture: true });
+      forget();
       stop();
     };
     // Layouts survive client navigation. Rebind the case-read observer to

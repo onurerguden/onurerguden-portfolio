@@ -26,7 +26,8 @@ export default async function JourneyPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  if (!isLocale(locale) || process.env.VERCEL_ENV === "production") notFound();
+  // The lab layout keeps this page off the public site (labBlocked).
+  if (!isLocale(locale)) notFound();
   return (
     <main id="main" tabIndex={-1} data-home>
       <DeskJourney

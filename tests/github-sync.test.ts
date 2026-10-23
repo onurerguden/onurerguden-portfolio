@@ -268,5 +268,30 @@ describe("durable synchronization", () => {
       "Snapshot changed",
     );
     expect((await store.read()).repos).toEqual([]);
+    // It fetched once more after the removal, and still never wrote over it.
+    expect(fetcher).toHaveBeenCalledTimes(2);
+  });
+  it("fetches again when another sync commits first, instead of dropping the delivery", async () => {
+    const store = memoryStore();
+    let calls = 0;
+    const fetcher = vi.fn<typeof fetch>().mockImplementation(async () => {
+      calls++;
+      if (calls === 1) {
+        // The daily run commits an older list while this delivery fetches.
+        await store.commit(
+          { repos: [], syncedAt: "2026-10-23T03:00:00Z" },
+          (await store.read()).revision,
+        );
+        return response([repo(1, "pushed")]);
+      }
+      return response([repo(1, "pushed"), repo(2, "new")]);
+    });
+    expect(await synchronize(store, "token", "push", fetcher)).toBe("updated");
+    expect((await store.read()).repos.map((item) => item.name)).toEqual([
+      "new",
+      "pushed",
+    ]);
+    expect(await store.done("push")).toBe(true);
+    expect(fetcher).toHaveBeenCalledTimes(2);
   });
 });

@@ -1,4 +1,5 @@
 import type { Locale } from "./content";
+import { editorialModified } from "./editorial";
 import { siteOrigin } from "./site";
 import { getPosts } from "./writing";
 
@@ -19,10 +20,13 @@ export function atomFeed(locale: Locale) {
   const posts = getPosts(locale);
   const en = locale === "en";
   const title = en ? "Onur Ergüden — Writing" : "Onur Ergüden — Yazılar";
-  const updated = posts
-    .map((post) => post.updated)
-    .sort()
-    .at(-1);
+  // The newest article's update; with none yet, the listing page's own
+  // editorial date (every sitemap page has one, tests/indexnow.test.ts).
+  const updated =
+    posts
+      .map((post) => `${post.updated}T00:00:00Z`)
+      .sort()
+      .at(-1) ?? editorialModified("/writing");
   const entries = posts.map((post) => {
     const url = `${origin}/${locale}/writing/${post.slug}`;
     return [
@@ -44,7 +48,7 @@ export function atomFeed(locale: Locale) {
     `  <link rel="self" href="${feedUrl(locale)}"/>`,
     `  <link href="${origin}/${locale}/writing"/>`,
     `  <id>${origin}/${locale}/writing</id>`,
-    `  <updated>${updated ?? "2026-10-23"}T00:00:00Z</updated>`,
+    `  <updated>${updated}</updated>`,
     "  <author>",
     "    <name>Onur Ergüden</name>",
     `    <uri>${origin}/${locale}</uri>`,

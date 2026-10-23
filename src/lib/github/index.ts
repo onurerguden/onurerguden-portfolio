@@ -11,7 +11,11 @@ export const reposTag = "github-repos";
 
 // Cached for the built archive page: an uncached Redis read while rendering
 // would make the page render on every request instead of coming from the
-// CDN. A sync revalidates the tag; the hour is the fallback.
+// CDN. A sync revalidates the tag; the hour is the fallback. `use cache`
+// replaces unstable_cache only with Cache Components, which this site does
+// not use (its pages are built ahead with segment configs); without them
+// unstable_cache is the documented way (Next.js guide "Caching and
+// Revalidating (Previous Model)").
 const readRepos = unstable_cache(
   async () => createStore()?.read(),
   [reposTag],
