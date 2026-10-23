@@ -156,12 +156,17 @@ export function auditPage(html, url, headers = {}, { indexable = true } = {}) {
     failures.push("page graph does not link its canonical, website and author");
   if (node?.inLanguage !== new URL(url).pathname.split("/")[1])
     failures.push("graph language differs from page URL");
-  if (node && hasType(node, "ProfilePage")) {
-    const person = page.graph.find(
-      (item) => reference(item) === personId && hasType(item, "Person"),
-    );
-    if (!person || reference(node.mainEntity) !== personId)
-      failures.push("profile mainEntity is not the shared Person");
+  const person = page.graph.find(
+    (item) => reference(item) === personId && hasType(item, "Person"),
+  );
+  if (
+    node &&
+    hasType(node, "ProfilePage") &&
+    (!person || reference(node.mainEntity) !== personId)
+  )
+    failures.push("profile mainEntity is not the shared Person");
+  // Any page that describes me in full must also show what it says.
+  if (node && person) {
     if (
       !page.graph.some(
         (item) => reference(item) === websiteId && hasType(item, "WebSite"),

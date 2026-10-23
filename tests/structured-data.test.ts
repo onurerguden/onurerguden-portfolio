@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { getProjects, sharedFacts } from "../src/lib/content";
 import { getIdentity } from "../src/lib/identity";
 import {
+  aboutStructuredData,
   caseStudyStructuredData,
   homeStructuredData,
   jsonLd,
@@ -16,15 +17,30 @@ const node = (graph: Graph, type: string) =>
 afterEach(() => vi.unstubAllEnvs());
 
 describe("structured data", () => {
-  it("describes the home page as my profile, in both languages", () => {
+  it("makes /about my one profile page and the home page about me", () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://onurerguden.dev");
     for (const locale of ["en", "tr"] as const) {
       const identity = getIdentity(locale);
-      const graph = homeStructuredData(locale) as Graph;
-      expect(node(graph, "ProfilePage")).toMatchObject({
+      const home = homeStructuredData(locale) as Graph;
+      expect(node(home, "ProfilePage")).toBeUndefined();
+      expect(node(home, "WebPage")).toMatchObject({
         url: `https://onurerguden.dev/${locale}`,
         name: identity.title,
+        about: { "@id": "https://onurerguden.dev/#person" },
+      });
+      const graph = aboutStructuredData(locale) as Graph;
+      expect(node(graph, "ProfilePage")).toMatchObject({
+        "@id": `https://onurerguden.dev/${locale}/about#page`,
+        url: `https://onurerguden.dev/${locale}/about`,
         mainEntity: { "@id": "https://onurerguden.dev/#person" },
+      });
+      // Both pages carry the same Person.
+      expect(node(graph, "Person")).toEqual(node(home, "Person"));
+      expect(node(graph, "Person")).toMatchObject({
+        url: `https://onurerguden.dev/${locale}/about`,
+        mainEntityOfPage: {
+          "@id": `https://onurerguden.dev/${locale}/about#page`,
+        },
       });
       expect(node(graph, "Person")).toMatchObject({
         "@id": "https://onurerguden.dev/#person",
