@@ -29,8 +29,6 @@ function intro() {
     "",
     `> ${sharedFacts.name} is an ${identity.occupation} based in ${identity.location}. He builds LLM applications end to end: retrieval, tool-calling agents with LangGraph and MCP, and the software around them. ${education.degree}, ${education.university}.`,
     "",
-    identity.availability,
-    "",
     `This is his portfolio, in English (${origin}/en) and Turkish (${origin}/tr). Contact: ${sharedFacts.email}. Profiles: ${sharedFacts.profiles.map((profile) => `${profile.name} ${profile.url}`).join(", ")}. The site is written in his own words, so the sections below speak in the first person.`,
   ];
 }

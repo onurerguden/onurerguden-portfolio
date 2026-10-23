@@ -27,27 +27,28 @@ test("contact links count once each, with where they were used", async ({
   await stayOnPage(page);
   const contact = page.locator("#contact");
   await contact.scrollIntoViewIfNeeded();
-  const linkedin = contact.getByRole("link", { name: "LinkedIn" });
   // A click that lands while the deferred module loads must replay only once.
-  await linkedin.click();
+  await contact.getByRole("link", { name: "Request my CV" }).click();
   await expect
     .poll(() => sent)
     .toEqual([
       {
-        name: "linkedin_click",
+        name: "cv_request",
         location: "contact",
         channel: "direct_or_unknown",
       },
     ]);
   sent.length = 0;
-  await contact.getByRole("link", { name: "GitHub" }).click();
-  await page.locator("footer").getByRole("link", { name: "LinkedIn" }).click();
+  // My profiles are linked once per page, in the footer.
+  const footer = page.locator("footer");
+  await footer.getByRole("link", { name: "GitHub" }).click();
+  await footer.getByRole("link", { name: "LinkedIn" }).click();
   await expect
     .poll(() => sent)
     .toEqual([
       {
         name: "github_click",
-        location: "contact",
+        location: "footer",
         channel: "direct_or_unknown",
       },
       {
@@ -137,11 +138,8 @@ test("nothing is sent without a counted action or under Global Privacy Control",
   await page.goto("/en");
   await stayOnPage(page);
   await page.waitForTimeout(4000);
-  await page.locator("#contact").scrollIntoViewIfNeeded();
-  await page
-    .locator("#contact")
-    .getByRole("link", { name: "LinkedIn" })
-    .click();
+  await page.locator("footer").scrollIntoViewIfNeeded();
+  await page.locator("footer").getByRole("link", { name: "LinkedIn" }).click();
   await page.waitForTimeout(500);
   expect(sent).toEqual([]);
 });
@@ -181,11 +179,11 @@ for (const { referrer, query, channel } of [
     await stayOnPage(page);
     await page
       .locator("#contact")
-      .getByRole("link", { name: "GitHub" })
+      .getByRole("link", { name: "Request my CV" })
       .click();
     await expect
       .poll(() => sent)
-      .toEqual([{ name: "github_click", location: "contact", channel }]);
+      .toEqual([{ name: "cv_request", location: "contact", channel }]);
     expect(JSON.stringify(sent)).not.toMatch(
       /https:|private|utm_|referrer|visitor/,
     );
@@ -289,7 +287,7 @@ for (const signal of ["globalPrivacyControl", "doNotTrack"] as const) {
     ).toBeAttached();
     await stayOnPage(page);
     await page
-      .locator("#contact")
+      .locator("footer")
       .getByRole("link", { name: "LinkedIn" })
       .click();
     await page.waitForTimeout(500);

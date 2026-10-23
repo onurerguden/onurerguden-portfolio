@@ -1,5 +1,4 @@
 import GiantTitle from "@/components/giant-title";
-import ProfileLinks from "@/components/site/profile-links";
 import { sharedFacts, type Locale } from "@/lib/content";
 import { cvLink } from "@/lib/site";
 import CopyEmail from "./copy-email";
@@ -27,7 +26,7 @@ export default function ContactSection({ locale }: { locale: Locale }) {
           locale={locale}
           fill={88}
         />
-        <p className={styles.availability}>{identity.availability}</p>
+        <p className={styles.invitation}>{identity.invitation}</p>
         <div className={styles.mailRow}>
           <a className={styles.mail} href={`mailto:${sharedFacts.email}`}>
             {sharedFacts.email}
@@ -38,12 +37,10 @@ export default function ContactSection({ locale }: { locale: Locale }) {
             className={styles.copy}
           />
         </div>
-        <ul className={styles.links}>
-          <li>
-            <a href={cv.href}>{cv.label}</a>
-          </li>
-          <ProfileLinks />
-        </ul>
+        {/* My profiles are in the footer, once per page. */}
+        <p className={styles.links}>
+          <a href={cv.href}>{cv.label}</a>
+        </p>
       </div>
     </section>
   );
