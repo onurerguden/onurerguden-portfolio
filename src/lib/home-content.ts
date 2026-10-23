@@ -61,10 +61,10 @@ function resolveProof(proof: Proof, context: ProofContext): ProofLink {
     case "project": {
       const project = context.projects.find((p) => p.slug === proof.slug);
       if (!project) throw new Error(`Unknown proof project: ${proof.slug}`);
-      // Featured projects have a case study; archive entries are anchors.
+      // Case studies have a page; other archive entries are anchors.
       return {
         kind: "project",
-        href: project.featured
+        href: project.caseStudy
           ? `/${locale}/projects/${project.slug}`
           : `/${locale}/projects#${project.slug}`,
         label: project.title,

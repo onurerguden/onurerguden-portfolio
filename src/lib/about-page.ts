@@ -93,7 +93,7 @@ export function getAboutPage(locale: Locale) {
   ].toSorted((a, b) => b.start.localeCompare(a.start));
 
   const cases = getProjects(locale)
-    .filter((project) => project.featured)
+    .filter((project) => project.caseStudy)
     .map((project) => ({
       title: project.title,
       summary: project.summary,

@@ -216,12 +216,12 @@ export function projectsStructuredData(locale: Locale, projects: Project[]) {
       mainEntity: {
         "@type": "ItemList",
         itemListElement: projects
-          .filter((project) => project.featured || project.repoUrl)
+          .filter((project) => project.caseStudy || project.repoUrl)
           .map((project, index) => ({
             "@type": "ListItem",
             position: index + 1,
             name: project.title,
-            url: project.featured
+            url: project.caseStudy
               ? `${origin}/${locale}/projects/${project.slug}`
               : project.repoUrl,
           })),
