@@ -12,8 +12,8 @@ import PortraitIdentity from "../src/components/desk/portrait-identity";
 describe("public bilingual identity", () => {
   it("uses the approved name, occupation and place in home metadata", () => {
     const titles = {
-      en: "Onur Ergüden — AI engineer: LLM apps, RAG and agents",
-      tr: "Onur Ergüden — yapay zekâ mühendisi: LLM, RAG ve ajanlar",
+      en: "Onur Ergüden — AI engineer in İzmir: LLM apps, RAG and agents",
+      tr: "Onur Ergüden — İzmir’de yapay zekâ mühendisi: LLM, RAG ve ajanlar",
     };
     for (const locale of ["en", "tr"] as const) {
       const identity = getIdentity(locale);
@@ -65,7 +65,9 @@ describe("public bilingual identity", () => {
       const identity = getIdentity(locale);
       expect(identity.bio).toContain("İzmir, Türkiye");
       expect(identity.description).toContain("İzmir, Türkiye");
-      expect(identity.title).not.toContain("İzmir");
+      // The title names the city (23 October); the visible h1 does not.
+      expect(identity.title).toContain("İzmir");
+      expect(identity.heading).not.toContain("İzmir");
     }
   });
 

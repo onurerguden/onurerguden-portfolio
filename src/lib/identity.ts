@@ -11,9 +11,11 @@ export function getIdentity(locale: Locale) {
   const occupation = role;
   // The opening's second line: AI first, and the software around it.
   const tagline = en ? "software engineer" : "yazılım mühendisi";
+  // The city stays in the title: it is the one place-based answer the
+  // 22 October baseline found us in. The visible h1 does not carry it.
   const title = en
-    ? `${name} — ${role}: LLM apps, RAG and agents`
-    : `${name} — ${role}: LLM, RAG ve ajanlar`;
+    ? `${name} — ${role} in ${location.city}: LLM apps, RAG and agents`
+    : `${name} — ${location.city}’de ${role}: LLM, RAG ve ajanlar`;
   const introduction = en
     ? `I’m ${firstName}, an ${occupation} based in ${place}.`
     : `Ben ${firstName}, ${place}’de yaşayan bir ${occupation}yim.`;

@@ -20,7 +20,7 @@ The approved location is İzmir, Türkiye, with national and international remot
 
 ### October 22: AI engineer, and the software around it
 
-One role in each language everywhere: "AI engineer" / "yapay zekâ mühendisi" (no more "AI mühendisi"). The opening's second line, where İzmir was, says "software engineer" / "yazılım mühendisi"; İzmir, Türkiye stays a fact in About, the description and the graph, not a headline. The name and both roles are the h1's own visible text, read as "Onur Ergüden AI engineer software engineer"; there is no aria-label. The h1 covers the artwork, so the composition is unchanged. Titles lead with the role and the work: "AI engineer: LLM apps, RAG and agents". The home share card repeats both roles.
+One role in each language everywhere: "AI engineer" / "yapay zekâ mühendisi" (no more "AI mühendisi"). The opening's second line, where İzmir was, says "software engineer" / "yazılım mühendisi"; İzmir, Türkiye stays a fact in About, the description and the graph, not a headline. The name and both roles are the h1's own visible text, read as "Onur Ergüden AI engineer software engineer"; there is no aria-label. The h1 covers the artwork, so the composition is unchanged. Titles lead with the role, the city and the work: "AI engineer in İzmir: LLM apps, RAG and agents". The city stays in the title because the 22 October AI-search baseline found the old İzmir title behind the one unbranded answer that named Onur; the h1 still does not carry it. The home share card repeats both roles.
 
 ## September 11: room entrance
 
