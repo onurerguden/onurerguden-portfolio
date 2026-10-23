@@ -244,3 +244,16 @@ Left out on purpose: "open to opportunities" and remote-work questions (removed 
 ## Discovery (geo/08, October 23)
 
 No new copy. Content pages (About, Projects, Research and each case study) show a breadcrumb above the title: "Onur Ergüden / Projects / Kuyumcum" ("Onur Ergüden / Projeler / Kuyumcum"), labelled "Breadcrumb" / "Sayfa yolu". It replaces the case pages' "← Projects" link and is the same trail as the graph's BreadcrumbList. The sitemap lists the images each page shows (portrait and certificates on home, screenshots on case studies). llms.txt gains a "Türkçe" section: the About lead and expertise in Turkish and links to every Turkish page.
+
+## CarbonPilot case study (geo/06, October 23)
+
+Onur gave blanket approval on 23 October 2026 to finish the plan. CarbonPilot AI gets a case-study page (`/projects/carbonpilot`) without becoming a home card: projects now have `caseStudy` (has a page) apart from `featured` (home card). Every claim comes from the team's public repository at commit `70e88fc`, checked with `git log` and `git blame`:
+
+- **Onur's commits:** the monorepo scaffold; the deterministic calculation engine; the first LangGraph graph; CP-40, the nine-node graph that ends in a report or human review; CP-41, Gemini extraction; CP-42, Law-RAG uploads; CP-43, LangSmith tracing; CP-44 and CP-45, PDF reports and JSON hashes; CP-46 to CP-48, the frontend API wiring; the green-transition optimizer and the slider simulation (25 tests).
+- **Teammates' work:** the critic's retry routing (Tahsin Yazıcı); the loop, timeout and fallback guardrails and the persistence layer (Fatma Nur Durmuş); most of the frontend.
+
+| Block   | Before                                                                                     | After                                                                                                                                                                                                                             |
+| ------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Summary | "My part: the agent graph with loop, timeout and fallback guards, Gemini extraction, …"    | "My part: the agent graph that ends in a report or human review, Gemini extraction, the green-transition optimizer, LangSmith tracing and hashed reports." The guards were teammates' work, so the summary no longer claims them. |
+| Page    | —                                                                                          | Sections: the problem, my contribution (with teammates' parts named), the graph, the extraction boundary, report hashes, the optimizer, limitations, pinned code links. No team images.                                           |
+| Links   | Services "LangGraph in CarbonPilot" and the LangGraph chip went to `/projects#carbonpilot` | Both go to `/projects/carbonpilot`                                                                                                                                                                                                |
