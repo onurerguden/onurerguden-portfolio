@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createDeskAudio, deskTrack, type AudioStatus } from "@/lib/desk-audio";
-import { lampColors } from "@/lib/desk-interaction-motion";
+import { initialLampColor, lampColors } from "@/lib/desk-interaction-motion";
 import styles from "./interactions.module.css";
 
 export type DeskAction =
@@ -47,7 +47,7 @@ const copy = {
 
 export function useDeskInteractions(active: boolean, reduced: boolean) {
   const [lights, setLights] = useState(true);
-  const [colorIndex, setColorIndex] = useState(1);
+  const [colorIndex, setColorIndex] = useState(initialLampColor);
   const [audioStatus, setAudioStatus] = useState<AudioStatus>("idle");
   const [visible, setVisible] = useState(true);
   const motion = useRef<(action: DeskAction, point?: InteractionPoint) => void>(

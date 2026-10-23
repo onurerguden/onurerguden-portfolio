@@ -29,6 +29,7 @@ import {
   drawerWave,
   animationDuration,
   lampColors,
+  initialLampColor,
   type AnimatedObject,
 } from "@/lib/desk-interaction-motion";
 import type { DeskAction, DeskInteractions } from "./interactions";
@@ -167,10 +168,10 @@ export default function InteractionScene({
   // then skip that work, uploads included, as it would set the same values
   // again. Anything that starts a change clears it.
   const settled = useRef(false);
-  const color = useRef(new Color(lampColors[1]));
+  const color = useRef(new Color(lampColors[initialLampColor]));
   const transition = useRef({
     start: 0,
-    colorStart: new Color(lampColors[1]),
+    colorStart: new Color(lampColors[initialLampColor]),
     lightStart: 1,
     light: 1,
   });
