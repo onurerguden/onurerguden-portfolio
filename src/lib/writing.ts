@@ -3,7 +3,7 @@ import path from "node:path";
 import { cache } from "react";
 import matter from "gray-matter";
 import { z } from "zod";
-import { caseHeadings, locales, slugify, type Locale } from "./content";
+import { caseHeadings, headingSections, locales, type Locale } from "./content";
 import { editorialModified } from "./editorial";
 
 /**
@@ -73,11 +73,10 @@ export function getPost(locale: Locale, slug: string, root = defaultRoot()) {
 
 /** Section ids come from the English headings, so both languages share them. */
 export function postSections(locale: Locale, slug: string) {
-  const local = getPost(locale, slug)?.body;
-  const english = getPost("en", slug)?.body;
-  if (!local || !english) return [];
-  const ids = caseHeadings(english).map(slugify);
-  return caseHeadings(local).map((label, i) => ({ id: ids[i], label }));
+  return headingSections(
+    getPost(locale, slug)?.body,
+    getPost("en", slug)?.body,
+  );
 }
 
 /** Both languages carry the same articles, dates and sections; none is from the future. */

@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { ReactNode } from "react";
 import { MDXRemote } from "next-mdx-remote/rsc";
-import { isLocale, sharedFacts } from "@/lib/content";
+import { headingIds, isLocale, sharedFacts } from "@/lib/content";
 import { pageMetadata } from "@/lib/site";
 import { postStructuredData } from "@/lib/structured-data";
 import { formatDay, getPost, getPosts, postSections } from "@/lib/writing";
@@ -41,13 +40,6 @@ export async function generateMetadata({
     : {};
 }
 
-const text = (node: ReactNode): string =>
-  typeof node === "string" || typeof node === "number"
-    ? String(node)
-    : Array.isArray(node)
-      ? node.map(text).join("")
-      : "";
-
 /** One article: who wrote it, when, and the text. */
 export default async function PostPage({
   params,
@@ -60,8 +52,6 @@ export default async function PostPage({
   if (!post) notFound();
   const en = locale === "en";
   const sections = postSections(locale, slug);
-  const idFor = (label: string) =>
-    sections.find((section) => section.label === label.trim())?.id;
   return (
     <main id="main" tabIndex={-1} className={styles.page}>
       <JsonLd data={postStructuredData(locale, post)} />
@@ -102,10 +92,11 @@ export default async function PostPage({
         <div className={styles.prose}>
           <MDXRemote
             source={post.body}
-            components={{
-              h2: ({ children }: { children?: ReactNode }) => (
-                <h2 id={idFor(text(children))}>{children}</h2>
-              ),
+            // Headings take their language-independent ids by position.
+            options={{
+              mdxOptions: {
+                rehypePlugins: [headingIds(sections.map(({ id }) => id))],
+              },
             }}
           />
         </div>

@@ -452,9 +452,33 @@ export function validateContent(contentRoot?: string): void {
   });
 }
 
-/** The level-two headings of a case study, in order. */
+/**
+ * The level-two headings of a case study or article, in order, as written.
+ * A `## ` line inside a fenced code block is code, not a heading.
+ */
 export function caseHeadings(body: string): string[] {
-  return [...body.matchAll(/^## (.+)$/gm)].map((match) => match[1].trim());
+  const headings: string[] = [];
+  let fence = "";
+  for (const line of body.split("\n")) {
+    const marker = /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1];
+    if (fence) {
+      if (marker?.[0] === fence[0] && marker.length >= fence.length) fence = "";
+    } else if (marker) fence = marker;
+    else {
+      const heading = /^## (.+)$/.exec(line);
+      if (heading) headings.push(heading[1].trim());
+    }
+  }
+  return headings;
+}
+
+/** A heading as readers see it: inline code, emphasis and links as text. */
+export function plainHeading(markdown: string) {
+  return markdown
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/`([^`]*)`/g, "$1")
+    .replace(/\*{1,3}([^*]+)\*{1,3}/g, "$1")
+    .trim();
 }
 
 /** A URL-safe id from English heading text. */
@@ -468,14 +492,54 @@ export function slugify(text: string) {
 }
 
 /**
- * A case study's sections in this language, with ids taken from the English
- * headings at the same position, so a heading's anchor survives switching
- * language (validateContent keeps the counts equal).
+ * The sections of a body in this language, with ids taken from the English
+ * body's headings at the same position, so a heading's anchor survives
+ * switching language (validation keeps the counts equal).
  */
-export function caseSections(locale: Locale, slug: string) {
-  const local = getProject(locale, slug)?.body;
-  const english = getProject("en", slug)?.body;
+export function headingSections(
+  local: string | undefined,
+  english: string | undefined,
+) {
   if (!local || !english) return [];
-  const ids = caseHeadings(english).map(slugify);
-  return caseHeadings(local).map((label, i) => ({ id: ids[i], label }));
+  const ids = caseHeadings(english).map((heading) =>
+    slugify(plainHeading(heading)),
+  );
+  return caseHeadings(local).map((heading, i) => ({
+    id: ids[i],
+    label: plainHeading(heading),
+  }));
+}
+
+/** A case study's sections in this language (see headingSections). */
+export function caseSections(locale: Locale, slug: string) {
+  return headingSections(
+    getProject(locale, slug)?.body,
+    getProject("en", slug)?.body,
+  );
+}
+
+type HastNode = {
+  type: string;
+  tagName?: string;
+  properties?: Record<string, unknown>;
+  children?: HastNode[];
+};
+
+/**
+ * A rehype plugin giving the rendered level-two headings these ids, in
+ * order. Matching by position rather than by text keeps a heading with code,
+ * emphasis or a link in it on its anchor.
+ */
+export function headingIds(ids: string[]) {
+  return () => (tree: HastNode) => {
+    let index = 0;
+    const visit = (node: HastNode) => {
+      if (node.type === "element" && node.tagName === "h2") {
+        const id = ids[index++];
+        if (id) node.properties = { ...node.properties, id };
+      }
+      node.children?.forEach(visit);
+    };
+    visit(tree);
+  };
 }

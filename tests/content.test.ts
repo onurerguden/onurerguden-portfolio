@@ -2,9 +2,13 @@ import { afterEach, describe, expect, it } from "vitest";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { renderToStaticMarkup } from "react-dom/server";
+import { compileMDX } from "next-mdx-remote/rsc";
 import {
   caseHeadings,
   caseSections,
+  headingIds,
+  headingSections,
   slugify,
   getProject,
   getProjects,
@@ -381,5 +385,34 @@ describe("case study sections", () => {
       expect(new Set(en.map((s) => s.id)).size).toBe(en.length);
     }
     expect(caseSections("en", "pam")).toEqual([]);
+  });
+  it("skip code fences and read formatted headings as text", () => {
+    const body = [
+      "## Using `MCP` tools",
+      "```md",
+      "## not a heading",
+      "```",
+      "## A [linked](https://example.com) **bold** part",
+    ].join("\n");
+    expect(caseHeadings(body)).toEqual([
+      "Using `MCP` tools",
+      "A [linked](https://example.com) **bold** part",
+    ]);
+    expect(headingSections(body, body)).toEqual([
+      { id: "using-mcp-tools", label: "Using MCP tools" },
+      { id: "a-linked-bold-part", label: "A linked bold part" },
+    ]);
+  });
+  it("give the rendered headings their ids by position, whatever they contain", async () => {
+    const body = "## Using `MCP` tools\n\nText.\n\n## Second\n";
+    const { content } = await compileMDX({
+      source: body,
+      options: {
+        mdxOptions: { rehypePlugins: [headingIds(["first", "second"])] },
+      },
+    });
+    const html = renderToStaticMarkup(content);
+    expect(html).toContain('<h2 id="first">Using <code>MCP</code> tools</h2>');
+    expect(html).toContain('<h2 id="second">Second</h2>');
   });
 });
