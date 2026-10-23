@@ -19,6 +19,8 @@ import { pageMetadata } from "@/lib/site";
 import { editorialModified } from "@/lib/editorial";
 import { caseStudyStructuredData } from "@/lib/structured-data";
 import JsonLd from "@/components/json-ld";
+import Breadcrumbs from "@/components/site/breadcrumbs";
+import { trails } from "@/lib/breadcrumbs";
 
 // Every case study is built ahead; any other slug is a 404.
 export const dynamicParams = false;
@@ -77,9 +79,10 @@ export default async function ProjectPage({
     <main id="main" tabIndex={-1} className={styles.page}>
       <JsonLd data={caseStudyStructuredData(locale, project)} />
       <header className={styles.hero}>
-        <Link className={styles.back} href={`/${locale}#work`}>
-          <span aria-hidden="true">←</span> {en ? "Projects" : "Projeler"}
-        </Link>
+        <Breadcrumbs
+          locale={locale}
+          trail={trails.caseStudy(locale, project.title, project.slug)}
+        />
         <p className={styles.category}>{project.category}</p>
         <GiantTitle
           as="h1"
