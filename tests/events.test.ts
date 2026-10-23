@@ -104,6 +104,7 @@ describe("POST /api/event", () => {
       "linkedin_click:footer",
       400 * 86_400,
       "linkedin_click:footer:unattributed",
+      1000,
     ]);
     // Nothing about the visitor reaches the store.
     expect(JSON.stringify(args)).not.toMatch(/iPhone|Safari|onurerguden\.dev/);
@@ -119,11 +120,21 @@ describe("POST /api/event", () => {
       "cv_request:contact",
       400 * 86_400,
       "cv_request:contact:claude",
+      1000,
     ]);
     // Both daily hashes have the same retention and share the existing ceiling.
     expect(args[1]).toContain("EXPIRE', KEYS[2], ARGV[3]");
     expect(args[1]).toContain("EXPIRE', KEYS[3], ARGV[3]");
     expect(args[1].indexOf("if n >")).toBeLessThan(args[1].indexOf("HINCRBY"));
+  });
+  it("stops one counter at its daily ceiling, before either hash grows", async () => {
+    const [, script] = (await POST(
+      beacon({ name: "email_click", location: "contact" }),
+    ).then(() => redis.mock.calls[0])) as [string, string];
+    const ceiling = script.indexOf("HGET', KEYS[2], ARGV[2]");
+    expect(ceiling).toBeGreaterThan(script.indexOf("if n >"));
+    expect(ceiling).toBeLessThan(script.indexOf("HINCRBY"));
+    expect(script).toContain(">= tonumber(ARGV[5]) then return 0");
   });
   it("drops privacy opt-outs even if a client sends a beacon", async () => {
     const preferences: Record<string, string>[] = [
