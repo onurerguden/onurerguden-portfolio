@@ -86,10 +86,9 @@ export const deskSections = homeSections.filter(
  * as written, as the browser does when it looks for the target itself.
  */
 export function hashId(hash: string): string | null {
-  const raw = hash.replace(/^#/, "");
-  if (!raw) return null;
+  const raw = hash.slice(1);
   try {
-    return decodeURIComponent(raw);
+    return decodeURIComponent(raw) || null;
   } catch {
     return raw;
   }

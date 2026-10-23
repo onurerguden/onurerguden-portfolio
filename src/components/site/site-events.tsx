@@ -34,10 +34,10 @@ export default function SiteEvents({ pageViews }: { pageViews: boolean }) {
     let stop = () => {};
     const early: EventTarget[] = [];
     const remember = (event: Event) => early.push(event.target!);
-    const forget = () => {
+    // Stops collecting early clicks: the counter took them, or its chunk
+    // could not load (an old tab after a deploy) and nothing is counted.
+    const forget = () =>
       document.removeEventListener("click", remember, { capture: true });
-      early.length = 0;
-    };
     const off = () => {
       for (const type of firstUse)
         window.removeEventListener(type, load, { capture: true });
@@ -45,7 +45,7 @@ export default function SiteEvents({ pageViews }: { pageViews: boolean }) {
     function load() {
       off();
       import("@/lib/event-beacon").then(({ countClick, listen }) => {
-        document.removeEventListener("click", remember, { capture: true });
+        forget();
         if (!live) return;
         stop = listen();
         for (const target of early.splice(0)) countClick(target);
@@ -57,7 +57,7 @@ export default function SiteEvents({ pageViews }: { pageViews: boolean }) {
     return () => {
       live = false;
       off();
-      document.removeEventListener("click", remember, { capture: true });
+      forget();
       stop();
     };
     // Layouts survive client navigation. Rebind the case-read observer to

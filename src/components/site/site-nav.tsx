@@ -13,7 +13,7 @@ import MotionToggle from "@/components/motion-toggle";
 import { deskMode, useStaticDesk } from "@/lib/desk-mode";
 import { useMotionPreference } from "@/lib/motion-preference";
 import { currentSection } from "@/lib/current-section";
-import { whenIdle } from "@/lib/yield";
+import { whenIdle } from "@/lib/idle";
 import LanguageLink from "./language-link";
 import styles from "./site-nav.module.css";
 

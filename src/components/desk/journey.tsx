@@ -57,7 +57,7 @@ import {
   rawStory,
 } from "@/lib/desk-story/clock";
 import { onScrollPause } from "@/lib/scroll-pause";
-import { whenIdle } from "@/lib/yield";
+import { whenIdle } from "@/lib/idle";
 import SceneBoundary from "@/components/three/scene-boundary";
 import { JourneyNav, plainClick } from "@/components/site/site-nav";
 import monitorStyles from "@/components/sections/monitor.module.css";

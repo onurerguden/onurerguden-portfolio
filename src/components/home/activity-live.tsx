@@ -12,7 +12,7 @@ import {
   topLanguages,
 } from "@/lib/activity-view";
 import { useMinute } from "@/lib/use-minute";
-import { whenIdle } from "@/lib/yield";
+import { whenIdle } from "@/lib/idle";
 import ActivitySkeleton from "./activity-skeleton";
 import ActivityUnavailable from "./activity-unavailable";
 import ContributionGrid from "./contribution-grid";

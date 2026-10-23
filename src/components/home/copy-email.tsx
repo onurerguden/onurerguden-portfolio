@@ -1,15 +1,11 @@
 "use client";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-
-const noChange = () => () => {};
-const clipboardReady = () =>
-  typeof navigator.clipboard?.writeText === "function";
+import { useRef, useState } from "react";
 
 /**
  * Copies the address to the clipboard and says so; mail clients are not
- * everyone's first choice. Without the Clipboard API (an old browser, a page
- * not served securely) the button is not offered, and the address stays
- * selectable text. A copy the browser refuses says so too.
+ * everyone's first choice. Where the browser cannot or will not copy (no
+ * Clipboard API, a page not served securely, a refused permission), it says
+ * that instead, and the address stays selectable text.
  */
 export default function CopyEmail({
   email,
@@ -21,12 +17,9 @@ export default function CopyEmail({
   className?: string;
 }) {
   const en = locale === "en";
-  // The server renders the button; a browser without the API removes it.
-  const available = useSyncExternalStore(noChange, clipboardReady, () => true);
   const [result, setResult] = useState<"copied" | "failed" | null>(null);
   const reset = useRef(0);
-  useEffect(() => () => window.clearTimeout(reset.current), []);
-  if (!available) return null;
+  const failed = en ? "Copy failed" : "Kopyalanamadı";
   return (
     <>
       <button
@@ -34,7 +27,7 @@ export default function CopyEmail({
         className={className}
         onClick={async (event) => {
           const button = event.currentTarget;
-          window.clearTimeout(reset.current);
+          clearTimeout(reset.current);
           try {
             await navigator.clipboard.writeText(email);
             setResult("copied");
@@ -44,7 +37,6 @@ export default function CopyEmail({
               () => {},
             );
           } catch {
-            // Permission refused, or the page lost focus mid-copy.
             setResult("failed");
           }
           reset.current = window.setTimeout(() => setResult(null), 2500);
@@ -55,9 +47,7 @@ export default function CopyEmail({
             ? "Copied"
             : "Kopyalandı"
           : result === "failed"
-            ? en
-              ? "Copy failed"
-              : "Kopyalanamadı"
+            ? failed
             : en
               ? "Copy address"
               : "Adresi kopyala"}
@@ -68,9 +58,7 @@ export default function CopyEmail({
             ? "Email address copied"
             : "E-posta adresi kopyalandı"
           : result === "failed"
-            ? en
-              ? "The address could not be copied; select it to copy it yourself"
-              : "Adres kopyalanamadı; seçerek kendiniz kopyalayabilirsiniz"
+            ? failed
             : ""}
       </span>
     </>

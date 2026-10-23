@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { frameSlices, whenIdle, yieldToFrame } from "../src/lib/yield";
+import { whenIdle } from "../src/lib/idle";
+import { frameSlices, yieldToFrame } from "../src/lib/yield";
 
 describe("yielding a frame", () => {
   afterEach(() => {
