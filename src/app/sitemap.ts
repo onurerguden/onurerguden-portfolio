@@ -8,7 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const cases = getProjects("en")
     .filter((project) => project.featured)
     .map((project) => `/projects/${project.slug}`);
-  const paths = ["", "/projects", "/research", ...cases];
+  const paths = ["", "/about", "/projects", "/research", ...cases];
   return paths.flatMap((path) =>
     ["en", "tr"].map((locale) => ({
       url: `${origin}/${locale}${path}`,

@@ -275,7 +275,11 @@ export function PageNav({ locale }: { locale: "en" | "tr" }) {
   )
     return null;
   const links = [
-    { href: `/${locale}#work`, label: en ? "Projects" : "Projeler" },
+    {
+      href: `/${locale}/projects`,
+      label: en ? "Projects" : "Projeler",
+      page: true,
+    },
     {
       href: `/${locale}#services`,
       label: en ? "What I do" : "Ne yapıyorum",
@@ -287,9 +291,9 @@ export function PageNav({ locale }: { locale: "en" | "tr" }) {
       page: true,
     },
     {
-      href: `/${locale}#about`,
+      href: `/${locale}/about`,
       label: en ? "About" : "Hakkımda",
-      secondary: true,
+      page: true,
     },
     { href: `/${locale}#contact`, label: en ? "Contact" : "İletişim" },
   ];
