@@ -13,7 +13,7 @@ import { getIdentity } from "./identity";
 /**
  * /llms.txt and /llms-full.txt (llmstxt.org): the site as Markdown for AI
  * assistants and answer engines, built from the same content as the pages so
- * the two cannot drift. English, with the Turkish pages linked.
+ * the two cannot drift. English, with a Turkish section for the Turkish pages.
  */
 const locale: Locale = "en";
 
@@ -30,6 +30,29 @@ function intro() {
     `> ${sharedFacts.name} is an ${identity.occupation} based in ${identity.location}. He builds LLM applications end to end: retrieval, tool-calling agents with LangGraph and MCP, and the software around them. ${education.degree}, ${education.university}.`,
     "",
     `This is his portfolio, in English (${origin}/en) and Turkish (${origin}/tr). Contact: ${sharedFacts.email}. Profiles: ${sharedFacts.profiles.map((profile) => `${profile.name} ${profile.url}`).join(", ")}. The site is written in his own words, so the sections below speak in the first person.`,
+  ];
+}
+
+/** The Turkish pages, introduced in Turkish, so either language finds them. */
+function turkish() {
+  const origin = siteOrigin();
+  const identity = getIdentity("tr");
+  const page = (path: string) => `${origin}/tr${path}`;
+  return [
+    "## Türkçe",
+    "",
+    `${identity.lead} ${identity.expertise}`,
+    "",
+    `- [Ana sayfa](${page("")})`,
+    `- [Hakkımda](${page("/about")})`,
+    `- [Projeler](${page("/projects")})`,
+    `- [Araştırma](${page("/research")})`,
+    ...getProjects("tr")
+      .filter((project) => project.featured)
+      .map(
+        (project) =>
+          `- [${project.title}](${page(`/projects/${project.slug}`)}): ${project.summary}`,
+      ),
   ];
 }
 
@@ -55,6 +78,8 @@ export function llmsIndex() {
         (project) =>
           `- [${project.title}](${page(`/projects/${project.slug}`)}): ${project.summary}`,
       ),
+    "",
+    ...turkish(),
     "",
     "## Optional",
     "",
