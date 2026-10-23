@@ -73,5 +73,41 @@
     },
     "personalDataReviewed": true,
     "order": 5
+  },
+  {
+    "id": "academy-ai-program",
+    "issuer": "Yapay Zeka ve Teknoloji Akademisi",
+    "issued": "2026-10",
+    "image": {
+      "src": "/images/certificates/academy-ai-program.webp",
+      "width": 1600,
+      "height": 1132
+    },
+    "personalDataReviewed": true,
+    "order": 6
+  },
+  {
+    "id": "defense-systems-engineering",
+    "issuer": "Savunma Sanayii Başkanlığı",
+    "issued": "2025-08",
+    "image": {
+      "src": "/images/certificates/defense-systems-engineering.webp",
+      "width": 1600,
+      "height": 1131
+    },
+    "personalDataReviewed": true,
+    "order": 7
+  },
+  {
+    "id": "defense-data-analysis",
+    "issuer": "Savunma Sanayii Başkanlığı",
+    "issued": "2025-08",
+    "image": {
+      "src": "/images/certificates/defense-data-analysis.webp",
+      "width": 1600,
+      "height": 1131
+    },
+    "personalDataReviewed": true,
+    "order": 8
   }
 ]
