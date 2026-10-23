@@ -5,7 +5,7 @@
  * Unknown dates are omitted; these are page dates, not project/paper dates.
  */
 const changes: Readonly<Record<string, string>> = Object.freeze({
-  "": "2026-10-23T09:48:00Z",
+  "": "2026-10-23T11:20:00Z",
   "/projects": "2026-10-22T15:47:00Z",
   "/research": "2026-10-22T15:47:00Z",
   "/projects/course-intelligence": "2026-10-13T12:41:00Z",
