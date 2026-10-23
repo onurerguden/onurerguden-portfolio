@@ -4,6 +4,8 @@ import { isLocale, sharedFacts } from "@/lib/content";
 import { pageMetadata } from "@/lib/site";
 import { researchStructuredData } from "@/lib/structured-data";
 import JsonLd from "@/components/json-ld";
+import Breadcrumbs from "@/components/site/breadcrumbs";
+import { trails } from "@/lib/breadcrumbs";
 import GiantTitle from "@/components/giant-title";
 import EducationFacts from "@/components/home/education-facts";
 import styles from "./research.module.css";
@@ -40,6 +42,7 @@ export default async function ResearchPage({
     <main id="main" tabIndex={-1} className={styles.page}>
       <JsonLd data={researchStructuredData(locale)} />
       <header className={styles.hero}>
+        <Breadcrumbs locale={locale} trail={trails.research(locale)} />
         <p className={styles.kicker}>
           {en ? "Research & academic work" : "Araştırma ve akademik çalışmalar"}
         </p>

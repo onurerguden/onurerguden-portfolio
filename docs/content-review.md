@@ -240,3 +240,7 @@ Onur asked for geo/05 on 23 October 2026. `/en/about` and `/tr/about` are new; e
 | How to reach me         | The contact invitation, email and CV request; profiles stay in the footer                                               | Same                                                                                                                                   |
 
 Left out on purpose: "open to opportunities" and remote-work questions (removed from the site on 23 October), FAQPage schema, and a photo (the illustration stays until Onur supplies one). Navigation: Projects now opens `/projects` and About opens `/about` on content pages; the footer gains an About link; the case byline links to `/about` with `rel="author"`.
+
+## Discovery (geo/08, October 23)
+
+No new copy. Content pages (About, Projects, Research and each case study) show a breadcrumb above the title: "Onur Ergüden / Projects / Kuyumcum" ("Onur Ergüden / Projeler / Kuyumcum"), labelled "Breadcrumb" / "Sayfa yolu". It replaces the case pages' "← Projects" link and is the same trail as the graph's BreadcrumbList. The sitemap lists the images each page shows (portrait and certificates on home, screenshots on case studies). llms.txt gains a "Türkçe" section: the About lead and expertise in Turkish and links to every Turkish page.

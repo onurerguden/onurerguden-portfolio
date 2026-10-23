@@ -1,1 +1,42 @@
 @import url("../styles/site.css");
+
+/* Breadcrumbs: a quiet trail above a content page's title; separators are
+   drawn, not read. Global, so content pages share no CSS chunk with home. */
+.breadcrumbs {
+  margin-bottom: clamp(16px, 3vw, 32px);
+  font-size: 14px;
+  font-weight: 650;
+}
+.breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.breadcrumbs li {
+  display: inline-flex;
+  align-items: center;
+}
+.breadcrumbs li + li::before {
+  content: "/";
+  margin-inline: 10px;
+  color: var(--text-muted);
+}
+.breadcrumbs a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--text-muted);
+}
+.breadcrumbs a:hover {
+  color: var(--text);
+}
+.breadcrumbs a:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+.breadcrumbs [aria-current] {
+  color: var(--text);
+}

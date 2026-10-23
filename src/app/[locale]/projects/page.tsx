@@ -7,6 +7,8 @@ import { publicDescription } from "@/lib/github/core";
 import { pageMetadata } from "@/lib/site";
 import { projectsStructuredData } from "@/lib/structured-data";
 import JsonLd from "@/components/json-ld";
+import Breadcrumbs from "@/components/site/breadcrumbs";
+import { trails } from "@/lib/breadcrumbs";
 import styles from "./archive.module.css";
 export async function generateMetadata({
   params,
@@ -45,6 +47,7 @@ export default async function ProjectsPage({
     <main id="main" tabIndex={-1} className={styles.page}>
       <JsonLd data={projectsStructuredData(locale, projects)} />
       <header className={styles.hero}>
+        <Breadcrumbs locale={locale} trail={trails.projects(locale)} />
         <p className={styles.kicker}>
           {en ? "The project archive" : "Proje arşivi"}
         </p>

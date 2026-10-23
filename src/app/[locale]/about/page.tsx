@@ -6,6 +6,8 @@ import { aboutStructuredData } from "@/lib/structured-data";
 import { getAbout } from "@/lib/home-content";
 import { getAboutPage } from "@/lib/about-page";
 import JsonLd from "@/components/json-ld";
+import Breadcrumbs from "@/components/site/breadcrumbs";
+import { trails } from "@/lib/breadcrumbs";
 import GiantTitle from "@/components/giant-title";
 import styles from "./about.module.css";
 
@@ -44,6 +46,7 @@ export default async function AboutPage({
     <main id="main" tabIndex={-1} className={styles.page}>
       <JsonLd data={aboutStructuredData(locale)} />
       <header className={styles.hero}>
+        <Breadcrumbs locale={locale} trail={trails.about(locale)} />
         <p className={styles.kicker}>{en ? "About" : "Hakkımda"}</p>
         <GiantTitle as="h1" text={identity.name} locale={locale} fill={94} />
         <p className={styles.role}>{identity.headline}</p>

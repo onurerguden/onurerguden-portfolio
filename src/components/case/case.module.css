@@ -7,19 +7,6 @@
   padding: clamp(28px, 5vw, 64px) 0 clamp(32px, 5vw, 56px);
   container-type: inline-size;
 }
-.back {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  margin-bottom: clamp(16px, 3vw, 36px);
-  color: var(--text-muted);
-  font-size: 14px;
-  font-weight: 650;
-}
-.back:hover {
-  color: var(--text);
-}
 .category {
   margin: 0 0 14px;
   color: var(--accent);
@@ -362,7 +349,6 @@
   }
 }
 .others a:focus-visible,
-.back:focus-visible,
 .source:focus-visible,
 .toc a:focus-visible {
   outline: 3px solid var(--focus);

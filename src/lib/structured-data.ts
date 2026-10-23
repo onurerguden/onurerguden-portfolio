@@ -3,6 +3,7 @@ import { sharedFacts, type Locale, type Project } from "./content";
 import { siteOrigin } from "./site";
 import { getIdentity } from "./identity";
 import { editorialModified } from "./editorial";
+import { trails, type Crumb } from "./breadcrumbs";
 
 /**
  * Schema.org data for search engines and AI answer engines. Every page
@@ -138,14 +139,11 @@ function person(locale: Locale): Node {
   };
 }
 
-type Crumb = { name: string; path: string };
-
 function breadcrumbs(locale: Locale, trail: Crumb[]): Node {
   const { origin } = ids();
-  const home: Crumb = { name: sharedFacts.name, path: "" };
   return {
     "@type": "BreadcrumbList",
-    itemListElement: [home, ...trail].map((crumb, index) => ({
+    itemListElement: trail.map((crumb, index) => ({
       "@type": "ListItem",
       position: index + 1,
       name: crumb.name,
@@ -205,7 +203,7 @@ export function aboutStructuredData(locale: Locale) {
     }),
     website(),
     person(locale),
-    breadcrumbs(locale, [{ name, path: "/about" }]),
+    breadcrumbs(locale, trails.about(locale)),
   );
 }
 
@@ -229,7 +227,7 @@ export function projectsStructuredData(locale: Locale, projects: Project[]) {
           })),
       },
     }),
-    breadcrumbs(locale, [{ name, path: "/projects" }]),
+    breadcrumbs(locale, trails.projects(locale)),
   );
 }
 
@@ -296,10 +294,7 @@ export function caseStudyStructuredData(locale: Locale, project: Project) {
     }),
     article,
     software,
-    breadcrumbs(locale, [
-      { name: locale === "en" ? "Projects" : "Projeler", path: "/projects" },
-      { name: project.title, path },
-    ]),
+    breadcrumbs(locale, trails.caseStudy(locale, project.title, project.slug)),
   );
 }
 
@@ -332,7 +327,7 @@ export function researchStructuredData(locale: Locale) {
       hasPart: { "@id": article["@id"] },
     }),
     article,
-    breadcrumbs(locale, [{ name, path: "/research" }]),
+    breadcrumbs(locale, trails.research(locale)),
   );
 }
 
