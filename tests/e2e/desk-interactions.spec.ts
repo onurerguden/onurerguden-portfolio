@@ -418,9 +418,11 @@ test("the headphones' music plays on past the desk and pauses from its own butto
   await expect(page.getByRole("button", { name: "Play music" })).toBeVisible();
   const audit = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
-    .include("[data-music-pill]")
+    .include("button[data-music-pill]")
     .analyze();
   expect(audit.violations).toEqual([]);
+  // One button, and its styles are not mistaken for it.
+  await expect(page.locator("[data-music-pill]")).toHaveCount(1);
   // A hidden tab pauses what plays and resumes it on return.
   await page.getByRole("button", { name: "Play music" }).click();
   await expect(html).toHaveAttribute("data-music", "playing");

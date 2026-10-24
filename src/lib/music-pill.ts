@@ -39,9 +39,9 @@ const language = () =>
 
 /** Shows the pill from the music's first start on; idempotent. */
 export function attachMusicPill(music: DeskMusic, qa: boolean) {
-  if (document.querySelector("[data-music-pill]")) return;
+  if (document.querySelector("button[data-music-pill]")) return;
   const style = document.createElement("style");
-  style.dataset.musicPill = "";
+  style.dataset.musicPillStyle = "";
   style.textContent = css;
   document.head.append(style);
   const button = document.createElement("button");
