@@ -111,13 +111,15 @@ test("the hint plays again when the visitor stops scrolling, once per pause", as
   // QA visits skip the wait unless a test sets one (idle-cue.tsx).
   await page.addInitScript(() => {
     localStorage.setItem("portfolio:idle-cue", "500");
-    const runs: Record<string, number> = { opening: 0, foot: 0 };
+    const runs: Record<string, number> = { opening: 0, foot: 0, footOff: 0 };
     (window as unknown as { cueRuns: typeof runs }).cueRuns = runs;
     new MutationObserver((records) => {
       for (const record of records) {
         const node = record.target as HTMLElement;
+        const foot = node.matches("[data-idle-cue]");
+        if (foot && node.dataset.cue === "off") runs.footOff++;
         if (node.dataset.cue !== "run") continue;
-        runs[node.matches("[data-idle-cue]") ? "foot" : "opening"]++;
+        runs[foot ? "foot" : "opening"]++;
       }
     }).observe(document, {
       subtree: true,
@@ -140,12 +142,14 @@ test("the hint plays again when the visitor stops scrolling, once per pause", as
   const s = await story(page);
   await go(page, within(s.portrait, 0.3));
   const foot = page.locator("[data-idle-cue]");
-  await expect(foot).toHaveAttribute("data-cue", "run");
+  await expect.poll(async () => (await runs()).foot).toBe(1);
   await expect(foot).toBeVisible();
-  expect((await runs()).foot).toBe(1);
+  const before = (await runs()).footOff;
   await page.mouse.move(40, 300);
   await page.mouse.wheel(0, 20);
-  await expect(foot).toHaveAttribute("data-cue", "off");
+  // Transitions are counted, not sampled: on a slow runner the next pause
+  // can bring it back before an assertion sees it gone.
+  await expect.poll(async () => (await runs()).footOff).toBeGreaterThan(before);
   await expect.poll(async () => (await runs()).foot).toBe(2);
   // Past the desk it stays away.
   await go(page, s.length);

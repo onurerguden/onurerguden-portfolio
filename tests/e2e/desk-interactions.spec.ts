@@ -1,5 +1,13 @@
 import { test, expect } from "@playwright/test";
-import { go, journeyCanvas, reviewCanvas, story, ci, within } from "./helpers";
+import {
+  go,
+  journeyCanvas,
+  reviewCanvas,
+  story,
+  ci,
+  touchStatic,
+  within,
+} from "./helpers";
 import sharp from "sharp";
 import AxeBuilder from "@axe-core/playwright";
 import { PerspectiveCamera, Vector3 } from "three";
@@ -304,7 +312,9 @@ test("desk objects answer hover and clicks with a lift, a press and a ripple", a
 test("desk teases hint at objects in the final view, a few per visit", async ({
   page,
   browserName,
+  isMobile,
 }) => {
+  test.skip(isMobile, touchStatic);
   test.setTimeout(90000);
   test.skip(browserName === "webkit", "Requires WebGL2.");
   // QA visits skip teases unless a test sets their quiet time.
@@ -337,7 +347,9 @@ test("desk teases hint at objects in the final view, a few per visit", async ({
 test("desk teases wait while motion is paused", async ({
   page,
   browserName,
+  isMobile,
 }) => {
+  test.skip(isMobile, touchStatic);
   test.skip(browserName === "webkit", "Requires WebGL2.");
   await page.addInitScript(() => {
     localStorage.setItem("portfolio:teases", "300");
