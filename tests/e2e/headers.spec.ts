@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { ci, go, story } from "./helpers";
+import audioRevisions from "../../src/lib/audio-assets.json";
 
 test("pages are built ahead with one policy and the security headers", async ({
   request,
@@ -70,6 +71,11 @@ test("versioned desk files are cached for good, others revalidate", async ({
   if (model) {
     const response = await request.get(model);
     expect(response.headers()["cache-control"]).toContain("immutable");
+  }
+  for (const [file, revision] of Object.entries(audioRevisions)) {
+    const response = await request.get(`/${file}?v=${revision}`);
+    expect(response.ok(), file).toBe(true);
+    expect(response.headers()["cache-control"], file).toContain("immutable");
   }
   const plain = await request.get("/icon.svg");
   expect(plain.headers()["cache-control"]).not.toContain("immutable");
