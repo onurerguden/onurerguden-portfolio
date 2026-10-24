@@ -108,6 +108,8 @@ const nextConfig: NextConfig = {
       { source: "/images/about/:path*", has: versioned, headers: immutable },
       { source: "/images/tech/:path*", has: versioned, headers: immutable },
       { source: "/fonts/:path*", has: versioned, headers: immutable },
+      // The headphones' music (src/lib/desk-music.ts).
+      { source: "/audio/:path*", has: versioned, headers: immutable },
       // So do the Bliss layers (src/lib/bliss-geometry.ts).
       { source: "/images/bliss/:path*", has: versioned, headers: immutable },
       // The decoder's folder is named after the three release it came with.
