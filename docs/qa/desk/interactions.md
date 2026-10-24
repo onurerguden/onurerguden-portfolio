@@ -1,11 +1,11 @@
 # Desk object interactions — September 9, 2026
 
-The review and scroll journey share one interaction runtime. In the enhanced journey, direct object picking and the keyboard-accessible object disclosure remain active at every camera stop. No music asset is included. The selected track can later be configured with its path and title in `src/lib/desk-audio.ts`.
+The review and scroll journey share one interaction runtime. In the enhanced journey, direct object picking and the keyboard-accessible object disclosure remain active at every camera stop. Since October 24 the headphones play a track (`src/lib/desk-music.ts`, below).
 
 ## Verified behavior
 
 - The visible black dial below the ultrawide switches the left light, lightbar and rear bias light together. The right lamp stays independent; its five colors affect only the emissive lamp and its shadow-casting pool on the desk; the backdrop stays black.
-- The headphones lift and settle without moving their stand. Missing music is reported in the native control disclosure; no audio request occurs.
+- The headphones lift and settle without moving their stand. The music's state is reported in the native control disclosure (see the October 24 music section).
 - The mouse uses five bounded paths and a short click ring. Rapid clicks do not accumulate extra animations. The tablet is fixed while the pencil rolls onto the mat and returns.
 - Both locales provide keyboard buttons, pressed states for lights/music, visible focus, 44 px targets and a polite music status. Mobile touch controls fit without horizontal overflow.
 - Reduced motion in the review snaps lights and suppresses accessory motion. The journey keeps its static fallback. Model failure and context loss keep the existing recovery paths.
@@ -51,3 +51,11 @@ The bias strip sits on the rear casing, above the lower bezel, so it is occluded
   - the tablet dips 1.5 mm while the pencil rolls;
   - a drawer clicks 8 mm in before the wave opens them.
 - In the final view, after 4 s without input, an object not clicked yet is teased with a ripple and a small hop (the dial dims the lights for a moment, a drawer peeks), at least 8 s apart and three per visit at most. Teases change nothing and never run under a motion pause, in a hidden tab or in QA visits unless `portfolio:teases` sets a quiet time. `tests/e2e/desk-interactions.spec.ts` covers the hover mark, ripples, the hop, the drawers' press and the teases' limits.
+
+## October 24: the headphones' music
+
+- Selecting the headphones (pointer or keyboard) plays "Jazz" by mondamusic (Pixabay), looping at 35% volume with a 1.2 s fade in and a 0.4 s fade out. Before the first selection no audio element exists and nothing is requested; the first selection requests one file, Opus in WebM (1.43 MB, 64 kbit/s) or, where Opus does not play, AAC in MP4 (2.07 MB, 96 kbit/s), streamed with `preload="none"` and cached as immutable under its content revision.
+- One player serves the visit (`src/lib/desk-music.ts`), outside React: scrolling past the desk, the scene's release and client-side navigation leave it playing. A hidden tab pauses it and showing the tab again resumes what was playing; the system's media keys stay in step.
+- From the first selection a button at the bottom left ("Pause music" / "Play music", "Müziği duraklat" / "Müziği çal") pauses and plays from anywhere. It is a real button in the tab order with a 44 px target and visible focus, follows the page's language, announces a failure, and its equalizer rests under reduced motion, a motion pause or a paused track. It is plain DOM with injected styles (`src/lib/music-pill.ts`), so the first load carries none of it.
+- Covered by `tests/desk-interactions.test.ts` (player) and `tests/e2e/desk-interactions.spec.ts` (requests, the button, both languages, hidden tab, axe).
+
