@@ -1,5 +1,13 @@
 import { test, expect } from "@playwright/test";
-import { go, journeyCanvas, reviewCanvas, story, ci } from "./helpers";
+import {
+  go,
+  journeyCanvas,
+  reviewCanvas,
+  story,
+  ci,
+  touchStatic,
+  within,
+} from "./helpers";
 import sharp from "sharp";
 import AxeBuilder from "@axe-core/playwright";
 import { PerspectiveCamera, Vector3 } from "three";
@@ -233,4 +241,126 @@ test("review objects accept direct pointer clicks and reduced motion keeps funct
   await page.locator('[data-desk-action="lamp"]').click();
   await page.waitForTimeout(80);
   await expect(canvas).toHaveAttribute("data-lamp-color", "514366");
+});
+
+test("desk objects answer hover and clicks with a lift, a press and a ripple", async ({
+  page,
+  browserName,
+}) => {
+  test.setTimeout(90000);
+  test.skip(browserName === "webkit", "Requires WebGL2.");
+  await page.goto("/en/lab/desk");
+  await page.getByRole("button", { name: "Explore in 3D" }).click();
+  const canvas = reviewCanvas(page);
+  await expect(canvas).toHaveAttribute("data-lights", "1.000", {
+    timeout: ci(20000),
+  });
+  await canvas.scrollIntoViewIfNeeded();
+  const rect = (await canvas.boundingBox())!;
+  const camera = new PerspectiveCamera(43, rect.width / rect.height, 0.01, 12);
+  const preset = scene.cameras[0];
+  const target = new Vector3(...preset.target);
+  const direction = new Vector3(...preset.position).sub(target);
+  const fit =
+    Math.max(1.7 / camera.aspect, 1.6) / (2 * Math.tan((43 * Math.PI) / 360));
+  camera.position.copy(
+    direction.multiplyScalar(Math.max(1, fit / direction.length())).add(target),
+  );
+  camera.lookAt(target);
+  camera.updateMatrixWorld();
+  const at = (id: keyof typeof interactions.targets) => {
+    const p = new Vector3(...interactions.targets[id].position).project(camera);
+    return [
+      rect.x + ((p.x + 1) * rect.width) / 2,
+      rect.y + ((1 - p.y) * rect.height) / 2,
+    ] as const;
+  };
+  // Hovering marks the canvas's container, which opens the cursor ring.
+  await page.mouse.move(...at("lamp"));
+  await expect(page.locator("[data-desk-hover]")).toHaveCount(1);
+  await page.mouse.move(rect.x + 4, rect.y + 4);
+  await expect(page.locator("[data-desk-hover]")).toHaveCount(0);
+  // A click ripples, and the lamp's colour changes once the press lands.
+  await page.mouse.click(...at("lamp"));
+  await expect(canvas).toHaveAttribute("data-ripples-started", "1");
+  await expect(canvas).toHaveAttribute("data-lamp-color", "603f4b");
+  await expect(canvas).toHaveAttribute("data-ripples", "0", {
+    timeout: ci(3000),
+  });
+  // The headphones hop and the drawers click in before their wave.
+  await page.mouse.click(...at("headphones"));
+  await expect(canvas).toHaveAttribute("data-headphones-motion", "running");
+  await expect(canvas).toHaveAttribute("data-headphones-motion", "idle", {
+    timeout: ci(3000),
+  });
+  if ((await page.locator("details").getAttribute("open")) !== null)
+    await page.locator("details summary").click();
+  await page.mouse.click(...at("drawers"));
+  await expect(canvas).toHaveAttribute("data-drawers-motion", "running");
+  await expect(canvas).toHaveAttribute("data-drawers-motion", "idle", {
+    timeout: ci(5000),
+  });
+  await expect(canvas).toHaveAttribute("data-ripples-started", "3");
+  await expect(canvas).toHaveAttribute("data-ripples", "0");
+});
+
+test("desk teases hint at objects in the final view, a few per visit", async ({
+  page,
+  browserName,
+  isMobile,
+}) => {
+  test.skip(isMobile, touchStatic);
+  test.setTimeout(90000);
+  test.skip(browserName === "webkit", "Requires WebGL2.");
+  // QA visits skip teases unless a test sets their quiet time.
+  await page.addInitScript(() =>
+    localStorage.setItem("portfolio:teases", "300"),
+  );
+  await page.goto("/en");
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+    { timeout: ci(20000) },
+  );
+  const canvas = journeyCanvas(page);
+  const s = await story(page);
+  // None before the final view.
+  await go(page, within(s.portrait, 0.3));
+  await page.waitForTimeout(1500);
+  expect(await canvas.getAttribute("data-teases")).toBeNull();
+  await go(page, s.room + 0.1);
+  await expect(canvas).toHaveAttribute("data-teases", "3", {
+    timeout: ci(10000),
+  });
+  await page.waitForTimeout(2000);
+  await expect(canvas).toHaveAttribute("data-teases", "3");
+  // Teases change nothing: the lights stay on, no action is recorded.
+  await expect(canvas).toHaveAttribute("data-lights", "1.000");
+  expect(await canvas.getAttribute("data-last-desk-action")).toBeNull();
+});
+
+test("desk teases wait while motion is paused", async ({
+  page,
+  browserName,
+  isMobile,
+}) => {
+  test.skip(isMobile, touchStatic);
+  test.skip(browserName === "webkit", "Requires WebGL2.");
+  await page.addInitScript(() => {
+    localStorage.setItem("portfolio:teases", "300");
+    sessionStorage.setItem("portfolio:motion-paused", "true");
+  });
+  await page.goto("/en");
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+    { timeout: ci(20000) },
+  );
+  await page.evaluate(() => {
+    document.documentElement.dataset.motionPaused = "true";
+  });
+  const s = await story(page);
+  await go(page, s.room + 0.1);
+  await page.waitForTimeout(2000);
+  expect(await journeyCanvas(page).getAttribute("data-teases")).toBeNull();
 });

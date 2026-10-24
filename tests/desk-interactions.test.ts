@@ -5,8 +5,28 @@ import {
   lampColors,
   drawerIds,
   drawerOffset,
+  drawerPress,
+  drawerPressOffset,
   drawerWave,
+  hopPose,
+  hoverDuration,
+  hoverLevel,
+  hoverLift,
+  lampNod,
+  pickTease,
+  posedObjects,
+  pressDepth,
+  pressDuration,
+  pressLead,
+  pressScale,
+  rippleRing,
+  tabletDip,
+  teaseDim,
+  teaseDue,
+  teaseLift,
+  teaseRules,
 } from "../src/lib/desk-interaction-motion";
+import { cursorLook } from "../src/lib/cursor";
 import { createDeskAudio, type AudioStatus } from "../src/lib/desk-audio";
 import contract from "../src/lib/desk-interactions.json";
 
@@ -175,5 +195,106 @@ describe("drawer supports and wave clearance", () => {
     }
     expect(drawerOffset(100, 0)).toBeGreaterThan(0);
     expect(drawerOffset(100, 1)).toBe(0);
+  });
+});
+
+describe("presses, hops, hovers and teases (October 24)", () => {
+  const span = <T>(f: (t: number) => T) =>
+    Array.from({ length: 201 }, (_, i) => f(i / 200));
+  it("rests exactly outside each motion's span", () => {
+    for (const t of [-1, 0, 1, 2]) {
+      expect(pressScale(t, 0.15)).toBe(1);
+      expect(lampNod(t)).toBe(0);
+      expect(tabletDip(t)).toBe(0);
+      expect(hopPose(t)).toEqual({ y: 0, rotation: 0, scale: 1 });
+      expect(teaseLift(t)).toBe(0);
+      expect(teaseDim(t)).toBe(1);
+      expect(rippleRing(t, 0)).toEqual({ radius: 0, opacity: 0 });
+    }
+    expect(drawerPressOffset(0)).toBe(0);
+    expect(drawerPressOffset(drawerPress.duration)).toBe(0);
+  });
+  it("presses down, rebounds a little and stays in bounds", () => {
+    for (const id of posedObjects) {
+      const scales = span((t) => pressScale(t, pressDepth[id]));
+      expect(Math.min(...scales)).toBeGreaterThanOrEqual(
+        1 - pressDepth[id] - 1e-9,
+      );
+      expect(Math.max(...scales)).toBeLessThanOrEqual(1 + pressDepth[id] * 0.2);
+    }
+    // The press bottoms out before the click's own change shows.
+    expect(pressScale(pressLead / pressDuration, 0.15)).toBeLessThan(0.9);
+    expect(Math.max(...span(lampNod))).toBeLessThan((3 * Math.PI) / 180);
+    expect(Math.min(...span(tabletDip))).toBeGreaterThanOrEqual(-0.002);
+  });
+  it("hops the headphones about 30 mm with a crouch and a landing", () => {
+    const hops = span(hopPose);
+    expect(Math.max(...hops.map((p) => p.y))).toBeCloseTo(0.03, 3);
+    expect(hopPose(0.1).scale).toBeLessThan(1);
+    expect(hopPose(0.8).scale).toBeLessThan(1);
+    for (const p of hops) {
+      expect(p.scale).toBeGreaterThan(0.9);
+      expect(Math.abs(p.rotation)).toBeLessThan(0.05);
+    }
+    // Continuous where its phases meet.
+    for (const at of [0.15, 0.6]) {
+      const before = hopPose(at - 1e-6);
+      const after = hopPose(at + 1e-6);
+      expect(after.scale).toBeCloseTo(before.scale, 4);
+      expect(after.y).toBeCloseTo(before.y, 4);
+    }
+  });
+  it("clicks a drawer in before the wave and never past its front", () => {
+    for (let ms = 0; ms <= drawerPress.duration; ms += 5) {
+      expect(drawerPressOffset(ms)).toBeLessThanOrEqual(0);
+      expect(drawerPressOffset(ms)).toBeGreaterThanOrEqual(-drawerPress.depth);
+    }
+    expect(drawerPress.lead).toBeLessThan(drawerPress.duration);
+  });
+  it("eases hover up and down without overshoot", () => {
+    expect(hoverLevel(0, 1, 0)).toBe(0);
+    expect(hoverLevel(0, 1, hoverDuration)).toBe(1);
+    expect(hoverLevel(0.4, 0, hoverDuration * 2)).toBe(0);
+    for (const ms of [10, 70, 130]) {
+      expect(hoverLevel(0, 1, ms)).toBeGreaterThan(0);
+      expect(hoverLevel(0, 1, ms)).toBeLessThan(1);
+    }
+    for (const id of posedObjects)
+      expect(hoverLift[id]).toBeLessThanOrEqual(0.004);
+  });
+  it("spreads two rings, the second just behind the first", () => {
+    const outer = rippleRing(0.5, 0);
+    const inner = rippleRing(0.5, 1);
+    expect(outer.radius).toBeGreaterThan(inner.radius);
+    expect(outer.opacity).toBeLessThan(inner.opacity);
+    expect(rippleRing(0.05, 1).opacity).toBe(0);
+    for (const p of [0.2, 0.6, 0.95]) {
+      expect(rippleRing(p, 0).radius).toBeLessThanOrEqual(1);
+      expect(rippleRing(p, 0).opacity).toBeLessThanOrEqual(0.55);
+    }
+  });
+  it("teases only after a quiet spell, spaced apart, a few per visit", () => {
+    const base = { now: 20000, lastInput: 0, lastTease: -Infinity, shown: 0 };
+    expect(teaseDue(base)).toBe(true);
+    expect(teaseDue({ ...base, lastInput: 17000 })).toBe(false);
+    expect(teaseDue({ ...base, lastTease: 15000 })).toBe(false);
+    expect(teaseDue({ ...base, lastTease: 12000 })).toBe(true);
+    expect(teaseDue({ ...base, shown: teaseRules.perVisit })).toBe(false);
+    expect(teaseRules).toEqual({ quiet: 4000, gap: 8000, perVisit: 3 });
+    expect(pickTease([])).toBeUndefined();
+    expect(pickTease(["lamp", "dial"], () => 0)).toBe("lamp");
+    expect(pickTease(["lamp", "dial"], () => 0.9999)).toBe("dial");
+  });
+});
+
+describe("cursor over desk objects", () => {
+  it("opens the ring where the desk marks a hovered object", () => {
+    const element = (marked: boolean) =>
+      ({
+        closest: (selector: string) =>
+          marked && selector.includes("[data-desk-hover]") ? {} : null,
+      }) as unknown as Element;
+    expect(cursorLook(element(true))).toBe("action");
+    expect(cursorLook(element(false))).toBe("default");
   });
 });

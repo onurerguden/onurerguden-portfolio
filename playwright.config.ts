@@ -19,6 +19,8 @@ const gpuOnly = new RegExp(
     "step buttons bring monitor content into view",
     "the MacBook's balls",
     "desk controls stay out of sight",
+    "desk objects answer hover",
+    "desk teases",
   ].join("|"),
 );
 
