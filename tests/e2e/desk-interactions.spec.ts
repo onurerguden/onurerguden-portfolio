@@ -309,7 +309,7 @@ test("desk objects answer hover and clicks with a lift, a press and a ripple", a
   await expect(canvas).toHaveAttribute("data-ripples", "0");
 });
 
-test("desk teases hint at objects in the final view, a few per visit", async ({
+test("desk teases hint at objects from the MacBook to the curtain, a few per visit", async ({
   page,
   browserName,
   isMobile,
@@ -333,12 +333,20 @@ test("desk teases hint at objects in the final view, a few per visit", async ({
   await go(page, within(s.portrait, 0.3));
   await page.waitForTimeout(1500);
   expect(await canvas.getAttribute("data-teases")).toBeNull();
+  // From leaving the MacBook's screen on the way to the full view…
+  await go(page, (s.macbook[1] + s.room) / 2);
+  await expect
+    .poll(async () => Number(await canvas.getAttribute("data-teases")), {
+      timeout: ci(10000),
+    })
+    .toBeGreaterThan(0);
+  // …through the full view, four per visit.
   await go(page, s.room + 0.1);
-  await expect(canvas).toHaveAttribute("data-teases", "3", {
+  await expect(canvas).toHaveAttribute("data-teases", "4", {
     timeout: ci(10000),
   });
   await page.waitForTimeout(2000);
-  await expect(canvas).toHaveAttribute("data-teases", "3");
+  await expect(canvas).toHaveAttribute("data-teases", "4");
   // Teases change nothing: the lights stay on, no action is recorded.
   await expect(canvas).toHaveAttribute("data-lights", "1.000");
   expect(await canvas.getAttribute("data-last-desk-action")).toBeNull();

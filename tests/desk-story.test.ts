@@ -18,6 +18,7 @@ import {
   riseRange,
   roomDistance,
   exitRange,
+  teaseRange,
   curtain,
   storyAt,
 } from "../src/lib/desk-story/timeline";
@@ -268,5 +269,13 @@ describe("travel pacing", () => {
     // Both still move at the join: a slope well above zero on each side.
     expect((1 - into(0.98)) / 0.02).toBeGreaterThan(0.2);
     expect(out(0.02) / 0.02).toBeGreaterThan(0.2);
+  });
+  it("lets the desk tease from leaving the MacBook to the curtain", () => {
+    const timeline = buildTimeline({ portrait: 1.7, macbook: 1 });
+    const [start, end] = teaseRange(timeline);
+    expect(start).toBeCloseTo(readRange(timeline, macbook)[1]);
+    expect(end).toBeCloseTo(exitRange(timeline)?.[0] ?? timeline.length);
+    expect(start).toBeLessThan(roomDistance(timeline));
+    expect(end).toBeGreaterThan(roomDistance(timeline));
   });
 });
