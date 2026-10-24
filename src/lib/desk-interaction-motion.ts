@@ -178,17 +178,20 @@ export function hoverLevel(
   return from + (to - from) * smooth(t);
 }
 
-/** A tease: a small hop, or for a drawer a peek, and back. */
-export const teaseDuration = 650;
+/**
+ * A tease: a hop of about 16 mm, or for a drawer a 2.5 cm peek, and back
+ * (October 24, raised after Onur could not catch the first, subtler ones).
+ */
+export const teaseDuration = 700;
 export function teaseLift(t: number) {
   if (t <= 0 || t >= 1) return 0;
-  return 0.008 * Math.sin(Math.PI * t) ** 2;
+  return 0.016 * Math.sin(Math.PI * t) ** 2;
 }
-export const teasePeek = 0.012;
+export const teasePeek = 0.025;
 /** The lights dim briefly when the dial is teased; they never go out. */
 export function teaseDim(t: number) {
   if (t <= 0 || t >= 1) return 1;
-  return 1 - 0.35 * Math.sin(Math.PI * t);
+  return 1 - 0.5 * Math.sin(Math.PI * t);
 }
 
 /** A water-like ripple: two rings that spread and fade. */
@@ -203,23 +206,51 @@ export function rippleRing(p: number, i: 0 | 1) {
 }
 
 /**
- * Teases (October 24): only in the final view, after a quiet spell, spaced
- * apart and a few per visit, so the desk hints rather than fidgets.
+ * Teases (October 24, revised the same day at Onur's request): from leaving
+ * the MacBook until the curtain draws the desk aside, after two quiet
+ * seconds, three to five seconds apart and four per visit, so a visitor who
+ * pauses on the desk sees it answer.
  */
-export const teaseRules = { quiet: 4000, gap: 8000, perVisit: 3 };
+export type TeaseRules = {
+  quiet: number;
+  gapMin: number;
+  gapMax: number;
+  perVisit: number;
+};
+export const teaseRules: TeaseRules = {
+  quiet: 2000,
+  gapMin: 3000,
+  gapMax: 5000,
+  perVisit: 4,
+};
+/** The wait before the next tease, between the rules' bounds. */
+export function nextTeaseGap(
+  rules: TeaseRules = teaseRules,
+  random = Math.random,
+) {
+  return rules.gapMin + (rules.gapMax - rules.gapMin) * random();
+}
 export function teaseDue(
   {
     now,
     lastInput,
     lastTease,
+    gap,
     shown,
-  }: { now: number; lastInput: number; lastTease: number; shown: number },
-  rules: { quiet: number; gap: number; perVisit: number } = teaseRules,
+  }: {
+    now: number;
+    lastInput: number;
+    lastTease: number;
+    /** This turn's wait after the last tease (nextTeaseGap). */
+    gap: number;
+    shown: number;
+  },
+  rules: TeaseRules = teaseRules,
 ) {
   return (
     shown < rules.perVisit &&
     now - lastInput >= rules.quiet &&
-    now - lastTease >= rules.gap
+    now - lastTease >= gap
   );
 }
 /** One of the objects not clicked yet, or none. */

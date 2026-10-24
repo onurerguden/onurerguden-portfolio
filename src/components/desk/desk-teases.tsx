@@ -3,8 +3,13 @@
 import { useEffect, type RefObject } from "react";
 import { qa } from "@/lib/qa";
 import type { Signal } from "@/lib/desk-story/signal";
-import { storyAt } from "@/lib/desk-story/timeline";
-import { pickTease, teaseDue, teaseRules } from "@/lib/desk-interaction-motion";
+import { teaseRange } from "@/lib/desk-story/timeline";
+import {
+  nextTeaseGap,
+  pickTease,
+  teaseDue,
+  teaseRules,
+} from "@/lib/desk-interaction-motion";
 import type { DeskInteractions } from "./interactions";
 import type { StoryMeasure } from "./use-story-layout";
 
@@ -24,7 +29,9 @@ function rules() {
   if (!qa()) return teaseRules;
   try {
     const quiet = Number(localStorage.getItem(qaKey));
-    return quiet > 0 ? { ...teaseRules, quiet, gap: quiet * 2 } : null;
+    return quiet > 0
+      ? { ...teaseRules, quiet, gapMin: quiet, gapMax: quiet }
+      : null;
   } catch {
     return null;
   }
@@ -38,10 +45,11 @@ function readShown() {
 }
 
 /**
- * Now and then, in the final view of the desk, an object the visitor has not
- * clicked yet hops or peeks with a ripple, as if tapped (October 24): a hint
- * that the desk's objects answer clicks. A few per visit, never while the
- * visitor is busy, under a motion pause or in a hidden tab.
+ * Now and then, between leaving the MacBook and the curtain, an object the
+ * visitor has not clicked yet hops or peeks with a ripple, as if tapped
+ * (October 24): a hint that the desk's objects answer clicks. A few per
+ * visit, never while the visitor is busy, under a motion pause or in a
+ * hidden tab.
  */
 export default function DeskTeases({
   controls,
@@ -58,26 +66,34 @@ export default function DeskTeases({
     if (!rule || !active) return;
     let lastInput = performance.now();
     let lastTease = -Infinity;
+    const teased = new Set<string>();
+    let gap = 0;
     const mark = () => {
       lastInput = performance.now();
     };
     const options = { passive: true, capture: true } as const;
     for (const type of inputs) window.addEventListener(type, mark, options);
     const check = () => {
-      const story = storyAt(layout.current.timeline, distance.get());
+      const [start, end] = teaseRange(layout.current.timeline);
+      const d = distance.get();
       const now = performance.now();
       if (
-        story.segment !== "hold" ||
-        story.from !== "room" ||
+        d < start ||
+        d >= end ||
         document.hidden ||
         document.documentElement.dataset.motionPaused === "true" ||
-        !teaseDue({ now, lastInput, lastTease, shown: readShown() }, rule)
+        !teaseDue({ now, lastInput, lastTease, gap, shown: readShown() }, rule)
       )
         return;
-      const pending = untouched();
+      // A different object each time while there is one.
+      const left = untouched();
+      const fresh = left.filter((action) => !teased.has(action));
+      const pending = fresh.length ? fresh : left;
       const action = qa() ? pending[0] : pickTease(pending);
       if (!action) return;
+      teased.add(action);
       lastTease = now;
+      gap = nextTeaseGap(rule);
       try {
         sessionStorage.setItem(shownKey, String(readShown() + 1));
       } catch {

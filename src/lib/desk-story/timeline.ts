@@ -310,6 +310,16 @@ export const roomDistance = (timeline: Timeline) =>
   timeline.segments.find((s) => s.kind === "hold" && s.from === "room")
     ?.start ?? timeline.length;
 
+/**
+ * Where the desk may tease its objects: from the end of the MacBook's
+ * reading (the visitor scrolls out of its screen) until the curtain begins,
+ * after which the desk draws no frames (or to the story's end without one).
+ */
+export function teaseRange(timeline: Timeline) {
+  const [, start] = readRange(timeline, screenStops.indexOf("macbook"));
+  return [start, exitRange(timeline)?.[0] ?? timeline.length] as const;
+}
+
 /** Start and end of the paper curtain, or null without one. */
 export function exitRange(timeline: Timeline) {
   const segment = timeline.segments.find((s) => s.kind === "exit");

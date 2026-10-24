@@ -749,7 +749,7 @@ export default function InteractionScene({
         0,
         null,
         0,
-        pressScale(t, pressDepth.dial) * pressScale(teased, 0.08),
+        pressScale(t, pressDepth.dial) * pressScale(teased, 0.15),
         squashPivot.dial,
         false,
       );
