@@ -50,7 +50,7 @@ The bias strip sits on the rear casing, above the lower bezel, so it is occluded
   - the headphones crouch, hop about 30 mm off the stand and land with a squash (650 ms);
   - the tablet dips 1.5 mm while the pencil rolls;
   - a drawer clicks 8 mm in before the wave opens them.
-- In the final view, after 4 s without input, an object not clicked yet is teased with a ripple and a small hop (the dial dims the lights for a moment, a drawer peeks), at least 8 s apart and three per visit at most. Teases change nothing and never run under a motion pause, in a hidden tab or in QA visits unless `portfolio:teases` sets a quiet time. `tests/e2e/desk-interactions.spec.ts` covers the hover mark, ripples, the hop, the drawers' press and the teases' limits.
+- From the end of the MacBook's reading until the curtain begins (`teaseRange` in `src/lib/desk-story/timeline.ts`), after 2 s without scrolling, clicks, keys or touch (moving the mouse does not count), an object not clicked yet is teased with a ripple and a 16 mm hop (the dial dims the lights by half for a moment, a drawer peeks 2.5 cm), 3 to 5 s apart and four per visit at most (counted in sessionStorage, `portfolio:teases-shown`). Teases change nothing and never run under a motion pause, in a hidden tab or in QA visits unless `portfolio:teases` sets a quiet time. `tests/e2e/desk-interactions.spec.ts` covers the hover mark, ripples, the hop, the drawers' press and the teases' limits.
 
 ## October 24: the headphones' music
 
