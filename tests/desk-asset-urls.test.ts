@@ -56,10 +56,11 @@ describe("desk asset URLs", () => {
       "/images/about/:path*",
       "/images/tech/:path*",
       "/fonts/:path*",
+      "/audio/:path*",
       "/images/bliss/:path*",
       "/decoders/draco/:release(three-[^/]+)/:file*",
     ]);
-    for (const rule of rules.slice(0, 8))
+    for (const rule of rules.slice(0, 9))
       expect(rule.has).toEqual([{ type: "query", key: "v" }]);
     expect(nextConfig.poweredByHeader).toBe(false);
   });

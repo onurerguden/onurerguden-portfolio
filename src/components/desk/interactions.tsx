@@ -1,7 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { createDeskAudio, deskTrack, type AudioStatus } from "@/lib/desk-audio";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { deskMusic, type MusicStatus } from "@/lib/desk-music";
+import { attachMusicPill } from "@/lib/music-pill";
+import { qa } from "@/lib/qa";
 import { initialLampColor, lampColors } from "@/lib/desk-interaction-motion";
 import styles from "./interactions.module.css";
 
@@ -31,7 +39,6 @@ const copy = {
     loading: "Loading music…",
     playing: "Music playing. Select the headphones to pause.",
     paused: "Music paused.",
-    missing: "Music has not been added yet.",
     error: "Music could not play. Select the headphones to try again.",
   },
   tr: {
@@ -48,7 +55,6 @@ const copy = {
     loading: "Müzik yükleniyor…",
     playing: "Müzik çalıyor. Duraklatmak için kulaklığı seç.",
     paused: "Müzik duraklatıldı.",
-    missing: "Müzik henüz eklenmedi.",
     error: "Müzik çalınamadı. Yeniden denemek için kulaklığı seç.",
   },
 };
@@ -56,14 +62,18 @@ const copy = {
 export function useDeskInteractions(active: boolean, reduced: boolean) {
   const [lights, setLights] = useState(true);
   const [colorIndex, setColorIndex] = useState(initialLampColor);
-  const [audioStatus, setAudioStatus] = useState<AudioStatus>("idle");
+  // The music outlives this scene: it plays on past the desk (desk-music.ts).
+  const audioStatus = useSyncExternalStore<MusicStatus>(
+    (listener) => deskMusic().subscribe(listener),
+    () => deskMusic().status(),
+    () => "idle",
+  );
   const [visible, setVisible] = useState(true);
   const motion = useRef<
     (action: DeskAction, point?: InteractionPoint, tease?: boolean) => void
   >(() => {});
   // What the visitor has clicked this visit: teases go to the others.
   const touched = useRef(new Set<DeskAction>());
-  const audio = useRef<ReturnType<typeof createDeskAudio> | null>(null);
   const registerMotion = useCallback((handler: typeof motion.current) => {
     motion.current = handler;
     return () => {
@@ -71,30 +81,22 @@ export function useDeskInteractions(active: boolean, reduced: boolean) {
     };
   }, []);
   useEffect(() => {
-    const player = createDeskAudio(deskTrack, setAudioStatus);
-    audio.current = player;
-    const visibility = () => {
-      setVisible(!document.hidden);
-      if (document.hidden) player.pause();
-    };
+    const visibility = () => setVisible(!document.hidden);
     visibility();
     document.addEventListener("visibilitychange", visibility);
-    return () => {
-      document.removeEventListener("visibilitychange", visibility);
-      player.dispose();
-      audio.current = null;
-    };
+    return () => document.removeEventListener("visibilitychange", visibility);
   }, []);
-  useEffect(() => {
-    if (!active) audio.current?.pause();
-  }, [active]);
   const activate = useCallback(
     (action: DeskAction, point?: InteractionPoint) => {
       if (!active || !visible) return;
       if (action === "dial") setLights((value) => !value);
       if (action === "lamp")
         setColorIndex((value) => (value + 1) % lampColors.length);
-      if (action === "headphones") audio.current?.toggle();
+      if (action === "headphones") {
+        const music = deskMusic();
+        music.toggle();
+        attachMusicPill(music, qa());
+      }
       touched.current.add(action);
       motion.current(action, point);
     },
@@ -197,9 +199,7 @@ export function DeskObjectControls({
         <p className={styles.status}>{t.hint}</p>
         <p role="status" className={styles.status}>
           {t[controls.audioStatus]}
-          {controls.audioStatus === "playing" && deskTrack.title
-            ? ` ${deskTrack.title}`
-            : ""}
+          {controls.audioStatus === "playing" ? ` ${deskMusic().title}` : ""}
         </p>
       </div>
     </details>

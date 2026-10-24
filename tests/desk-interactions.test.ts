@@ -27,7 +27,12 @@ import {
   teaseRules,
 } from "../src/lib/desk-interaction-motion";
 import { cursorLook } from "../src/lib/cursor";
-import { createDeskAudio, type AudioStatus } from "../src/lib/desk-audio";
+import {
+  createDeskMusic,
+  fadeIn,
+  fadeOut,
+  musicVolume,
+} from "../src/lib/desk-music";
 import contract from "../src/lib/desk-interactions.json";
 
 describe("desk interaction model contract", () => {
@@ -93,72 +98,168 @@ describe("bounded accessory motion", () => {
   });
 });
 
-describe("user-initiated music", () => {
-  function setup(src?: string) {
-    const statuses: AudioStatus[] = [];
+describe("the headphones' music", () => {
+  const track = {
+    title: "Jazz",
+    sources: [
+      { src: "/audio/a.webm", type: 'audio/webm; codecs="opus"' },
+      { src: "/audio/a.m4a", type: "audio/mp4" },
+    ],
+  };
+  function setup({ opus = true } = {}) {
+    let time = 0;
+    const frames: (() => void)[] = [];
+    const events: Record<string, () => void> = {};
     let resolve!: () => void;
-    let reject!: (error: Error) => void;
+    let reject!: () => void;
+    let visibility!: (hidden: boolean) => void;
     const audio = {
-      play: vi.fn(
-        () =>
-          new Promise<void>((yes, no) => {
-            resolve = yes;
-            reject = no;
-          }),
+      src: "",
+      preload: "",
+      loop: false,
+      volume: 1,
+      paused: true,
+      canPlayType: vi.fn((type: string) =>
+        type.includes("opus") && !opus ? "" : "probably",
       ),
-      pause: vi.fn(),
+      play: vi.fn(() => {
+        audio.paused = false;
+        return new Promise<void>((yes, no) => {
+          resolve = yes;
+          reject = () => no(new Error("blocked"));
+        });
+      }),
+      pause: vi.fn(() => {
+        audio.paused = true;
+        events.pause?.();
+      }),
       load: vi.fn(),
       removeAttribute: vi.fn(),
-      onended: null,
-      onerror: null,
+      addEventListener: vi.fn((type: string, listener: () => void) => {
+        events[type] = listener;
+      }),
     };
-    const factory = vi.fn(() => audio as unknown as HTMLAudioElement);
-    const player = createDeskAudio({ src }, (s) => statuses.push(s), factory);
+    const createAudio = vi.fn(() => audio as never);
+    const music = createDeskMusic(track, {
+      createAudio,
+      now: () => time,
+      frame: (callback) => frames.push(callback),
+      onVisibility: (listener) => {
+        visibility = listener;
+      },
+    });
+    const statuses: string[] = [];
+    music.subscribe(() => statuses.push(music.status()));
+    const advance = (ms: number) => {
+      time += ms;
+      for (const frame of frames.splice(0)) frame();
+    };
+    const settle = async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    };
     return {
-      player,
+      music,
       audio,
-      factory,
+      createAudio,
       statuses,
+      events,
+      advance,
+      settle,
       resolve: () => resolve(),
-      reject: () => reject(new Error("blocked")),
+      reject: () => reject(),
+      hide: (hidden: boolean) => visibility(hidden),
     };
   }
-  it("does not construct or load audio until a configured track is selected", () => {
+  it("creates and fetches nothing before the first selection", () => {
     const s = setup();
-    expect(s.factory).not.toHaveBeenCalled();
-    s.player.toggle();
-    expect(s.statuses).toEqual(["missing"]);
-    expect(s.factory).not.toHaveBeenCalled();
+    expect(s.createAudio).not.toHaveBeenCalled();
+    expect(s.music.status()).toBe("idle");
   });
-  it("pauses a pending play without a late promise restoring playing state", async () => {
-    const s = setup("/music/supplied.mp3");
-    s.player.toggle();
-    s.player.toggle();
+  it("plays Opus where it can, else AAC, on a loop without preloading", () => {
+    const s = setup();
+    s.music.toggle();
+    expect(s.audio.src).toBe("/audio/a.webm");
+    expect(s.audio.preload).toBe("none");
+    expect(s.audio.loop).toBe(true);
+    const t = setup({ opus: false });
+    t.music.toggle();
+    expect(t.audio.src).toBe("/audio/a.m4a");
+  });
+  it("fades in on play and out before pausing", async () => {
+    const s = setup();
+    s.music.toggle();
+    expect(s.music.status()).toBe("loading");
+    expect(s.audio.volume).toBe(0);
     s.resolve();
-    await Promise.resolve();
+    await s.settle();
+    expect(s.music.status()).toBe("playing");
+    s.advance(fadeIn / 2);
+    expect(s.audio.volume).toBeCloseTo(musicVolume / 2);
+    s.advance(fadeIn);
+    expect(s.audio.volume).toBeCloseTo(musicVolume);
+    s.music.toggle();
+    expect(s.music.status()).toBe("paused");
+    expect(s.audio.pause).not.toHaveBeenCalled();
+    s.advance(fadeOut);
+    expect(s.audio.volume).toBeCloseTo(0);
+    expect(s.audio.pause).toHaveBeenCalledOnce();
+    expect(s.music.status()).toBe("paused");
+  });
+  it("ignores a late play after a pause", async () => {
+    const s = setup();
+    s.music.toggle();
+    s.music.toggle();
+    s.resolve();
+    await s.settle();
     expect(s.statuses).toEqual(["loading", "paused"]);
-    expect(s.audio.pause).toHaveBeenCalled();
+    s.advance(fadeOut);
+    expect(s.audio.paused).toBe(true);
   });
-  it("handles successful play, pause on leaving, failure and disposal", async () => {
-    const s = setup("/music/supplied.mp3");
-    s.player.toggle();
+  it("pauses in a hidden tab and resumes what was playing", async () => {
+    const s = setup();
+    s.music.toggle();
     s.resolve();
-    await Promise.resolve();
-    expect(s.statuses.at(-1)).toBe("playing");
-    s.player.pause();
-    expect(s.statuses.at(-1)).toBe("paused");
-    s.player.toggle();
-    s.reject();
-    await Promise.resolve();
-    await Promise.resolve();
-    expect(s.statuses.at(-1)).toBe("error");
-    s.player.toggle();
-    s.player.dispose();
+    await s.settle();
+    s.hide(true);
+    expect(s.audio.pause).toHaveBeenCalled();
+    expect(s.music.status()).toBe("paused");
+    s.hide(false);
+    expect(s.audio.play).toHaveBeenCalledTimes(2);
     s.resolve();
-    await Promise.resolve();
-    expect(s.statuses.at(-1)).toBe("loading");
-    expect(s.audio.removeAttribute).toHaveBeenCalledWith("src");
-    expect(s.audio.load).toHaveBeenCalled();
+    await s.settle();
+    expect(s.music.status()).toBe("playing");
+    // A paused player stays paused when the tab returns.
+    s.music.toggle();
+    s.advance(fadeOut);
+    s.hide(true);
+    s.hide(false);
+    expect(s.audio.play).toHaveBeenCalledTimes(2);
+  });
+  it("follows the system's media keys", async () => {
+    const s = setup();
+    s.music.toggle();
+    s.resolve();
+    await s.settle();
+    s.audio.paused = true;
+    s.events.pause();
+    expect(s.music.status()).toBe("paused");
+    s.events.play();
+    expect(s.music.status()).toBe("playing");
+  });
+  it("tries the other format once, then reports the failure", async () => {
+    const s = setup();
+    s.music.toggle();
+    s.events.error();
+    expect(s.audio.src).toBe("/audio/a.m4a");
+    expect(s.audio.play).toHaveBeenCalledTimes(2);
+    s.events.error();
+    expect(s.music.status()).toBe("error");
+    const t = setup();
+    t.music.toggle();
+    t.reject();
+    await t.settle();
+    expect(t.music.status()).toBe("error");
   });
 });
 

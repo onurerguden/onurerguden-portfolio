@@ -127,11 +127,16 @@ for (const locale of ["en", "tr"] as const) {
         await expect(canvas).toHaveAttribute("data-last-desk-action", "tablet");
         await page.waitForTimeout(1000);
         await expect(canvas).toHaveAttribute("data-tablet-motion", "idle");
-        await page.locator('[data-desk-action="headphones"]').click();
+        const headphones = page.locator('[data-desk-action="headphones"]');
+        await headphones.click();
+        await expect(headphones).toHaveAttribute("aria-pressed", "true");
         await expect(page.locator("details").getByRole("status")).toContainText(
-          locale === "en"
-            ? "Music has not been added yet."
-            : "Müzik henüz eklenmedi.",
+          locale === "en" ? "Music playing" : "Müzik çalıyor",
+          { timeout: ci(10000) },
+        );
+        await headphones.click();
+        await expect(page.locator("details").getByRole("status")).toContainText(
+          locale === "en" ? "Music paused." : "Müzik duraklatıldı.",
         );
         await page.waitForTimeout(700);
         await expect(canvas).toHaveAttribute("data-headphones-motion", "idle");
@@ -209,8 +214,8 @@ test("review objects accept direct pointer clicks and reduced motion keeps funct
     else if (id === "lamp")
       await expect(canvas).toHaveAttribute("data-lamp-color", "603f4b");
     else if (id === "headphones")
-      await expect(page.locator("details").getByRole("status")).toHaveText(
-        "Music has not been added yet.",
+      await expect(page.locator("details").getByRole("status")).toContainText(
+        /Loading music|Music playing/,
       );
     if (["mouse", "tablet", "headphones", "drawers"].includes(id)) {
       await page.waitForTimeout(1600);
@@ -363,4 +368,98 @@ test("desk teases wait while motion is paused", async ({
   await go(page, s.room + 0.1);
   await page.waitForTimeout(2000);
   expect(await journeyCanvas(page).getAttribute("data-teases")).toBeNull();
+});
+
+test("the headphones' music plays on past the desk and pauses from its own button", async ({
+  page,
+  browserName,
+  isMobile,
+}) => {
+  test.skip(isMobile, touchStatic);
+  test.setTimeout(90000);
+  test.skip(browserName === "webkit", "Requires WebGL2 and Opus playback.");
+  const audio: string[] = [];
+  page.on("request", (request) => {
+    if (new URL(request.url()).pathname.startsWith("/audio/"))
+      audio.push(request.url());
+  });
+  await page.goto("/en");
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+    { timeout: ci(20000) },
+  );
+  await go(page, (await story(page)).room + 0.1);
+  // Nothing is fetched until the headphones are selected.
+  expect(audio).toEqual([]);
+  await page.getByText("Desk objects", { exact: true }).focus();
+  await page.keyboard.press("Enter");
+  const headphones = page.locator('[data-desk-action="headphones"]');
+  await headphones.click();
+  const html = page.locator("html");
+  await expect(html).toHaveAttribute("data-music", "playing", {
+    timeout: ci(10000),
+  });
+  expect(audio).toHaveLength(1);
+  expect(audio[0]).toMatch(/\/audio\/desk-jazz\.webm\?v=[0-9a-f]{12}$/);
+  const pill = page.getByRole("button", { name: "Pause music" });
+  await expect(pill).toBeVisible();
+  // Past the desk, the scene may be released; the music plays on.
+  await page.evaluate(() =>
+    document
+      .querySelector("#projects")
+      ?.scrollIntoView({ behavior: "instant" }),
+  );
+  await page.waitForTimeout(1500);
+  await expect(html).toHaveAttribute("data-music", "playing");
+  await pill.focus();
+  await page.keyboard.press("Enter");
+  await expect(html).toHaveAttribute("data-music", "paused");
+  await expect(page.getByRole("button", { name: "Play music" })).toBeVisible();
+  const audit = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+    .include("[data-music-pill]")
+    .analyze();
+  expect(audit.violations).toEqual([]);
+  // A hidden tab pauses what plays and resumes it on return.
+  await page.getByRole("button", { name: "Play music" }).click();
+  await expect(html).toHaveAttribute("data-music", "playing");
+  await page.evaluate(() => {
+    Object.defineProperty(document, "hidden", {
+      configurable: true,
+      get: () => true,
+    });
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  await expect(html).toHaveAttribute("data-music", "paused");
+  await page.evaluate(() => {
+    Reflect.deleteProperty(document, "hidden");
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  await expect(html).toHaveAttribute("data-music", "playing", {
+    timeout: ci(10000),
+  });
+});
+
+test("the music's button speaks Turkish on the Turkish page", async ({
+  page,
+  browserName,
+  isMobile,
+}) => {
+  test.skip(isMobile, touchStatic);
+  test.setTimeout(90000);
+  test.skip(browserName === "webkit", "Requires WebGL2 and Opus playback.");
+  await page.goto("/tr");
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "true",
+    { timeout: ci(20000) },
+  );
+  await go(page, (await story(page)).room + 0.1);
+  await page.getByText("Masa objeleri", { exact: true }).focus();
+  await page.keyboard.press("Enter");
+  await page.locator('[data-desk-action="headphones"]').click();
+  await expect(
+    page.getByRole("button", { name: "Müziği duraklat" }),
+  ).toBeVisible({ timeout: ci(10000) });
 });

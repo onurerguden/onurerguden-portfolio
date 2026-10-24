@@ -13,6 +13,7 @@
 - [x] Vercel Speed Insights enabled (6 October 2026). Field p75 metrics remain unmeasured until sufficient visits exist.
 - [ ] Confirm actual iOS Safari on a physical device, not just Playwright WebKit.
 - [x] `SITE_INDEXABLE=true` on production only (6 October 2026).
+- [x] Desk music: Onur chose "Jazz" by mondamusic from Pixabay (24 October 2026). It ships in `public/audio` (Opus and AAC encodes) with a note in `public/licenses/pixabay-mondamusic-jazz.txt`. Because the repository is public, the encoded track can be downloaded from GitHub on its own, which the Pixabay Content License's "standalone" clause restricts; Onur accepted that low risk over hosting it elsewhere. To move it, upload the two files to another store and add its origin to `media-src` in `src/lib/security.ts`.
 - [x] Bliss: Onur chose the original Microsoft photograph with a visible credit and accepts the republication risk (29 September 2026, see docs/bliss.md). Revisit if Microsoft objects; the pipeline can swap the source.
 
 ## S+ home page inputs

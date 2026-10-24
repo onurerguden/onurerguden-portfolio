@@ -2,6 +2,8 @@ import { createHash } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import revisions from "../src/lib/static-assets.json";
+import audioRevisions from "../src/lib/audio-assets.json";
+import { deskTrack } from "../src/lib/desk-music";
 import { staticAsset, staticSrcSet } from "../src/lib/static-asset-urls";
 
 // These files are cached as immutable, so a stale revision would keep an old
@@ -39,5 +41,15 @@ describe("immutable static assets", () => {
     const file = "images/avatar/onur-head-v4-1080.avif";
     expect(staticAsset(file)).toBe(`/${file}?v=${revision(file)}`);
     expect(staticSrcSet([[1080, file]])).toBe(`${staticAsset(file)} 1080w`);
+  });
+  it("versions the headphones' music apart from the first load", () => {
+    const files = readdirSync("public/audio").map((name) => `audio/${name}`);
+    expect(Object.keys(audioRevisions).sort()).toEqual(files.sort());
+    for (const [file, value] of Object.entries(audioRevisions))
+      expect(value, file).toBe(revision(file));
+    expect(deskTrack.sources.map(({ src }) => src)).toEqual([
+      `/audio/desk-jazz.webm?v=${revision("audio/desk-jazz.webm")}`,
+      `/audio/desk-jazz.m4a?v=${revision("audio/desk-jazz.m4a")}`,
+    ]);
   });
 });

@@ -1,0 +1,15 @@
+public/audio/desk-jazz.webm and public/audio/desk-jazz.m4a
+
+Track: "Jazz" by mondamusic
+Source: https://pixabay.com/ (download audio_0e1792e690.mp3, 20 August 2026,
+file name mondamusic-jazz-589142.mp3)
+License: Pixabay Content License, https://pixabay.com/service/terms/
+
+Adapted for this site: loudness-normalised to -16 LUFS (EBU R128) and
+re-encoded as Opus in WebM (64 kbit/s) and AAC in MP4 (96 kbit/s). It plays
+only when a visitor selects the headphones on the home page's desk.
+
+The Pixabay Content License allows use without attribution; the credit above
+and in the site's music status is given as a courtesy. The track is part of
+the site, not offered for download on its own, and is not licensed for reuse
+from this repository.
