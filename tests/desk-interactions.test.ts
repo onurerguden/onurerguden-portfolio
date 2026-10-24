@@ -25,6 +25,8 @@ import {
   teaseDue,
   teaseLift,
   teaseRules,
+  nextTeaseGap,
+  teasePeek,
 } from "../src/lib/desk-interaction-motion";
 import { cursorLook } from "../src/lib/cursor";
 import {
@@ -374,14 +376,34 @@ describe("presses, hops, hovers and teases (October 24)", () => {
       expect(rippleRing(p, 0).opacity).toBeLessThanOrEqual(0.55);
     }
   });
-  it("teases only after a quiet spell, spaced apart, a few per visit", () => {
-    const base = { now: 20000, lastInput: 0, lastTease: -Infinity, shown: 0 };
+  it("teases after two quiet seconds, three to five apart, four per visit", () => {
+    expect(teaseRules).toEqual({
+      quiet: 2000,
+      gapMin: 3000,
+      gapMax: 5000,
+      perVisit: 4,
+    });
+    const base = {
+      now: 20000,
+      lastInput: 0,
+      lastTease: -Infinity,
+      gap: 0,
+      shown: 0,
+    };
     expect(teaseDue(base)).toBe(true);
-    expect(teaseDue({ ...base, lastInput: 17000 })).toBe(false);
-    expect(teaseDue({ ...base, lastTease: 15000 })).toBe(false);
-    expect(teaseDue({ ...base, lastTease: 12000 })).toBe(true);
-    expect(teaseDue({ ...base, shown: teaseRules.perVisit })).toBe(false);
-    expect(teaseRules).toEqual({ quiet: 4000, gap: 8000, perVisit: 3 });
+    expect(teaseDue({ ...base, lastInput: 18500 })).toBe(false);
+    expect(teaseDue({ ...base, lastInput: 18000 })).toBe(true);
+    expect(teaseDue({ ...base, lastTease: 16000, gap: 4500 })).toBe(false);
+    expect(teaseDue({ ...base, lastTease: 16000, gap: 4000 })).toBe(true);
+    expect(teaseDue({ ...base, shown: 3 })).toBe(true);
+    expect(teaseDue({ ...base, shown: 4 })).toBe(false);
+    expect(nextTeaseGap(teaseRules, () => 0)).toBe(3000);
+    expect(nextTeaseGap(teaseRules, () => 1)).toBe(5000);
+    expect(nextTeaseGap(teaseRules, () => 0.5)).toBe(4000);
+    // Big enough to catch: a 16 mm hop, a 2.5 cm peek, the lights at half.
+    expect(Math.max(...span(teaseLift))).toBeCloseTo(0.016, 4);
+    expect(teasePeek).toBe(0.025);
+    expect(teaseDim(0.5)).toBeCloseTo(0.5);
     expect(pickTease([])).toBeUndefined();
     expect(pickTease(["lamp", "dial"], () => 0)).toBe("lamp");
     expect(pickTease(["lamp", "dial"], () => 0.9999)).toBe("dial");
