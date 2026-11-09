@@ -10,29 +10,30 @@ import styles from "./about.module.css";
 
 /**
  * The resting 3D composition, captured from the scene itself
- * (`npm run about:poster`): wide and narrow layouts, AVIF with a WebP
- * fallback. Decorative, so it has no text alternative.
+ * (`npm run about:poster`): wide and narrow layouts per language (the desk
+ * polaroid's caption is in the page's language), AVIF with a WebP fallback.
+ * Decorative, so it has no text alternative.
  */
-function AboutPoster() {
+function AboutPoster({ locale }: { locale: Locale }) {
   const narrow = "(max-width: 759px), (max-aspect-ratio: 9/10)";
   return (
     <picture className={styles.poster}>
       <source
         media={narrow}
         type="image/avif"
-        srcSet={staticAsset("images/about/poster-narrow.avif")}
+        srcSet={staticAsset(`images/about/poster-narrow-${locale}.avif`)}
       />
       <source
         media={narrow}
         type="image/webp"
-        srcSet={staticAsset("images/about/poster-narrow.webp")}
+        srcSet={staticAsset(`images/about/poster-narrow-${locale}.webp`)}
       />
       <source
         type="image/avif"
-        srcSet={staticAsset("images/about/poster-wide.avif")}
+        srcSet={staticAsset(`images/about/poster-wide-${locale}.avif`)}
       />
       <img
-        src={staticAsset("images/about/poster-wide.webp")}
+        src={staticAsset(`images/about/poster-wide-${locale}.webp`)}
         alt=""
         width={1440}
         height={900}
@@ -56,8 +57,8 @@ export default function AboutSection({ locale }: { locale: Locale }) {
       className={`${styles.section} bleed`}
       aria-labelledby="about-title"
     >
-      <AboutPoster />
-      <AboutStage logos={logos} />
+      <AboutPoster locale={locale} />
+      <AboutStage logos={logos} deskCaption={about.deskCaption} />
       <div className={styles.inner} data-about-copy>
         <GiantTitle
           id="about-title"

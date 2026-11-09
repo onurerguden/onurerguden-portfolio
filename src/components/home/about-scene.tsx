@@ -36,15 +36,18 @@ import { curtainProgress } from "@/lib/desk-story/curtain";
 import {
   basketball,
   braces,
+  captionAspect,
   chip,
   clay,
   contactShadows,
+  deskPolaroid,
   keycaps,
   logoGeometry,
   placeShadow,
   showShadows,
   network,
   polaroid,
+  polaroidCaption,
   racket,
   tennisBall,
   terminal,
@@ -78,26 +81,28 @@ type Body = {
 const wideSlots: Record<string, Slot> = {
   basketball: { x: -0.88, y: 0.66, z: 0.2, scale: 0.38 },
   tennis: { x: 0.86, y: -0.5, z: 0.8, scale: 0.26 },
-  racket: { x: 0.8, y: 0.34, z: -0.6, scale: 0.64 },
+  racket: { x: 0.88, y: -0.18, z: -0.6, scale: 0.56 },
   terminal: { x: -0.87, y: -0.44, z: -0.3, scale: 0.56 },
   braces: { x: -0.59, y: 0.94, z: -1.4, scale: 0.32 },
   chip: { x: 0.74, y: 0.93, z: -1.3, scale: 0.46 },
   photo: { x: -0.76, y: 0.1, z: 0.5, scale: 0.86 },
+  desk: { x: 0.75, y: 0.36, z: 0.5, scale: 0.78 },
   network: { x: -0.72, y: -0.16, z: -2.6, scale: 0.6 },
   keycaps: { x: 0.62, y: -0.72, z: 0.1, scale: 0.62 },
-  "logo-0": { x: 0.93, y: 0.02, z: -0.9, scale: 0.46 },
+  "logo-0": { x: -0.9, y: -0.86, z: -0.9, scale: 0.4 },
   "logo-1": { x: -0.6, y: -0.74, z: 0.3, scale: 0.4 },
   "logo-2": { x: 0.41, y: -0.93, z: -1.2, scale: 0.3 },
 };
 /**
  * Narrow screens keep four small objects in the corners, inside the bands the
- * section's padding keeps free (see about.module.css).
+ * section's padding keeps free (see about.module.css): the two polaroids
+ * share the bottom band.
  */
 const narrowSlots: Record<string, Slot> = {
   basketball: { x: -0.8, y: 0.93, z: 0, scale: 0.2 },
-  tennis: { x: 0.78, y: -0.94, z: 0.6, scale: 0.14 },
   chip: { x: 0.78, y: 0.93, z: -0.8, scale: 0.22 },
   photo: { x: -0.66, y: -0.86, z: 0.2, scale: 0.34 },
+  desk: { x: 0.22, y: -0.84, z: 0.2, scale: 0.3 },
 };
 
 type Groups = RefObject<Map<string, Group>>;
@@ -167,6 +172,7 @@ const builders = {
   network,
   keycaps,
   photo: () => polaroid(staticAsset("images/about/onur-photo.webp")),
+  desk: () => deskPolaroid(staticAsset("images/about/desk-photo.webp")),
   shadows: () => contactShadows(Object.keys(wideSlots).length),
 };
 type Parts = { [K in keyof typeof builders]: ReturnType<(typeof builders)[K]> };
@@ -178,9 +184,17 @@ const parts = () => {
   for (const key of Object.keys(builders) as (keyof Parts)[]) build(key);
   return cachedParts as Parts;
 };
+/** The desk polaroid's caption, one per language seen on this visit. */
+const captions = new Map<string, Material>();
+const caption = (text: string) => {
+  let material = captions.get(text);
+  if (!material) captions.set(text, (material = polaroidCaption(text)));
+  return material;
+};
 const icons = techIcons.icons as Record<string, { path: string; hex: string }>;
 export async function prepareAbout(
   logos: string[],
+  deskCaption: string,
   cancelled: () => boolean = () => false,
 ) {
   const slice = frameSlices();
@@ -189,6 +203,9 @@ export async function prepareAbout(
     if (cancelled()) return false;
     build(key);
   }
+  await slice();
+  if (cancelled()) return false;
+  caption(deskCaption);
   for (const slug of logos.slice(0, 3)) {
     await slice();
     if (cancelled()) return false;
@@ -218,7 +235,7 @@ const aboutLights = [
  * Every geometry and material pair the scene draws, as stand-ins that share
  * the parts' geometry and copy their materials (custom shader code too).
  */
-function standIns(logos: string[]) {
+function standIns(logos: string[], deskCaption: string) {
   const built = parts();
   const plane = new PlaneGeometry();
   const pairs: [BufferGeometry, Material][] = [
@@ -234,6 +251,10 @@ function standIns(logos: string[]) {
     [built.photo.frame, built.photo.frameMaterial],
     [plane, built.photo.photoMaterial],
     [built.photo.tape, built.photo.tapeMaterial],
+    [built.desk.frame, built.desk.frameMaterial],
+    [plane, built.desk.photoMaterial],
+    [plane, caption(deskCaption)],
+    [built.desk.tape, built.desk.tapeMaterial],
     [built.keycaps.geometry, built.keycaps.capMaterial],
     ...built.keycaps.legendMaterials.map(
       (legend): [BufferGeometry, Material] => [plane, legend],
@@ -284,6 +305,7 @@ function standIns(logos: string[]) {
  */
 export async function precompileAbout(
   logos: string[],
+  deskCaption: string,
   cancelled: () => boolean = () => false,
 ) {
   const host = programHost();
@@ -297,7 +319,7 @@ export async function precompileAbout(
       light.kind === "ambient" ? new AmbientLight() : new DirectionalLight(),
     );
   const camera = new PerspectiveCamera();
-  const { objects, dispose } = standIns(logos);
+  const { objects, dispose } = standIns(logos, deskCaption);
   const slice = frameSlices();
   const linking: Promise<unknown>[] = [];
   try {
@@ -318,6 +340,7 @@ export async function precompileAbout(
 
 function Objects({
   logos,
+  deskCaption,
   pointerRef,
   kickRef,
   sectionRef,
@@ -325,6 +348,7 @@ function Objects({
   onReady,
 }: {
   logos: string[];
+  deskCaption: string;
   pointerRef: RefObject<{ x: number; y: number; active: boolean }>;
   kickRef: RefObject<{ x: number; y: number } | null>;
   sectionRef: RefObject<HTMLElement | null>;
@@ -527,9 +551,11 @@ function Objects({
             the equator, with the seams' crossing on the side the gutter shows. */}
         <mesh {...built.basketball} rotation={[0.24, 0.78, 0]} />
       </Float>
-      <Float id="tennis" groups={groups}>
-        <mesh {...built.tennis} />
-      </Float>
+      {narrow ? null : (
+        <Float id="tennis" groups={groups}>
+          <mesh {...built.tennis} />
+        </Float>
+      )}
       <Float id="chip" groups={groups}>
         <mesh geometry={built.chip.die} material={built.chip.dieMaterial} />
         <primitive object={built.chip.pins} />
@@ -554,6 +580,26 @@ function Objects({
             material={built.photo.tapeMaterial}
             position={[0, 0.6, 0.03]}
             rotation={[0, 0, -0.12]}
+          />
+        </group>
+      </Float>
+      <Float id="desk" groups={groups}>
+        <group rotation={[0, 0, -0.06]}>
+          <mesh
+            geometry={built.desk.frame}
+            material={built.desk.frameMaterial}
+          />
+          <mesh position={[0, 0.14, 0.021]} material={built.desk.photoMaterial}>
+            <planeGeometry args={[1.28, 0.8]} />
+          </mesh>
+          <mesh position={[0, -0.41, 0.021]} material={caption(deskCaption)}>
+            <planeGeometry args={[1.2, 1.2 / captionAspect]} />
+          </mesh>
+          <mesh
+            geometry={built.desk.tape}
+            material={built.desk.tapeMaterial}
+            position={[0.5, 0.52, 0.03]}
+            rotation={[0, 0, 0.5]}
           />
         </group>
       </Float>
@@ -641,6 +687,7 @@ export default function AboutScene({
   active,
   paused,
   logos,
+  deskCaption,
   sectionRef,
   arrival,
   onReady,
@@ -649,6 +696,8 @@ export default function AboutScene({
   active: boolean;
   paused: boolean;
   logos: string[];
+  /** Written on the desk polaroid, in the page's language. */
+  deskCaption: string;
   sectionRef: RefObject<HTMLElement | null>;
   /** How far the page has arrived; follows the desk's paper curtain. */
   arrival?: number;
@@ -722,6 +771,7 @@ export default function AboutScene({
       )}
       <Objects
         logos={logos}
+        deskCaption={deskCaption}
         pointerRef={pointerRef}
         kickRef={kickRef}
         sectionRef={sectionRef}
