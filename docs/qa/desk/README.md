@@ -65,3 +65,7 @@ The portrait screen overlap was a compositing defect: HTML painted over the phys
 Editable Blender, GLB, eleven rendered views and the live-canvas loading poster were regenerated together. Model: 488,564 bytes, 93,011 exported triangles, 19 material batches, maximum texture dimension 1024. Accessory fit checks report no headphone/stand or portrait panel/support intersections. Browser review: zero axe violations, no page errors, offscreen rendering stopped and 200% zoom did not overflow. Physical iOS Safari has not been tested.
 
 Validation: `npm run check` passed (32 unit tests, typecheck, lint, content validation, production build). Browser suite passed 33 tests; 6 headless WebKit GPU cases skipped. Initial concurrent video/test runs exceeded the 5-second GPU readiness timeout; the full suite was rerun serially and passed.
+
+## Black MacBook cable
+
+November 9, 2026. The MacBook's power cable left of the laptop is black on the real desk; it used the white desk laminate and now uses the graphite cable material, like the display cable. Rebuilt with Blender 4.5.13 (`build.py` outputs other than the cable are unchanged after formatting), trimmed (`desk:optimize`, 97,095 → 48,647 triangles: the cable now joins the simplified graphite batch) and packaged; the loading and room posters were captured again from the production build. The loading capture now launches Chromium with the GPU, as the About poster capture does: software rendering no longer reached the ready state within its timeout.
