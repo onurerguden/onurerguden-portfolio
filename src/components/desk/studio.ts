@@ -1,29 +1,25 @@
 import {
-  BufferGeometry,
-  ClampToEdgeWrapping,
   Color,
+  CompressedCubeTexture,
   CubeCamera,
-  CubeUVReflectionMapping,
-  DataTexture,
   DataUtils,
   DoubleSide,
   HalfFloatType,
   LinearFilter,
+  LinearMipmapLinearFilter,
   LinearSRGBColorSpace,
   Mesh,
   MeshBasicMaterial,
-  OrthographicCamera,
   PlaneGeometry,
   PMREMGenerator,
   RGBAFormat,
   Scene,
   WebGLCubeRenderTarget,
-  UVMapping,
   type Camera,
+  type CompressedPixelFormat,
   type Material,
   type Texture,
   type WebGLRenderer,
-  type WebGLRenderTarget,
 } from "three";
 import { delayWarmUp } from "@/components/three/warm-up";
 import { frameSlices } from "@/lib/yield";
@@ -37,7 +33,11 @@ const panels = [
 const cubeSize = 128;
 const intensity = 0.55;
 
-export type StudioPixels = { data: Uint16Array; width: number; height: number };
+/**
+ * A PMREM's faces on the CPU: every mip level, largest first, and within a
+ * level the six faces in order, each `size >> level` texels square.
+ */
+export type StudioPixels = { data: Uint16Array; size: number; levels: number };
 
 /**
  * The studio's prefiltered environment (PMREM), copied to the CPU from the
@@ -93,36 +93,70 @@ export function lightStudio(gl: WebGLRenderer, scene: Scene) {
   };
 }
 
-/** The copy as a texture three samples exactly as it did the original. */
-export function studioTexture({ data, width, height }: StudioPixels) {
-  const texture = new DataTexture(
-    data,
-    width,
-    height,
-    RGBAFormat,
+/** Values in one face of one mip level. */
+const faceLength = (size: number, level: number) => (size >> level) ** 2 * 4;
+
+/** Values in the whole copy. */
+export const studioLength = (size: number, levels: number) => {
+  let length = 0;
+  for (let level = 0; level < levels; level++)
+    length += 6 * faceLength(size, level);
+  return length;
+};
+
+/**
+ * The copy as a cube texture three samples exactly as it did the original.
+ * three (0.187) takes a texture marked as a PMREM as it is, reading its
+ * roughness from the mip levels; the compressed cube texture is the one
+ * that carries its own chain for every face. The format is plain RGBA,
+ * which that upload path accepts though the constructor's types do not.
+ */
+export function studioTexture({ data, size, levels }: StudioPixels) {
+  const faces = Array.from({ length: 6 }, () => ({
+    width: size,
+    height: size,
+    mipmaps: [] as { data: Uint16Array; width: number; height: number }[],
+  }));
+  let offset = 0;
+  for (let level = 0; level < levels; level++) {
+    const side = size >> level;
+    const length = faceLength(size, level);
+    for (const face of faces) {
+      face.mipmaps.push({
+        data: data.subarray(offset, offset + length),
+        width: side,
+        height: side,
+      });
+      offset += length;
+    }
+  }
+  const texture = new CompressedCubeTexture(
+    faces,
+    RGBAFormat as unknown as CompressedPixelFormat,
     HalfFloatType,
-    UVMapping,
-    ClampToEdgeWrapping,
-    ClampToEdgeWrapping,
-    LinearFilter,
-    LinearFilter,
   );
-  // Not a mapping the constructor's types allow; three reads it all the same.
-  texture.mapping = CubeUVReflectionMapping;
+  texture.isPMREMTexture = true;
   texture.colorSpace = LinearSRGBColorSpace;
+  texture.minFilter = LinearMipmapLinearFilter;
+  texture.magFilter = LinearFilter;
   texture.generateMipmaps = false;
-  texture.name = "PMREM.cubeUv";
+  texture.name = "PMREM";
   texture.needsUpdate = true;
   return texture;
 }
 
-/** Fields of three's PMREMGenerator (0.186) that link its programs early. */
+/** Fields of three's PMREMGenerator (0.187) that link its programs early. */
 type GeneratorInternals = {
   _setSize?: (size: number) => void;
-  _allocateTargets?: () => WebGLRenderTarget;
-  _lodMeshes?: Mesh[];
+  _allocateTarget?: () => WebGLCubeRenderTarget;
+  _getSourceTarget?: () => WebGLCubeRenderTarget;
+  _applyPMREM?: (target: WebGLCubeRenderTarget) => void;
+  _renderCube?: (...args: unknown[]) => void;
+  _boxMesh?: Mesh;
+  _cubeCamera?: CubeCamera;
   _cubemapMaterial?: Material | null;
   _ggxMaterial?: Material | null;
+  _integrationMaterial?: Material | null;
 };
 
 /**
@@ -169,13 +203,13 @@ async function makeStudio(gl: WebGLRenderer, cancelled: () => boolean) {
     generator.dispose();
   };
 
-  let target: WebGLRenderTarget | undefined;
+  let target: WebGLCubeRenderTarget | undefined;
   try {
     target = await linkStudio(gl, studio, camera, generator);
   } catch {
     // Linked on first use instead, as three would.
   }
-  let pmrem: WebGLRenderTarget;
+  let pmrem: WebGLCubeRenderTarget;
   try {
     if (cancelled()) throw new Error("released");
     const autoClear = gl.autoClear;
@@ -195,11 +229,15 @@ async function makeStudio(gl: WebGLRenderer, cancelled: () => boolean) {
 }
 
 /**
- * Compiles the capture's program and the generator's two with
+ * Compiles the capture's program and the generator's three with
  * `compileAsync`, each with the target it draws into bound (the target
  * decides a program's output encoding and tone mapping), and resolves once
- * all three are linked. Returns the generator's output target, allocated
+ * all four are linked. Returns the generator's output target, allocated
  * early so that its programs exist to be compiled.
+ *
+ * The generator makes its filter materials the first time it filters, so
+ * this runs that step once with drawing switched off: the materials then
+ * exist, with nothing drawn, and the real filtering reuses them.
  */
 async function linkStudio(
   gl: WebGLRenderer,
@@ -210,28 +248,51 @@ async function linkStudio(
   const internals = generator as unknown as GeneratorInternals;
   const previous = gl.getRenderTarget();
   const linking: Promise<unknown>[] = [];
-  let target: WebGLRenderTarget | undefined;
+  let target: WebGLCubeRenderTarget | undefined;
   try {
     gl.setRenderTarget(camera.renderTarget);
     // The cube's six cameras differ only in where they look.
     linking.push(gl.compileAsync(studio, camera.children[0] as Camera));
+    const {
+      _setSize,
+      _allocateTarget,
+      _getSourceTarget,
+      _applyPMREM,
+      _renderCube,
+      _boxMesh,
+      _cubeCamera,
+    } = internals;
     if (
-      typeof internals._setSize === "function" &&
-      typeof internals._allocateTargets === "function"
+      typeof _setSize === "function" &&
+      typeof _allocateTarget === "function" &&
+      typeof _getSourceTarget === "function" &&
+      typeof _applyPMREM === "function" &&
+      typeof _renderCube === "function" &&
+      _boxMesh &&
+      _cubeCamera
     ) {
-      internals._setSize(cubeSize);
-      target = internals._allocateTargets();
-      gl.setRenderTarget(target);
+      _setSize.call(generator, cubeSize);
+      target = _allocateTarget.call(generator);
+      _getSourceTarget.call(generator);
+      internals._renderCube = () => {};
+      try {
+        _applyPMREM.call(generator, target);
+      } finally {
+        // Back to the prototype's.
+        delete internals._renderCube;
+      }
       generator.compileCubemapShader();
-      const flat = new OrthographicCamera();
-      const planes =
-        internals._lodMeshes?.[0]?.geometry ?? new BufferGeometry();
+      gl.setRenderTarget(target);
+      const view = _cubeCamera.children[0] as Camera;
       for (const material of [
         internals._cubemapMaterial,
         internals._ggxMaterial,
+        internals._integrationMaterial,
       ])
         if (material)
-          linking.push(gl.compileAsync(new Mesh(planes, material), flat));
+          linking.push(
+            gl.compileAsync(new Mesh(_boxMesh.geometry, material), view),
+          );
     }
   } finally {
     gl.setRenderTarget(previous);
@@ -241,30 +302,52 @@ async function linkStudio(
 }
 
 /**
- * Copies a half-float render target to the CPU without stalling: the GPU
- * writes it into a buffer, a fence says when, and the conversion runs a
- * slice per frame. RGBA/FLOAT is the read every float target allows; the
- * values were half floats, so converting them back is exact.
+ * Copies a half-float cube target, every face of every mip level, to the
+ * CPU without stalling: the GPU writes it into a buffer, a fence says when,
+ * and the conversion runs a slice per frame. RGBA/FLOAT is the read every
+ * float target allows; the values were half floats, so converting them back
+ * is exact.
  */
 async function readBack(
   gl: WebGLRenderer,
-  target: WebGLRenderTarget,
+  target: WebGLCubeRenderTarget,
 ): Promise<StudioPixels | null> {
   const context = gl.getContext();
   if (!("fenceSync" in context)) return null;
-  const { width, height } = target;
-  const size = width * height * 4;
+  const size = target.width;
+  const levels = target.texture.mipmaps.length;
+  const length = studioLength(size, levels);
   const buffer = context.createBuffer();
   const previous = gl.getRenderTarget();
-  gl.setRenderTarget(target);
   context.bindBuffer(context.PIXEL_PACK_BUFFER, buffer);
-  context.bufferData(context.PIXEL_PACK_BUFFER, size * 4, context.STREAM_READ);
-  context.readPixels(0, 0, width, height, context.RGBA, context.FLOAT, 0);
+  context.bufferData(
+    context.PIXEL_PACK_BUFFER,
+    length * 4,
+    context.STREAM_READ,
+  );
+  let offset = 0;
+  for (let level = 0; level < levels; level++) {
+    const side = size >> level;
+    for (let face = 0; face < 6; face++) {
+      gl.setRenderTarget(target, face, level);
+      // setRenderTarget leaves the pack buffer bound.
+      context.readPixels(
+        0,
+        0,
+        side,
+        side,
+        context.RGBA,
+        context.FLOAT,
+        offset * 4,
+      );
+      offset += faceLength(size, level);
+    }
+  }
   context.bindBuffer(context.PIXEL_PACK_BUFFER, null);
   gl.setRenderTarget(previous);
   const fence = context.fenceSync(context.SYNC_GPU_COMMANDS_COMPLETE, 0);
   context.flush();
-  const floats = new Float32Array(size);
+  const floats = new Float32Array(length);
   try {
     const start = performance.now();
     for (;;) {
@@ -285,27 +368,49 @@ async function readBack(
     if (fence) context.deleteSync(fence);
     context.deleteBuffer(buffer);
   }
-  return toHalves(floats, width, height);
+  return toHalves(floats, size, levels);
 }
 
-/** Converts the read-back floats a slice per frame; null if nothing came. */
+/**
+ * Converts the read-back floats a slice per frame; null if nothing came.
+ *
+ * three samples a render target's cube as drawn, but mirrors an uploaded
+ * cube's x axis (the convention of cube images). So each face is stored
+ * mirrored left to right and the two x faces trade places: sampled through
+ * that mirror, the copy gives back the very texels of the original.
+ */
 export async function toHalves(
   floats: Float32Array,
-  width: number,
-  height: number,
+  size: number,
+  levels: number,
 ): Promise<StudioPixels | null> {
   const data = new Uint16Array(floats.length);
   const slice = frameSlices();
   // A failed read leaves the buffer as allocated, all zeros; every filtered
   // texel has an alpha of one.
   let written = false;
-  for (let start = 0; start < floats.length; start += 8192) {
-    await slice();
-    const end = Math.min(start + 8192, floats.length);
-    for (let i = start; i < end; i++) {
-      data[i] = DataUtils.toHalfFloat(floats[i]);
-      if (floats[i] !== 0) written = true;
+  let offset = 0;
+  for (let level = 0; level < levels; level++) {
+    const side = size >> level;
+    const length = faceLength(size, level);
+    for (let face = 0; face < 6; face++) {
+      const from = offset + face * length;
+      const to = offset + (face < 2 ? 1 - face : face) * length;
+      for (let y = 0; y < side; y++) {
+        await slice();
+        const row = y * side;
+        for (let x = 0; x < side; x++) {
+          const source = from + (row + x) * 4;
+          const target = to + (row + side - 1 - x) * 4;
+          for (let channel = 0; channel < 4; channel++) {
+            const value = floats[source + channel];
+            data[target + channel] = DataUtils.toHalfFloat(value);
+            if (value !== 0) written = true;
+          }
+        }
+      }
     }
+    offset += 6 * length;
   }
-  return written ? { data, width, height } : null;
+  return written ? { data, size, levels } : null;
 }
