@@ -13,6 +13,8 @@ jobs:
     name: Format, types, lint, unit tests and build
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    outputs:
+      playwright: ${{ steps.playwright.outputs.version }}
     steps:
       # Actions are pinned to release commits; the comment names the tag.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -20,6 +22,10 @@ jobs:
         with:
           node-version: "24"
           cache: npm
+      # The browser jobs' image follows @playwright/test, so a Dependabot
+      # bump of the package moves the browsers with it.
+      - id: playwright
+        run: echo "version=$(node -p "require('./package.json').devDependencies['@playwright/test']")" >> "$GITHUB_OUTPUT"
       - run: npm ci
       - run: npm run format:check
       - run: npm run check
@@ -39,10 +45,10 @@ jobs:
     runs-on: ubuntu-latest
     # Playwright's own image ships the browsers and their system libraries,
     # so no job waits on Ubuntu's apt mirrors (installing them with apt stalled
-    # for up to an hour on 23 October 2026). Keep the tag equal to the
-    # @playwright/test version in package.json (tests/ci.test.ts).
+    # for up to an hour on 23 October 2026). The tag is the @playwright/test
+    # version in package.json, read by the quality job (tests/ci.test.ts).
     container:
-      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      image: mcr.microsoft.com/playwright:v${{ needs.quality.outputs.playwright }}-noble
       options: --ipc=host
     timeout-minutes: 30
     strategy:
