@@ -17,11 +17,14 @@ const AboutScene = dynamic(loadScene, { ssr: false });
  */
 export default function AboutStage({
   logos,
+  deskCaption,
   arrival,
   wanted,
   visible,
 }: {
   logos: string[];
+  /** Written on the desk polaroid, in the page's language. */
+  deskCaption: string;
   /** How far the page has arrived through the desk's curtain (0–1). */
   arrival?: number;
   /** Overrides for when the curtain, not an observer, decides. */
@@ -31,9 +34,11 @@ export default function AboutStage({
   const stage = useRef<HTMLDivElement>(null);
   const section = useRef<HTMLElement | null>(null);
   const logoList = useRef(logos);
+  const captionText = useRef(deskCaption);
   useEffect(() => {
     logoList.current = logos;
-  }, [logos]);
+    captionText.current = deskCaption;
+  }, [logos, deskCaption]);
   useEffect(() => {
     section.current = stage.current?.closest("section") ?? null;
   }, []);
@@ -53,8 +58,9 @@ export default function AboutStage({
       cancelPause = onScrollPause(async () => {
         const scene = await loadScene();
         const stop = () => cancelled;
-        if (await scene.prepareAbout(logoList.current, stop))
-          await scene.precompileAbout(logoList.current, stop);
+        const [logos, caption] = [logoList.current, captionText.current];
+        if (await scene.prepareAbout(logos, caption, stop))
+          await scene.precompileAbout(logos, caption, stop);
       });
     };
     const unsubscribe = laptopPhase.subscribe(warm);
@@ -92,6 +98,7 @@ export default function AboutStage({
             active={active && exposed}
             paused={paused}
             logos={logos}
+            deskCaption={deskCaption}
             sectionRef={section as RefObject<HTMLElement | null>}
             arrival={arrival}
             onReady={onReady}

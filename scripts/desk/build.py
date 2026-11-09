@@ -559,7 +559,7 @@ box('Tablet black bezel',(0,0,.009),(.172,.233,.002),'black',.009,tablet)
 plane('Tablet glass',(0,0,.0102),.160,.217,'glass',tablet,rot=(0,0,0))
 cylinder('Tablet pencil',(.097,0,.006),.004,.171,'desk',tablet,(math.pi/2,0,0))
 # A few intentional visible cable routes; no random desktop clutter.
-tube('MacBook power cable',[(-.142,.012,.006),(-.205,.012,.006),(-.245,.065,.006),(-.25,.18,.006),(-.25,.47,.006)],.002,'desk')
+tube('MacBook power cable',[(-.142,.012,.006),(-.205,.012,.006),(-.245,.065,.006),(-.25,.18,.006),(-.25,.47,.006)],.002,'black')
 tube('MacBook display cable',[(.172,.01,.007),(.22,.01,.007),(.275,.055,.007),(.29,.18,.007),(.29,.47,.007)],.003,'black')
 
 # Backdrop belongs to presentation, not an invented recreation of the whole room.

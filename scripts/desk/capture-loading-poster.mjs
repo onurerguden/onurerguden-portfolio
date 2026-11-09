@@ -5,7 +5,9 @@ import { createHash } from "node:crypto";
 // Run against the local production build after model/lighting changes.
 // Capture the WebGL canvas only: no page chrome or screen text is baked in.
 const base = process.env.DESK_REVIEW_URL || "http://localhost:3100";
-const browser = await chromium.launch();
+const browser = await chromium.launch({
+  args: ["--use-angle=metal", "--enable-gpu"],
+});
 try {
   const page = await browser.newPage({
     viewport: { width: 1280, height: 960 },
@@ -13,7 +15,8 @@ try {
   });
   // ?qa: the canvas writes the QA attributes this script waits on.
   await page.goto(`${base}/en/lab/desk/journey?qa`);
-  await page.waitForSelector('[data-ready="true"]');
+  // The first visit links every shader; allow more than the 30 s default.
+  await page.waitForSelector('[data-ready="true"]', { timeout: 120000 });
   await page.evaluate(() => {
     const section = document.querySelector("[data-enhanced]");
     scrollTo({

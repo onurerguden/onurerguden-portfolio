@@ -474,7 +474,11 @@ export function validateHomeContent(root?: string): void {
 /* About ------------------------------------------------------------------ */
 
 const aboutSchema = z
-  .object({ paragraphs: z.array(z.string().min(1)).min(1).max(4) })
+  .object({
+    paragraphs: z.array(z.string().min(1)).min(1).max(4),
+    /** Written on the desk polaroid's margin in the About scene. */
+    deskCaption: z.string().min(1).max(40),
+  })
   .strict()
   .refine((about) => about.paragraphs[0] === "[[identity:bio]]", {
     message: "About starts with the shared identity bio",
@@ -492,5 +496,6 @@ export function getAbout(locale: Locale, root = defaultRoot()) {
     paragraphs: about.paragraphs.map((paragraph) =>
       paragraph === "[[identity:bio]]" ? identity.bio : paragraph,
     ),
+    deskCaption: about.deskCaption,
   };
 }

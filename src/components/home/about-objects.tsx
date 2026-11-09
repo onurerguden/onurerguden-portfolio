@@ -291,6 +291,73 @@ export function polaroid(src: string) {
   };
 }
 
+/**
+ * A wide polaroid of my real desk, the one the opening 3D scene is modelled
+ * on: a landscape print (1.6:1, like an instant wide film) over a deep bottom
+ * margin. The photo is a small static file
+ * (public/images/about/desk-photo.webp); the caption is a separate part
+ * (`polaroidCaption`) because it changes with the language.
+ */
+export function deskPolaroid(src: string) {
+  const texture = new TextureLoader().load(src);
+  texture.colorSpace = SRGBColorSpace;
+  texture.anisotropy = 4;
+  return {
+    frame: new RoundedBoxGeometry(1.4, 1.12, 0.04, 3, 0.03),
+    frameMaterial: clay(palette.paper, { roughness: 0.75, clearcoat: 0.1 }),
+    photoMaterial: new MeshPhysicalMaterial({
+      map: texture,
+      roughness: 0.4,
+      clearcoat: 0.6,
+    }),
+    tape: new BoxGeometry(0.4, 0.12, 0.008),
+    tapeMaterial: new MeshPhysicalMaterial({
+      color: palette.volt,
+      roughness: 0.8,
+      transparent: true,
+      opacity: 0.85,
+    }),
+  };
+}
+
+/** The caption's canvas: 8:1, the shape of the plane it is drawn on. */
+export const captionAspect = 8;
+
+/**
+ * A line written in ink on a polaroid's bottom margin, on a transparent
+ * canvas so the paper shows through. Long lines shrink to fit.
+ */
+export function polaroidCaption(text: string) {
+  const width = 1024;
+  const height = width / captionAspect;
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const c = canvas.getContext("2d")!;
+  let size = height * 0.56;
+  const font = () =>
+    `italic 600 ${size}px "Manrope Variable", system-ui, sans-serif`;
+  c.font = font();
+  const room = width * 0.94;
+  const measured = c.measureText(text).width;
+  if (measured > room) {
+    size *= room / measured;
+    c.font = font();
+  }
+  c.fillStyle = palette.ink;
+  c.textAlign = "center";
+  c.textBaseline = "middle";
+  c.fillText(text, width / 2, height / 2);
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
+  texture.anisotropy = 4;
+  return new MeshPhysicalMaterial({
+    map: texture,
+    transparent: true,
+    roughness: 0.75,
+  });
+}
+
 /** The `</>` glyph as three puffy extrusions. */
 export function braces() {
   const chevron = new Shape();
