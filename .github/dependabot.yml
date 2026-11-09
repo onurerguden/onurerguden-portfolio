@@ -9,6 +9,13 @@ updates:
       day: monday
     open-pull-requests-limit: 5
     groups:
+      # three is still 0.x: every minor release may break the API (r187
+      # rewrote PMREMGenerator, which src/components/desk/studio.ts relies
+      # on) and needs a new Draco decoder folder. It gets a pull request of
+      # its own, with its types, so it never holds back the weekly group.
+      # Groups match in order, so this one comes first.
+      three:
+        patterns: ["three", "@types/three"]
       minor-and-patch:
         update-types: [minor, patch]
     ignore:
