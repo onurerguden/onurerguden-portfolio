@@ -351,9 +351,8 @@
   .media > :first-child {
     grid-row: auto;
   }
-  .archive,
-  .archive[data-rows] {
-    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr);
+  /* The archive's figure beside its entries, two by two. */
+  .archive {
     grid-template-rows: repeat(2, minmax(0, 1fr));
     min-height: 200px;
   }
