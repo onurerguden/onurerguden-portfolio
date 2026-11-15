@@ -68,17 +68,166 @@
   object-fit: contain;
 }
 /* The opening's scroll hint sits beside the face, just past the portrait's
-   widest opaque column (90.7%), so short screens never crop it. It shows
-   once the desk is ready to scroll. Tall, narrow windows have no room
-   beside the head; there it hangs from the chin (93.4%), always in view. */
+   widest opaque column (90.7%), so short screens never crop it. Tall,
+   narrow windows have no room beside the head; there it hangs from the chin
+   (93.4%), always in view. While the desk gets ready it is a navy disc whose
+   volt ring fills with the real progress (`--p`, opening-loader.ts); then
+   the disc narrows into the mouse, the ring closes into its wheel, and
+   "Scroll down" comes and goes beneath it until the visitor scrolls. */
 .hint {
   position: absolute;
   top: 54%;
   left: calc(91% + 12px);
-  --hint-length: clamp(28px, 4.2svh, 40px);
+  --hint-length: clamp(44px, 6.5svh, 62px);
+  --hint: var(--space, #080e1c);
   transform: translateY(-50%);
+}
+.hint > :first-child {
+  width: var(--hint-length);
+  border-color: var(--hint);
+  background: var(--hint);
+  box-shadow: 0 6px 18px #080e1c33;
+  transition: width 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.hint > :first-child::before {
+  background: var(--volt, #d8f23c);
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity 0.25s 0.3s;
+}
+/* The ring: a conic fill masked to a band, the track faint on the navy. */
+.hint > :first-child::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--volt, #d8f23c) calc(var(--p, 0) * 1turn),
+    #ffffff2e 0
+  );
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 4.5px),
+    #000 calc(100% - 4px)
+  );
+  mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 4.5px),
+    #000 calc(100% - 4px)
+  );
+  transition:
+    transform 0.4s cubic-bezier(0.65, 0, 0.35, 1),
+    opacity 0.3s 0.1s;
+}
+.hint[data-load="done"] > :first-child {
+  width: calc(var(--hint-length) * 0.64);
+}
+.hint[data-load="done"] > :first-child::before {
+  opacity: 1;
+}
+.hint[data-load="done"] > :first-child::after {
+  transform: translateY(-14%) scale(0.18);
+  opacity: 0;
+}
+/* A scroll while the page waits: the disc nods, "not yet". */
+.hint[data-nudge] > :first-child {
+  animation: hint-nudge 0.45s cubic-bezier(0.3, 0, 0.3, 1);
+}
+@keyframes hint-nudge {
+  40% {
+    transform: scale(1.12);
+  }
+}
+/* "↓ Scroll down" level with the mouse, on its far side from the face. */
+.hint > :last-child:not(:first-child) {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 16px);
+  translate: 0 -50%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #17212b;
+  font:
+    650 clamp(20px, 2.64svh, 23px) / 1.2 "Manrope Variable",
+    sans-serif;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  opacity: 0;
+}
+.hint > :last-child > span {
+  display: inline-block;
+  font-size: 1.15em;
+}
+/* Shown two seconds, rested two, with the wheel rolling while it shows. */
+.opening .hint[data-load="done"] > :first-child::before {
+  animation: hint-roll 4s cubic-bezier(0.45, 0, 0.25, 1) 0.6s infinite;
+}
+.hint[data-load="done"] > :last-child:not(:first-child) {
+  animation: hint-say 4s ease 0.6s infinite;
+}
+.hint[data-load="done"] > :last-child > span {
+  animation: hint-bob 4s ease-in-out 0.6s infinite;
+}
+@keyframes hint-roll {
+  0%,
+  6% {
+    transform: none;
+    opacity: 1;
+  }
+  34% {
+    transform: translateY(calc(var(--hint-length) * 0.3));
+    opacity: 0;
+  }
+  35% {
+    transform: none;
+    opacity: 0;
+  }
+  48%,
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes hint-say {
+  0% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  10%,
+  48% {
+    opacity: 1;
+    transform: none;
+  }
+  58%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes hint-bob {
+  0%,
+  10%,
+  30%,
+  50%,
+  100% {
+    transform: none;
+  }
+  20%,
+  40% {
+    transform: translateY(4px);
+  }
+}
+/* Paused motion: the hint and its words stay, still. */
+:global(html[data-motion-paused="true"]) .hint * {
+  animation: none !important;
+}
+:global(html[data-motion-paused="true"]) .hint[data-load="done"] > :last-child {
+  opacity: 1;
+}
+/* Once the visitor has moved on, nothing behind the faded opening runs. */
+:global([data-travelled="true"]) .hint *,
+:global([data-travelled="true"]) .hint *::before {
+  animation: none !important;
 }
 @media (max-aspect-ratio: 3/4) {
   .hint {
@@ -87,11 +236,15 @@
     transform: translateX(-50%);
   }
 }
-:global([data-ready="true"]) .hint {
-  opacity: 1;
-}
+/* Phones, reduced motion and a desk turned off read the plain flow: no
+   ring, before hydration either. */
 :global([data-static="true"]) .hint {
   display: none;
+}
+@media (prefers-reduced-motion: reduce), (hover: none) and (pointer: coarse) {
+  .hint {
+    display: none;
+  }
 }
 .opening {
   position: absolute;

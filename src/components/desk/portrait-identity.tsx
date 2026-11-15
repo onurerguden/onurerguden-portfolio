@@ -22,7 +22,8 @@ export default function PortraitIdentity({
   opening = false,
   interactive = true,
 }: {
-  content: Pick<JourneyContent, "name" | "role">;
+  content: Pick<JourneyContent, "name" | "role"> &
+    Partial<Pick<JourneyContent, "scroll">>;
   opening?: boolean;
   interactive?: boolean;
 }) {
@@ -147,9 +148,22 @@ export default function PortraitIdentity({
         </picture>
         {opening ? (
           // Beside the face (under the chin on tall, narrow windows), so it
-          // never covers the face at any size.
-          <span className={styles.hint} data-scroll-hint aria-hidden="true">
+          // never covers the face at any size. A ring while the desk gets
+          // ready, then the scroll hint (opening-loader.ts); the role="status"
+          // at the stage's foot tells assistive technology the same.
+          <span
+            className={styles.hint}
+            data-scroll-hint
+            data-load="wait"
+            aria-hidden="true"
+          >
             <span className={hintStyles.hint} />
+            {content.scroll ? (
+              <span>
+                <span>↓</span>
+                {content.scroll}
+              </span>
+            ) : null}
           </span>
         ) : null}
       </div>

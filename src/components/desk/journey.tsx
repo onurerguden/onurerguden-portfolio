@@ -58,12 +58,14 @@ import {
 } from "@/lib/desk-story/clock";
 import { onScrollPause } from "@/lib/scroll-pause";
 import { whenIdle } from "@/lib/idle";
+import { reportLoad } from "@/lib/desk-story/load-progress";
 import SceneBoundary from "@/components/three/scene-boundary";
 import { JourneyNav, plainClick } from "@/components/site/site-nav";
 import monitorStyles from "@/components/sections/monitor.module.css";
 import xpStyles from "@/components/xp/xp.module.css";
 import styles from "./journey.module.css";
 import PortraitIdentity from "./portrait-identity";
+import { useOpeningLoader } from "./opening-loader";
 import { staticQuery } from "@/lib/motion-preference";
 import ScreenPanels from "./screen-panels";
 import { paintScreens } from "./paint-screens";
@@ -261,6 +263,12 @@ export default function DeskJourney({
     preload(`${deskDecoderPath}draco_decoder.wasm`, fetched);
   }
   const { layout, measured } = useStoryLayout(enhanced, stage, panels);
+  // The opening's loading ring, and the page held at the opening until the
+  // desk can answer a scroll (at most five seconds).
+  const hold = useOpeningLoader({ section, stage, ready, still });
+  useEffect(() => {
+    if (enhanced) reportLoad("enabled");
+  }, [enhanced]);
   const targets = useMemo(() => chapterDistances(measured), [measured]);
   // The story at its distance: every DOM write a scroll makes, after the one
   // layout read in `read` below (see scroll-frame).
@@ -422,9 +430,11 @@ export default function DeskJourney({
     let cancelPause: (() => void) | null = null;
     const enhance = () => {
       if (cancelPause) return;
+      // While the page is held nothing scrolls under the work, so wheel
+      // input need not delay it for long.
       cancelPause = onScrollPause(
         () => startTransition(() => setEnabled(true)),
-        { quiet: 150, cap: 1500 },
+        { quiet: 150, cap: hold.current?.held ? 300 : 1500 },
       );
     };
     const refresh = () => {
@@ -438,7 +448,11 @@ export default function DeskJourney({
     refresh();
     // The desk's code meanwhile downloads (and runs) while the page is idle.
     // A failed prefetch is the scene's own load to report.
-    const prefetch = () => void import("./journey-scene").catch(() => {});
+    const prefetch = () =>
+      void import("./journey-scene").then(
+        () => reportLoad("code"),
+        () => {},
+      );
     const cancelPrefetch = plain()
       ? () => {}
       : whenIdle(prefetch, { timeout: 1500, fallback: 300 });
@@ -454,7 +468,7 @@ export default function DeskJourney({
       observer.disconnect();
       motion.removeEventListener("change", refresh);
     };
-  }, []);
+  }, [hold]);
   useEffect(() => {
     // After the journey the nav docks to the top on every pointer type and
     // hides while scrolling down, returning when scrolling up. The section in
@@ -640,6 +654,7 @@ export default function DeskJourney({
       node.dataset.arrivedLate = "true";
       window.setTimeout(() => delete node.dataset.arrivedLate, 600);
     }
+    reportLoad("ready");
     setReady(true);
     setSceneShown(true);
   }, [distance]);
