@@ -22,7 +22,8 @@ Bana şunları yazman yeterli:
 - Kaydırdığın halde **hiçbir şey olmadığını** hissettiğin an oldu mu, nerede?
 - 2. adresteki (`?story=raw`) his daha mı iyi, daha mı kötü, aynı mı?
 - Cihaz, tarayıcı ve sürümü; ekran 60 Hz mi 120 Hz mi (bilmiyorsan model yeter); fare mi trackpad mi, faren çentikli mi serbest dönen mi
-- Mümkünse ekran kaydı (Mac: Cmd+Shift+5)
+- Windows'ta Chrome ya da Edge kullanıyorsan: adres çubuğuna `chrome://gpu` (Edge'de `edge://gpu`) yaz, sayfada **GL_RENDERER** satırını kopyalayıp gönder
+- Mümkünse ekran kaydı (Mac: Cmd+Shift+5, Windows: Win+Alt+R)
 
 ## English
 
@@ -44,12 +45,14 @@ Please send me:
 - Was there a moment when you scrolled and **nothing happened**? Where?
 - Does the second address (`?story=raw`) feel better, worse or the same?
 - Device, browser and version; a 60 Hz or 120 Hz screen (the model is enough if unsure); mouse or trackpad, and a notched or free-spinning wheel
-- A screen recording if you can (Mac: Cmd+Shift+5)
+- On Windows in Chrome or Edge: type `chrome://gpu` (`edge://gpu` in Edge) in the address bar and send me the **GL_RENDERER** line
+- A screen recording if you can (Mac: Cmd+Shift+5, Windows: Win+Alt+R)
 
 ## Reading the answers
 
 - **`?story=raw`** follows the scroll one-to-one: the camera as it was before the story clock (`src/lib/desk-story/clock.ts`). A friend who prefers it on a notched wheel is the signal to shorten the clock's 80 ms half-life; one who finds the default laggy on a trackpad, its 35 ms one.
 - **Safari on a 120 Hz Mac** draws pages at 60 frames per second unless Develop › Feature Flags › "Prefer Page Rendering Updates near 60fps" is off; the desk then draws at 60 while the page scrolls at 120. Ask before blaming the site.
 - **"Nothing happened"** moments point at holds and reading stops in `src/lib/desk-story/timeline.ts`.
+- **GL_RENDERER** says which tier the site picked (`src/lib/quality.ts`; its tests list renderer strings). Integrated graphics get the low tier; reproduce their lag with the estimated laptop profile (`docs/qa/perf/README.md`, `--quality low --cpu 4 --gpu …`). A slow computer the site still took for a fast one is the case `demoteQuality` catches after one slow pass through the desk.
 - **A jump or flash** with the device named: reproduce it with `npm run perf -- --device "<device>"` or `--input notch|trackpad` (`docs/qa/perf/README.md`).
 - A week after sharing, compare Vercel Speed Insights at the 75th percentile with `docs/release.md`'s targets (LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1).
