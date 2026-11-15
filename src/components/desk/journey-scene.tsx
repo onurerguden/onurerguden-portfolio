@@ -42,7 +42,7 @@ import {
   type ResolutionGovernor,
 } from "@/lib/desk-story/frame-budget";
 import { createGpuTimer, type GpuTimer } from "@/components/three/gpu-timer";
-import { quality } from "@/lib/quality";
+import { demoteQuality, quality } from "@/lib/quality";
 import { qa } from "@/lib/qa";
 import { storyAt, type StoryState } from "@/lib/desk-story/timeline";
 import type { Signal } from "@/lib/desk-story/signal";
@@ -496,6 +496,8 @@ function AdaptiveResolution({
       const at = performance.now();
       for (const ms of timerRef.current?.poll() ?? []) judge.recordGpu(ms, at);
       const next = judge.proposal();
+      // Too slow even at the lowest level: what mounts next goes lighter.
+      if (next === null && judge.strained()) demoteQuality();
       if (next === null) return;
       // Through the Canvas's dpr prop: R3F re-applies that prop whenever the
       // Canvas renders, which would undo a setDpr made from inside.
@@ -577,8 +579,10 @@ function JourneyScene(props: JourneySceneProps) {
     resolutionLevels(
       low ? 1 : coarsePointer() ? 1.25 : 1.5,
       typeof window === "undefined" ? 1 : window.devicePixelRatio || 1,
-      // Integrated graphics may go below one device pixel per CSS pixel.
-      low ? 0.85 : 1,
+      // Below one device pixel per CSS pixel only when frames say so: the
+      // desk softens a little, the HTML screens stay sharp, and a GPU that
+      // cannot keep up still scrolls evenly (November 15 final revisions).
+      low ? 0.75 : 0.85,
     ),
   );
   // A computer that settled on a lower level last time starts there.

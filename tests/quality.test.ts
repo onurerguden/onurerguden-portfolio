@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { classifyGpu } from "../src/lib/quality";
 
 const gpu = (renderer: string, memory?: number, cores?: number) =>
@@ -49,6 +49,69 @@ describe("3D quality per computer", () => {
       "ANGLE (Microsoft, Microsoft Basic Render Driver Direct3D11 vs_5_0 ps_5_0, D3D11)",
     ])
       expect(gpu(renderer, 16, 16), renderer).toBe("static");
+  });
+});
+
+describe("a computer slower than its GPU's name", () => {
+  let items: Map<string, string>;
+  let root: { dataset: Record<string, string> };
+  beforeEach(() => {
+    items = new Map();
+    root = { dataset: {} };
+    const context = {
+      getExtension: (name: string) =>
+        name === "WEBGL_debug_renderer_info"
+          ? { UNMASKED_RENDERER_WEBGL: 0x9246 }
+          : { loseContext: () => {} },
+      getParameter: () =>
+        "ANGLE (NVIDIA, NVIDIA GeForce MX150 Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    };
+    vi.stubGlobal("window", {});
+    vi.stubGlobal("document", {
+      createElement: () => ({ getContext: () => context }),
+      documentElement: root,
+    });
+    vi.stubGlobal("localStorage", {
+      getItem: (key: string) => items.get(key) ?? null,
+      setItem: (key: string, value: string) => void items.set(key, value),
+    });
+    vi.stubGlobal("navigator", { hardwareConcurrency: 8, deviceMemory: 8 });
+    vi.resetModules();
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.resetModules();
+    vi.useRealTimers();
+  });
+  const fresh = async () => {
+    vi.resetModules();
+    return import("../src/lib/quality");
+  };
+
+  it("gets the low tier once the desk proves it slow, for a week", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(Date.UTC(2026, 10, 15));
+    const first = await fresh();
+    expect(first.quality()).toBe("high");
+    first.demoteQuality();
+    expect(first.quality()).toBe("low");
+    expect(root.dataset.quality).toBe("low");
+    // The next visit starts low.
+    expect((await fresh()).quality()).toBe("low");
+    // A week later it probes again.
+    vi.setSystemTime(Date.UTC(2026, 10, 23));
+    expect((await fresh()).quality()).toBe("high");
+  });
+  it("keeps the visitor's own choice", async () => {
+    items.set("portfolio:quality", "high");
+    const { demoteQuality, quality } = await fresh();
+    demoteQuality();
+    expect(quality()).toBe("high");
+    expect(items.has("portfolio:quality-learned")).toBe(false);
+  });
+  it("ignores a record it cannot read", async () => {
+    items.set("portfolio:quality-learned", "{");
+    expect((await fresh()).quality()).toBe("high");
   });
 });
 

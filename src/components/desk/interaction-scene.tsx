@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { quality } from "@/lib/quality";
 import { qa } from "@/lib/qa";
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
@@ -148,13 +148,14 @@ function dirtyShadows(renderer: WebGLRenderer) {
   renderer.shadowMap.needsUpdate = true;
 }
 
-const lampShadow = typeof window !== "undefined" && quality() !== "low";
 /**
- * The three small glows (bias light, monitor bar, lamp spill) are point
- * lights every lit pixel pays for; integrated graphics go without them and
- * keep the lamp's spot light (butter series, October 9).
+ * The lamp's shadow and the three small glows (bias light, monitor bar, lamp
+ * spill), point lights every lit pixel pays for: integrated graphics go
+ * without them and keep the lamp's spot light (butter series, October 9).
+ * Read at each mount, so a desk remounted after the tier was lowered
+ * (demoteQuality) mounts lighter.
  */
-const glowLights = lampShadow;
+const fullLights = () => typeof window !== "undefined" && quality() !== "low";
 
 export default function InteractionScene({
   model,
@@ -167,6 +168,8 @@ export default function InteractionScene({
   controls: DeskInteractions;
 }) {
   const { gl, invalidate } = useThree();
+  const [lampShadow] = useState(fullLights);
+  const glowLights = lampShadow;
   // The element pointer events come from: the journey's wrapper (its canvas
   // takes none), or the review's canvas container. The cursor ring reads
   // `data-desk-hover` there (src/lib/cursor.ts).
