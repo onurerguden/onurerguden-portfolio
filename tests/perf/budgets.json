@@ -1,15 +1,15 @@
 {
-  "about": "Ceilings for scripts/perf/measure.mjs --check (medians, headless Chromium on an Apple M1 Pro GPU, 1440\u00d7900 at 2x, wheel scrolling from 0.7 s). Times in ms. Baseline (8 Oct 2026, before the performance series): first visit froze 3.4\u20134.6 s at desk ready with 53 shader programs; returning visits had one ~190 ms frame. Each PR of the series lowers its ceilings as it lands (docs/qa/perf). Desk warm-up: first visit 898 ms (the reflective floor's blur still compiles in the hidden frame). Marble without a live mirror: first visit 469 ms (About mounting); 36 programs. Butter series (9 Oct 2026, docs/qa/perf/butter-baseline.md): trackpad input (6\u201330 px every 8\u201316 ms) adds ceilings per scenario at the baseline; each PR of the series lowers them. Butter final (9 Oct 2026, live site, docs/qa/perf/butter-final.md): the trackpad ceilings drop to the new levels with headroom.",
+  "about": "Ceilings for scripts/perf/measure.mjs --check (medians, headless Chromium on an Apple M1 Pro GPU, 1440\u00d7900 at 2x, wheel scrolling from 0.7 s). Times in ms. Baseline (8 Oct 2026, before the performance series): first visit froze 3.4\u20134.6 s at desk ready with 53 shader programs; returning visits had one ~190 ms frame. Each PR of the series lowers its ceilings as it lands (docs/qa/perf). Desk warm-up: first visit 898 ms (the reflective floor's blur still compiles in the hidden frame). Marble without a live mirror: first visit 469 ms (About mounting); 36 programs. Butter series (9 Oct 2026, docs/qa/perf/butter-baseline.md): trackpad input (6\u201330 px every 8\u201316 ms) adds ceilings per scenario at the baseline; each PR of the series lowers them. Butter final (9 Oct 2026, live site, docs/qa/perf/butter-final.md): the trackpad ceilings drop to the new levels with headroom. Final revisions (15 Nov 2026): the program ceiling follows main, which had grown from 36 to 43\u201344 by then (41 already at the butter final); the series itself adds none (docs/qa/perf/final-baseline.md and final-after.md both count 44).",
   "scenarios": {
     "first-visit": {
       "maxLoaf": 600,
-      "programs": 36,
+      "programs": 44,
       "glBlockingAfterReady": 450
     },
     "returning": {
       "maxLoaf": 200,
       "glBlockingAfterReady": 20,
-      "programs": 36
+      "programs": 44
     },
     "cpu4": {
       "maxLoaf": 400
