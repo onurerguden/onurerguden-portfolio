@@ -24,12 +24,20 @@ const doneKey = "portfolio:callouts-done";
 /** Quiet time before another round of fake clicks, and how many rounds. */
 const roundEvery = 7000;
 const rounds = 3;
-/** When the arrows have drawn (callouts.module.css): the clicks follow. */
-const drawn = 1500;
+/** When the arrows have drawn (callout-styles.ts): the clicks follow. */
+const drawn = 1050;
 const titles = {
   en: ["Try clicking", "the objects"],
   tr: ["Objelere", "tıklamayı dene"],
 };
+/**
+ * How far the paper curtain has closed (0–1) when nothing of the note is
+ * left to see: it clips 4 + 46 × exit percent from each side (journey.tsx),
+ * and every word and arrow lies outside the middle fifth of the stage.
+ */
+const covered = 0.8;
+/** The headphones' own note: nothing else says the desk has music. */
+const notes = { en: "plays music", tr: "müzik çalar" };
 
 /** Where the targets land on screen, written by the frame, read outside. */
 export type CalloutProbe = {
@@ -151,6 +159,16 @@ function place(root: HTMLElement, probe: CalloutProbe) {
     title.style.width = `${layout.title.width}px`;
     title.style.fontSize = `${layout.title.size}px`;
   }
+  const note = root.querySelector<HTMLElement>("[data-callout-note]");
+  if (note) {
+    note.style.display = layout.note ? "" : "none";
+    if (layout.note) {
+      note.style.left = `${layout.note.x}px`;
+      note.style.top = `${layout.note.y}px`;
+      note.style.width = `${layout.note.width}px`;
+      note.style.fontSize = `${layout.note.size}px`;
+    }
+  }
   for (const svg of root.querySelectorAll<SVGSVGElement>("svg[data-arrow]")) {
     const arrow = layout.arrows.find((a) => a.id === svg.dataset.arrow);
     svg.style.display = arrow ? "" : "none";
@@ -174,12 +192,16 @@ function place(root: HTMLElement, probe: CalloutProbe) {
 
 /**
  * The final view's hand-drawn note (November 15): "Try clicking the
- * objects" and arrows to three of them, drawn in as the view arrives; then
- * each pointed object is tapped in turn (a tease: a hop and a ripple) with
- * a small click at the arrow's tip. Another round follows a quiet spell, a
- * few per visit; the note leaves for good once an object is clicked. Under
- * the motion pause it is simply there, still. Decoration only: the desk's
- * object list says the same to assistive technology.
+ * objects" and arrows to four of them, the headphones' with a note of its
+ * own ("plays music"), drawn in as the view arrives; then each pointed
+ * object is tapped in turn (a tease: a hop and a ripple) with a small click
+ * at the arrow's tip. Another round follows a quiet spell, a few per visit.
+ * It stays through the paper curtain, which covers it from the sides, so a
+ * visitor who scrolls straight on still sees it. Once an object is clicked
+ * the note has done its job: its arrows run into their objects, the words
+ * lift away, and it stays away for the visit. Under the motion pause it is
+ * simply there, still. Decoration only: the desk's object list says the
+ * same to assistive technology.
  */
 export default function DeskCallouts({
   probe,
@@ -201,6 +223,9 @@ export default function DeskCallouts({
     if (!node) return;
     let done = readDone();
     let shown = false;
+    // The final view itself, not the curtain over it: only there do the
+    // objects answer a tap (the desk draws no frames under the curtain).
+    let holding = false;
     let played = 0;
     let lastRound = 0;
     let lastInput = performance.now();
@@ -224,12 +249,12 @@ export default function DeskCallouts({
         (svg) => svg.style.display !== "none",
       );
     const round = () => {
-      if (!shown || done || still() || played >= rounds) return;
+      if (!shown || !holding || done || still() || played >= rounds) return;
       played++;
       lastRound = performance.now();
       arrows().forEach((svg, i) =>
         later(() => {
-          if (!shown || done) return;
+          if (!shown || !holding || done) return;
           setData(svg, "click", "");
           later(() => setData(svg, "click"), 450);
           tease(svg.dataset.arrow as CalloutTarget);
@@ -265,7 +290,12 @@ export default function DeskCallouts({
       // The handwriting loads while the visitor reads the MacBook.
       if (d > roomDistance(measure.timeline) - 2) loadHand();
       const story = storyAt(measure.timeline, d);
-      const final = story.segment === "hold" && story.from === "room";
+      holding = story.segment === "hold" && story.from === "room";
+      // Under the curtain too, until the paper has closed over all of it:
+      // by `covered` only the middle of the desk still shows, and a note
+      // left on beyond that would sway unseen for the rest of the page.
+      const final =
+        holding || (story.segment === "exit" && story.exit < covered);
       if (final && !shown && !done) show();
       else if (!final && shown) hide("off");
     };
@@ -299,7 +329,8 @@ export default function DeskCallouts({
         !(qa() && played > 0)
       )
         round();
-    }, 500);
+      // Often enough that the note answers a click at once.
+    }, 150);
     return () => {
       off();
       window.clearInterval(check);
@@ -317,6 +348,9 @@ export default function DeskCallouts({
       <style>{calloutStyles}</style>
       <p data-callout-title lang={locale}>
         <span>{first}</span> <span>{second}</span>
+      </p>
+      <p data-callout-note lang={locale}>
+        {notes[locale]}
       </p>
       {ids.map((id) => (
         <svg key={id} data-arrow={id}>
