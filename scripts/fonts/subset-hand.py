@@ -1,9 +1,9 @@
 """Build the handwriting face of the desk's final-view callout.
 
 Source: @fontsource/caveat 600 (SIL OFL 1.1). Only the glyphs of the
-callout's two titles are kept, renamed so the subset can never be confused
-with the upstream family. Caveat's latin file already has the Turkish
-dotless i, so one file serves both languages.
+callout's titles and of the headphones' note are kept, renamed so the
+subset can never be confused with the upstream family. Caveat's latin file
+already has the Turkish dotless i, so one file serves both languages.
 
     python3 -m venv .venv && .venv/bin/pip install -r scripts/fonts/requirements.txt
     .venv/bin/python scripts/fonts/subset-hand.py
@@ -20,8 +20,14 @@ SOURCE = ROOT / "node_modules/@fontsource/caveat/files"
 OUTPUT = ROOT / "public/fonts/hand"
 FAMILY = "Portfolio Hand"
 
-# The callout's titles (src/components/desk/desk-callouts.tsx), both cases.
-TITLES = "Try clicking the objects" + "Objelere tıklamayı dene"
+# The callout's titles and the headphones' note
+# (src/components/desk/desk-callouts.tsx), both cases.
+TITLES = (
+    "Try clicking the objects"
+    + "Objelere tıklamayı dene"
+    + "plays music"
+    + "müzik çalar"
+)
 TEXT = "".join(sorted(set(TITLES + TITLES.upper() + TITLES.lower() + "!.…")))
 SOURCE_FILE = "caveat-latin-600-normal.woff2"
 
