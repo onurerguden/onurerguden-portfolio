@@ -56,9 +56,8 @@ function play(cue: HTMLElement) {
 
 /**
  * The desk story's scroll hint, again (October 24): on arriving at the
- * final view, and wherever the visitor has not scrolled for a while; the
- * opening's own hint beside the portrait, or this one at the foot of the
- * view. It writes attributes only, never React state: the scene beside it
+ * final view, and wherever past the opening the visitor has not scrolled
+ * for a while, at the foot of the view (the opening's own hint loops). It writes attributes only, never React state: the scene beside it
  * must not re-render.
  */
 export default function IdleCue({
@@ -104,17 +103,16 @@ export default function IdleCue({
               if (stage.dataset.ready !== "true") return false;
               const { story, timeline } = state();
               const place = cueFor(story, timeline.length);
+              // The opening's own hint keeps saying "Scroll down" until the
+              // visitor scrolls (portrait.module.css).
               if (
                 !place ||
+                place === "opening" ||
                 document.hidden ||
                 document.documentElement.dataset.motionPaused === "true"
               )
                 return;
-              const target =
-                place === "opening"
-                  ? stage.querySelector<HTMLElement>("[data-scroll-hint]")
-                  : cue;
-              if (target) play(target);
+              play(cue);
             },
             onActive() {
               // A cue the quiet called leaves with the next input; the final

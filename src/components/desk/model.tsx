@@ -7,6 +7,7 @@ import { Mesh } from "three";
 import { deskModelSrc, deskDecoderPath } from "@/lib/desk-asset-urls";
 import InteractionScene, { actionFor } from "./interaction-scene";
 import { warmUp } from "@/components/three/warm-up";
+import { reportLoad } from "@/lib/desk-story/load-progress";
 import { createOccluders } from "@/lib/ray-occluders";
 import type { DeskInteractions } from "./interactions";
 
@@ -65,6 +66,8 @@ export function Model({
     });
     return { model: clone, occluders: createOccluders(still) };
   }, [scene]);
+  // Mounted means downloaded and decoded (useLoader suspends until then).
+  useEffect(() => reportLoad("model"), []);
   useEffect(() => {
     // Compile every shader, upload every texture and draw one hidden frame
     // before the desk shows, without blocking the page: the canvas draws
@@ -83,6 +86,7 @@ export function Model({
       render: () => advance(performance.now()),
       cancelled: () => cancelled,
       offscreen,
+      onStep: reportLoad,
     }).then((warm) => warm && done(), done);
     return () => {
       cancelled = true;

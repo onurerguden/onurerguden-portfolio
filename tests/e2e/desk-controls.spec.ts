@@ -76,29 +76,110 @@ test("the opening's scroll hint sits beside the face, in view at every size", as
   }
 });
 
-test("the hint plays three times once the desk is ready, and rests when motion is paused", async ({
+test("the hint is a loading ring until the desk is ready, then keeps saying scroll down", async ({
   page,
   isMobile,
 }) => {
   test.skip(isMobile, touchStatic);
   await page.goto("/en");
+  const hint = page.locator("[data-scroll-hint]");
+  await expect(hint).toBeVisible();
   await ready(page);
-  const wheel = page.locator("[data-scroll-hint] span");
+  // The ring closes into the mouse once the desk shows.
+  await expect(hint).toHaveAttribute("data-load", "done");
+  await expect(hint).toHaveText("↓Scroll down");
+  const wheel = page.locator("[data-scroll-hint] > span").first();
   const animation = () =>
     wheel.evaluate((node) => {
       const style = getComputedStyle(node, "::before");
       return [style.animationName, style.animationIterationCount];
     });
   const [name, iterations] = await animation();
-  expect(name).toContain("scroll-dot");
-  expect(iterations).toBe("3");
+  expect(name).toContain("hint-roll");
+  expect(iterations).toBe("infinite");
   await page.evaluate(() => {
     document.documentElement.dataset.motionPaused = "true";
   });
   expect((await animation())[0]).toBe("none");
+  // Paused, the words stay in view rather than coming and going.
+  await expect(page.locator("[data-scroll-hint] > span").last()).toHaveCSS(
+    "opacity",
+    "1",
+  );
+  await page.goto("/tr");
+  await expect(page.locator("[data-scroll-hint]")).toContainText(
+    "Aşağı kaydır",
+  );
 });
 
-test("the hint plays again when the visitor stops scrolling, once per pause", async ({
+test("the page waits at the opening while the desk gets ready, five seconds at most", async ({
+  page,
+  browserName,
+  isMobile,
+}) => {
+  test.skip(isMobile, touchStatic);
+  test.skip(
+    browserName === "webkit",
+    "WebGL2 is covered in Chromium; WebKit covers the static alternative.",
+  );
+  // QA visits skip the hold unless a test sets its cap (opening-loader.ts).
+  await page.addInitScript(() =>
+    localStorage.setItem("portfolio:scroll-hold", "2500"),
+  );
+  // A slow model keeps the desk preparing past the cap.
+  await page.route("**/models/desk/*.glb*", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 6000));
+    await route.continue();
+  });
+  await page.goto("/en");
+  const section = page.locator("[data-enhanced]");
+  await expect(section).toHaveAttribute("data-holding", "true");
+  await page.mouse.move(400, 400);
+  await page.mouse.wheel(0, 400);
+  await page.waitForTimeout(300);
+  expect(await page.evaluate(() => scrollY)).toBe(0);
+  // The cap lets go even though the desk is still preparing.
+  await expect(section).not.toHaveAttribute("data-holding", "true", {
+    timeout: ci(5000),
+  });
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-ready",
+    "false",
+  );
+  await page.mouse.wheel(0, 400);
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
+});
+
+test("the hold lets go when the desk is ready, and never holds a link to a section", async ({
+  page,
+  browserName,
+  isMobile,
+}) => {
+  test.skip(isMobile, touchStatic);
+  test.skip(
+    browserName === "webkit",
+    "WebGL2 is covered in Chromium; WebKit covers the static alternative.",
+  );
+  await page.addInitScript(() =>
+    localStorage.setItem("portfolio:scroll-hold", "60000"),
+  );
+  await page.goto("/en");
+  const section = page.locator("[data-enhanced]");
+  await expect(section).toHaveAttribute("data-holding", "true");
+  await ready(page);
+  await expect(section).not.toHaveAttribute("data-holding", "true");
+  await page.mouse.move(400, 400);
+  await page.mouse.wheel(0, 400);
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
+  await page.goto("/en#contact");
+  await expect(page.locator("[data-ready]")).toHaveAttribute(
+    "data-static",
+    "false",
+  );
+  await expect(section).not.toHaveAttribute("data-holding", "true");
+});
+
+test("past the opening, the hint plays again when the visitor stops scrolling, once per pause", async ({
   page,
   browserName,
   isMobile,
@@ -133,10 +214,9 @@ test("the hint plays again when the visitor stops scrolling, once per pause", as
     );
   await page.goto("/en");
   await ready(page);
-  // On the opening, its own hint beside the portrait.
-  await expect.poll(async () => (await runs()).opening).toBe(1);
+  // The opening's own hint loops until the visitor scrolls: no replay.
   await page.waitForTimeout(1500);
-  expect((await runs()).opening).toBe(1);
+  expect((await runs()).opening).toBe(0);
   // At a reading stop, at the foot of the view; the next scroll sends it
   // away and starts a new pause.
   const s = await story(page);
