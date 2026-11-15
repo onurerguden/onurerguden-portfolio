@@ -15,6 +15,10 @@ import DeskLighting from "./lighting";
 import { DeskObjectControls, useDeskInteractions } from "./interactions";
 import IdleCue from "./idle-cue";
 import DeskTeases from "./desk-teases";
+import DeskCallouts, {
+  CalloutTracker,
+  createCalloutProbe,
+} from "./desk-callouts";
 import { Canvas, useFrame, useThree, type RootStore } from "@react-three/fiber";
 import { deskEvents } from "./desk-events";
 import { Matrix4, Quaternion, Vector3, PerspectiveCamera } from "three";
@@ -580,6 +584,8 @@ function JourneyScene(props: JourneySceneProps) {
   // A computer that settled on a lower level last time starts there.
   const [dpr, setDpr] = useState(() => rememberedLevel(levels) ?? levels[0]);
   const timer = useRef<GpuTimer | null | undefined>(undefined);
+  // Where the final view's note points, measured inside the frame.
+  const [probe] = useState(createCalloutProbe);
   const running = warm && controls.active;
   const { distance, layout } = props;
   // While the camera travels the desk slides under the pointer by itself;
@@ -665,6 +671,7 @@ function JourneyScene(props: JourneySceneProps) {
           timerRef={timer}
         />
         <Driver {...props} active={controls.active} running={running} />
+        {!props.poster ? <CalloutTracker probe={probe} /> : null}
       </Canvas>
       {!props.poster ? (
         <>
@@ -679,6 +686,13 @@ function JourneyScene(props: JourneySceneProps) {
             wrapper={props.wrapper}
           />
           <DeskTeases controls={controls} distance={distance} layout={layout} />
+          <DeskCallouts
+            probe={probe}
+            controls={controls}
+            distance={distance}
+            layout={layout}
+            locale={props.locale}
+          />
         </>
       ) : null}
     </>

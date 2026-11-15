@@ -4,6 +4,7 @@ import { useEffect, type RefObject } from "react";
 import { qa } from "@/lib/qa";
 import type { Signal } from "@/lib/desk-story/signal";
 import { teaseRange } from "@/lib/desk-story/timeline";
+import { calloutsActive } from "@/lib/desk-story/callouts";
 import {
   nextTeaseGap,
   pickTease,
@@ -80,6 +81,8 @@ export default function DeskTeases({
       if (
         d < start ||
         d >= end ||
+        // The final view's note taps its own objects meanwhile.
+        calloutsActive.get() ||
         document.hidden ||
         document.documentElement.dataset.motionPaused === "true" ||
         !teaseDue({ now, lastInput, lastTease, gap, shown: readShown() }, rule)

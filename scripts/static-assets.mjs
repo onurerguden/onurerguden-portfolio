@@ -17,11 +17,15 @@ const revision = (bytes) =>
   createHash("sha256").update(bytes).digest("hex").slice(0, 12);
 
 const revisions = {};
+// Files only: a folder inside one (fonts/hand) has a manifest of its own.
 for (const folder of folders)
-  for (const name of (await readdir(`public/${folder}`)).sort())
-    revisions[`${folder}/${name}`] = revision(
-      await readFile(`public/${folder}/${name}`),
-    );
+  for (const entry of (
+    await readdir(`public/${folder}`, { withFileTypes: true })
+  ).sort((a, b) => a.name.localeCompare(b.name)))
+    if (entry.isFile())
+      revisions[`${folder}/${entry.name}`] = revision(
+        await readFile(`public/${folder}/${entry.name}`),
+      );
 await writeFile(manifest, JSON.stringify(revisions, null, 2) + "\n");
 
 const audio = {};
@@ -32,6 +36,18 @@ await writeFile(
   JSON.stringify(audio, null, 2) + "\n",
 );
 
+// The desk callout's handwriting, like the music, is read only by the
+// desk's lazily loaded scene.
+const hand = {};
+for (const name of (await readdir("public/fonts/hand")).sort())
+  hand[`fonts/hand/${name}`] = revision(
+    await readFile(`public/fonts/hand/${name}`),
+  );
+await writeFile(
+  "src/lib/hand-font-assets.json",
+  JSON.stringify(hand, null, 2) + "\n",
+);
+
 // CSS cannot import the manifest, so its font URLs carry the revision inline.
 const css = (await readFile(stylesheet, "utf8")).replace(
   /url\("\/(fonts\/[^"?]+)(?:\?v=[0-9a-f]+)?"\)/g,
@@ -39,5 +55,5 @@ const css = (await readFile(stylesheet, "utf8")).replace(
 );
 await writeFile(stylesheet, css);
 console.log(
-  `${Object.keys(revisions).length + Object.keys(audio).length} files versioned.`,
+  `${Object.keys(revisions).length + Object.keys(audio).length + Object.keys(hand).length} files versioned.`,
 );
