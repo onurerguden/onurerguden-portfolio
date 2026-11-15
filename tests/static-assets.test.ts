@@ -3,6 +3,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import revisions from "../src/lib/static-assets.json";
 import audioRevisions from "../src/lib/audio-assets.json";
+import handRevisions from "../src/lib/hand-font-assets.json";
 import { deskTrack } from "../src/lib/desk-music";
 import { staticAsset, staticSrcSet } from "../src/lib/static-asset-urls";
 
@@ -18,10 +19,20 @@ const revision = (file: string) =>
 describe("immutable static assets", () => {
   it("lists every file with its content's revision", () => {
     const files = folders.flatMap((folder) =>
-      readdirSync(`public/${folder}`).map((name) => `${folder}/${name}`),
+      readdirSync(`public/${folder}`, { withFileTypes: true })
+        .filter((entry) => entry.isFile())
+        .map((entry) => `${folder}/${entry.name}`),
     );
     expect(Object.keys(revisions).sort()).toEqual(files.sort());
     for (const [file, value] of Object.entries(revisions))
+      expect(value, file).toBe(revision(file));
+  });
+  it("versions the callout's handwriting apart from the first load", () => {
+    const files = readdirSync("public/fonts/hand").map(
+      (name) => `fonts/hand/${name}`,
+    );
+    expect(Object.keys(handRevisions).sort()).toEqual(files.sort());
+    for (const [file, value] of Object.entries(handRevisions))
       expect(value, file).toBe(revision(file));
   });
   it("versions the display fonts in the stylesheet", () => {
