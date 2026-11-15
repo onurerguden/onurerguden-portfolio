@@ -457,3 +457,36 @@ test("content pages keep the home bar: Projects, Contact and every section in th
   // One About link: the home page's section.
   await expect(page.locator('a[href="/tr/about"]')).toHaveCount(0);
 });
+
+test("the cursor ring's look catches up once scrolling stops", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, "The ring follows a mouse; touch never shows it.");
+  await page.goto("/en/projects");
+  const ring = page.locator("[data-look]");
+  // Onto a link in the page, away from the fixed bar: the ring opens.
+  const link = page.locator("main a[href]").first();
+  await link.scrollIntoViewIfNeeded();
+  const box = (await link.boundingBox())!;
+  const point = [box.x + box.width / 2, box.y + box.height / 2] as const;
+  await page.mouse.move(point[0] - 3, point[1] - 3);
+  await page.mouse.move(...point);
+  await expect(ring).toHaveAttribute("data-look", "action");
+  // The page moves under a still pointer until no link is beneath it. No
+  // hit test runs per scroll event; the look follows when the page rests.
+  const clickable = () =>
+    page.evaluate(
+      ([x, y]) =>
+        !!document
+          .elementFromPoint(x, y)
+          ?.closest("a[href], button, summary, [role=button]"),
+      point,
+    );
+  for (let i = 0; i < 12 && (await clickable()); i++) {
+    await page.mouse.wheel(0, 90);
+    await page.waitForTimeout(40);
+  }
+  expect(await clickable()).toBe(false);
+  await expect(ring).toHaveAttribute("data-look", "default");
+});
