@@ -49,6 +49,7 @@ describe("final view callout layout", () => {
       "tablet",
       "lamp",
       "drawers",
+      "headphones",
     ]);
     // The title sits in the right margin, clear of the desk and the curtain.
     const title = layout.title!;
@@ -74,6 +75,17 @@ describe("final view callout layout", () => {
     expect(tail("tablet")).toBeLessThan(at.deskLeft);
     expect(tail("lamp")).toBeGreaterThan(at.deskRight);
     expect(tail("drawers")).toBeGreaterThan(at.deskRight);
+    // The headphones' note: above them, left of the title and under the
+    // bar, with its arrow starting from beneath the words.
+    const note = layout.note!;
+    expect(note.size).toBeLessThan(title.size);
+    expect(note.y + note.size).toBeLessThan(at.headphones.y - 40);
+    expect(note.y).toBeGreaterThan(Math.max(h * 0.14, 76) - 0.1);
+    expect(note.x - note.width / 2).toBeGreaterThan(at.headphones.x);
+    expect(note.x + note.width / 2).toBeLessThan(title.x - title.width / 2);
+    const music = layout.arrows.find((a) => a.id === "headphones")!;
+    expect(music.box.y + music.tail.y).toBeGreaterThan(note.y + note.size);
+    expect(music.box.y + music.tip.y).toBeLessThan(at.headphones.y);
   });
 
   it("puts the note above the desk when the margins are narrow", () => {
@@ -81,6 +93,7 @@ describe("final view callout layout", () => {
     const layout = layoutCallouts(w, h, project(w, h));
     expect(layout.mode).toBe("compact");
     expect(layout.arrows.map((a) => a.id)).toEqual(["lamp"]);
+    expect(layout.note).toBeNull();
   });
 
   it("leaves tiny stages alone", () => {

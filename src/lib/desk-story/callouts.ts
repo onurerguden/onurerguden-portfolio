@@ -3,14 +3,16 @@
  * and nothing said the objects answer clicks. A hand-drawn note fills it
  * (November 15, final revisions; Onur's sketch): "Try clicking the objects"
  * in the right margin and three unlabelled arrows to the tablet, the lamp
- * and the drawers. This module lays them out from where those objects land
- * on screen; it is pure (no three, no DOM), so the layout is tested
- * without a page.
+ * and the drawers. A smaller note above the headphones says what they do
+ * ("plays music", November 16): nothing else told a visitor the desk has a
+ * soundtrack. This module lays them out from where those objects land on
+ * screen; it is pure (no three, no DOM), so the layout is tested without a
+ * page.
  */
 import { signal } from "./signal";
 
 export type Point = { x: number; y: number };
-export type CalloutTarget = "tablet" | "lamp" | "drawers";
+export type CalloutTarget = "tablet" | "lamp" | "drawers" | "headphones";
 
 /**
  * Points in the desk's world (metres, src/lib/desk-interactions.json) the
@@ -24,6 +26,8 @@ export const calloutWorld: Record<CalloutTarget, [number, number, number]> = {
   lamp: [0.735, 0.17, -0.3725],
   // The drawers' outer (right) face, at the second drawer.
   drawers: [0.74, -0.3, 0.34],
+  // The headphones' band, from above.
+  headphones: [0.5, 0.27, -0.36],
 };
 /** The desk top's four corners: the desk's extent on screen. */
 export const deskCorners: [number, number, number][] = [
@@ -54,9 +58,14 @@ export type Arrow = {
   tip: Point;
 };
 
+/** A line of handwriting: centred on `x`, its top at `y`. */
+export type Handwriting = { x: number; y: number; width: number; size: number };
+
 export type CalloutLayout = {
   mode: CalloutMode;
-  title: { x: number; y: number; width: number; size: number } | null;
+  title: Handwriting | null;
+  /** The headphones' own note ("plays music"), where there is room. */
+  note: Handwriting | null;
   arrows: Arrow[];
 };
 
@@ -80,6 +89,7 @@ const seeds: Record<CalloutTarget, number> = {
   tablet: 7,
   lamp: 19,
   drawers: 31,
+  headphones: 43,
 };
 
 const fmt = (n: number) => Math.round(n * 10) / 10;
@@ -177,7 +187,7 @@ export function layoutCallouts(
   // The title's size follows the smaller of the window's sides.
   const size = clamp(Math.min(width * 0.03, height * 0.056), 28, 54);
   if (width < 560 || height < 420)
-    return { mode: "none", title: null, arrows: [] };
+    return { mode: "none", title: null, note: null, arrows: [] };
   if (Math.min(leftRoom, rightRoom) >= sideRoom && height >= 480) {
     // In the right margin, near the top: two lines of handwriting.
     const titleWidth = Math.min(rightRoom - 16, size * 7.6);
@@ -212,7 +222,35 @@ export function layoutCallouts(
       at.drawers,
       -0.24,
     );
-    return { mode: "side", title, arrows: [tablet, lamp, drawers] };
+    // The headphones' note: in the sky above them, between the monitor and
+    // the title, smaller than the title so the two read in that order.
+    const noteSize = clamp(size * 0.64, 19, 34);
+    const noteWidth = noteSize * 5;
+    const sky = Math.max(height * 0.14, 76);
+    const note = {
+      x: fmt(
+        Math.min(
+          at.headphones.x + noteWidth * 0.62,
+          title.x - titleWidth / 2 - 14 - noteWidth / 2,
+        ),
+      ),
+      y: fmt(clamp(at.headphones.y - height * 0.13, sky, at.headphones.y - 70)),
+      width: fmt(noteWidth),
+      size: fmt(noteSize),
+    };
+    const headphones = drawArrow(
+      "headphones",
+      { x: note.x - noteWidth * 0.2, y: note.y + noteSize * 1.25 },
+      at.headphones,
+      -0.2,
+      10,
+    );
+    return {
+      mode: "side",
+      title,
+      note,
+      arrows: [tablet, lamp, drawers, headphones],
+    };
   }
   // Too little room beside the desk: the title above it, one arrow down to
   // the lamp.
@@ -229,7 +267,7 @@ export function layoutCallouts(
     at.lamp,
     -0.3,
   );
-  return { mode: "compact", title, arrows: [lamp] };
+  return { mode: "compact", title, note: null, arrows: [lamp] };
 }
 
 /** True while the callout shows: the random teases wait (desk-teases.tsx). */
