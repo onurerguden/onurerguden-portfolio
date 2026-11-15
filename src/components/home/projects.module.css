@@ -417,8 +417,11 @@
   .slot {
     position: static;
   }
-  /* In normal flow a card is as tall as its content. */
+  /* In normal flow a card is as tall as its content, laid out as before
+     the cap (Linux WebKit sized the media grid wrongly in the flex column,
+     letting it run over the next card). */
   .card {
+    display: grid;
     max-height: none;
   }
   /* Without stacking there is nothing to shrink or dim. */
