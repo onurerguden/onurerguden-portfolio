@@ -22,6 +22,11 @@ describe("3D quality per computer", () => {
       "ANGLE (Intel Inc., Intel(R) HD Graphics 6000, OpenGL 4.1)",
       "ANGLE (AMD, AMD Radeon(TM) Graphics Direct3D11 vs_5_0 ps_5_0, D3D11)",
       "ANGLE (AMD, AMD Radeon Vega 8 Graphics Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      // Windows names them with a trademark sign, too.
+      "ANGLE (AMD, AMD Radeon(TM) Vega 8 Graphics Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "ANGLE (AMD, AMD Radeon(TM) R5 Graphics Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "ANGLE (AMD, AMD Radeon(TM) 610M Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "ANGLE (Intel, Intel(R) Graphics (0x0000A7A8) Direct3D11 vs_5_0 ps_5_0, D3D11)",
     ])
       expect(gpu(renderer, 8, 8), renderer).toBe("low");
   });

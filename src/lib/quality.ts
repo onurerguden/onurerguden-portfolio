@@ -20,7 +20,7 @@ export const qualityKey = "portfolio:quality";
 const software = /swiftshader|llvmpipe|softpipe|software|basic render/i;
 /** Integrated graphics that render the desk slowly at a dense resolution. */
 const integrated =
-  /intel.*(uhd|hd graphics|iris)|\bhd graphics\b|amd radeon\(tm\) graphics|radeon (?:r[2-7]|vega \d+) graphics|mali|adreno|powervr/i;
+  /intel.*(uhd|hd graphics|iris)|intel\(r\) graphics|\bhd graphics\b|amd radeon\(tm\) graphics|radeon(?:\(tm\))? (?:r[2-7]|vega \d+) graphics|radeon(?:\(tm\))? 610m|mali|adreno|powervr/i;
 const dedicated =
   /apple (?:m\d|gpu)|nvidia|geforce|quadro|rtx|radeon (?:rx|pro)|intel.*arc/i;
 
