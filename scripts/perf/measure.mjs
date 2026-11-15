@@ -4,7 +4,9 @@
 //   node scripts/perf/measure.mjs [--url http://localhost:3100/en]
 //     [--scenario first-visit,returning,cpu4,reduced] [--runs 3]
 //     [--input measure,notch,trackpad] [--device "iPhone 13"]
-//     [--trace] [--headed] [--seed 1] [--label baseline] [--out dir]
+//     [--trace [--save-trace]] [--headed] [--seed 1] [--label baseline]
+//     [--out dir]
+//     [--quality low|high] [--cpu 6] [--gpu 24] [--viewport 1536x730@1.25]
 //     [--check]
 //
 // Scenarios:
@@ -26,6 +28,19 @@
 // --device emulates a phone (Playwright's device list) and scrolls with touch
 // gestures. --headed opens a window on this display instead: the only way to
 // measure a 120 Hz screen, since headless runs at 60 Hz.
+//
+// A computer other than this one (the estimated laptop profile, docs/qa/perf):
+// - --quality forces the site's 3D tier (src/lib/quality.ts), as its GPU
+//   check would pick on, say, integrated Intel graphics.
+// - --cpu slows the CPU of every measured visit that many times (cpu4 alone
+//   otherwise); the warm-up visit of returning scenarios runs at full speed.
+// - --gpu adds that many iterations of arithmetic to every fragment the
+//   page's canvases shade (inject.js), for a GPU that shades more slowly than
+//   this one. It stands in for fill-rate-bound integrated graphics; how many
+//   iterations match a given GPU is calibrated in docs/qa/perf/README.md.
+// - --viewport sets the window's CSS size and device pixel ratio
+//   (1536x730@1.25: a 1920 × 1080 laptop at Windows' default 125% scale,
+//   with Chrome's toolbars).
 //
 // Results (medians over the runs) go to docs/qa/perf/<label>.{json,md}, or
 // to --out. --check compares them with tests/perf/budgets.json and fails when
@@ -49,12 +64,38 @@ const { values } = parseArgs({
     runs: { type: "string", default: "3" },
     seed: { type: "string", default: "1" },
     trace: { type: "boolean", default: false },
+    "save-trace": { type: "boolean", default: false },
     headed: { type: "boolean", default: false },
     label: { type: "string", default: "latest" },
     out: { type: "string", default: "docs/qa/perf" },
     check: { type: "boolean", default: false },
+    quality: { type: "string" },
+    cpu: { type: "string" },
+    gpu: { type: "string" },
+    viewport: { type: "string" },
   },
 });
+if (values.quality && !["high", "low"].includes(values.quality))
+  throw new Error(`--quality is high or low, not ${values.quality}`);
+const cpuRate = values.cpu ? Number(values.cpu) : null;
+if (cpuRate !== null && !(cpuRate >= 1))
+  throw new Error(`--cpu is a slowdown of 1 or more, not ${values.cpu}`);
+const gpuLoad = values.gpu ? Number(values.gpu) : 0;
+if (!(gpuLoad >= 0))
+  throw new Error(`--gpu is a loop count of 0 or more, not ${values.gpu}`);
+/** "1536x730@1.25" → { width, height, scale }. */
+const window_ = values.viewport
+  ? (() => {
+      const match = /^(\d+)x(\d+)(?:@([\d.]+))?$/.exec(values.viewport);
+      if (!match)
+        throw new Error(`--viewport is WxH@dpr, not ${values.viewport}`);
+      return {
+        width: Number(match[1]),
+        height: Number(match[2]),
+        scale: Number(match[3] ?? 1),
+      };
+    })()
+  : null;
 const inject = path.resolve("scripts/perf/inject.js");
 // A phone's viewport, scale, touch and user agent; Chromium stands in for
 // the device's own browser.
@@ -66,7 +107,12 @@ const device = values.device
     )
   : null;
 if (device && !device.viewport) throw new Error(`No device ${values.device}`);
-const viewport = device?.viewport ?? { width: 1440, height: 900 };
+const viewport =
+  device?.viewport ??
+  (window_
+    ? { width: window_.width, height: window_.height }
+    : { width: 1440, height: 900 });
+const scale = window_?.scale ?? 2;
 const args = ["--use-angle=metal", "--enable-gpu", "--ignore-gpu-blocklist"];
 const traceCategories = [
   "devtools.timeline",
@@ -157,24 +203,33 @@ async function visit(context, scenario, input, measured, run) {
     bustShaderCache: scenario === "first-visit",
     gpu: true,
     probeStyle: true,
+    // The first visit of a returning scenario gets the same load, so the
+    // measured visit finds the same shader sources in the caches.
+    gpuLoad,
   });
   // The scene's QA attributes (data-camera and the like) are written only
   // for QA, so a visitor's frames skip them.
-  await page.addInitScript(() => {
+  await page.addInitScript((tier) => {
     try {
       localStorage.setItem("portfolio:qa", "1");
+      if (tier) localStorage.setItem("portfolio:quality", tier);
     } catch {
       // Storage can be blocked; the numbers that need it stay empty.
     }
-  });
+  }, values.quality ?? null);
   await page.addInitScript({ path: inject });
   const cdp = await context.newCDPSession(page);
-  if (scenario === "cpu4" && measured)
-    await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
+  const rate = cpuRate ?? (scenario === "cpu4" ? 4 : 1);
+  if (measured && rate > 1)
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate });
   const tracing = values.trace && measured;
   if (tracing)
     await cdp.send("Tracing.start", {
-      categories: traceCategories,
+      // A saved trace also samples JavaScript, so DevTools can name the
+      // functions behind a long frame.
+      categories: values["save-trace"]
+        ? `${traceCategories},disabled-by-default-v8.cpu_profiler`
+        : traceCategories,
       transferMode: "ReturnAsStream",
     });
   await page.goto(values.url, { waitUntil: "commit" });
@@ -240,6 +295,17 @@ async function visit(context, scenario, input, measured, run) {
     await cdp.send("Tracing.end");
     const { stream } = await complete;
     const events = await readTrace(cdp, stream);
+    // The whole trace, for DevTools' Performance panel (large: use --out).
+    if (values["save-trace"]) {
+      await mkdir(values.out, { recursive: true });
+      await writeFile(
+        path.join(
+          values.out,
+          `${values.label}-${scenario}-${input}-${run + 1}.trace.json`,
+        ),
+        JSON.stringify({ traceEvents: events }),
+      );
+    }
     result.trace = summarizeTrace(
       events,
       [scrollStart, scrollEnd],
@@ -390,6 +456,9 @@ function summarize(run) {
     )
       ? 1
       : 0,
+    // The site took the low tier by itself: a desk that could not keep up
+    // on this visit, or on one in the week before it.
+    lowTier: "quality:low" in run.milestones ? 1 : 0,
     glBlocking: Math.round(
       Object.values(run.gl).reduce((sum, entry) => sum + entry.ms, 0),
     ),
@@ -448,7 +517,7 @@ async function scenarioRun(scenario, input, run) {
   const context = await chromium.launchPersistentContext(profile, {
     headless: !values.headed,
     args,
-    ...(device ?? { viewport, deviceScaleFactor: 2 }),
+    ...(device ?? { viewport, deviceScaleFactor: scale }),
     reducedMotion: scenario === "reduced" ? "reduce" : "no-preference",
   });
   try {
@@ -508,6 +577,7 @@ const columns = [
   ["tinyScrolls", "Scrolls under 1 px"],
   ["dirtyStyleShare", "Scroll events with dirty style (%)"],
   ["dprReduced", "Desk lowered its resolution"],
+  ["lowTier", "Site took the low tier by itself"],
   ["wheelMs", "Wheel event (ms, trace)"],
   ["mainP95", "Main thread per frame p95 (ms, trace)"],
   ["partialShare", "Partial frames (%, trace)"],
@@ -553,7 +623,15 @@ const regionTables = names
   })
   .join("\n");
 const first = Object.values(results)[0]?.median;
-const header = `# Performance: ${values.label}\n\n${new Date().toISOString().slice(0, 10)} · ${values.url} · ${first?.renderer ?? ""} · ${values.device ?? `${viewport.width}×${viewport.height} @2x`}${values.headed ? " · headed" : ""} · medians of ${values.runs} runs\n\n`;
+const profile = [
+  values.quality && `${values.quality} tier`,
+  cpuRate && `CPU ${cpuRate}× slower`,
+  gpuLoad && `GPU load ${gpuLoad}`,
+]
+  .filter(Boolean)
+  .map((part) => ` · ${part}`)
+  .join("");
+const header = `# Performance: ${values.label}\n\n${new Date().toISOString().slice(0, 10)} · ${values.url} · ${first?.renderer ?? ""} · ${values.device ?? `${viewport.width}×${viewport.height} @${scale}x`}${profile}${values.headed ? " · headed" : ""} · medians of ${values.runs} runs\n\n`;
 await mkdir(values.out, { recursive: true });
 await writeFile(
   path.join(values.out, `${values.label}.json`),

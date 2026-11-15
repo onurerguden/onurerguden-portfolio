@@ -175,6 +175,10 @@
         target.hasAttribute("data-dpr-reduced")
       )
         mark(`dpr-reduced:${target.getAttribute("data-dpr-reduced")}`);
+      // The tier the site picked by itself (src/lib/quality.ts): "low" after
+      // "high" is a desk that could not keep up (demoteQuality).
+      if (attributeName === "data-quality" && target.dataset.quality)
+        mark(`quality:${target.dataset.quality}`);
       if (attributeName === "data-stage-state")
         mark(
           `stage:${target.closest("[id]")?.id || "?"}:${target.dataset.stageState}`,
@@ -183,7 +187,12 @@
   }).observe(document, {
     subtree: true,
     attributes: true,
-    attributeFilter: ["data-ready", "data-stage-state", "data-dpr-reduced"],
+    attributeFilter: [
+      "data-ready",
+      "data-stage-state",
+      "data-dpr-reduced",
+      "data-quality",
+    ],
   });
 
   let endGpuQueries = () => {};
@@ -303,6 +312,25 @@
       ]);
     return source.call(this, shader, text);
   };
+  // A slower GPU (measure.mjs --gpu): every fragment the page's canvases
+  // shade does a fixed amount of extra arithmetic first, so their GPU time
+  // grows with the pixels they shade, as on integrated graphics that run out
+  // of shading throughput long before geometry. The browser's own compositing
+  // is untouched. The branch is never taken; the compiler cannot know that.
+  if (config.gpuLoad > 0) {
+    const loop = Math.round(config.gpuLoad);
+    const shaderSource = proto.shaderSource;
+    proto.shaderSource = function (shader, source) {
+      if (/gl_Position\s*=/.test(source))
+        return shaderSource.call(this, shader, source);
+      const work = ` { float perfLoad = gl_FragCoord.x * 1e-4; for (int perfI = 0; perfI < ${loop}; perfI++) perfLoad = sin(perfLoad * 1.37 + 0.11); if (perfLoad > 1.5) discard; }`;
+      return shaderSource.call(
+        this,
+        shader,
+        source.replace(/void\s+main\s*\(\s*\)\s*\{/, (m) => m + work),
+      );
+    };
+  }
   if (config.bustShaderCache) {
     const salt = 1 + Math.floor(Math.random() * 1e6);
     const shaderSource = proto.shaderSource;

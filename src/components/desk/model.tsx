@@ -3,7 +3,7 @@ import { useEffect, useMemo } from "react";
 import { useLoader, useThree } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
-import { Mesh } from "three";
+import { BackSide, DoubleSide, FrontSide, Mesh, type Material } from "three";
 import { deskModelSrc, deskDecoderPath } from "@/lib/desk-asset-urls";
 import InteractionScene, { actionFor } from "./interaction-scene";
 import { warmUp } from "@/components/three/warm-up";
@@ -12,6 +12,38 @@ import { createOccluders } from "@/lib/ray-occluders";
 import type { DeskInteractions } from "./interactions";
 
 const skipRaycast = () => {};
+
+/**
+ * three draws a transparent, double-sided material in two passes, back faces
+ * and then front, and flags the material for a new program before each:
+ * every frame it looked the program up twice and uploaded all of the
+ * material's uniforms again (the desk's expanded steel mesh; November 15
+ * final revisions). Two meshes, back faces first, draw the same picture with
+ * the same programs and none of that work: transparent objects at one depth
+ * draw in the order they were made, and the front faces are made second.
+ */
+export function splitSides(mesh: Mesh) {
+  const material = mesh.material as Material;
+  if (
+    Array.isArray(mesh.material) ||
+    !material.transparent ||
+    material.side !== DoubleSide ||
+    material.forceSinglePass
+  )
+    return null;
+  const front = new Mesh(mesh.geometry, material.clone());
+  (front.material as Material).side = FrontSide;
+  material.side = BackSide;
+  // Both sides' shadow, cast once, as the double-sided material cast it.
+  material.shadowSide = DoubleSide;
+  front.castShadow = false;
+  front.receiveShadow = mesh.receiveShadow;
+  front.renderOrder = mesh.renderOrder;
+  front.raycast = skipRaycast;
+  front.name = `${mesh.name} (front faces)`;
+  mesh.add(front);
+  return front;
+}
 
 // One decoder for every load: its workers outlive a released scene.
 let draco: DRACOLoader | null = null;
@@ -45,6 +77,7 @@ export function Model({
   const { model, occluders } = useMemo(() => {
     const clone = scene.clone(true);
     const still: Mesh[] = [];
+    const meshes: Mesh[] = [];
     clone.traverse((object) => {
       if (object instanceof Mesh) {
         object.material = Array.isArray(object.material)
@@ -62,8 +95,11 @@ export function Model({
           object.raycast = skipRaycast;
           still.push(object);
         }
+        meshes.push(object);
       }
     });
+    // After the traversal: splitting adds meshes to the tree.
+    for (const mesh of meshes) splitSides(mesh);
     return { model: clone, occluders: createOccluders(still) };
   }, [scene]);
   // Mounted means downloaded and decoded (useLoader suspends until then).

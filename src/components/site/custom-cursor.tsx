@@ -99,12 +99,23 @@ export default function CustomCursor() {
       lookDirty = true;
       schedule();
     };
-    // Scrolling moves the page under a still pointer.
-    const scroll = () => {
+    // Scrolling moves the page under a still pointer. Like the browser's
+    // own hover state, the look catches up once the page stops: a hit test
+    // on every scroll event laid the page out in the middle of each
+    // scrolling frame, which a slow laptop paid for twice per frame
+    // (November 15 final revisions).
+    let settle = 0;
+    const settled = () => {
+      settle = 0;
       if (!enabled || !shown) return;
       target = document.elementFromPoint(x, y);
       lookDirty = true;
       schedule();
+    };
+    const scroll = () => {
+      if (!enabled || !shown) return;
+      window.clearTimeout(settle);
+      settle = window.setTimeout(settled, 100);
     };
     const press = (event: PointerEvent) => {
       if (event.pointerType === "mouse") ringNode.dataset.pressed = "true";
@@ -132,6 +143,7 @@ export default function CustomCursor() {
     fine.addEventListener("change", pointerChange);
     return () => {
       cancelAnimationFrame(frame);
+      window.clearTimeout(settle);
       window.removeEventListener("pointermove", move, passive);
       window.removeEventListener("pointerdown", press, passive);
       window.removeEventListener("pointerup", release, passive);

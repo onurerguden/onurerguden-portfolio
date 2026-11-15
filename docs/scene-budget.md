@@ -95,3 +95,29 @@ The page no longer froze after the performance series, but it did not flow. Thre
 - **Motion:** the story clock (`src/lib/desk-story/clock.ts`), travels paced by what the visitor sees, no stop at the desktop waypoint, the cursor's dot drawn by the system.
 - **Low tier:** no sun shadow or glow lights, half-density grid, down to 0.85 device pixels; Intel Macs in Safari count as low.
 - **Phones:** the remaining hitch is evaluating three.js once (about 160 ms at 4× CPU), which now lands in a scroll pause; a three-free balls renderer was judged not worth it.
+
+## November 15 final revisions
+
+A friend's Windows laptop (Chrome, a 1536 × 730 window) felt heavy throughout, and no one could measure it. `npm run perf` learned to stand in for such a computer (`--quality`, `--cpu`, `--gpu`, `--viewport`; `docs/qa/perf/README.md`), and only what its traces named was changed. Before: main (ad7cdda), `docs/qa/perf/final-baseline*.md`; after: `final-after*.md`. Medians of three runs, notched wheel / trackpad.
+
+| Estimated laptop, 1536 × 730 at 1.25x                              | Before         | After                               |
+| ------------------------------------------------------------------ | -------------- | ----------------------------------- |
+| Slow scroll frames, low tier, 4× slower CPU: returning             | 3.5 / 2.7 %    | 3.0 / 2.0 %                         |
+| …first visit                                                       | 3.7 / 3.4 %    | 4.1 / 2.3 %                         |
+| Frames over 50 ms while scrolling, desk ready (returning, 4×)      | 4 / 4          | 1 / 2                               |
+| Slow scroll frames, low tier, 6× slower CPU (returning)            | 12.1 / 12.7 %  | 8.8 / 8.3 %                         |
+| …in the regions of the desk story (6×)                             | 12–34 %        | 9–23 %                              |
+| Longest frame, 6× slower CPU                                       | 193 / 183 ms   | 161 / 179 ms                        |
+| Desk GPU time per frame (p95), GPU load 80: high tier              | 15.8 / 17.8 ms | 14.4 / 14.3 ms                      |
+| …low tier                                                          | 10.7 / 11.9 ms | 11.3 / 11.7 ms                      |
+| Slow scroll frames, GPU load 80: high tier                         | 1.5 / 1.2 %    | 1.4 / 0.6 %                         |
+| A slow GPU taken for a fast one (GPU load 320): desk GPU time, p95 | not measured   | 38 ms, then 13 ms on the next visit |
+
+- **Cursor ring.** It hit-tested the page on every scroll event, which laid the page out in the middle of each scrolling frame; with a mouse on the page 21 % of frames ran slow against 15.6 % without (6× CPU, one run each). Its look now catches up 100 ms after the page stops, as the browser's own hover does.
+- **Steel mesh.** three draws a transparent double-sided material in two passes and flags it for a new program before each, so the desk's expanded steel mesh looked its program up twice and uploaded all its uniforms again in every frame. It is now two meshes, back faces and front; the desk's stops compare at 46 dB or more with the build before (`npm run qa:stops`), in both tiers.
+- **About's logos.** The Hugging Face mark extruded into 27,000 triangles in one task while the MacBook was on screen. Curves are sampled by their length (10,500 triangles for the same outline at the size About shows it) and each outline is extruded in its own step.
+- **A desk that cannot keep up.** The desk may now draw below one device pixel per CSS pixel on any tier (0.85 high, 0.75 low). If its frames miss the display's budget even there, the site takes the low tier for whatever mounts next and for the week's visits (`demoteQuality`, `src/lib/quality.ts`); a visitor's own choice still wins. Under a GPU load of 320 the first visit stepped 1.25 → 1 → 0.85 and then to the low tier; the next visit's desk took 13 ms per frame instead of 38.
+- **GPU names.** "AMD Radeon(TM) Vega 8 Graphics", "Radeon(TM) R5", "Radeon(TM) 610M" and "Intel(R) Graphics" (Core Ultra) now read as integrated.
+- **Tried and left out,** each on an A/B that showed no gain: `content-visibility: auto` on the sections after the desk (layerize and commit fell, slow frames did not), `will-change: opacity` on the screens' shades, and removing the screens' hover state. The low tier's section scenes stayed as they are: About and the balls took 3–4.5 ms and 10–12 ms per frame (p95) under the GPU load, inside a 60 Hz frame.
+
+What is left is the story's own frame: about 3 ms of main thread on the M1 Pro (three's draw, then style, layerize and commit for the screens' HTML), which is a whole 60 Hz frame on a CPU six times slower. At 4× the returning visit meets the series' target (under 3 % slow frames); at 6× it does not, and a first visit with a notched wheel did not improve (About's shaders compile wherever in the story its mount lands). None of this was measured on the laptop itself: `docs/qa/feel-test.md` now asks for the GPU's name, which says which tier the site picked.

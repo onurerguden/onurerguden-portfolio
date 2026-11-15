@@ -69,7 +69,9 @@ export default function XpExplorer({
                           {en ? "Used in: " : "Kullanıldığı yer: "}
                         </span>
                         {item.evidence.map((proof, i) => (
-                          <span key={proof.href}>
+                          // Two roles can both link to the experience
+                          // section: the label tells them apart.
+                          <span key={`${proof.href} ${proof.label}`}>
                             {i ? ", " : null}
                             <a href={proof.href}>
                               {proof.label}

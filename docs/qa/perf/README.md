@@ -38,11 +38,37 @@ The sequence is seeded (`--seed`), so runs of one input scroll alike. Headless C
 - Per canvas (desk, balls, About): the frames it drew and its GPU time per frame, from `EXT_disjoint_timer_query_webgl2`. "About frames under the curtain" counts About's frames while the journey still covers it.
 - The desk camera's step per frame, and its largest step in one frame: large when a notch moves the camera in one go.
 - Every scroll the page makes itself (`scrollTo`, `scrollIntoView`) and its caller; a correction under 1 px still cancels the browser's smooth scrolling.
-- The share of scroll events that find style or layout already invalid, and whether the desk lowered its resolution.
+- The share of scroll events that find style or layout already invalid, whether the desk lowered its resolution, and whether the site took the low 3D tier by itself (a desk that could not keep up, on this visit or one in the week before).
 - With `--trace`, a Chrome trace of the visit, read by `scripts/perf/trace.mjs`: the cost of each wheel and scroll event, main-thread time per frame, layout forced by scripts, and the frames the compositor drew without the main thread's update (partial) or dropped.
 - WebGL calls that blocked for longer than a frame, and when; shader programs created.
 
 The harness sets `localStorage["portfolio:qa"]` to `1` for the page's QA-only attributes.
+
+### Another computer (`--quality`, `--cpu`, `--gpu`, `--viewport`)
+
+The lab is an M1 Pro; the visitors who feel lag are on slower machines. Four options stand in for one:
+
+| Option                     | What it does                                                                                                                                                                                                                                                               |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--quality low`            | Forces the site's low 3D tier, which its GPU check picks for integrated Intel and AMD graphics (`src/lib/quality.ts`).                                                                                                                                                     |
+| `--cpu 4`                  | Slows the CPU of every measured visit four times (CDP); the first visit of a returning scenario runs at full speed.                                                                                                                                                        |
+| `--gpu 24`                 | Adds 24 iterations of arithmetic to every fragment the page's canvases shade (`inject.js`): their GPU time grows with the pixels they shade, as on integrated graphics, which run out of shading throughput long before geometry. The browser's compositing is not slowed. |
+| `--viewport 1536x730@1.25` | The window's CSS size and pixel ratio: a 1920 × 1080 laptop at Windows' default 125% scale, with Chrome's toolbars.                                                                                                                                                        |
+
+The estimated laptop of the November 15 final revisions (a friend's Windows laptop that no one could measure) is four runs of the same window:
+
+```bash
+npm run perf -- --viewport 1536x730@1.25 --quality low --cpu 4 --scenario first-visit,returning --input notch,trackpad --label <name>
+npm run perf -- --viewport 1536x730@1.25 --quality low --cpu 6 --scenario returning --input notch,trackpad --label <name>-cpu6
+npm run perf -- --viewport 1536x730@1.25 --cpu 2 --gpu 80 --scenario returning --input notch,trackpad --label <name>-gpu
+npm run perf -- --viewport 1536x730@1.25 --quality low --cpu 2 --gpu 80 --scenario returning --input notch,trackpad --label <name>-gpu-low
+```
+
+`--gpu` is a load, not a model of a GPU. On the M1 Pro, in that window on the low tier, the desk's GPU time per frame (p95) was 2.0 ms without it, 8.1 ms at 40, 10.6 ms at 80, 11.7 ms at 160 and 17.3 ms at 320, where the desk first lowered its resolution. The profile uses 80: the desk at about five times its cost here, two thirds of a 60 Hz frame. Which real GPU that matches is a guess until someone runs the site on one (`docs/qa/feel-test.md` asks for the GPU's name).
+
+Keep the machine idle while a profile runs: a build or a test run beside it shows up as slow frames.
+
+`--trace --save-trace` also writes each measured visit's whole trace next to the results, for DevTools' Performance panel; use `--out` with a scratch folder, since a trace runs to hundreds of megabytes.
 
 `npm run qa:stops -- capture <label>` captures the desk's stops in both languages at 1440 × 900 and 2400 × 1000 into `work/perf-stops/`; `npm run qa:stops -- compare <before> <after>` prints the PSNR of each pair and fails below 45 dB. Two captures of the same build measure 54 dB or more. About sways on its own and is captured for review only.
 
@@ -59,3 +85,17 @@ The live site measured the same day (cold HTTP cache, TTFB 320–415 ms from fra
 ## Butter final (9 October 2026)
 
 `butter-final.md`, the live site after the butter series (#95–#106), trackpad input. See `docs/scene-budget.md` ("October 9 butter series") for before and after. `tests/perf/budgets.json` now holds these numbers with some headroom, so `npm run perf:check` fails if a change gives them back.
+
+## Final baseline (15 November 2026)
+
+`final-baseline.md`, `-cpu6`, `-gpu` and `-gpu-low`: production build of main (ad7cdda) under the estimated laptop profile above, after a friend's Windows laptop felt heavy throughout. No one could measure that laptop, so these stand in for it.
+
+- **A slow CPU is what the desk story feels.** At 4× the returning visit dropped 2.7–3.5 % of its scroll frames; at 6×, 12–13 %, and 12–34 % in each region of the desk story, while the sections after it stayed at 2.6 %. A frame of the story costs about 3 ms of main thread here (three's draw, then style, layers and commit for the screens' HTML), which is a whole 60 Hz frame at 6×.
+- **The low tier holds on a slow GPU.** With the GPU load the desk took 10.7–11.9 ms per frame (p95) on the low tier and 15.8–17.8 ms on the high one: a slow GPU the site takes for a fast one is over a 60 Hz frame from the start, and nothing lowered its tier.
+- Traces named three costs that were not the desk's own work: the cursor ring's hit test on every scroll event, one material that asked three for a new program every frame, and a logo for About whose 27,000 triangles were extruded in one task while the MacBook was on screen (12 ms on this machine once warm, about four times that on a cold page, before any CPU slowdown).
+
+## Final after (15 November 2026)
+
+`final-after.md`, `-cpu6`, `-gpu` and `-gpu-low`: the same four runs on the build of the final revisions' performance branch. See `docs/scene-budget.md` ("November 15 final revisions") for the table and what changed. In short: a third fewer slow frames at 6× CPU (12–13 % to 8–9 %), 2.0–3.0 % at 4× on a returning visit, one or two frames over 50 ms while scrolling instead of four, and a desk that the site moves to the low tier by itself when its lowest resolution still cannot keep up. A first visit with a notched wheel did not change.
+
+The standard budgets (`npm run perf:check`, the M1 Pro at 1440 × 900) are unchanged: the estimated laptop's runs share their scenario names, so they are compared by reading the two files, not by `--check`.

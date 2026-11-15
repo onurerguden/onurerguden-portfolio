@@ -37,8 +37,53 @@ describe("desk resolution levels", () => {
     expect(resolutionLevels(1.25, 3)).toEqual([1.25, 1]);
     expect(resolutionLevels(1.5, 1)).toEqual([1]);
     expect(resolutionLevels(1, 2)).toEqual([1]);
-    // Integrated graphics may go below one device pixel per CSS pixel.
+    // Below one device pixel per CSS pixel, when frames call for it.
     expect(resolutionLevels(1, 2, 0.85)).toEqual([1, 0.85]);
+    expect(resolutionLevels(1, 1.25, 0.75)).toEqual([1, 0.85, 0.75]);
+    expect(resolutionLevels(1.5, 1.25, 0.85)).toEqual([1.25, 1, 0.85]);
+  });
+});
+
+describe("a computer resolution cannot help", () => {
+  const lowest = (frameMs = 16.7) =>
+    createResolutionGovernor({
+      levels: [1, 0.85, 0.75],
+      level: 0.75,
+      frameMs,
+      now: 0,
+      samples: 10,
+      settleMs: 0,
+    });
+  it("is strained when the lowest level still misses the budget", () => {
+    const judge = lowest();
+    for (let i = 1; i <= 10; i++) judge.recordGpu(15, i);
+    expect(judge.proposal()).toBeNull();
+    expect(judge.strained()).toBe(true);
+  });
+  it("is not while the lowest level fits, or before it has samples", () => {
+    const judge = lowest();
+    expect(judge.strained()).toBe(false);
+    for (let i = 1; i <= 10; i++) judge.recordGpu(9, i);
+    expect(judge.strained()).toBe(false);
+  });
+  it("is not above the lowest level: that level steps down first", () => {
+    const judge = createResolutionGovernor({
+      levels: [1, 0.85, 0.75],
+      level: 1,
+      frameMs: 16.7,
+      now: 0,
+      samples: 10,
+      settleMs: 0,
+    });
+    for (let i = 1; i <= 10; i++) judge.recordGpu(15, i);
+    expect(judge.proposal()).toBe(0.85);
+    expect(judge.strained()).toBe(false);
+  });
+  it("tells from slow moving frames without a GPU timer", () => {
+    const judge = lowest();
+    let now = 0;
+    for (let i = 0; i < 12; i++) judge.record((now += 30));
+    expect(judge.strained()).toBe(true);
   });
 });
 

@@ -25,6 +25,11 @@ export type ResolutionGovernor = {
   recordGpu(ms: number, now: number): void;
   /** A level to switch to, or null to keep the current one. */
   proposal(): number | null;
+  /**
+   * True once frames at the lowest level still miss the display's budget:
+   * resolution alone cannot make this computer keep up.
+   */
+  strained(): boolean;
   /** The scene now draws at `level`; judge it on its own frames. */
   applied(level: number, now: number): void;
 };
@@ -66,6 +71,15 @@ export function createResolutionGovernor({
     list.push(value);
     if (list.length > samples) list.shift();
   };
+  /** Whether the frames at the current level miss the budget, if known. */
+  const slow = () => {
+    if (gpu.length >= samples) return quantile(gpu, 0.9) > 0.75 * frameMs;
+    if (intervals.length < samples) return null;
+    // Frames that waited on the main thread say nothing about the GPU.
+    const drawn = intervals.filter((interval) => interval < 2.5 * frameMs);
+    if (drawn.length < samples / 2) return null;
+    return quantile(drawn, 0.5) > 1.25 * frameMs;
+  };
   return {
     frameMs,
     record(now) {
@@ -81,23 +95,20 @@ export function createResolutionGovernor({
       if (changes >= maxChanges) return null;
       const lower = levels[current + 1];
       const higher = levels[current - 1];
-      if (gpu.length >= samples) {
-        const cost = quantile(gpu, 0.9);
-        if (lower !== undefined && cost > 0.75 * frameMs) return lower;
-        // A higher level costs about its share of pixels more; climb only
-        // with room to spare, so it never bounces straight back.
-        if (
-          higher !== undefined &&
-          cost * (higher / levels[current]) ** 2 < 0.45 * frameMs
-        )
-          return higher;
-        return null;
-      }
-      if (intervals.length < samples || lower === undefined) return null;
-      // Frames that waited on the main thread say nothing about the GPU.
-      const drawn = intervals.filter((interval) => interval < 2.5 * frameMs);
-      if (drawn.length < samples / 2) return null;
-      return quantile(drawn, 0.5) > 1.25 * frameMs ? lower : null;
+      if (lower !== undefined && slow()) return lower;
+      // A higher level costs about its share of pixels more; climb only
+      // with room to spare, so it never bounces straight back. Only GPU
+      // timings can tell there is room.
+      if (
+        higher !== undefined &&
+        gpu.length >= samples &&
+        quantile(gpu, 0.9) * (higher / levels[current]) ** 2 < 0.45 * frameMs
+      )
+        return higher;
+      return null;
+    },
+    strained() {
+      return current === levels.length - 1 && slow() === true;
     },
     applied(level, now) {
       const index = levels.indexOf(level);
@@ -123,7 +134,7 @@ export function resolutionLevels(
   const top = Math.max(1, Math.min(cap, devicePixelRatio));
   return [
     top,
-    ...[1.25, 1, 0.85].filter((level) => level < top && level >= lowest),
+    ...[1.25, 1, 0.85, 0.75].filter((level) => level < top && level >= lowest),
   ];
 }
 

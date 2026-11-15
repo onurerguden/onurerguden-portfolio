@@ -10,8 +10,11 @@
  * - static: the plain flow phones get (no GPU acceleration at all).
  *
  * Unknown GPUs start high; the desk's frame timing lowers its resolution if
- * its frames run slow (src/lib/desk-story/frame-budget.ts). A visitor's own
- * choice ("portfolio:quality" in localStorage) wins, which QA also uses.
+ * its frames run slow (src/lib/desk-story/frame-budget.ts). If even its
+ * lowest resolution misses the display's budget, the computer is slower than
+ * its name suggests: the scenes that mount after that, and visits in the
+ * following week, get the low tier (`demoteQuality`). A visitor's own choice
+ * ("portfolio:quality" in localStorage) wins over both, which QA also uses.
  */
 export type Quality = "high" | "low" | "static";
 
@@ -20,7 +23,7 @@ export const qualityKey = "portfolio:quality";
 const software = /swiftshader|llvmpipe|softpipe|software|basic render/i;
 /** Integrated graphics that render the desk slowly at a dense resolution. */
 const integrated =
-  /intel.*(uhd|hd graphics|iris)|\bhd graphics\b|amd radeon\(tm\) graphics|radeon (?:r[2-7]|vega \d+) graphics|mali|adreno|powervr/i;
+  /intel.*(uhd|hd graphics|iris)|intel\(r\) graphics|\bhd graphics\b|amd radeon\(tm\) graphics|radeon(?:\(tm\))? (?:r[2-7]|vega \d+) graphics|radeon(?:\(tm\))? 610m|mali|adreno|powervr/i;
 const dedicated =
   /apple (?:m\d|gpu)|nvidia|geforce|quadro|rtx|radeon (?:rx|pro)|intel.*arc/i;
 
@@ -54,6 +57,45 @@ export function classifyGpu({
 
 const choices: Quality[] = ["high", "low", "static"];
 let decided: Quality | null = null;
+/** The visitor (or QA) chose the tier; nothing overrides it. */
+let chosen = false;
+
+const learnedKey = "portfolio:quality-learned";
+const learnedMs = 7 * 24 * 60 * 60 * 1000;
+
+/** This computer proved slow within the last week (see demoteQuality). */
+function learnedLow() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(learnedKey) ?? "null") as {
+      at?: unknown;
+    } | null;
+    return (
+      typeof saved?.at === "number" &&
+      saved.at <= Date.now() &&
+      Date.now() - saved.at < learnedMs
+    );
+  } catch {
+    // Storage can be blocked or hold something else; trust the probe.
+    return false;
+  }
+}
+
+/**
+ * The desk could not keep up even at its lowest resolution: everything that
+ * mounts from now on (the section scenes, the desk after a release) and the
+ * next week's visits get the low tier. A visitor's own choice stands.
+ */
+export function demoteQuality() {
+  // quality() first: it is what learns whether the visitor chose.
+  if (quality() !== "high" || chosen) return;
+  decided = "low";
+  document.documentElement.dataset.quality = decided;
+  try {
+    localStorage.setItem(learnedKey, JSON.stringify({ at: Date.now() }));
+  } catch {
+    // Storage can be blocked; the next visit probes again.
+  }
+}
 
 export type WebGLProbe = {
   /** A WebGL2 context could be created. */
@@ -96,8 +138,11 @@ export function quality(): Quality {
   if (decided) return decided;
   if (typeof window === "undefined") return "high";
   try {
-    const chosen = localStorage.getItem(qualityKey) as Quality | null;
-    if (chosen && choices.includes(chosen)) return (decided = chosen);
+    const choice = localStorage.getItem(qualityKey) as Quality | null;
+    if (choice && choices.includes(choice)) {
+      chosen = true;
+      return (decided = choice);
+    }
   } catch {
     // Storage can be blocked; probe instead.
   }
@@ -109,6 +154,7 @@ export function quality(): Quality {
     memory: nav.deviceMemory,
     cores: nav.hardwareConcurrency,
   });
+  if (decided === "high" && learnedLow()) decided = "low";
   document.documentElement.dataset.quality = decided;
   return decided;
 }
