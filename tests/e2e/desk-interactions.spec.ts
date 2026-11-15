@@ -317,10 +317,13 @@ test("desk teases hint at objects from the MacBook to the curtain, a few per vis
   test.skip(isMobile, touchStatic);
   test.setTimeout(90000);
   test.skip(browserName === "webkit", "Requires WebGL2.");
-  // QA visits skip teases unless a test sets their quiet time.
-  await page.addInitScript(() =>
-    localStorage.setItem("portfolio:teases", "300"),
-  );
+  // QA visits skip teases unless a test sets their quiet time. The final
+  // view's note taps objects of its own (callouts.spec.ts): kept away here
+  // so only the random teases count.
+  await page.addInitScript(() => {
+    localStorage.setItem("portfolio:teases", "300");
+    sessionStorage.setItem("portfolio:callouts-done", "1");
+  });
   await page.goto("/en");
   await expect(page.locator("[data-ready]")).toHaveAttribute(
     "data-ready",
