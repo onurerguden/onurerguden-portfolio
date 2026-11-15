@@ -1,6 +1,8 @@
 /* Projects: navy section with sticky stacked cards. */
 .section {
-  --stack-top: clamp(24px, 6svh, 64px);
+  --stack-top: clamp(20px, 6svh, 64px);
+  /* What a pinned card leaves free below it. */
+  --stack-bottom: clamp(12px, 2.5svh, 28px);
   padding-block: clamp(96px, 12vw, 168px) clamp(80px, 10vw, 150px);
   background: var(--bg);
   color: var(--text);
@@ -91,15 +93,29 @@
     opacity: calc(0.45 * min(1, var(--n) - 1 - var(--i)));
   }
 }
+/*
+ * A pinned card never runs past the window's bottom: it is as tall as the
+ * window leaves below its pin, and only its media shrink to make it fit
+ * (the header and summary keep their size). Spacing follows the height
+ * too, so short laptop windows get tighter cards rather than cut ones.
+ */
 .card {
-  display: grid;
-  gap: clamp(16px, 2vw, 24px);
-  padding: clamp(20px, 2.6vw, 34px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, min(2vw, 2.6svh), 24px);
+  max-height: calc(
+    100svh - var(--stack-top) - var(--i, 0) * 18px - var(--stack-bottom)
+  );
+  padding: clamp(18px, min(2.6vw, 3.6svh), 34px);
   border: 1px solid #ffffff2e;
   border-radius: 28px;
   background:
     radial-gradient(120% 90% at 100% 0%, #1947e51f, transparent 60%), #0c1426;
   box-shadow: 0 -24px 60px #02050d8c;
+}
+.cardHead,
+.summary {
+  flex: none;
 }
 .cardHead {
   display: grid;
@@ -172,7 +188,8 @@
   grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
   grid-template-rows: repeat(2, minmax(0, 1fr));
   gap: 14px;
-  height: clamp(300px, 34vw, 440px);
+  flex: 0 1 clamp(300px, 34vw, 440px);
+  min-height: 210px;
 }
 .media > :first-child {
   grid-row: 1 / -1;
@@ -318,7 +335,49 @@
 }
 /* Four entries need a taller card than three. */
 .archive[data-rows="4"] {
-  height: clamp(340px, 38vw, 500px);
+  flex-basis: clamp(340px, 38vw, 500px);
+}
+/*
+ * Short, wide windows (a laptop browser): the media sit in one row of
+ * three, so the small tiles keep their height, and the summary keeps to
+ * two lines; the case study has the rest.
+ */
+@media (min-width: 761px) and (max-height: 760px) {
+  .media {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    min-height: 160px;
+  }
+  .media > :first-child {
+    grid-row: auto;
+  }
+  /* The archive's figure beside its entries, two by two. */
+  .archive {
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    min-height: 200px;
+  }
+  .archive > :first-child {
+    grid-row: 1 / -1;
+  }
+  .summary {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+  .facts,
+  .metric,
+  .linkTile,
+  .entry {
+    padding: clamp(12px, 2svh, 18px);
+  }
+  .metric strong {
+    font-size: clamp(30px, 6svh, 48px);
+  }
+  .linkTile {
+    font-size: clamp(15px, 2.4svh, 18px);
+  }
 }
 .entry strong {
   font-size: clamp(17px, 1.5vw, 20px);
@@ -358,6 +417,13 @@
   .slot {
     position: static;
   }
+  /* In normal flow a card is as tall as its content, laid out as before
+     the cap (Linux WebKit sized the media grid wrongly in the flex column,
+     letting it run over the next card). */
+  .card {
+    display: grid;
+    max-height: none;
+  }
   /* Without stacking there is nothing to shrink or dim. */
   .shade {
     display: none;
@@ -376,7 +442,7 @@
   .archive[data-rows="4"] {
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto;
-    height: auto;
+    flex-basis: auto;
   }
   .media > :first-child {
     grid-row: auto;

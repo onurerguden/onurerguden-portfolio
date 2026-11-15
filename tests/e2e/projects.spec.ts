@@ -80,3 +80,61 @@ test("archive entries link to their anchors on the projects page", async ({
   await expect(page).toHaveURL(/\/en\/projects#taskfoo$/);
   await expect(page.locator("#taskfoo")).toBeInViewport();
 });
+
+// Short laptop screens cut the pinned cards' bottoms off (a 1536 × 730
+// browser window, November 15): every card must fit where it pins.
+const heights = [
+  { width: 1280, height: 600 },
+  { width: 1366, height: 650 },
+  { width: 1536, height: 730 },
+  { width: 1440, height: 900 },
+  { width: 1920, height: 1080 },
+  { width: 2560, height: 1300 },
+];
+for (const locale of ["en", "tr"] as const) {
+  test(`every pinned card fits the window, ${locale}`, async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "Phones read the cards in normal flow.");
+    await page.goto(`/${locale}`);
+    for (const viewport of heights) {
+      await page.setViewportSize(viewport);
+      const size = `${viewport.width}×${viewport.height}`;
+      const slots = page.locator("[data-stack-card]");
+      const count = await slots.count();
+      for (let i = 0; i < count; i++) {
+        // Scroll the card's own marker to the place it pins at.
+        const fit = await slots.nth(i).evaluate((slot) => {
+          const marker = slot.previousElementSibling as HTMLElement;
+          const pin = parseFloat(getComputedStyle(slot).top) || 0;
+          // A grid track never goes below zero, so the slot starts one row
+          // gap below its marker whatever the marker's margin.
+          const gap = parseFloat(getComputedStyle(slot.parentElement!).rowGap);
+          const top = marker.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({ top: top + gap - pin + 1, behavior: "instant" });
+          const card = slot.querySelector("article")!.getBoundingClientRect();
+          const pinned = Math.abs(slot.getBoundingClientRect().top - pin) < 2;
+          const last = [...slot.querySelectorAll("article a")].at(-1)!;
+          const end = last.getBoundingClientRect();
+          return {
+            sticky: getComputedStyle(slot).position === "sticky",
+            pinned,
+            bottom: Math.round(card.bottom),
+            lastBottom: Math.round(end.bottom),
+            height: innerHeight,
+          };
+        });
+        if (!fit.sticky) continue;
+        expect(fit.pinned, `${size} card ${i + 1} pinned`).toBe(true);
+        expect(fit.bottom, `${size} card ${i + 1}`).toBeLessThanOrEqual(
+          fit.height,
+        );
+        // The case-study tile (or the archive's last entry) is whole.
+        expect(fit.lastBottom, `${size} card ${i + 1}`).toBeLessThanOrEqual(
+          fit.height,
+        );
+      }
+    }
+  });
+}
