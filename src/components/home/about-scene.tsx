@@ -43,6 +43,7 @@ import {
   deskPolaroid,
   keycaps,
   logoGeometry,
+  prepareLogo,
   placeShadow,
   showShadows,
   network,
@@ -206,11 +207,9 @@ export async function prepareAbout(
   await slice();
   if (cancelled()) return false;
   caption(deskCaption);
-  for (const slug of logos.slice(0, 3)) {
-    await slice();
-    if (cancelled()) return false;
-    if (icons[slug]) logoGeometry(icons[slug].path);
-  }
+  for (const slug of logos.slice(0, 3))
+    if (icons[slug] && !(await prepareLogo(icons[slug].path, slice, cancelled)))
+      return false;
   return true;
 }
 

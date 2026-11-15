@@ -11,6 +11,7 @@ import {
   Matrix4,
   MeshBasicMaterial,
   MeshPhysicalMaterial,
+  Path,
   PlaneGeometry,
   Quaternion,
   Shape,
@@ -20,7 +21,9 @@ import {
   TubeGeometry,
   Vector3,
   type BufferGeometry,
+  type Curve,
   type Object3D,
+  type Vector2,
 } from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js";
@@ -519,32 +522,111 @@ export function keycaps() {
 }
 
 /** A brand mark from simple-icons, extruded into a puffy clay badge. */
+const extrusion = {
+  depth: 2.2,
+  bevelEnabled: true,
+  bevelThickness: 0.9,
+  bevelSize: 0.55,
+  bevelSegments: 4,
+  // The outlines arrive as points (logoShapes).
+  curveSegments: 1,
+};
+/**
+ * The longest chord a logo's curves are drawn with, in the icon's 24-unit
+ * view box: about two pixels at the size About shows a logo.
+ */
+const chord = 0.5;
+
+/**
+ * A logo's outlines, as points. three gave every curve the same ten segments
+ * (twenty for arcs) however small it was: the Hugging Face mark, hundreds of
+ * tiny curves, extruded into 27,000 triangles in 12 ms on an M1 Pro, four
+ * times that on a cold page, all of it in one frame. Each curve now gets
+ * segments for its length, never more than before: the same outline at the
+ * size it is seen, in under half the triangles (November 15 final
+ * revisions).
+ */
+export function logoShapes(path: string) {
+  const svg = new SVGLoader().parse(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="${path}"/></svg>`,
+  );
+  const points = (outline: Path) => {
+    const list: Vector2[] = [];
+    for (const curve of outline.curves as (Curve<Vector2> & {
+      isLineCurve?: boolean;
+      isEllipseCurve?: boolean;
+    })[]) {
+      const most = curve.isEllipseCurve ? 20 : 10;
+      const segments = curve.isLineCurve
+        ? 1
+        : Math.min(most, Math.max(2, Math.ceil(curve.getLength() / chord)));
+      const sampled = curve.getPoints(segments);
+      // Each curve starts where the last ended.
+      list.push(...(list.length ? sampled.slice(1) : sampled));
+    }
+    return list;
+  };
+  return svg.paths
+    .flatMap((item) => item.toShapes())
+    .map((shape) => {
+      const resampled = new Shape(points(shape));
+      resampled.holes = shape.holes.map((hole) => new Path(points(hole)));
+      return resampled;
+    });
+}
+
+/** Centred on the origin, one unit across where the icon is 24. */
+function fit(geometry: BufferGeometry) {
+  geometry.center();
+  geometry.scale(1 / 24, 1 / 24, 1 / 24);
+  return geometry;
+}
+
 /**
  * A logo extruded from its icon path, built once per visit: extruding with a
  * bevel takes a while for detailed paths, so a remounted scene (scrolling
- * away and back) reuses it.
+ * away and back) reuses it. `prepareLogo` builds it ahead.
  */
 const logos = new Map<string, BufferGeometry>();
 export function logoGeometry(path: string) {
   let geometry = logos.get(path);
   if (!geometry) {
-    const svg = new SVGLoader().parse(
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="${path}"/></svg>`,
-    );
-    const shapes = svg.paths.flatMap((item) => SVGLoader.createShapes(item));
-    geometry = new ExtrudeGeometry(shapes, {
-      depth: 2.2,
-      bevelEnabled: true,
-      bevelThickness: 0.9,
-      bevelSize: 0.55,
-      bevelSegments: 4,
-      curveSegments: 10,
-    });
-    geometry.center();
-    geometry.scale(1 / 24, 1 / 24, 1 / 24);
+    geometry = fit(new ExtrudeGeometry(logoShapes(path), extrusion));
     logos.set(path, geometry);
   }
   return geometry;
+}
+
+/**
+ * Builds a logo ahead, one outline per step (`slice`, see src/lib/yield.ts),
+ * so that no step holds a frame for long. Resolves false if cancelled.
+ */
+export async function prepareLogo(
+  path: string,
+  slice: () => Promise<void>,
+  cancelled: () => boolean,
+) {
+  if (logos.has(path)) return true;
+  const parts: BufferGeometry[] = [];
+  const discard = () => parts.forEach((part) => part.dispose());
+  for (const shape of logoShapes(path)) {
+    await slice();
+    if (cancelled()) {
+      discard();
+      return false;
+    }
+    parts.push(new ExtrudeGeometry(shape, extrusion));
+  }
+  await slice();
+  // A mount may have built it meanwhile.
+  if (cancelled() || logos.has(path) || !parts.length) {
+    discard();
+    return !cancelled();
+  }
+  // The outlines one after another, as one extrusion of them all would be.
+  logos.set(path, fit(parts.length === 1 ? parts[0] : mergeGeometries(parts)));
+  if (parts.length > 1) discard();
+  return true;
 }
 export function useLogoGeometry(path: string) {
   return useMemo(() => logoGeometry(path), [path]);
