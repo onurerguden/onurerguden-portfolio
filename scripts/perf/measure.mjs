@@ -396,18 +396,14 @@ const streak = (intervals, over) => {
  * cannot wavers between them, which is seen as judder even when the average
  * rate is high. `uneven` is the share of its frames off the usual number.
  */
-function cadenceOf(frames, label, refresh) {
+function cadenceOf(draws, from, to, refresh) {
   const vsync = 1000 / (refresh || 60);
+  const times = (draws ?? []).filter((at) => at >= from && at <= to);
   const gaps = [];
-  let since = 0;
-  let drawing = false;
-  for (const [, interval, , drew] of frames) {
-    since += interval;
-    if (!drew || !drew.split(",").includes(label)) continue;
+  for (let i = 1; i < times.length; i++) {
+    const gap = times[i] - times[i - 1];
     // A longer wait is a pause in what it draws for, not a late frame.
-    if (drawing && since <= 6 * vsync) gaps.push(since);
-    drawing = true;
-    since = 0;
+    if (gap <= 6 * vsync) gaps.push(gap);
   }
   if (gaps.length < 20) return null;
   const counts = gaps.map((gap) => Math.max(1, Math.round(gap / vsync)));
@@ -421,6 +417,8 @@ function cadenceOf(frames, label, refresh) {
     uneven: round(
       (100 * counts.filter((count) => count !== usual).length) / counts.length,
     ),
+    // How many of its frames lasted 1, 2, 3… refreshes.
+    refreshes: Object.fromEntries([...tally].sort((a, b) => a[0] - b[0])),
   };
 }
 
@@ -644,7 +642,15 @@ function summarize(run) {
   const programmatic = run.scrolls.filter(([at]) => at >= after);
   const cadence = Object.fromEntries(
     ["desk", "balls", "about"]
-      .map((label) => [label, cadenceOf(scrolling, label, run.refresh)])
+      .map((label) => [
+        label,
+        cadenceOf(
+          run.draws[label],
+          run.scrollStart,
+          run.scrollEnd,
+          run.refresh,
+        ),
+      ])
       .filter(([, value]) => value),
   );
 
@@ -710,6 +716,13 @@ function summarize(run) {
     )
       ? 1
       : 0,
+    // The slowest pace the desk took: 2 is a frame on every second refresh.
+    deskPace: Math.max(
+      1,
+      ...Object.keys(run.milestones)
+        .filter((name) => name.startsWith("pace:"))
+        .map((name) => Number(name.slice(5))),
+    ),
     // The site took the low tier by itself: a desk that could not keep up
     // on this visit, or on one in the week before it.
     lowTier: "quality:low" in run.milestones ? 1 : 0,
@@ -844,6 +857,7 @@ const columns = [
   ["ballsUneven", "Uneven balls frames (%)"],
   ["aboutUneven", "Uneven About frames (%)"],
   ["deskDpr", "Desk resolution at the end (device px per CSS px)"],
+  ["deskPace", "Desk's pace (refreshes per frame)"],
   ["aboutFramesInRoom", "About frames under the curtain"],
   ["cameraStepMax", "Camera's largest step in a frame (m)"],
   ["tinyScrolls", "Scrolls under 1 px"],

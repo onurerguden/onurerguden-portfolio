@@ -95,7 +95,7 @@ npm run perf:check -- --profile igpu-60
 
 Three numbers came with the profiles:
 
-- **Uneven frames (%)**, per canvas. Each frame a canvas draws lasts a whole number of the display's refreshes. One that keeps up holds one number; one that cannot wavers between one refresh and two, which is seen as judder even at a high average rate. This is the share of a canvas's frames off its usual number, while it kept drawing.
+- **Uneven frames (%)**, per canvas. Each frame a canvas draws lasts a whole number of the display's refreshes. One that keeps up holds one number; one that cannot wavers between one refresh and two, which is seen as judder even at a high average rate. This is the share of a canvas's frames off its usual number, while it kept drawing; the results also list how many lasted 1, 2, 3… refreshes. Draws are timed by the frame they were made in (the document timeline's time), not by the harness's own frame callback, which can run before or after the page's in a given frame.
 - **Desk resolution at the end**: the device pixels per CSS pixel the desk settled on, not only whether it ever lowered them.
 - **At each stop**: the compositor's layers that draw content inside the window and the area they cover, in views (a layer the size of the window is 1), from the DevTools protocol's layer tree; and each canvas's draw calls and triangles. `--gpu` does not slow the browser's own compositing, so this area stands in for it. It ignores what an opaque layer in front hides: read it as a change between two builds.
 

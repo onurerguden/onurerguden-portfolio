@@ -185,6 +185,9 @@
         mark(`dpr-reduced:${target.getAttribute("data-dpr-reduced")}`);
       // The tier the site picked by itself (src/lib/quality.ts): "low" after
       // "high" is a desk that could not keep up (demoteQuality).
+      // The desk's pace: a frame on every Nth refresh (src/lib/frame-pacer.ts).
+      if (attributeName === "data-pace" && target.dataset.pace)
+        mark(`pace:${target.dataset.pace}`);
       if (attributeName === "data-quality" && target.dataset.quality)
         mark(`quality:${target.dataset.quality}`);
       if (attributeName === "data-stage-state")
@@ -200,6 +203,7 @@
       "data-stage-state",
       "data-dpr-reduced",
       "data-quality",
+      "data-pace",
     ],
   });
 
@@ -213,10 +217,22 @@
   const timers = new Map();
   const pending = [];
   const { beginQuery, endQuery, getQueryParameter } = proto;
+  // When each canvas drew, by the frame's own time (the document timeline's
+  // time is the animation frame's): a draw belongs to the frame it was made
+  // in, whatever order the page's frame callbacks run in.
+  perf.draws = {};
+  const drawnAt = new Map();
   const draw = (name) => {
     const original = proto[name];
     proto[name] = function (...args) {
       drawing.add(this.canvas);
+      const at = document.timeline.currentTime;
+      if (at !== null && drawnAt.get(this.canvas) !== at) {
+        drawnAt.set(this.canvas, at);
+        (perf.draws[labelOf(this.canvas)] ||= []).push(
+          Math.round(at * 10) / 10,
+        );
+      }
       const timer = timers.get(this);
       if (timer && !timer.page && timer.frame !== frame) {
         if (timer.query) {
