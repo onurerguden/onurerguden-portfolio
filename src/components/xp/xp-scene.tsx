@@ -16,6 +16,8 @@ import SectionCanvas, { useStageWarm } from "@/components/three/section-canvas";
 import DeskLighting from "@/components/desk/lighting";
 import { warmUp } from "@/components/three/warm-up";
 import { floorInStage } from "@/lib/bliss-geometry";
+import { qa } from "@/lib/qa";
+import { quality } from "@/lib/quality";
 import { buildAtlas, type BallItem } from "./tech-atlas";
 import { applyPhase, resetWorld, sim } from "./xp-sim";
 import type { LaptopPhase } from "@/lib/desk-story/store";
@@ -45,9 +47,14 @@ function Balls({
   );
   const { geometry, material, atlas, painted, stopPainting } = useMemo(() => {
     const { texture, grid, ready, stop } = buildAtlas(items);
+    // Integrated graphics draw them without the clearcoat: a quarter of the
+    // balls' GPU time for a gloss small balls barely show (flow series,
+    // docs/qa/perf/flow-ablation-low.md). Read at each mount, so balls
+    // mounted after the tier was lowered (demoteQuality) are lighter.
+    const low = quality() === "low";
     const ballMaterial = new MeshPhysicalMaterial({
       roughness: 0.28,
-      clearcoat: 1,
+      clearcoat: low ? 0 : 1,
       clearcoatRoughness: 0.12,
     });
     ballMaterial.onBeforeCompile = (shader) => {
@@ -89,9 +96,10 @@ function Balls({
         );
     };
     // Fewer segments than a hero object: the balls are small on the screen.
-    const sphere = narrow
-      ? new SphereGeometry(1, 16, 12)
-      : new SphereGeometry(1, 24, 16);
+    const sphere =
+      narrow || low
+        ? new SphereGeometry(1, 16, 12)
+        : new SphereGeometry(1, 24, 16);
     sphere.setAttribute(
       "aLogo",
       new InstancedBufferAttribute(
@@ -256,6 +264,9 @@ function Balls({
     selection.needsUpdate = true;
     mesh.instanceMatrix.needsUpdate = true;
     if (moving) invalidate();
+    // For tests only (src/lib/qa.ts): a visitor's frames write nothing to
+    // the page.
+    if (!qa()) return;
     gl.domElement.setAttribute("data-physics-mode", sim.mode);
     gl.domElement.setAttribute("data-physics-settled", String(world.settled()));
     gl.domElement.setAttribute("data-selected", String(selected));
