@@ -1,5 +1,5 @@
 {
-  "about": "Ceilings for scripts/perf/measure.mjs --check (medians, headless Chromium on an Apple M1 Pro GPU, 1440\u00d7900 at 2x, wheel scrolling from 0.7 s). Times in ms. Baseline (8 Oct 2026, before the performance series): first visit froze 3.4\u20134.6 s at desk ready with 53 shader programs; returning visits had one ~190 ms frame. Each PR of the series lowers its ceilings as it lands (docs/qa/perf). Desk warm-up: first visit 898 ms (the reflective floor's blur still compiles in the hidden frame). Marble without a live mirror: first visit 469 ms (About mounting); 36 programs. Butter series (9 Oct 2026, docs/qa/perf/butter-baseline.md): trackpad input (6\u201330 px every 8\u201316 ms) adds ceilings per scenario at the baseline; each PR of the series lowers them. Butter final (9 Oct 2026, live site, docs/qa/perf/butter-final.md): the trackpad ceilings drop to the new levels with headroom. Final revisions (15 Nov 2026): the program ceiling follows main, which had grown from 36 to 43\u201344 by then (41 already at the butter final); the series itself adds none (docs/qa/perf/final-baseline.md and final-after.md both count 44).",
+  "about": "Ceilings for scripts/perf/measure.mjs --check (medians, headless Chromium on an Apple M1 Pro GPU, 1440×900 at 2x, wheel scrolling from 0.7 s). Times in ms. Baseline (8 Oct 2026, before the performance series): first visit froze 3.4–4.6 s at desk ready with 53 shader programs; returning visits had one ~190 ms frame. Each PR of the series lowers its ceilings as it lands (docs/qa/perf). Desk warm-up: first visit 898 ms (the reflective floor's blur still compiles in the hidden frame). Marble without a live mirror: first visit 469 ms (About mounting); 36 programs. Butter series (9 Oct 2026, docs/qa/perf/butter-baseline.md): trackpad input (6–30 px every 8–16 ms) adds ceilings per scenario at the baseline; each PR of the series lowers them. Butter final (9 Oct 2026, live site, docs/qa/perf/butter-final.md): the trackpad ceilings drop to the new levels with headroom. Final revisions (15 Nov 2026): the program ceiling follows main, which had grown from 36 to 43–44 by then (41 already at the butter final); the series itself adds none (docs/qa/perf/final-baseline.md and final-after.md both count 44). Flow series (16 Nov 2026, docs/qa/perf/flow-*): ceilings per class of computer under `profiles`, read by `npm run perf:check -- --profile <name>`. They hold what the series reached with headroom: an even desk on 120 Hz displays (frames paced to every second refresh), integrated graphics within a 60 Hz frame on the low tier, and slow frames on an old processor where they were. Uneven About frames are not held with a notched wheel: About mixes its 30 fps idle sway with full-rate frames by design.",
   "scenarios": {
     "first-visit": {
       "maxLoaf": 600,
@@ -34,6 +34,63 @@
       "scrollLoafsOver50": 5,
       "slowShare": 3,
       "dprReduced": 0
+    }
+  },
+  "profiles": {
+    "igpu-120": {
+      "returning/notch": {
+        "deskUneven": 5,
+        "maxLoaf": 120
+      },
+      "returning/trackpad": {
+        "deskUneven": 5,
+        "aboutUneven": 5,
+        "ballsUneven": 10,
+        "deskGpuP95": 12.5,
+        "maxLoaf": 120
+      }
+    },
+    "m1-120": {
+      "returning/notch": {
+        "deskUneven": 13
+      },
+      "returning/trackpad": {
+        "deskUneven": 6,
+        "aboutUneven": 5
+      }
+    },
+    "igpu-60": {
+      "returning/notch": {
+        "slowShare": 2.5,
+        "deskGpuP95": 12.5,
+        "ballsGpuP95": 11,
+        "deskUneven": 2,
+        "dprReduced": 0
+      },
+      "returning/trackpad": {
+        "slowShare": 1.5,
+        "deskGpuP95": 12.5,
+        "ballsGpuP95": 11,
+        "deskUneven": 2,
+        "dprReduced": 0
+      }
+    },
+    "cpu-slow": {
+      "returning/notch": {
+        "slowShare": 3.5,
+        "deskUneven": 4,
+        "maxLoaf": 220
+      },
+      "returning/trackpad": {
+        "slowShare": 2.5,
+        "deskUneven": 4,
+        "maxLoaf": 220
+      }
+    },
+    "igpu-misread": {
+      "returning/trackpad": {
+        "slowShare": 1.5
+      }
     }
   }
 }

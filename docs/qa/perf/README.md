@@ -135,3 +135,7 @@ The live site measured the same day (cold HTTP cache, TTFB 320–415 ms from fra
 `final-after.md`, `-cpu6`, `-gpu` and `-gpu-low`: the same four runs on the build of the final revisions' performance branch. See `docs/scene-budget.md` ("November 15 final revisions") for the table and what changed. In short: a third fewer slow frames at 6× CPU (12–13 % to 8–9 %), 2.0–3.0 % at 4× on a returning visit, one or two frames over 50 ms while scrolling instead of four, and a desk that the site moves to the low tier by itself when its lowest resolution still cannot keep up. A first visit with a notched wheel did not change.
 
 The standard budgets (`npm run perf:check`, the M1 Pro at 1440 × 900) are unchanged: the estimated laptop's runs share their scenario names, so they are compared by reading the two files, not by `--check`.
+
+## Flow series (16 November 2026)
+
+`flow-baseline-*.md` is main under each class of computer; `flow-01-*` the paced build, `flow-02-igpu-60` About's lighter objects and `flow-03-*` the lighter balls; `flow-ablation-low.md` the ablation that chose what to cut. See `docs/scene-budget.md` ("November 16 flow series") for the before and after.

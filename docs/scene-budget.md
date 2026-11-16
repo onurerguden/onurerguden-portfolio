@@ -121,3 +121,24 @@ A friend's Windows laptop (Chrome, a 1536 × 730 window) felt heavy throughout, 
 - **Tried and left out,** each on an A/B that showed no gain: `content-visibility: auto` on the sections after the desk (layerize and commit fell, slow frames did not), `will-change: opacity` on the screens' shades, and removing the screens' hover state. The low tier's section scenes stayed as they are: About and the balls took 3–4.5 ms and 10–12 ms per frame (p95) under the GPU load, inside a 60 Hz frame.
 
 What is left is the story's own frame: about 3 ms of main thread on the M1 Pro (three's draw, then style, layerize and commit for the screens' HTML), which is a whole 60 Hz frame on a CPU six times slower. At 4× the returning visit meets the series' target (under 3 % slow frames); at 6× it does not, and a first visit with a notched wheel did not improve (About's shaders compile wherever in the story its mount lands). None of this was measured on the laptop itself: `docs/qa/feel-test.md` now asks for the GPU's name, which says which tier the site picked.
+
+## November 16 flow series
+
+The final revisions left the 60 Hz story in budget but nothing measured faster displays or other classes of computer. The flow series named them (`npm run perf -- --profile …`, `docs/qa/perf/README.md`), measured main (`flow-baseline-*.md`) and changed only what the numbers named. Merged as #164–#167; medians of three runs, notched wheel / trackpad.
+
+| Class of computer                                  | Main (611d0f6) | After the series     |
+| -------------------------------------------------- | -------------- | -------------------- |
+| igpu-120: uneven desk frames                       | 9.9 / 9.0 %    | 2.8 / 2.5 %          |
+| igpu-120: uneven About frames (trackpad)           | 50 %           | 1.3 %                |
+| m1-120: uneven desk frames                         | 12.3 / 19.9 %  | 9.8 / 3.5 %          |
+| igpu-60: balls GPU time per frame (p95)            | 8.0 / 9.7 ms   | 8.5 / 7.2 ms         |
+| igpu-60: desk GPU time in the MacBook region (p95) | 11.2 / 12.2 ms | 8.9 / 9.8 ms         |
+| About: draw calls / triangles                      | 28 / 41,374    | 24 / 12,694          |
+| 60 Hz classes (igpu-60, cpu-slow, m1-60)           | in budget      | unchanged, in budget |
+
+- **Pacing** (`src/lib/frame-pacer.ts`): the cause of the 120 Hz unevenness was not a slow GPU but frames that alternated between one refresh and two. The scenes now draw on one beat, every second refresh of a fast display when the desk cannot hold its full rate; the story clock and the screens' HTML move with them. Up to about 100 Hz nothing changes.
+- **About**: three objects fewer and lighter geometry. Its GPU time was already small; the gain is triangles, draw calls, the logo extrusion's 20–40 ms task on a cold page and a calmer section.
+- **Balls**: on the low tier, no clearcoat, coarser spheres and a drop that waits for the camera, so the desk and the balls seldom draw in one frame.
+- **Measured and left out**: the desk's cosmic grid (expensive only under the harness's uniform per-fragment load, which inflates large, cheap surfaces), the Explorer's list layer (no change in the compositor's layers), clearcoat in About (no saving) and `content-visibility` again.
+
+`tests/perf/budgets.json` holds ceilings per class (`profiles`), so a change that gives any of this back fails `npm run perf:check -- --profile <name>`. As before, nothing here was measured on the laptop that prompted it: `docs/qa/feel-test.md` asks for the GPU's name and the screen's refresh rate.
