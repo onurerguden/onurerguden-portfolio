@@ -115,8 +115,10 @@ function phaseAt(measure: StoryMeasure, story: StoryState): LaptopPhase {
   const [start, end] = readRange(measure.timeline, 0);
   if (story.distance < (start + end) / 2) return "away";
   // The balls start falling as the camera settles on the MacBook, so they
-  // land with it rather than after it.
-  if (story.arrival[2] < 0.7) return "near";
+  // land with it rather than after it. Integrated graphics wait until the
+  // camera has all but stopped, so the desk and the balls seldom draw in
+  // the same frame (flow series).
+  if (story.arrival[2] < (quality() === "low" ? 0.95 : 0.7)) return "near";
   if (story.rise[2] <= 0) return "desk";
   return story.rise[2] < 1 ? "rise" : "gone";
 }
