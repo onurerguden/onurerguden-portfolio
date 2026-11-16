@@ -10,13 +10,13 @@ import {
 } from "react";
 import {
   Canvas,
-  useFrame,
   useThree,
   type CanvasProps,
   type EventManager,
 } from "@react-three/fiber";
 import { quality } from "@/lib/quality";
 import { offerScene } from "./qa-scenes";
+import { PaceGate, drawNow, settlePace, usePacedFrame } from "./paced";
 
 /**
  * Section scenes listen to the page themselves and never use R3F's pointer
@@ -114,6 +114,7 @@ export default function SectionCanvas({
         onFailure={onFailure}
         fps={fps ? Math.min(fps, coarse ? 30 : 60) : undefined}
       />
+      <PaceGate />
       <WarmContext.Provider value={onWarm}>{children}</WarmContext.Provider>
     </Canvas>
   );
@@ -142,6 +143,8 @@ function StageDriver({
     () => offerScene(id, scene, gl, invalidate),
     [id, scene, gl, invalidate],
   );
+  // Draws on the page's pace, which the desk usually sets first.
+  useEffect(() => void settlePace(), []);
 
   useEffect(() => {
     const canvas = gl.domElement;
@@ -168,7 +171,7 @@ function StageDriver({
       // R3F's loop still draws frames invalidated before "never"; drop them
       // so a paused scene stops on exactly one finished still.
       getState().internal.frames = 0;
-      if (active) advance(performance.now());
+      if (active) drawNow(advance);
     }
   }, [running, active, gl, invalidate, advance, setFrameloop, getState]);
 
@@ -186,11 +189,11 @@ function StageDriver({
     return () => cancelAnimationFrame(frame);
   }, [running, fps, invalidate]);
 
-  useFrame(({ gl: renderer }) => {
+  usePacedFrame(({ gl: renderer }) => {
     renderer.info.autoReset = false;
     renderer.info.reset();
   }, -2);
-  useFrame(({ gl: renderer, scene, camera }) => {
+  usePacedFrame(({ gl: renderer, scene, camera }) => {
     renderer.render(scene, camera);
     const canvas = renderer.domElement;
     canvas.dataset.stageFrames = String(

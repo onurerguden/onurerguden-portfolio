@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
+import { usePacedFrame } from "@/components/three/paced";
 import {
   Color,
   InstancedBufferAttribute,
@@ -201,7 +202,7 @@ function Balls({
     return () => cancelAnimationFrame(frame);
   }, [compiled, onReady]);
 
-  useFrame((_, delta) => {
+  usePacedFrame((_, delta) => {
     if (!compiled) return;
     const world = sim.world;
     const mesh = meshRef.current;

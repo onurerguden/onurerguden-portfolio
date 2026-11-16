@@ -40,6 +40,24 @@ const browserFrames: Frames = {
   now: () => performance.now(),
 };
 
+/**
+ * Whether a frame is one the scenes draw (src/lib/frame-pacer.ts). The
+ * scene's code sets it once it loads, so the first load carries none of the
+ * pacing; until then every frame is drawn.
+ */
+type Beat = {
+  /** Whether the frame stamped `stamp` is drawn. */
+  beat(stamp: number): boolean;
+  /** How many refreshes a drawn frame lasts. */
+  readonly every: number;
+  /** On a refresh sat out: the next one is drawn. */
+  ahead(): void;
+};
+let pace: Beat | null = null;
+export function paceStory(beat: Beat | null) {
+  pace = beat;
+}
+
 export function createStoryClock({
   apply,
   start = 0,
@@ -83,6 +101,13 @@ export function createStoryClock({
     // Asked for first, so the next frame runs this before the scene's own
     // loop, which then draws the distance set here in the same frame.
     handle = frames.request(tick);
+    // On a refresh the scenes sit out, the screens' HTML waits with them.
+    if (pace && pace.every > 1 && !pace.beat(now)) {
+      // The story moves on the next refresh; the desk's loop has to be
+      // turning by then to draw it in the same frame.
+      pace.ahead();
+      return;
+    }
     step(now);
   };
   return {
@@ -104,10 +129,11 @@ export function createStoryClock({
       }
       if (handle) return;
       // The first step happens now, inside the scroll event, so the frame
-      // that follows already shows movement.
+      // that follows already shows movement; a paced story waits for its
+      // beat instead.
       last = frames.now() - 1000 / 60;
       handle = frames.request(tick);
-      step(frames.now());
+      if (!pace || pace.every === 1) step(frames.now());
     },
     stop() {
       if (handle) frames.cancel(handle);
