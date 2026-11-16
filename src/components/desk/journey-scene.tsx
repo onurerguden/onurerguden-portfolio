@@ -43,6 +43,7 @@ import {
 } from "@/lib/desk-story/frame-budget";
 import { createGpuTimer, type GpuTimer } from "@/components/three/gpu-timer";
 import { demoteQuality, quality } from "@/lib/quality";
+import { offerScene } from "@/components/three/qa-scenes";
 import { qa } from "@/lib/qa";
 import { storyAt, type StoryState } from "@/lib/desk-story/timeline";
 import type { Signal } from "@/lib/desk-story/signal";
@@ -552,7 +553,12 @@ function RenderFrame({
 function ProgramHost() {
   const gl = useThree((state) => state.gl);
   const scene = useThree((state) => state.scene);
+  const invalidate = useThree((state) => state.invalidate);
   useEffect(() => offerProgramHost(gl, scene), [gl, scene]);
+  useEffect(
+    () => offerScene("desk", scene, gl, invalidate),
+    [scene, gl, invalidate],
+  );
   return null;
 }
 

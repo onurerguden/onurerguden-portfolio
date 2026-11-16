@@ -1,0 +1,578 @@
+{
+  "url": "http://localhost:3400/en",
+  "date": "2026-11-16T03:05:44.290Z",
+  "results": {
+    "about": [
+      {
+        "kind": "none",
+        "name": "everything",
+        "samples": 95,
+        "p50": 1.75,
+        "p90": 3.32,
+        "calls": 28,
+        "triangles": 41374,
+        "pixels": 1181184
+      },
+      {
+        "kind": "hide",
+        "name": "without basketball",
+        "target": "basketball",
+        "triangles": 35358,
+        "samples": 95,
+        "p50": 1.8,
+        "p90": 2.98,
+        "calls": 27,
+        "pixels": 1181184
+      },
+      {
+        "kind": "hide",
+        "name": "without tennis",
+        "target": "tennis",
+        "triangles": 38014,
+        "samples": 95,
+        "p50": 1.8,
+        "p90": 3.07,
+        "calls": 27,
+        "pixels": 1181184
+      },
+      {
+        "kind": "hide",
+        "name": "without chip",
+        "target": "chip",
+        "triangles": 40160,
+        "samples": 95,
+        "p50": 1.86,
+        "p90": 3.32,
+        "calls": 25,
+        "pixels": 1181184
+      },
+      {
+        "kind": "hide",
+        "name": "without photo",
+        "target": "photo",
+        "triangles": 40772,
+        "samples": 95,
+        "p50": 1.61,
+        "p90": 3.27,
+        "calls": 25,
+        "pixels": 1181184
+      },
+      {
+        "kind": "hide",
+        "name": "without desk",
+        "target": "desk",
+        "triangles": 40770,
+        "samples": 95,
+        "p50": 1.86,
+        "p90": 3.47,
+        "calls": 24,
+        "pixels": 1181184
+      },
+      {
+        "kind": "hide",
+        "name": "without logo-0",
+        "target": "logo-0",
+        "triangles": 37314,
+        "samples": 95,
+        "p50": 1.77,
+        "p90": 3.31,
+        "calls": 27,
+        "pixels": 1181184
+      },
+      {
+        "kind": "hide",
+        "name": "without logo-1",
+        "target": "logo-1",
+        "triangles": 41024,
+        "samples": 95,
+        "p50": 2.1,
+        "p90": 2.99,
+        "calls": 27,
+        "pixels": 1181184
+      },
+      {
+        "kind": "hide",
+        "name": "without logo-2",
+        "target": "logo-2",
+        "triangles": 30886,
+        "samples": 95,
+        "p50": 1.76,
+        "p90": 2.74,
+        "calls": 27,
+        "pixels": 1181184
+      },
+      {
+        "kind": "hide",
+        "name": "without racket",
+        "target": "racket",
+        "triangles": 36974,
+        "samples": 95,
+        "p50": 1.58,
+        "p90": 2.7,
+        "calls": 25,
+        "pixels": 1181184
+      },
+      {
+        "kind": "hide",
+        "name": "without terminal",
+        "target": "terminal",
+        "triangles": 40400,
+        "samples": 95,
+        "p50": 1.82,
+        "p90": 3.29,
+        "calls": 26,
+        "pixels": 1181184
+      },
+      {
+        "kind": "hide",
+        "name": "without braces",
+        "target": "braces",
+        "triangles": 41002,
+        "samples": 95,
+        "p50": 1.79,
+        "p90": 3.2,
+        "calls": 27,
+        "pixels": 1181184
+      },
+      {
+        "kind": "hide",
+        "name": "without network",
+        "target": "network",
+        "triangles": 34414,
+        "samples": 95,
+        "p50": 1.82,
+        "p90": 3.31,
+        "calls": 26,
+        "pixels": 1181184
+      },
+      {
+        "kind": "hide",
+        "name": "without keycaps",
+        "target": "keycaps",
+        "triangles": 39426,
+        "samples": 95,
+        "p50": 1.68,
+        "p90": 3.15,
+        "calls": 24,
+        "pixels": 1181184
+      },
+      {
+        "kind": "light",
+        "name": "without DirectionalLight 0",
+        "index": 0,
+        "samples": 95,
+        "p50": 1.78,
+        "p90": 3.19,
+        "calls": 28,
+        "triangles": 41374,
+        "pixels": 1181184
+      },
+      {
+        "kind": "light",
+        "name": "without DirectionalLight 1",
+        "index": 1,
+        "samples": 95,
+        "p50": 1.77,
+        "p90": 3.81,
+        "calls": 28,
+        "triangles": 41374,
+        "pixels": 1181184
+      },
+      {
+        "kind": "material",
+        "name": "no clearcoat",
+        "set": "clearcoat",
+        "samples": 95,
+        "p50": 1.83,
+        "p90": 3.81,
+        "calls": 28,
+        "triangles": 41374,
+        "pixels": 1181184
+      },
+      {
+        "kind": "material",
+        "name": "no sheen",
+        "set": "sheen",
+        "samples": 95,
+        "p50": 1.98,
+        "p90": 3.9,
+        "calls": 28,
+        "triangles": 41374,
+        "pixels": 1181184
+      },
+      {
+        "kind": "environment",
+        "name": "no environment light",
+        "samples": 95,
+        "p50": 1.99,
+        "p90": 4.22,
+        "calls": 28,
+        "triangles": 41374,
+        "pixels": 1181184
+      },
+      {
+        "kind": "pixels",
+        "name": "0.75 of the resolution",
+        "ratio": 0.75,
+        "samples": 95,
+        "p50": 1.43,
+        "p90": 3.11,
+        "calls": 28,
+        "triangles": 41374,
+        "pixels": 663552
+      }
+    ],
+    "balls": [
+      {
+        "kind": "none",
+        "name": "everything",
+        "samples": 90,
+        "p50": 2.19,
+        "p90": 9.61,
+        "calls": 1,
+        "triangles": 21600,
+        "pixels": 1066240
+      },
+      {
+        "kind": "light",
+        "name": "without DirectionalLight 0",
+        "index": 0,
+        "samples": 90,
+        "p50": 2.7,
+        "p90": 7.75,
+        "calls": 1,
+        "triangles": 21600,
+        "pixels": 1066240
+      },
+      {
+        "kind": "light",
+        "name": "without DirectionalLight 1",
+        "index": 1,
+        "samples": 90,
+        "p50": 1.72,
+        "p90": 9.39,
+        "calls": 1,
+        "triangles": 21600,
+        "pixels": 1066240
+      },
+      {
+        "kind": "material",
+        "name": "no clearcoat",
+        "set": "clearcoat",
+        "samples": 90,
+        "p50": 1.63,
+        "p90": 9.16,
+        "calls": 1,
+        "triangles": 21600,
+        "pixels": 1066240
+      },
+      {
+        "kind": "material",
+        "name": "no sheen",
+        "set": "sheen",
+        "samples": 90,
+        "p50": 2.06,
+        "p90": 8.5,
+        "calls": 1,
+        "triangles": 21600,
+        "pixels": 1066240
+      },
+      {
+        "kind": "environment",
+        "name": "no environment light",
+        "samples": 90,
+        "p50": 2.28,
+        "p90": 9.81,
+        "calls": 1,
+        "triangles": 21600,
+        "pixels": 1066240
+      },
+      {
+        "kind": "pixels",
+        "name": "0.75 of the resolution",
+        "ratio": 0.75,
+        "samples": 90,
+        "p50": 1.65,
+        "p90": 7.78,
+        "calls": 1,
+        "triangles": 21600,
+        "pixels": 599040
+      }
+    ],
+    "desk": [
+      {
+        "kind": "none",
+        "name": "everything",
+        "samples": 101,
+        "p50": 4.01,
+        "p90": 5.27,
+        "calls": 55,
+        "triangles": 51471,
+        "pixels": 1121280
+      },
+      {
+        "kind": "hide",
+        "name": "without Desk platform",
+        "target": "Desk platform",
+        "triangles": 51183,
+        "samples": 101,
+        "p50": 3.46,
+        "p90": 5.79,
+        "calls": 53,
+        "pixels": 1121280
+      },
+      {
+        "kind": "hide",
+        "name": "without Batch_static_Woven_black_textile",
+        "target": "Batch_static_Woven_black_textile",
+        "triangles": 49411,
+        "samples": 101,
+        "p50": 3.55,
+        "p90": 6.93,
+        "calls": 54,
+        "pixels": 1121280
+      },
+      {
+        "kind": "hide",
+        "name": "without Batch_static_Satin_black_metal",
+        "target": "Batch_static_Satin_black_metal",
+        "triangles": 47471,
+        "samples": 101,
+        "p50": 3.47,
+        "p90": 5.46,
+        "calls": 54,
+        "pixels": 1121280
+      },
+      {
+        "kind": "hide",
+        "name": "without Batch_static_Key_legends",
+        "target": "Batch_static_Key_legends",
+        "triangles": 48791,
+        "samples": 101,
+        "p50": 3.95,
+        "p90": 6.54,
+        "calls": 54,
+        "pixels": 1121280
+      },
+      {
+        "kind": "hide",
+        "name": "without Batch_static_Keycap_graphite",
+        "target": "Batch_static_Keycap_graphite",
+        "triangles": 46019,
+        "samples": 101,
+        "p50": 3.57,
+        "p90": 5.53,
+        "calls": 54,
+        "pixels": 1121280
+      },
+      {
+        "kind": "hide",
+        "name": "without Batch_static_Soft_touch_rubber",
+        "target": "Batch_static_Soft_touch_rubber",
+        "triangles": 48601,
+        "samples": 101,
+        "p50": 3.63,
+        "p90": 5.29,
+        "calls": 54,
+        "pixels": 1121280
+      },
+      {
+        "kind": "hide",
+        "name": "without Batch_static_Anodised_aluminium",
+        "target": "Batch_static_Anodised_aluminium",
+        "triangles": 48610,
+        "samples": 101,
+        "p50": 3.53,
+        "p90": 5.15,
+        "calls": 54,
+        "pixels": 1121280
+      },
+      {
+        "kind": "hide",
+        "name": "without Batch_static_Graphite_polymer",
+        "target": "Batch_static_Graphite_polymer",
+        "triangles": 48993,
+        "samples": 101,
+        "p50": 3.29,
+        "p90": 5.21,
+        "calls": 54,
+        "pixels": 1121280
+      },
+      {
+        "kind": "hide",
+        "name": "without Batch_mouse_Anodised_aluminium",
+        "target": "Batch_mouse_Anodised_aluminium",
+        "triangles": 49061,
+        "samples": 101,
+        "p50": 3.48,
+        "p90": 5.02,
+        "calls": 54,
+        "pixels": 1121280
+      },
+      {
+        "kind": "hide",
+        "name": "without MX_Master_sculpted_surface",
+        "target": "MX_Master_sculpted_surface",
+        "triangles": 48496,
+        "samples": 101,
+        "p50": 3.38,
+        "p90": 5.11,
+        "calls": 54,
+        "pixels": 1121280
+      },
+      {
+        "kind": "hide",
+        "name": "without MX_Master_sculpted_surface_1",
+        "target": "MX_Master_sculpted_surface_1",
+        "triangles": 49427,
+        "samples": 101,
+        "p50": 3.48,
+        "p90": 5.69,
+        "calls": 54,
+        "pixels": 1121280
+      },
+      {
+        "kind": "hide",
+        "name": "without Batch_headphones_Barracuda_honeycomb_knit",
+        "target": "Batch_headphones_Barracuda_honeycomb_knit",
+        "triangles": 49871,
+        "samples": 101,
+        "p50": 3.97,
+        "p90": 5.11,
+        "calls": 54,
+        "pixels": 1121280
+      },
+      {
+        "kind": "hide",
+        "name": "without Batch_headphones_Graphite_polymer",
+        "target": "Batch_headphones_Graphite_polymer",
+        "triangles": 49735,
+        "samples": 101,
+        "p50": 3.33,
+        "p90": 5.49,
+        "calls": 54,
+        "pixels": 1121280
+      },
+      {
+        "kind": "hide",
+        "name": "without Batch_headphones_Soft_touch_rubber",
+        "target": "Batch_headphones_Soft_touch_rubber",
+        "triangles": 47393,
+        "samples": 100,
+        "p50": 3.58,
+        "p90": 5.47,
+        "calls": 54,
+        "pixels": 1121280
+      },
+      {
+        "kind": "hide",
+        "name": "without Batch_lamp_Rose_opal_diffuser",
+        "target": "Batch_lamp_Rose_opal_diffuser",
+        "triangles": 49737,
+        "samples": 101,
+        "p50": 3.56,
+        "p90": 5,
+        "calls": 54,
+        "pixels": 1121280
+      },
+      {
+        "kind": "hide",
+        "name": "without Cosmic environment",
+        "target": "Cosmic environment",
+        "triangles": 50311,
+        "samples": 101,
+        "p50": 3.11,
+        "p90": 4.86,
+        "calls": 53,
+        "pixels": 1121280
+      },
+      {
+        "kind": "light",
+        "name": "without DirectionalLight 0",
+        "index": 0,
+        "samples": 101,
+        "p50": 3.82,
+        "p90": 5.28,
+        "calls": 55,
+        "triangles": 51471,
+        "pixels": 1121280
+      },
+      {
+        "kind": "light",
+        "name": "without DirectionalLight 1",
+        "index": 1,
+        "samples": 101,
+        "p50": 3.96,
+        "p90": 5.19,
+        "calls": 55,
+        "triangles": 51471,
+        "pixels": 1121280
+      },
+      {
+        "kind": "light",
+        "name": "without DirectionalLight 2",
+        "index": 2,
+        "samples": 101,
+        "p50": 3.83,
+        "p90": 5.14,
+        "calls": 55,
+        "triangles": 51471,
+        "pixels": 1121280
+      },
+      {
+        "kind": "light",
+        "name": "without SpotLight 3",
+        "index": 3,
+        "samples": 101,
+        "p50": 3.65,
+        "p90": 5.45,
+        "calls": 55,
+        "triangles": 51471,
+        "pixels": 1121280
+      },
+      {
+        "kind": "material",
+        "name": "no clearcoat",
+        "set": "clearcoat",
+        "samples": 101,
+        "p50": 3.9,
+        "p90": 5.97,
+        "calls": 55,
+        "triangles": 51471,
+        "pixels": 1121280
+      },
+      {
+        "kind": "material",
+        "name": "no sheen",
+        "set": "sheen",
+        "samples": 101,
+        "p50": 4.31,
+        "p90": 6.6,
+        "calls": 55,
+        "triangles": 51471,
+        "pixels": 1121280
+      },
+      {
+        "kind": "environment",
+        "name": "no environment light",
+        "samples": 100,
+        "p50": 3.56,
+        "p90": 5.37,
+        "calls": 55,
+        "triangles": 51471,
+        "pixels": 1121280
+      },
+      {
+        "kind": "pixels",
+        "name": "0.75 of the resolution",
+        "ratio": 0.75,
+        "samples": 101,
+        "p50": 2.62,
+        "p90": 3.89,
+        "calls": 55,
+        "triangles": 51471,
+        "pixels": 630144
+      }
+    ]
+  }
+}

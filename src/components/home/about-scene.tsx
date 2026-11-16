@@ -119,6 +119,8 @@ function Float({
 }) {
   return (
     <group
+      // Named for scripts/perf/ablate.mjs, which hides one at a time.
+      name={id}
       ref={(group) => {
         if (group) groups.current.set(id, group);
         else groups.current.delete(id);
