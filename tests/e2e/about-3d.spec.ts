@@ -35,10 +35,11 @@ test.describe("About objects", () => {
       .toBeGreaterThan(40);
     expect(
       Number(await canvas.getAttribute("data-stage-draw-calls")),
-    ).toBeLessThanOrEqual(32);
+    ).toBeLessThanOrEqual(24);
+    // About's objects since the flow series: about 13,000 triangles.
     expect(
       Number(await canvas.getAttribute("data-stage-triangles")),
-    ).toBeLessThanOrEqual(120000);
+    ).toBeLessThanOrEqual(16000);
     await reach(page, "contact");
     await expect(canvas).toHaveCount(0, { timeout: ci(10000) });
   });
