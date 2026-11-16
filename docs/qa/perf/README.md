@@ -72,6 +72,42 @@ Keep the machine idle while a profile runs: a build or a test run beside it show
 
 `npm run qa:stops -- capture <label>` captures the desk's stops in both languages at 1440 × 900 and 2400 × 1000 into `work/perf-stops/`; `npm run qa:stops -- compare <before> <after>` prints the PSNR of each pair and fails below 45 dB. Two captures of the same build measure 54 dB or more. About sways on its own and is captured for review only.
 
+### Classes of computer (`--profile`)
+
+Since the flow series (16 November 2026) the options above have names, one per class of computer the site is expected on. A flag still overrides its profile.
+
+| Profile                  | What it runs                                                 | The class it stands for                                                                   |
+| ------------------------ | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| `m1-60`                  | the defaults                                                 | The lab itself; the budgets of the earlier series.                                        |
+| `m1-120`                 | `--headed`, notch and trackpad                               | A fast GPU on a 120 Hz screen.                                                            |
+| `igpu-60`                | `1536x730@1.25`, low tier, CPU 2×, GPU load 80               | Integrated graphics on a 60 Hz laptop screen.                                             |
+| `igpu-120`               | the same, `--headed`                                         | Integrated graphics behind a 120 Hz screen (a gaming laptop whose browser uses the iGPU). |
+| `igpu-misread`           | `1536x730@1.25`, CPU 2×, GPU load 320, the GPU's own tier    | A slow GPU the site takes for a fast one.                                                 |
+| `cpu-slow`, `cpu-slower` | `1536x730@1.25`, low tier, CPU 4× and 6×                     | An old processor.                                                                         |
+| `phone`, `phone-android` | `--device "iPhone 13"` and `"Pixel 7"`, returning and 4× CPU | Phones, with Chromium standing in for their browsers.                                     |
+
+```bash
+npm run perf -- --profile igpu-120 --label <name>-igpu-120
+npm run perf:check -- --profile igpu-60
+```
+
+`--headed` profiles open a window on this display and measure at its refresh rate, so the display has to be set to 120 Hz and left alone meanwhile. A profile's ceilings live under `profiles.<name>` in `tests/perf/budgets.json`.
+
+Three numbers came with the profiles:
+
+- **Uneven frames (%)**, per canvas. Each frame a canvas draws lasts a whole number of the display's refreshes. One that keeps up holds one number; one that cannot wavers between one refresh and two, which is seen as judder even at a high average rate. This is the share of a canvas's frames off its usual number, while it kept drawing.
+- **Desk resolution at the end**: the device pixels per CSS pixel the desk settled on, not only whether it ever lowered them.
+- **At each stop**: the compositor's layers that draw content inside the window and the area they cover, in views (a layer the size of the window is 1), from the DevTools protocol's layer tree; and each canvas's draw calls and triangles. `--gpu` does not slow the browser's own compositing, so this area stands in for it. It ignores what an opaque layer in front hides: read it as a change between two builds.
+
+### What each part costs (`scripts/perf/ablate.mjs`)
+
+```bash
+node scripts/perf/ablate.mjs --quality low --gpu 80 --label <name>-ablation
+node scripts/perf/ablate.mjs --scene about --label <name>-about
+```
+
+Stops where each scene is on screen and draws it with one thing taken away at a time: each named part hidden, each light off, clearcoat and sheen off, the environment off, three quarters of the resolution. The table says what the GPU saved, so a cut is chosen by its gain and not by its triangle count. With `--gpu` it answers "what do this part's pixels cost a fill-rate-bound GPU"; without, "what does its shader cost here". The page offers its scenes to the script on a QA visit only (`src/components/three/qa-scenes.ts`).
+
 ## Baseline (8 October 2026)
 
 `baseline.md`, production build of main (6970b7e) on an M1 Pro. A first visit froze for about 3 s at the moment the desk became ready: 53 shader programs linked synchronously on its first frame (4.2 s of blocking WebGL calls in total). Returning visits had one 180 ms frame; a four-times slower CPU, six frames over 100 ms in the first seconds. Once loaded, scrolling held 60 fps (p95 17 ms).
