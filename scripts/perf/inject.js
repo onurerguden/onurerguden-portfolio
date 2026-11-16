@@ -63,6 +63,14 @@
       if (camera) step = Math.hypot(...next.map((v, i) => v - camera[i]));
       camera = next;
     }
+    // The desk's drawing buffer against its CSS width (R3F writes it inline,
+    // so reading it lays nothing out): the resolution it draws at, while
+    // it is there. The last one seen is where it settled.
+    if (desk && frame % 30 === 0) {
+      const width = parseFloat(desk.style.width);
+      if (width > 0)
+        perf.deskDpr = Math.round((desk.width / width) * 100) / 100;
+    }
     perf.frames.push([
       Math.round(last),
       Math.round(now - last),

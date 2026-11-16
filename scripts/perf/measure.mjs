@@ -7,7 +7,7 @@
 //     [--trace [--save-trace]] [--headed] [--seed 1] [--label baseline]
 //     [--out dir]
 //     [--quality low|high] [--cpu 6] [--gpu 24] [--viewport 1536x730@1.25]
-//     [--check]
+//     [--profile igpu-120] [--no-stops] [--check]
 //
 // Scenarios:
 // - first-visit: a new browser profile and shaders the GPU has never seen
@@ -42,6 +42,17 @@
 //   (1536x730@1.25: a 1920 × 1080 laptop at Windows' default 125% scale,
 //   with Chrome's toolbars).
 //
+// A class of computer (--profile, the flow series' device matrix): a named
+// set of the options above, each of which a flag still overrides. The
+// profiles are listed below; docs/qa/perf/README.md says what each stands
+// for. A profile's results are checked against its own ceilings
+// (`profiles.<name>` in tests/perf/budgets.json).
+//
+// Each run also stops at the story's stops (unless --no-stops) and records
+// what the compositor has to blend there: the layers that draw content and
+// their area, and each canvas's draw calls and triangles. --gpu does not
+// slow the browser's own compositing, so that area is the stand-in for it.
+//
 // Results (medians over the runs) go to docs/qa/perf/<label>.{json,md}, or
 // to --out. --check compares them with tests/perf/budgets.json and fails when
 // over. CI renders WebGL in software, so this runs on a GPU-backed machine.
@@ -55,11 +66,8 @@ import { readTrace, summarizeTrace } from "./trace.mjs";
 const { values } = parseArgs({
   options: {
     url: { type: "string", default: "http://localhost:3100/en" },
-    scenario: {
-      type: "string",
-      default: "first-visit,returning,cpu4,reduced",
-    },
-    input: { type: "string", default: "measure" },
+    scenario: { type: "string" },
+    input: { type: "string" },
     device: { type: "string" },
     runs: { type: "string", default: "3" },
     seed: { type: "string", default: "1" },
@@ -73,8 +81,56 @@ const { values } = parseArgs({
     cpu: { type: "string" },
     gpu: { type: "string" },
     viewport: { type: "string" },
+    profile: { type: "string" },
+    "no-stops": { type: "boolean", default: false },
   },
 });
+/**
+ * Classes of computer the site is measured as (docs/qa/perf/README.md). The
+ * lab is an M1 Pro; the others slow it down to stand in for the class.
+ */
+const laptop = "1536x730@1.25";
+const scrolled = { scenario: "returning", input: "notch,trackpad" };
+const profiles = {
+  // This machine as it is: the budgets the earlier series set.
+  "m1-60": {},
+  // The same on its 120 Hz display (a window; headless draws at 60 Hz).
+  "m1-120": { ...scrolled, headed: true },
+  // Integrated graphics on a 60 Hz laptop screen.
+  "igpu-60": {
+    ...scrolled,
+    viewport: laptop,
+    quality: "low",
+    cpu: "2",
+    gpu: "80",
+  },
+  // Integrated graphics behind a 120 Hz screen: frames that cannot keep up
+  // arrive unevenly unless the site paces them.
+  "igpu-120": {
+    ...scrolled,
+    viewport: laptop,
+    quality: "low",
+    cpu: "2",
+    gpu: "80",
+    headed: true,
+  },
+  // A slow GPU the site takes for a fast one, until its frames say otherwise.
+  "igpu-misread": { ...scrolled, viewport: laptop, cpu: "2", gpu: "320" },
+  // An old processor with integrated graphics.
+  "cpu-slow": { ...scrolled, viewport: laptop, quality: "low", cpu: "4" },
+  "cpu-slower": { ...scrolled, viewport: laptop, quality: "low", cpu: "6" },
+  phone: { scenario: "returning,cpu4", device: "iPhone 13" },
+  "phone-android": { scenario: "returning,cpu4", device: "Pixel 7" },
+};
+if (values.profile && !profiles[values.profile])
+  throw new Error(
+    `--profile is one of ${Object.keys(profiles).join(", ")}, not ${values.profile}`,
+  );
+// A flag wins over the profile, which wins over the defaults.
+for (const [key, value] of Object.entries(profiles[values.profile] ?? {}))
+  if (values[key] === undefined || values[key] === false) values[key] = value;
+values.scenario ??= "first-visit,returning,cpu4,reduced";
+values.input ??= "measure";
 if (values.quality && !["high", "low"].includes(values.quality))
   throw new Error(`--quality is high or low, not ${values.quality}`);
 const cpuRate = values.cpu ? Number(values.cpu) : null;
@@ -333,6 +389,191 @@ const streak = (intervals, over) => {
   return longest;
 };
 
+/**
+ * How evenly a canvas drew while it kept drawing. Each frame it draws lasts a
+ * whole number of the display's refreshes; a canvas that keeps up holds one
+ * number (1 at the display's rate, 2 when paced to half of it), and one that
+ * cannot wavers between them, which is seen as judder even when the average
+ * rate is high. `uneven` is the share of its frames off the usual number.
+ */
+function cadenceOf(frames, label, refresh) {
+  const vsync = 1000 / (refresh || 60);
+  const gaps = [];
+  let since = 0;
+  let drawing = false;
+  for (const [, interval, , drew] of frames) {
+    since += interval;
+    if (!drew || !drew.split(",").includes(label)) continue;
+    // A longer wait is a pause in what it draws for, not a late frame.
+    if (drawing && since <= 6 * vsync) gaps.push(since);
+    drawing = true;
+    since = 0;
+  }
+  if (gaps.length < 20) return null;
+  const counts = gaps.map((gap) => Math.max(1, Math.round(gap / vsync)));
+  const tally = new Map();
+  for (const count of counts) tally.set(count, (tally.get(count) || 0) + 1);
+  const [usual] = [...tally].sort((a, b) => b[1] - a[1])[0];
+  return {
+    frames: gaps.length,
+    fps: round(1000 / quantile(gaps, 0.5)),
+    every: usual,
+    uneven: round(
+      (100 * counts.filter((count) => count !== usual).length) / counts.length,
+    ),
+  };
+}
+
+/** Where the story stops, as scroll positions; see stops.mjs. */
+function stopsInPage() {
+  const section = document.querySelector("[data-story]");
+  const story = section?.dataset.story
+    ? JSON.parse(section.dataset.story)
+    : null;
+  const stage = document.querySelector("[data-journey-stage]");
+  const about = document.getElementById("about");
+  if (!story || !stage) return [];
+  const top = (node) => node.getBoundingClientRect().top + scrollY;
+  const at = (distance) => top(section) + stage.offsetHeight * distance;
+  const along = (range, f) => range[0] + (range[1] - range[0]) * f;
+  return [
+    ["opening", 0],
+    ["monitor", at(story.chapters.services + 0.25)],
+    // The XP desktop with the balls on it, before the Explorer rises.
+    ["balls", at(story.macbook[0])],
+    ["explorer", at(along(story.macbook, 0.35))],
+    ["room", at(story.room)],
+    // Past the curtain: the desk is gone and About fills the window.
+    ...(about ? [["about", Math.max(top(about), at(story.length))]] : []),
+  ];
+}
+
+/** The compositor's layers now, or null where the browser does not say. */
+async function layersOf(cdp) {
+  const tree = new Promise((resolve) => {
+    const done = (event) => {
+      if (!event.layers) return;
+      cdp.off("LayerTree.layerTreeDidChange", done);
+      resolve(event.layers);
+    };
+    cdp.on("LayerTree.layerTreeDidChange", done);
+    setTimeout(() => resolve(null), 6000);
+  });
+  await cdp.send("LayerTree.enable");
+  const layers = await tree;
+  await cdp.send("LayerTree.disable");
+  return layers;
+}
+
+/**
+ * The part of the window a layer covers, in CSS pixels: its box through its
+ * screen-space transform (column-major, as the browser reports it), clipped
+ * to the window. A layer behind the viewer covers nothing.
+ */
+function areaInView(layer) {
+  const t = layer.transform ?? [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+  let left = Infinity;
+  let top = Infinity;
+  let right = -Infinity;
+  let bottom = -Infinity;
+  for (const [x, y] of [
+    [0, 0],
+    [layer.width, 0],
+    [0, layer.height],
+    [layer.width, layer.height],
+  ]) {
+    const w = t[3] * x + t[7] * y + t[15];
+    if (w <= 0) return 0;
+    const px = (t[0] * x + t[4] * y + t[12]) / w;
+    const py = (t[1] * x + t[5] * y + t[13]) / w;
+    left = Math.min(left, px);
+    right = Math.max(right, px);
+    top = Math.min(top, py);
+    bottom = Math.max(bottom, py);
+  }
+  const width = Math.min(viewport.width, right) - Math.max(0, left);
+  const height = Math.min(viewport.height, bottom) - Math.max(0, top);
+  return width > 0 && height > 0 ? width * height : 0;
+}
+
+/**
+ * One still visit that stops at each of the story's stops and records what
+ * is on screen there: the compositor's layers that draw content in the
+ * window, the area they cover in views (a layer the size of the window is
+ * 1), and each canvas's draw calls and triangles. The compositor blends
+ * every one of them on each frame something moves, so this area is what a
+ * slow GPU pays outside the page's own WebGL. It ignores what an opaque
+ * layer in front hides, so read it as a change between two builds, not as
+ * an amount of work.
+ */
+async function stopsOf(context) {
+  const page = await context.newPage();
+  await page.addInitScript((tier) => {
+    try {
+      localStorage.setItem("portfolio:qa", "1");
+      if (tier) localStorage.setItem("portfolio:quality", tier);
+    } catch {
+      // Storage can be blocked; the stops then lack the canvases' counters.
+    }
+  }, values.quality ?? null);
+  const cdp = await context.newCDPSession(page);
+  const out = {};
+  try {
+    await page.goto(values.url);
+    await page.waitForSelector('[data-ready="true"]', { timeout: 60000 });
+    await page.waitForSelector("[data-story]", { timeout: 20000 });
+    const view = viewport.width * viewport.height;
+    for (const [name, top] of await page.evaluate(
+      `(${stopsInPage.toString()})()`,
+    )) {
+      await page.evaluate((top) => scrollTo({ top, behavior: "instant" }), top);
+      await page.mouse.move(viewport.width / 2, viewport.height / 2);
+      // The camera's travel, a scene's mount on the pause, the balls' drop.
+      await page.waitForTimeout(3500);
+      const layers = await layersOf(cdp);
+      const drawn = (layers ?? [])
+        .filter((layer) => layer.drawsContent && !layer.invisible)
+        .map(areaInView)
+        .filter((area) => area > 0);
+      const canvases = await page.evaluate(() =>
+        Object.fromEntries(
+          [...document.querySelectorAll("canvas")]
+            .filter((canvas) => canvas.isConnected)
+            .map((canvas) => {
+              const stage = canvas.dataset.stageCanvas;
+              return [
+                stage === "desk-stack" ? "balls" : (stage ?? "desk"),
+                {
+                  calls: Number(
+                    canvas.dataset.stageDrawCalls ??
+                      canvas.dataset.drawCalls ??
+                      0,
+                  ),
+                  triangles: Number(
+                    canvas.dataset.stageTriangles ??
+                      canvas.dataset.triangles ??
+                      0,
+                  ),
+                  pixels: canvas.width * canvas.height,
+                },
+              ];
+            }),
+        ),
+      );
+      out[name] = {
+        layers: layers ? drawn.length : null,
+        area: layers
+          ? round(drawn.reduce((sum, area) => sum + area, 0) / view)
+          : null,
+        canvases,
+      };
+    }
+  } finally {
+    await page.close();
+  }
+  return out;
+}
+
 /** One run's numbers: only what happens after the first paint counts. */
 function summarize(run) {
   const after = run.fcp ?? 0;
@@ -401,6 +642,11 @@ function summarize(run) {
     if (ms.length) gpuAll[canvas] = [quantile(ms, 0.5), quantile(ms, 0.95)];
   }
   const programmatic = run.scrolls.filter(([at]) => at >= after);
+  const cadence = Object.fromEntries(
+    ["desk", "balls", "about"]
+      .map((label) => [label, cadenceOf(scrolling, label, run.refresh)])
+      .filter(([, value]) => value),
+  );
 
   return {
     refresh: run.refresh,
@@ -439,6 +685,14 @@ function summarize(run) {
     gpu: gpuAll,
     deskGpuP95: gpuAll.desk?.[1] ?? 0,
     aboutGpuP95: gpuAll.about?.[1] ?? 0,
+    ballsGpuP95: gpuAll.balls?.[1] ?? 0,
+    // The device pixels per CSS pixel the desk ended the visit at.
+    deskDpr: run.deskDpr ?? undefined,
+    cadence,
+    deskUneven: cadence.desk?.uneven,
+    ballsUneven: cadence.balls?.uneven,
+    aboutUneven: cadence.about?.uneven,
+    deskFps: cadence.desk?.fps,
     // About's frames while the journey's curtain still covers it.
     aboutFramesInRoom: regions.room?.drew.about ?? 0,
     cameraStepP50: round(quantile(steps, 0.5) * 100) / 100,
@@ -502,11 +756,12 @@ function summarize(run) {
 function median(runs) {
   const byLoaf = [...runs].sort((a, b) => a.maxLoaf - b.maxLoaf);
   const middle = byLoaf[Math.floor(byLoaf.length / 2)];
-  const out = { ...middle };
-  for (const [key, value] of Object.entries(middle))
+  // What only one run records (the stops) comes from that run.
+  const out = { ...Object.assign({}, ...runs), ...middle };
+  for (const [key, value] of Object.entries(out))
     if (typeof value === "number")
       out[key] = quantile(
-        runs.map((run) => run[key] ?? 0),
+        runs.map((run) => run[key]).filter((n) => typeof n === "number"),
         0.5,
       );
   return out;
@@ -525,6 +780,17 @@ async function scenarioRun(scenario, input, run) {
     if (scenario === "returning" || scenario === "cpu4")
       await visit(context, scenario, input, false, run);
     const result = summarize(await visit(context, scenario, input, true, run));
+    // The stops are the same on every run: once per scenario is enough.
+    if (!values["no-stops"] && !device && scenario !== "reduced" && run === 0) {
+      result.stops = await stopsOf(context);
+      for (const [stop, at] of Object.entries(result.stops)) {
+        const key = stop[0].toUpperCase() + stop.slice(1);
+        if (at.layers !== null) {
+          result[`layers${key}`] = at.layers;
+          result[`layerArea${key}`] = at.area;
+        }
+      }
+    }
     if (
       scenario !== "reduced" &&
       !device &&
@@ -571,7 +837,13 @@ const columns = [
   ["slowShare", "Slow scroll frames (%)"],
   ["scrollOver50", "Scroll frames > 50 ms"],
   ["deskGpuP95", "Desk GPU p95 (ms)"],
+  ["ballsGpuP95", "Balls GPU p95 (ms)"],
   ["aboutGpuP95", "About GPU p95 (ms)"],
+  ["deskFps", "Desk frames per second while it draws"],
+  ["deskUneven", "Uneven desk frames (%)"],
+  ["ballsUneven", "Uneven balls frames (%)"],
+  ["aboutUneven", "Uneven About frames (%)"],
+  ["deskDpr", "Desk resolution at the end (device px per CSS px)"],
   ["aboutFramesInRoom", "About frames under the curtain"],
   ["cameraStepMax", "Camera's largest step in a frame (m)"],
   ["tinyScrolls", "Scrolls under 1 px"],
@@ -622,8 +894,26 @@ const regionTables = names
     ].join("\n");
   })
   .join("\n");
+// What is on screen at each stop of the story (the first scenario's).
+const stopped = names.find((name) => results[name].median.stops);
+const stopTable = stopped
+  ? [
+      `\n### At each stop (${stopped})\n`,
+      "| Stop | Layers that draw | Their area (views) | Canvases: draw calls / triangles |",
+      "|---|---|---|---|",
+      ...Object.entries(results[stopped].median.stops).map(
+        ([stop, at]) =>
+          `| ${stop} | ${at.layers ?? "–"} | ${at.area ?? "–"} | ${
+            Object.entries(at.canvases)
+              .map(([canvas, c]) => `${canvas} ${c.calls} / ${c.triangles}`)
+              .join(", ") || "–"
+          } |`,
+      ),
+    ].join("\n")
+  : "";
 const first = Object.values(results)[0]?.median;
 const profile = [
+  values.profile && `profile ${values.profile}`,
   values.quality && `${values.quality} tier`,
   cpuRate && `CPU ${cpuRate}× slower`,
   gpuLoad && `GPU load ${gpuLoad}`,
@@ -636,16 +926,21 @@ await mkdir(values.out, { recursive: true });
 await writeFile(
   path.join(values.out, `${values.label}.json`),
   JSON.stringify(
-    { url: values.url, date: new Date().toISOString(), results },
+    {
+      url: values.url,
+      date: new Date().toISOString(),
+      profile: values.profile ?? null,
+      results,
+    },
     null,
     2,
   ) + "\n",
 );
 await writeFile(
   path.join(values.out, `${values.label}.md`),
-  `${header}${table}\n${regionTables}\n`,
+  `${header}${table}\n${regionTables}\n${stopTable}\n`,
 );
-console.log(`\n${table}\n${regionTables}`);
+console.log(`\n${table}\n${regionTables}\n${stopTable}`);
 
 if (values.check) {
   const budgets = JSON.parse(await readFile("tests/perf/budgets.json", "utf8"));
@@ -654,7 +949,13 @@ if (values.check) {
   // ("regions.opening.p99").
   const read = (object, key) =>
     key.split(".").reduce((value, part) => value?.[part], object);
-  for (const [scenario, limits] of Object.entries(budgets.scenarios)) {
+  // A profile has ceilings of its own; without one, the lab's.
+  const ceilings = values.profile
+    ? (budgets.profiles?.[values.profile] ?? {})
+    : budgets.scenarios;
+  if (!Object.keys(ceilings).length)
+    console.warn(`\nNo ceilings for profile ${values.profile} yet.`);
+  for (const [scenario, limits] of Object.entries(ceilings)) {
     const measured = results[scenario]?.median;
     if (!measured) continue;
     for (const [key, limit] of Object.entries(limits))
