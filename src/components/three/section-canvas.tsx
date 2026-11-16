@@ -16,6 +16,7 @@ import {
   type EventManager,
 } from "@react-three/fiber";
 import { quality } from "@/lib/quality";
+import { offerScene } from "./qa-scenes";
 
 /**
  * Section scenes listen to the page themselves and never use R3F's pointer
@@ -132,10 +133,15 @@ function StageDriver({
   fps?: number;
 }) {
   const gl = useThree((state) => state.gl);
+  const scene = useThree((state) => state.scene);
   const invalidate = useThree((state) => state.invalidate);
   const advance = useThree((state) => state.advance);
   const setFrameloop = useThree((state) => state.setFrameloop);
   const getState = useThree((state) => state.get);
+  useEffect(
+    () => offerScene(id, scene, gl, invalidate),
+    [id, scene, gl, invalidate],
+  );
 
   useEffect(() => {
     const canvas = gl.domElement;
