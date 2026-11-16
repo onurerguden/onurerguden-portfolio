@@ -94,7 +94,6 @@
       "icon": { "simpleIcons": "tensorflow" },
       "ball": "white",
       "priority": 1,
-      "aboutLogo": true,
       "evidence": [{ "kind": "project", "slug": "kuyumcum" }]
     },
     {
@@ -145,7 +144,6 @@
       "icon": { "simpleIcons": "huggingface" },
       "ball": "white",
       "priority": 1,
-      "aboutLogo": true,
       "evidence": [{ "kind": "project", "slug": "course-intelligence" }]
     },
     {
@@ -155,7 +153,6 @@
       "icon": { "simpleIcons": "langchain" },
       "ball": "yellow",
       "priority": 1,
-      "aboutLogo": true,
       "evidence": [
         { "kind": "experience", "id": "fin-ai-engineer" },
         { "kind": "project", "slug": "carbonpilot" }

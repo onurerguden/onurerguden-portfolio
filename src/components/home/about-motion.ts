@@ -17,14 +17,11 @@ export const restPose: Record<string, [number, number, number]> = {
   terminal: [0.06, 0.34, -0.04],
   braces: [0.08, 0.3, 0.04],
   chip: [0.16, -0.3, 0.06],
-  network: [0.1, 0.32, 0],
   keycaps: [0.28, -0.26, 0.04],
   "logo-0": [0.08, -0.32, 0],
-  "logo-1": [0.08, 0.3, 0],
-  "logo-2": [0.08, -0.28, 0],
 };
 /** Objects without a readable face; they may spin all the way round. */
-export const freeSpin = new Set(["basketball", "tennis", "network"]);
+export const freeSpin = new Set(["basketball", "tennis"]);
 /** How far a faced object may turn from its rest pose, radians. */
 export const faceLimit = { yaw: 0.52, pitch: 0.26 };
 // Return spring for faced objects: stiffness and 80% of critical damping.
