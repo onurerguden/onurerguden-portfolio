@@ -980,3 +980,45 @@ test("keyboard focus and the step buttons bring monitor content into view", asyn
     )
     .toBeCloseTo(s.chapters.experience, 1);
 });
+
+test("the desk keeps the display's pace, or the one asked for", async ({
+  page,
+  browserName,
+  isMobile,
+}) => {
+  test.skip(browserName === "webkit", "Headless WebKit lacks reliable WebGL2.");
+  test.skip(isMobile, touchStatic);
+  test.setTimeout(ci(90000));
+  // Headless Chromium draws at 60 Hz: every frame is drawn.
+  await page.goto("/en");
+  const canvas = journeyCanvas(page);
+  await expect(canvas).toHaveAttribute("data-pace", "1", {
+    timeout: ci(20000),
+  });
+  // A pace asked for (src/lib/frame-pacer.ts) draws every second refresh,
+  // and the story still reaches where the page scrolled.
+  await page.goto("/en?pace=2");
+  await expect(canvas).toHaveAttribute("data-pace", "2", {
+    timeout: ci(20000),
+  });
+  const { macbook } = await story(page);
+  await go(page, within(macbook, 0.5));
+  const drawn = Number(await canvas.getAttribute("data-frames"));
+  const refreshes = await page.evaluate(
+    () =>
+      new Promise<number>((resolve) => {
+        let count = 0;
+        const start = performance.now();
+        const tick = () => {
+          count++;
+          scrollBy(0, 4);
+          if (performance.now() - start < 1000) requestAnimationFrame(tick);
+          else resolve(count);
+        };
+        requestAnimationFrame(tick);
+      }),
+  );
+  const frames = Number(await canvas.getAttribute("data-frames")) - drawn;
+  // At most one frame for every two refreshes, give or take the first.
+  expect(frames).toBeLessThanOrEqual(Math.ceil(refreshes / 2) + 1);
+});
