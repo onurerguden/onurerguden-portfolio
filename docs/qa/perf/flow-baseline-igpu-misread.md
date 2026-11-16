@@ -1,49 +1,51 @@
 # Performance: flow-baseline-igpu-misread
 
-2026-11-15 · http://localhost:3400/en · ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version) · 1536×730 @1.25x · profile igpu-misread · CPU 2× slower · GPU load 320 · medians of 1 runs
+2026-11-16 · http://localhost:3400/en · ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version) · 1536×730 @1.25x · profile igpu-misread · CPU 2× slower · GPU load 320 · medians of 1 runs
 
 | Metric | returning/trackpad |
 |---|---|
 | Display (Hz) | 60 |
-| Longest frame (ms) | 89 |
+| Longest frame (ms) | 54 |
 | Frames > 100 ms | 0 |
 | Frames > 50 ms | 1 |
 | …while scrolling, desk ready | 0 |
 | Scroll p95 (ms) | 17 |
 | Scroll p99 (ms) | 17 |
-| Slow scroll frames (%) | 0.48 |
+| Slow scroll frames (%) | 0.67 |
 | Scroll frames > 50 ms | 0 |
-| Desk GPU p95 (ms) | 12.78 |
-| Balls GPU p95 (ms) | 11.9 |
-| About GPU p95 (ms) | 7.78 |
-| Desk frames per second while it draws | 58.82 |
-| Uneven desk frames (%) | 0.39 |
-| Uneven balls frames (%) | 0 |
-| Uneven About frames (%) | 12.39 |
-| About frames under the curtain | 46 |
+| Desk GPU p95 (ms) | 12.63 |
+| Balls GPU p95 (ms) | 12.47 |
+| About GPU p95 (ms) | 7.34 |
+| Desk frames per second while it draws | 59.88 |
+| Uneven desk frames (%) | 0.54 |
+| Uneven balls frames (%) | 1.14 |
+| Uneven About frames (%) | 11.16 |
+| Desk resolution at the end (device px per CSS px) | 0.85 |
+| Desk's pace (refreshes per frame) | 1 |
+| About frames under the curtain | 45 |
 | Camera's largest step in a frame (m) | 0.0548 |
 | Scrolls under 1 px | 0 |
-| Scroll events with dirty style (%) | 41.22 |
+| Scroll events with dirty style (%) | 39.95 |
 | Desk lowered its resolution | 0 |
 | Site took the low tier by itself | 1 |
-| WebGL blocking (ms) | 20 |
+| WebGL blocking (ms) | 27 |
 | …after desk ready (ms) | 0 |
 | Shader programs | 44 |
-| Desk ready (ms) | 1463 |
+| Desk ready (ms) | 1412 |
 | TTFB (ms) | 3 |
-| FCP (ms) | 288 |
-| LCP (ms) | 288 |
+| FCP (ms) | 276 |
+| LCP (ms) | 276 |
 
 ### returning/trackpad by region
 
 | Region | Frames | p50 | p95 | p99 | Slow (%) | Slow streak | GPU p50/p95 (ms) |
 |---|---|---|---|---|---|---|---|
-| opening | 170 | 17 | 17 | 17 | 0.59 | 1 | desk 9.63/12.61 |
-| monitor | 645 | 17 | 17 | 17 | 0 | 0 | desk 8.05/13.63, balls 3.23/11.9 |
-| macbook | 204 | 17 | 17 | 17 | 0.98 | 2 | desk 10.91/11.68, balls 3.18/6.43 |
-| room | 263 | 17 | 17 | 17 | 0.76 | 1 | desk 9.64/12.85, about 3.17/5.56 |
-| about | 129 | 17 | 17 | 17 | 0 | 0 | desk 8.89/14.51, about 6.18/7.86 |
-| flow | 686 | 17 | 17 | 17 | 0.73 | 1 | about 5.19/7.78 |
+| opening | 175 | 17 | 17 | 17 | 0.57 | 1 | desk 9.07/12.05 |
+| monitor | 654 | 17 | 17 | 17 | 0.31 | 1 | desk 8.9/15.96, balls 3.4/12.47 |
+| macbook | 199 | 17 | 17 | 33 | 1.51 | 2 | desk 10.86/11.73, balls 1.67/1.67 |
+| room | 263 | 17 | 17 | 17 | 0.38 | 1 | desk 9.28/12.47, about 2.77/6.01 |
+| about | 129 | 17 | 17 | 17 | 0 | 0 | desk 7.27/11.1, about 4.83/7.54 |
+| flow | 680 | 17 | 17 | 33 | 1.03 | 1 | about 5.26/7.24 |
 
 ### At each stop (returning/trackpad)
 
