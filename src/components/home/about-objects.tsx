@@ -118,7 +118,7 @@ export function basketball() {
     "#1f1109",
     0.016,
   );
-  return { geometry: new SphereGeometry(1, 64, 48), material };
+  return { geometry: new SphereGeometry(1, 40, 28), material };
 }
 
 export function tennisBall() {
@@ -134,7 +134,7 @@ export function tennisBall() {
     "return abs(n.y - 0.62 * (n.x * n.x - n.z * n.z));",
     "#fbfbf2",
   );
-  return { geometry: new SphereGeometry(1, 48, 36), material };
+  return { geometry: new SphereGeometry(1, 32, 20), material };
 }
 
 function tube(
@@ -148,9 +148,9 @@ function tube(
       closed,
       "centripetal",
     ),
-    closed ? 120 : 24,
+    closed ? 72 : 12,
     radius,
-    12,
+    8,
     closed,
   );
 }
@@ -180,7 +180,7 @@ export function racket() {
     ],
     0.034,
   );
-  const handle = new CylinderGeometry(0.058, 0.066, 0.72, 20);
+  const handle = new CylinderGeometry(0.058, 0.066, 0.72, 12);
   handle.translate(0, -1.26, 0);
   const strings = new InstancedMesh(
     new BoxGeometry(1, 1, 1),
@@ -236,7 +236,7 @@ export function labelTexture(
 }
 
 export function terminal() {
-  const body = new RoundedBoxGeometry(1.36, 0.94, 0.12, 4, 0.07);
+  const body = new RoundedBoxGeometry(1.36, 0.94, 0.12, 3, 0.07);
   const screen = labelTexture((c, s) => {
     c.fillStyle = palette.ink;
     c.fillRect(0, 0, s, s);
@@ -400,7 +400,7 @@ export function braces() {
 
 /** An AI chip: rounded die, chrome pins, a printed label. */
 export function chip() {
-  const die = new RoundedBoxGeometry(0.82, 0.82, 0.16, 4, 0.06);
+  const die = new RoundedBoxGeometry(0.82, 0.82, 0.16, 3, 0.06);
   const pins = new InstancedMesh(
     new BoxGeometry(0.07, 0.16, 0.04),
     new MeshPhysicalMaterial({
@@ -445,62 +445,9 @@ export function chip() {
   };
 }
 
-/** A three-layer network: node spheres and edges, two instanced meshes. */
-export function network() {
-  const layers = [3, 4, 2];
-  const nodes: Vector3[][] = layers.map((count, layer) =>
-    Array.from(
-      { length: count },
-      (_, i) =>
-        new Vector3((layer - 1) * 0.55, (i - (count - 1) / 2) * 0.32, 0),
-    ),
-  );
-  const flat = nodes.flat();
-  const spheres = new InstancedMesh(
-    new SphereGeometry(0.075, 24, 16),
-    clay(palette.volt),
-    flat.length,
-  );
-  const matrix = new Matrix4();
-  const identity = new Quaternion();
-  flat.forEach((node, i) => {
-    matrix.compose(node, identity, new Vector3(1, 1, 1));
-    spheres.setMatrixAt(i, matrix);
-  });
-  const edges: [Vector3, Vector3][] = [];
-  for (let layer = 0; layer < layers.length - 1; layer++)
-    for (const from of nodes[layer])
-      for (const to of nodes[layer + 1]) edges.push([from, to]);
-  const links = new InstancedMesh(
-    new CylinderGeometry(1, 1, 1, 6),
-    new MeshPhysicalMaterial({
-      color: palette.link,
-      roughness: 0.4,
-      transparent: true,
-      opacity: 0.7,
-    }),
-    edges.length,
-  );
-  const up = new Vector3(0, 1, 0);
-  edges.forEach(([from, to], i) => {
-    const direction = to.clone().sub(from);
-    const rotation = new Quaternion().setFromUnitVectors(
-      up,
-      direction.clone().normalize(),
-    );
-    matrix.compose(
-      from.clone().add(to).multiplyScalar(0.5),
-      rotation,
-      new Vector3(0.012, direction.length(), 0.012),
-    );
-    links.setMatrixAt(i, matrix);
-  });
-  return { spheres, links };
-}
-
 /** Two keycaps with printed legends. */
 export function keycaps() {
-  const geometry = new RoundedBoxGeometry(0.46, 0.46, 0.24, 4, 0.08);
+  const geometry = new RoundedBoxGeometry(0.46, 0.46, 0.24, 3, 0.08);
   const legends = ["ML", "⌘"].map((legend) =>
     labelTexture((c, s) => {
       c.fillStyle = palette.keycap;
@@ -527,7 +474,9 @@ const extrusion = {
   bevelEnabled: true,
   bevelThickness: 0.9,
   bevelSize: 0.55,
-  bevelSegments: 4,
+  // Three steps round the bevel at the size About shows a logo (four drew
+  // 4,060 triangles for the Python mark, three 3,248; flow series).
+  bevelSegments: 3,
   // The outlines arrive as points (logoShapes).
   curveSegments: 1,
 };

@@ -47,7 +47,6 @@ import {
   prepareLogo,
   placeShadow,
   showShadows,
-  network,
   polaroid,
   polaroidCaption,
   racket,
@@ -89,12 +88,15 @@ const wideSlots: Record<string, Slot> = {
   chip: { x: 0.74, y: 0.93, z: -1.3, scale: 0.46 },
   photo: { x: -0.76, y: 0.1, z: 0.5, scale: 0.86 },
   desk: { x: 0.75, y: 0.36, z: 0.5, scale: 0.78 },
-  network: { x: -0.72, y: -0.16, z: -2.6, scale: 0.6 },
   keycaps: { x: 0.62, y: -0.72, z: 0.1, scale: 0.62 },
+  // One logo since the flow series (November 16): the neural network, the
+  // TensorFlow and the Hugging Face marks made the gutters crowded.
   "logo-0": { x: -0.9, y: -0.86, z: -0.9, scale: 0.4 },
-  "logo-1": { x: -0.6, y: -0.74, z: 0.3, scale: 0.4 },
-  "logo-2": { x: 0.41, y: -0.93, z: -1.2, scale: 0.3 },
 };
+/** As many logos as there are places for. */
+const logoSlots = Object.keys(wideSlots).filter((id) =>
+  id.startsWith("logo-"),
+).length;
 /**
  * Narrow screens keep four small objects in the corners, inside the bands the
  * section's padding keeps free (see about.module.css): the two polaroids
@@ -173,7 +175,6 @@ const builders = {
   terminal,
   braces,
   chip,
-  network,
   keycaps,
   photo: () => polaroid(staticAsset("images/about/onur-photo.webp")),
   desk: () => deskPolaroid(staticAsset("images/about/desk-photo.webp")),
@@ -210,7 +211,7 @@ export async function prepareAbout(
   await slice();
   if (cancelled()) return false;
   caption(deskCaption);
-  for (const slug of logos.slice(0, 3))
+  for (const slug of logos.slice(0, logoSlots))
     if (icons[slug] && !(await prepareLogo(icons[slug].path, slice, cancelled)))
       return false;
   return true;
@@ -274,8 +275,6 @@ function standIns(logos: string[], deskCaption: string) {
   for (const instanced of [
     built.chip.pins,
     built.racket.strings,
-    built.network.spheres,
-    built.network.links,
     built.shadows,
   ])
     objects.push(
@@ -285,7 +284,7 @@ function standIns(logos: string[], deskCaption: string) {
         instanced.count,
       ),
     );
-  for (const slug of logos.slice(0, 3))
+  for (const slug of logos.slice(0, logoSlots))
     if (icons[slug])
       objects.push(
         new Mesh(logoGeometry(icons[slug].path), clay(icons[slug].hex)),
@@ -605,7 +604,7 @@ function Objects({
           />
         </group>
       </Float>
-      {logos.slice(0, narrow ? 0 : 3).map((slug, i) =>
+      {logos.slice(0, narrow ? 0 : logoSlots).map((slug, i) =>
         icons[slug] ? (
           <Float id={`logo-${i}`} groups={groups} key={slug}>
             <Logo path={icons[slug].path} color={icons[slug].hex} />
@@ -639,10 +638,6 @@ function Objects({
           </Float>
           <Float id="braces" groups={groups}>
             <mesh {...built.braces} />
-          </Float>
-          <Float id="network" groups={groups}>
-            <primitive object={built.network.spheres} />
-            <primitive object={built.network.links} />
           </Float>
           <Float id="keycaps" groups={groups}>
             {built.keycaps.legendMaterials.map((legend, i) => (
