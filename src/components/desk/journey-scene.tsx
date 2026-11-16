@@ -19,7 +19,8 @@ import DeskCallouts, {
   CalloutTracker,
   createCalloutProbe,
 } from "./desk-callouts";
-import { Canvas, useFrame, useThree, type RootStore } from "@react-three/fiber";
+import { Canvas, useThree, type RootStore } from "@react-three/fiber";
+import { usePacedFrame } from "@/components/three/paced";
 import { deskEvents } from "./desk-events";
 import { Matrix4, Quaternion, Vector3, PerspectiveCamera } from "three";
 import { Model } from "./model";
@@ -35,12 +36,18 @@ import {
 } from "@/lib/desk-story/camera";
 import {
   createResolutionGovernor,
+  firstStep,
   measureFrameInterval,
-  rememberLevel,
+  rememberStep,
   rememberedLevel,
+  rememberedStep,
   resolutionLevels,
+  resolutionSteps,
   type ResolutionGovernor,
+  type Step,
 } from "@/lib/desk-story/frame-budget";
+import { chosenPace, pacer } from "@/lib/frame-pacer";
+import { PaceGate, settlePace } from "@/components/three/paced";
 import { createGpuTimer, type GpuTimer } from "@/components/three/gpu-timer";
 import { demoteQuality, quality } from "@/lib/quality";
 import { offerScene } from "@/components/three/qa-scenes";
@@ -211,6 +218,14 @@ function Driver({
   useEffect(() => {
     invalidate();
   }, [anchors, invalidate]);
+  // A paced story moves on the coming refresh (src/lib/frame-pacer.ts):
+  // keep the loop turning so the desk draws it in that same frame. Started
+  // on the refresh itself, the loop would wait for the one after, a whole
+  // paced frame late.
+  useEffect(
+    () => pacer.onAhead(() => active && invalidate()),
+    [active, invalidate],
+  );
   useEffect(() => {
     const canvas = gl.domElement;
     canvas.setAttribute("tabindex", "-1");
@@ -295,7 +310,7 @@ function Driver({
       window.cancelAnimationFrame(dampingFrame);
     };
   }, [active, invalidate, surface]);
-  useFrame((_state, delta) => {
+  usePacedFrame((_state, delta) => {
     if (!active) return;
     const story = layout.current;
     const step = storyAt(story.timeline, distance.get());
@@ -448,45 +463,64 @@ function Driver({
   return <CosmicEnvironment pointer={pointer} />;
 }
 /**
- * Keeps the desk's resolution where its moving frames fit this display
- * (src/lib/desk-story/frame-budget.ts): lower when they don't, back up when
- * the GPU has room again. A change reallocates the drawing buffer and
- * changes the image's sharpness, so it waits until the desk has been still
- * for a moment instead of landing mid-move.
+ * Keeps the desk's resolution and pace where its moving frames fit this
+ * display (src/lib/desk-story/frame-budget.ts): lower when they don't, back
+ * up when the GPU has room again, and on a display faster than it can draw
+ * for, a frame on every second refresh (src/lib/frame-pacer.ts). A change
+ * reallocates the drawing buffer or changes the rhythm, so it waits until
+ * the desk has been still for a moment instead of landing mid-move.
  */
 function AdaptiveResolution({
   levels,
-  level,
+  low,
   onStep,
   timerRef,
 }: {
   levels: number[];
-  level: number;
+  low: boolean;
   onStep: (dpr: number) => void;
   timerRef: RefObject<GpuTimer | null | undefined>;
 }) {
   const governor = useRef<ResolutionGovernor | null>(null);
+  const shown = useRef<(step: Step) => void>(() => {});
   const still = useRef(0);
   const gl = useThree((state) => state.gl);
   useEffect(() => {
     let cancelled = false;
-    void measureFrameInterval().then((frameMs) => {
-      if (cancelled || levels.length < 2) return;
-      governor.current = createResolutionGovernor({
-        levels,
-        level,
-        frameMs,
-        now: performance.now(),
-      });
+    const show = (shown.current = (step: Step) => {
+      const canvas = gl.domElement;
+      // Read by the performance harness and the tests; changes a few times
+      // a visit at most.
+      canvas.setAttribute("data-pace", String(step.every));
+      if (step.level < levels[0])
+        canvas.setAttribute("data-dpr-reduced", String(step.level));
+      else canvas.removeAttribute("data-dpr-reduced");
     });
+    void Promise.all([measureFrameInterval(), settlePace()]).then(
+      ([frameMs]) => {
+        if (cancelled) return;
+        const steps = resolutionSteps(levels, frameMs, chosenPace());
+        const start = rememberedStep(steps) ?? firstStep(steps, low);
+        pacer.set(start.every, frameMs);
+        onStep(start.level);
+        show(start);
+        if (steps.length < 2) return;
+        governor.current = createResolutionGovernor({
+          steps,
+          step: start,
+          frameMs,
+          now: performance.now(),
+        });
+      },
+    );
     return () => {
       cancelled = true;
       window.clearTimeout(still.current);
     };
-    // One governor per mount: it follows the levels it proposes itself.
+    // One governor per mount: it follows the steps it proposes itself.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [levels]);
-  useFrame(() => {
+  usePacedFrame(() => {
     const judge = governor.current;
     if (!judge) return;
     const now = performance.now();
@@ -497,17 +531,16 @@ function AdaptiveResolution({
       const at = performance.now();
       for (const ms of timerRef.current?.poll() ?? []) judge.recordGpu(ms, at);
       const next = judge.proposal();
-      // Too slow even at the lowest level: what mounts next goes lighter.
+      // Too slow even at the last step: what mounts next goes lighter.
       if (next === null && judge.strained()) demoteQuality();
       if (next === null) return;
       // Through the Canvas's dpr prop: R3F re-applies that prop whenever the
       // Canvas renders, which would undo a setDpr made from inside.
-      onStep(next);
+      onStep(next.level);
+      pacer.set(next.every);
       judge.applied(next, at);
-      rememberLevel(next);
-      if (next < levels[0])
-        gl.domElement.setAttribute("data-dpr-reduced", String(next));
-      else gl.domElement.removeAttribute("data-dpr-reduced");
+      rememberStep(next);
+      shown.current(next);
     }, 250);
   });
   return null;
@@ -519,11 +552,11 @@ function RenderFrame({
   timerRef: RefObject<GpuTimer | null | undefined>;
 }) {
   useEffect(() => () => timerRef.current?.dispose(), [timerRef]);
-  useFrame(({ gl }) => {
+  usePacedFrame(({ gl }) => {
     gl.info.autoReset = false;
     gl.info.reset();
   }, -2);
-  useFrame(({ scene, camera, gl }) => {
+  usePacedFrame(({ scene, camera, gl }) => {
     if (gl.domElement.dataset.active === "false") return;
     // The desk's own GPU time per frame decides its resolution.
     if (timerRef.current === undefined)
@@ -676,10 +709,11 @@ function JourneyScene(props: JourneySceneProps) {
         {warm ? <ProgramHost /> : null}
         <AdaptiveResolution
           levels={levels}
-          level={dpr}
+          low={low}
           onStep={setDpr}
           timerRef={timer}
         />
+        <PaceGate />
         <Driver {...props} active={controls.active} running={running} />
         {!props.poster ? <CalloutTracker probe={probe} /> : null}
       </Canvas>

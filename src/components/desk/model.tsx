@@ -7,6 +7,7 @@ import { BackSide, DoubleSide, FrontSide, Mesh, type Material } from "three";
 import { deskModelSrc, deskDecoderPath } from "@/lib/desk-asset-urls";
 import InteractionScene, { actionFor } from "./interaction-scene";
 import { warmUp } from "@/components/three/warm-up";
+import { drawNow } from "@/components/three/paced";
 import { reportLoad } from "@/lib/desk-story/load-progress";
 import { createOccluders } from "@/lib/ray-occluders";
 import type { DeskInteractions } from "./interactions";
@@ -119,7 +120,7 @@ export function Model({
       gl,
       scene: root,
       camera,
-      render: () => advance(performance.now()),
+      render: () => drawNow(advance),
       cancelled: () => cancelled,
       offscreen,
       onStep: reportLoad,

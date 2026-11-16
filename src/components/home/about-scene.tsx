@@ -7,7 +7,8 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
+import { drawNow, usePacedFrame } from "@/components/three/paced";
 import {
   AmbientLight,
   DirectionalLight,
@@ -418,7 +419,7 @@ function Objects({
       readiness.current = "compiled";
       warm();
       // Draw it now even when paused, so a paused visit still gets its still.
-      advance(performance.now());
+      drawNow(advance);
     };
     // Compiled, drawn once hidden and built by the GPU without blocking the
     // page (see warm-up.ts).
@@ -426,7 +427,7 @@ function Objects({
       gl,
       scene,
       camera,
-      render: () => advance(performance.now()),
+      render: () => drawNow(advance),
       cancelled: () => cancelled,
     }).then(done, done);
     return () => {
@@ -434,7 +435,7 @@ function Objects({
     };
   }, [gl, scene, camera, advance, warm]);
 
-  useFrame((state, delta) => {
+  usePacedFrame((state, delta) => {
     if (simulation.current?.key !== slots)
       simulation.current = {
         key: slots,
@@ -538,7 +539,7 @@ function Objects({
   });
 
   // Ready once the first compiled frame has been drawn, not before.
-  useFrame(() => {
+  usePacedFrame(() => {
     if (readiness.current !== "compiled") return;
     readiness.current = "ready";
     onReady();

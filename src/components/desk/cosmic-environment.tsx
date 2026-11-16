@@ -1,6 +1,7 @@
 "use client";
 
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
+import { usePacedFrame } from "@/components/three/paced";
 import { useEffect, useMemo, useRef, type RefObject } from "react";
 import {
   BufferGeometry,
@@ -108,7 +109,7 @@ export default function CosmicEnvironment({
 
   useEffect(() => () => stars.dispose(), [stars]);
 
-  useFrame(({ gl }) => {
+  usePacedFrame(({ gl }) => {
     const material = gridMaterial.current;
     const points = starMaterial.current;
     if (!material || !points) return;

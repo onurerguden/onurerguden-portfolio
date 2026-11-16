@@ -40,6 +40,16 @@ const browserFrames: Frames = {
   now: () => performance.now(),
 };
 
+/**
+ * Frame pacing (src/lib/frame-pacer.ts), set by the scene's code once it
+ * loads, so the first load carries none of it. `skip` says whether the
+ * frame stamped `stamp` is one the scenes sit out; `paced` whether they sit
+ * any out at all.
+ */
+type Pace = { skip(stamp: number): boolean; readonly paced: boolean };
+let pace: Pace | null = null;
+export const paceStory = (next: Pace | null) => void (pace = next);
+
 export function createStoryClock({
   apply,
   start = 0,
@@ -83,6 +93,8 @@ export function createStoryClock({
     // Asked for first, so the next frame runs this before the scene's own
     // loop, which then draws the distance set here in the same frame.
     handle = frames.request(tick);
+    // On a refresh the scenes sit out, the screens' HTML waits with them.
+    if (pace?.skip(now)) return;
     step(now);
   };
   return {
@@ -104,10 +116,11 @@ export function createStoryClock({
       }
       if (handle) return;
       // The first step happens now, inside the scroll event, so the frame
-      // that follows already shows movement.
+      // that follows already shows movement; a paced story waits for its
+      // beat instead.
       last = frames.now() - 1000 / 60;
       handle = frames.request(tick);
-      step(frames.now());
+      if (!pace?.paced) step(frames.now());
     },
     stop() {
       if (handle) frames.cancel(handle);

@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { quality } from "@/lib/quality";
 import { qa } from "@/lib/qa";
-import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
+import { useThree, type ThreeEvent } from "@react-three/fiber";
+import { usePacedFrame } from "@/components/three/paced";
 import {
   Color,
   CanvasTexture,
@@ -560,7 +561,7 @@ export default function InteractionScene({
     controls.reduced,
     controls.active,
   ]);
-  useFrame(() => {
+  usePacedFrame(() => {
     if (!controls.active) return;
     const movingCasters =
       drawerStart.current !== null ||

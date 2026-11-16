@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type RefObject } from "react";
-import { useFrame } from "@react-three/fiber";
+import { usePacedFrame } from "@/components/three/paced";
 import { Vector3 } from "three";
 import { qa } from "@/lib/qa";
 import type { Signal } from "@/lib/desk-story/signal";
@@ -82,7 +82,7 @@ const scratch = new Vector3();
  * on demand, so this runs only when the view changes (the pointer's sway).
  */
 export function CalloutTracker({ probe }: { probe: CalloutProbe }) {
-  useFrame(({ camera, size }) => {
+  usePacedFrame(({ camera, size }) => {
     if (!probe.wanted) return;
     const toScreen = (point: Vector3) => {
       scratch.copy(point).project(camera);

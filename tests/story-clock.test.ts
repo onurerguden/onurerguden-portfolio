@@ -3,8 +3,10 @@ import {
   createScrollInput,
   createStoryClock,
   halfLives,
+  paceStory,
   rawStory,
 } from "../src/lib/desk-story/clock";
+import { createPacer } from "../src/lib/frame-pacer";
 
 /** A clock on fake frames `interval` ms apart; returns what it showed. */
 function clockAt(interval: number) {
@@ -127,5 +129,41 @@ describe("scroll input", () => {
     expect(rawStory(null, "?story=raw")).toBe(true);
     expect(rawStory("raw", "")).toBe(true);
     expect(rawStory(null, "?story=smooth")).toBe(false);
+  });
+});
+
+describe("a paced story", () => {
+  it("moves only on the refreshes the scenes draw", () => {
+    const pacer = createPacer();
+    pacer.set(2, 8.33);
+    let ahead = 0;
+    pacer.onAhead(() => ahead++);
+    paceStory(pacer);
+    try {
+      const { clock, shown, run } = clockAt(8.33);
+      clock.to(1, 80);
+      // Nothing inside the scroll event: the first beat shows it.
+      expect(shown).toHaveLength(0);
+      run(8.33 * 8);
+      // Eight refreshes, four of them drawn.
+      expect(shown).toHaveLength(4);
+      expect(ahead).toBe(4);
+      expect(shown[0][0]).toBeGreaterThan(0);
+    } finally {
+      paceStory(null);
+    }
+  });
+  it("moves on every refresh at a pace of one", () => {
+    const pacer = createPacer();
+    paceStory(pacer);
+    try {
+      const { clock, shown, run } = clockAt(16.7);
+      clock.to(1, 80);
+      expect(shown).toHaveLength(1);
+      run(16.7 * 4);
+      expect(shown).toHaveLength(5);
+    } finally {
+      paceStory(null);
+    }
   });
 });
