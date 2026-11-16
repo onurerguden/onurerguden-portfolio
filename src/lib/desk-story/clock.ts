@@ -41,22 +41,14 @@ const browserFrames: Frames = {
 };
 
 /**
- * Whether a frame is one the scenes draw (src/lib/frame-pacer.ts). The
- * scene's code sets it once it loads, so the first load carries none of the
- * pacing; until then every frame is drawn.
+ * Frame pacing (src/lib/frame-pacer.ts), set by the scene's code once it
+ * loads, so the first load carries none of it. `skip` says whether the
+ * frame stamped `stamp` is one the scenes sit out; `paced` whether they sit
+ * any out at all.
  */
-type Beat = {
-  /** Whether the frame stamped `stamp` is drawn. */
-  beat(stamp: number): boolean;
-  /** How many refreshes a drawn frame lasts. */
-  readonly every: number;
-  /** On a refresh sat out: the next one is drawn. */
-  ahead(): void;
-};
-let pace: Beat | null = null;
-export function paceStory(beat: Beat | null) {
-  pace = beat;
-}
+type Pace = { skip(stamp: number): boolean; readonly paced: boolean };
+let pace: Pace | null = null;
+export const paceStory = (next: Pace | null) => void (pace = next);
 
 export function createStoryClock({
   apply,
@@ -102,12 +94,7 @@ export function createStoryClock({
     // loop, which then draws the distance set here in the same frame.
     handle = frames.request(tick);
     // On a refresh the scenes sit out, the screens' HTML waits with them.
-    if (pace && pace.every > 1 && !pace.beat(now)) {
-      // The story moves on the next refresh; the desk's loop has to be
-      // turning by then to draw it in the same frame.
-      pace.ahead();
-      return;
-    }
+    if (pace?.skip(now)) return;
     step(now);
   };
   return {
@@ -133,7 +120,7 @@ export function createStoryClock({
       // beat instead.
       last = frames.now() - 1000 / 60;
       handle = frames.request(tick);
-      if (!pace || pace.every === 1) step(frames.now());
+      if (!pace?.paced) step(frames.now());
     },
     stop() {
       if (handle) frames.cancel(handle);

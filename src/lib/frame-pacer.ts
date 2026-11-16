@@ -28,6 +28,13 @@ export type Pacer = {
   beat(stamp: number): boolean;
   /** The next frame is drawn wherever it falls (a warm-up, a paused still). */
   force(): void;
+  /** Whether any refreshes are sat out. */
+  readonly paced: boolean;
+  /**
+   * Whether the frame stamped `stamp` is sat out; if so, says so `ahead`,
+   * since the next one will be drawn. For the story clock.
+   */
+  skip(stamp: number): boolean;
   /**
    * Says, on a refresh sat out, that the next one will be drawn: a scene
    * asked now starts its loop in time for it rather than a refresh late.
@@ -45,9 +52,17 @@ export function createPacer(): Pacer {
   let answer = true;
   let forced = false;
   const listeners = new Set<() => void>();
-  return {
+  const pacer: Pacer = {
     get every() {
       return every;
+    },
+    get paced() {
+      return every > 1;
+    },
+    skip(stamp) {
+      if (every === 1 || pacer.beat(stamp)) return false;
+      pacer.ahead();
+      return true;
     },
     get budget() {
       return every * refreshMs;
@@ -81,6 +96,7 @@ export function createPacer(): Pacer {
       };
     },
   };
+  return pacer;
 }
 
 /** The page's one pacer. */
